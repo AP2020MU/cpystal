@@ -625,11 +625,15 @@ def make_powder_Xray_intensity_vs_angle(filename: str, display_num: int = 10, ma
         Cu_K_alpha: float = 1.5418 # angstrom
         #Cu_K_alpha1 = 1.5405 # angstrom
         #Cu_K_alpha2 = 1.5443 # angstrom
+        Cu_K_beta: float = 1.392 # angstrom
         for i, (_, p, theta_p, intensity_p) in enumerate(peak):
             if i == display_num:
                 break
-            d_hkl_over_n: float = Cu_K_alpha/np.sin(np.radians(theta_p))/2
-            print(f"θ = {theta_p}, 2θ = {2*theta_p}, intensity = {intensity_p} d_hkl/n = {d_hkl_over_n}")
+            d_hkl_over_n_alpha: float = Cu_K_alpha/np.sin(np.radians(theta_p))/2
+            d_hkl_over_n_beta: float = Cu_K_beta/np.sin(np.radians(theta_p))/2
+            print(f"θ = {theta_p}, 2θ = {2*theta_p}, intensity = {intensity_p}")
+            print(f"    Kα: d_hkl/n = {d_hkl_over_n_alpha}")
+            print(f"    Kβ: d_hkl/n = {d_hkl_over_n_beta}")
 
         plt.plot(two_theta, intensity)
         plt.yscale('log')
