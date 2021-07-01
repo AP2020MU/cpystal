@@ -339,7 +339,7 @@ class Crystal: # 結晶の各物理量を計算
         if w is None or self.formula_weight is None:
             raise TypeError
         # 式量あたりの有効Bohr磁子数 [μB/f.u.]
-        mu: float = (m / muB) * (self.formula_weight / w / self.NA)
+        mu: float = (m / muB) / (w / self.formula_weight * self.NA)
         return mu
 
     def cal_Bohr_per_ion(self, m: float, w: Optional[float] = None, num_magnetic_ion: Optional[int] = None) -> float:
@@ -351,7 +351,7 @@ class Crystal: # 結晶の各物理量を計算
         if w is None or num_magnetic_ion is None or self.formula_weight is None:
             raise TypeError
         # 磁性イオンあたりの有効Bohr磁子数 [μB/ion]
-        mu: float = (m / muB) * (self.formula_weight / w / self.NA / num_magnetic_ion)
+        mu: float = (m / muB) / (w / self.formula_weight * self.NA) / num_magnetic_ion
         return mu
 
     def cal_ingredients(self) -> List[Tuple[str, float]]:
