@@ -566,8 +566,33 @@ def make_Bohr_vs_field(material: Crystal, Moment: List[float], Field: List[float
     ax = fig.add_subplot(111)
     ax.plot(X, Y)
     ax.set_xlabel(r"Magnetic Field [Oe]")
-    ax.set_ylabel(r"Magnetic Moment per ion $[\mu_B/ion]$")
+    if per_formula_unit:
+        ax.set_ylabel(r"Magnetic Moment $[\mu_B/f.u.]$")
+    else:
+        ax.set_ylabel(r"Magnetic Moment (per ion) $[\mu_B/ion]$")
     ax.set_title(f"{material.graphname} Magnetic Moment vs Magnetic Field at {temp_val} K")
+    plt.show()
+
+
+def make_Bohr_vs_temp(material: Crystal, Moment: List[float], Temp: List[float], field_val: float, per_formula_unit: bool = True):
+    Bohr_vs_temp: List[List[float]]
+    if per_formula_unit:
+        # 縦軸：有効ボーア磁子数/式量，横軸：磁場 のグラフを作成
+        Bohr_vs_temp = [[material.cal_Bohr_per_formula_unit(m=m),t] for m,t in zip(Moment,Temp)] # 温度固定
+    else:
+        # 縦軸：有効ボーア磁子数/磁性イオン，横軸：磁場 のグラフを作成
+        Bohr_vs_temp = [[material.cal_Bohr_per_ion(m=m),t] for m,t in zip(Moment,Temp)] # 温度固定
+    X: List[float] = [t for b,t in Bohr_vs_temp]
+    Y: List[float] = [b for b,t in Bohr_vs_temp]
+    fig = plt.figure(figsize=(7,6))
+    ax = fig.add_subplot(111)
+    ax.plot(X, Y)
+    ax.set_xlabel(r"Temperature [K]")
+    if per_formula_unit:
+        ax.set_ylabel(r"Magnetic Moment $[\mu_B/f.u.]$")
+    else:
+        ax.set_ylabel(r"Magnetic Moment (per ion) $[\mu_B/ion]$")
+    ax.set_title(f"{material.graphname} Magnetic Moment vs Temperature at {field_val} K")
     plt.show()
 
 
