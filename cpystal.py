@@ -608,9 +608,9 @@ def make_Bohr_vs_field(material: Crystal, Moment: List[float], Field: List[float
     ax.plot(X, Y)
     ax.set_xlabel(r"Magnetic Field (Oe)")
     if per_formula_unit:
-        ax.set_ylabel(r"Magnetic Moment $(\mu_B/f.u.)$")
+        ax.set_ylabel(r"Magnetic Moment $(\mu_B/\mathrm{f.u.})$")
     else:
-        ax.set_ylabel(r"Magnetic Moment $(\mu_B/ion)$")
+        ax.set_ylabel(r"Magnetic Moment $(\mu_B/\mathrm{ion})$")
     if material.date is not None:
         ax.set_title(f"{material.graphname}({material.date})\n Magnetic Moment vs Magnetic Field at {temp_val} K")
     else:
@@ -642,9 +642,9 @@ def make_Bohr_vs_temp(material: Crystal, Moment: List[float], Temp: List[float],
     ax.plot(X, Y)
     ax.set_xlabel(r"Temperature (K)")
     if per_formula_unit:
-        ax.set_ylabel(r"Magnetic Moment $(\mu_B/f.u.)$")
+        ax.set_ylabel(r"Magnetic Moment $(\mu_B/\mathrm{f.u.})$")
     else:
-        ax.set_ylabel(r"Magnetic Moment $(\mu_B/ion)$")
+        ax.set_ylabel(r"Magnetic Moment $(\mu_B/\mathrm{ion})$")
     if material.date is not None:
         ax.set_title(f"{material.graphname}({material.date})\n Magnetic Moment vs Temperature at {field_val} Oe")
     else:
@@ -766,7 +766,7 @@ def make_powder_Xray_intensity_vs_angle(filename: str, display_num: int = 10, ma
     ax = fig.add_subplot(111)
     ax.xaxis.set_ticks_position('both')
     ax.yaxis.set_ticks_position('both')
-    
+
     ax.plot(two_theta, intensity)
     ax.set_yscale('log')
     ax.set_xlabel(r"$2\theta\, ({}^{\circ})$")
