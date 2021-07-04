@@ -27,7 +27,7 @@ def smoothing(data: List[float], mode: Any = None) -> List[float]:
         return list(map(float, scipy.signal.savgol_filter(data, window_length=window_length, polyorder=deg, deriv=deriv)))
       
     else: # 単純移動平均
-        window: int = 5 # 移動平均の範囲
+        window: int = 9 # 移動平均の範囲
         w: Any = np.ones(window)/window
         return list(map(float, np.convolve(data, w, mode='same')))
 
@@ -418,24 +418,32 @@ def make_moment_vs_temp(material: Crystal, Moment: List[float], Temp: List[float
             Y = [m / material.w for m in Y] # [emu/g]
         else:
             Y = [m for m in Y] # [emu]
-    fig = plt.figure(figsize=(7,6))
+    plt.rcParams['font.size'] = 14
+    plt.rcParams['font.family'] = 'Arial'
+    plt.rcParams['xtick.direction'] = 'in'
+    plt.rcParams['ytick.direction'] = 'in'
+    plt.rcParams["legend.framealpha"] = 0
+    fig = plt.figure(figsize=(8,7))
     ax = fig.add_subplot(111)
+    ax.xaxis.set_ticks_position('both')
+    ax.yaxis.set_ticks_position('both')
+
     ax.plot(X, Y)
-    ax.set_xlabel(r"Temperature [K]")
+    ax.set_xlabel(r"Temperature (K)")
     if SI:
         if per == "mol":
-            ax.set_ylabel(r"Magnetization $[\mathrm{A\, m^{2}\, mol^{-1}}]$")
+            ax.set_ylabel(r"Magnetization $(\mathrm{A\, m^{2}\, mol^{-1}})$")
         elif per == "weight":
-            ax.set_ylabel(r"Magnetization $[\mathrm{A\, m^{2}\, kg^{-1}}]$")
+            ax.set_ylabel(r"Magnetization $(\mathrm{A\, m^{2}\, kg^{-1}})$")
         else:
-            ax.set_ylabel(r"Magnetization $[\mathrm{A\, m^{2}}]$")
+            ax.set_ylabel(r"Magnetization $(\mathrm{A\, m^{2}})$")
     else:
         if per == "mol":
-            ax.set_ylabel(r"Magnetization $[\mathrm{emu\, mol^{-1}}]$")
+            ax.set_ylabel(r"Magnetization $(\mathrm{emu\, mol^{-1}})$")
         elif per == "weight":
-            ax.set_ylabel(r"Magnetization $[\mathrm{emu\, g^{-1}}]$")
+            ax.set_ylabel(r"Magnetization $(\mathrm{emu\, g^{-1}})$")
         else:
-            ax.set_ylabel(r"Magnetization $[\mathrm{emu}]$")
+            ax.set_ylabel(r"Magnetization $(\mathrm{emu})$")
     ax.set_title(f"{material.graphname} Magnetic Moment vs Temperature at {field_val} Oe")
     plt.show()
 
@@ -471,24 +479,32 @@ def make_moment_vs_field(material: Crystal, Moment: List[float], Field: List[flo
         else:
             Y = [m for m in Y] # [emu]
     
-    fig = plt.figure(figsize=(7,6))
+    plt.rcParams['font.size'] = 14
+    plt.rcParams['font.family'] = 'Arial'
+    plt.rcParams['xtick.direction'] = 'in'
+    plt.rcParams['ytick.direction'] = 'in'
+    plt.rcParams["legend.framealpha"] = 0
+    fig = plt.figure(figsize=(8,7))
     ax = fig.add_subplot(111)
+    ax.xaxis.set_ticks_position('both')
+    ax.yaxis.set_ticks_position('both')
+
     ax.plot(X, Y)
-    ax.set_xlabel(r"Magnetic Field [Oe]")
+    ax.set_xlabel(r"Magnetic Field (Oe)")
     if SI:
         if per == "mol":
-            ax.set_ylabel(r"Magnetization $[\mathrm{A\, m^{2}\, mol^{-1}}]$")
+            ax.set_ylabel(r"Magnetization $(\mathrm{A\, m^{2}\, mol^{-1}})$")
         elif per == "weight":
-            ax.set_ylabel(r"Magnetization $[\mathrm{A\, m^{2}\, kg^{-1}}]$")
+            ax.set_ylabel(r"Magnetization $(\mathrm{A\, m^{2}\, kg^{-1}})$")
         else:
-            ax.set_ylabel(r"Magnetization $[\mathrm{A\, m^{2}}]$")
+            ax.set_ylabel(r"Magnetization $(\mathrm{A\, m^{2}})$")
     else:
         if per == "mol":
-            ax.set_ylabel(r"Magnetization $[\mathrm{emu\, mol^{-1}}]$")
+            ax.set_ylabel(r"Magnetization $(\mathrm{emu\, mol^{-1}})$")
         elif per == "weight":
-            ax.set_ylabel(r"Magnetization $[\mathrm{emu\, g^{-1}}]$")
+            ax.set_ylabel(r"Magnetization $(\mathrm{emu\, g^{-1}})$")
         else:
-            ax.set_ylabel(r"Magnetization $[\mathrm{emu}]$")
+            ax.set_ylabel(r"Magnetization $(\mathrm{emu})$")
     ax.set_title(f"{material.graphname} Magnetic Moment vs Magnetic Field at {temp_val} K")
     plt.show()
 
@@ -502,24 +518,32 @@ def make_magnetization_vs_temp(material: Crystal, Moment: List[float], Temp: Lis
     X: List[float] = [t for m,t in magnetization_vs_temp]
     Y: List[float] = [m for m,t in magnetization_vs_temp]
     
-    fig = plt.figure(figsize=(7,6))
+    plt.rcParams['font.size'] = 14
+    plt.rcParams['font.family'] = 'Arial'
+    plt.rcParams['xtick.direction'] = 'in'
+    plt.rcParams['ytick.direction'] = 'in'
+    plt.rcParams["legend.framealpha"] = 0
+    fig = plt.figure(figsize=(8,7))
     ax = fig.add_subplot(111)
+    ax.xaxis.set_ticks_position('both')
+    ax.yaxis.set_ticks_position('both')
+
     ax.plot(X, Y)
-    ax.set_xlabel(r"Temperature [K]")
+    ax.set_xlabel(r"Temperature (K)")
     if SI:
         if per == "mol":
-            ax.set_ylabel(r"Magnetization $[\mathrm{A\, m^{-1}\, mol^{-1}}]$")
+            ax.set_ylabel(r"Magnetization $(\mathrm{A\, m^{-1}\, mol^{-1}})$")
         elif per == "weight":
-            ax.set_ylabel(r"Magnetization $[\mathrm{A\, m^{-1}\, kg^{-1}}]$")
+            ax.set_ylabel(r"Magnetization $(\mathrm{A\, m^{-1}\, kg^{-1}})$")
         else:
-            ax.set_ylabel(r"Magnetization $[\mathrm{A\, m^{-1}}]$")
+            ax.set_ylabel(r"Magnetization $(\mathrm{A\, m^{-1}})$")
     else:
         if per == "mol":
-            ax.set_ylabel(r"Magnetization $[\mathrm{G\, mol^{-1}}]$")
+            ax.set_ylabel(r"Magnetization $(\mathrm{G\, mol^{-1}})$")
         elif per == "weight":
-            ax.set_ylabel(r"Magnetization $[\mathrm{G\, g^{-1}}]$")
+            ax.set_ylabel(r"Magnetization $(\mathrm{G\, g^{-1}})$")
         else:
-            ax.set_ylabel(r"Magnetization $[\mathrm{G}]$")
+            ax.set_ylabel(r"Magnetization $(\mathrm{G})$")
     ax.set_title(f"{material.graphname} Magnetization vs Temperature at {field_val} Oe")
     plt.show()
 
@@ -530,24 +554,32 @@ def make_magnetization_vs_field(material: Crystal, Moment: List[float], Field: L
     X: List[float] = [f for m,f in magnetization_vs_field]
     Y: List[float] = [m for m,f in magnetization_vs_field]
     
-    fig = plt.figure(figsize=(7,6))
+    plt.rcParams['font.size'] = 14
+    plt.rcParams['font.family'] = 'Arial'
+    plt.rcParams['xtick.direction'] = 'in'
+    plt.rcParams['ytick.direction'] = 'in'
+    plt.rcParams["legend.framealpha"] = 0
+    fig = plt.figure(figsize=(8,7))
     ax = fig.add_subplot(111)
+    ax.xaxis.set_ticks_position('both')
+    ax.yaxis.set_ticks_position('both')
+
     ax.plot(X, Y)
-    ax.set_xlabel(r"Magnetic Field [Oe]")
+    ax.set_xlabel(r"Magnetic Field (Oe)")
     if SI:
         if per == "mol":
-            ax.set_ylabel(r"Magnetization $[\mathrm{A\, m^{-1}\, mol^{-1}}]$")
+            ax.set_ylabel(r"Magnetization $(\mathrm{A\, m^{-1}\, mol^{-1}})$")
         elif per == "weight":
-            ax.set_ylabel(r"Magnetization $[\mathrm{A\, m^{-1}\, kg^{-1}}]$")
+            ax.set_ylabel(r"Magnetization $(\mathrm{A\, m^{-1}\, kg^{-1}})$")
         else:
-            ax.set_ylabel(r"Magnetization $[\mathrm{A\, m^{-1}}]$")
+            ax.set_ylabel(r"Magnetization $(\mathrm{A\, m^{-1}})$")
     else:
         if per == "mol":
-            ax.set_ylabel(r"Magnetization $[\mathrm{G\, mol^{-1}}]$")
+            ax.set_ylabel(r"Magnetization $(\mathrm{G\, mol^{-1}})$")
         elif per == "weight":
-            ax.set_ylabel(r"Magnetization $[\mathrm{G\, g^{-1}}]$")
+            ax.set_ylabel(r"Magnetization $(\mathrm{G\, g^{-1}})$")
         else:
-            ax.set_ylabel(r"Magnetization $[\mathrm{G}]$")
+            ax.set_ylabel(r"Magnetization $(\mathrm{G})$")
     ax.set_title(f"{material.graphname} Magnetization vs Magnetic Field at {temp_val} K")
     plt.show()
 
@@ -562,15 +594,27 @@ def make_Bohr_vs_field(material: Crystal, Moment: List[float], Field: List[float
         Bohr_vs_field = [[material.cal_Bohr_per_ion(m=m),f] for m,f in zip(Moment,Field)] # 温度固定
     X: List[float] = [f for b,f in Bohr_vs_field]
     Y: List[float] = [b for b,f in Bohr_vs_field]
-    fig = plt.figure(figsize=(7,6))
+    
+    plt.rcParams['font.size'] = 14
+    plt.rcParams['font.family'] = 'Arial'
+    plt.rcParams['xtick.direction'] = 'in'
+    plt.rcParams['ytick.direction'] = 'in'
+    plt.rcParams["legend.framealpha"] = 0
+    fig = plt.figure(figsize=(8,7))
     ax = fig.add_subplot(111)
+    ax.xaxis.set_ticks_position('both')
+    ax.yaxis.set_ticks_position('both')
+
     ax.plot(X, Y)
-    ax.set_xlabel(r"Magnetic Field [Oe]")
+    ax.set_xlabel(r"Magnetic Field (Oe)")
     if per_formula_unit:
-        ax.set_ylabel(r"Magnetic Moment $[\mu_B/f.u.]$")
+        ax.set_ylabel(r"Magnetic Moment $(\mu_B/f.u.)$")
     else:
-        ax.set_ylabel(r"Magnetic Moment (per ion) $[\mu_B/ion]$")
-    ax.set_title(f"{material.graphname} Magnetic Moment vs Magnetic Field at {temp_val} K")
+        ax.set_ylabel(r"Magnetic Moment $(\mu_B/ion)$")
+    if material.date is not None:
+        ax.set_title(f"{material.graphname}({material.date})\n Magnetic Moment vs Magnetic Field at {temp_val} K")
+    else:
+        ax.set_title(f"{material.graphname}\n Magnetic Moment vs Magnetic Field at {temp_val} K")
     plt.show()
 
 
@@ -584,15 +628,27 @@ def make_Bohr_vs_temp(material: Crystal, Moment: List[float], Temp: List[float],
         Bohr_vs_temp = [[material.cal_Bohr_per_ion(m=m),t] for m,t in zip(Moment,Temp)] # 温度固定
     X: List[float] = [t for b,t in Bohr_vs_temp]
     Y: List[float] = [b for b,t in Bohr_vs_temp]
-    fig = plt.figure(figsize=(7,6))
+    
+    plt.rcParams['font.size'] = 14
+    plt.rcParams['font.family'] = 'Arial'
+    plt.rcParams['xtick.direction'] = 'in'
+    plt.rcParams['ytick.direction'] = 'in'
+    plt.rcParams["legend.framealpha"] = 0
+    fig = plt.figure(figsize=(8,7))
     ax = fig.add_subplot(111)
+    ax.xaxis.set_ticks_position('both')
+    ax.yaxis.set_ticks_position('both')
+
     ax.plot(X, Y)
-    ax.set_xlabel(r"Temperature [K]")
+    ax.set_xlabel(r"Temperature (K)")
     if per_formula_unit:
-        ax.set_ylabel(r"Magnetic Moment $[\mu_B/f.u.]$")
+        ax.set_ylabel(r"Magnetic Moment $(\mu_B/f.u.)$")
     else:
-        ax.set_ylabel(r"Magnetic Moment (per ion) $[\mu_B/ion]$")
-    ax.set_title(f"{material.graphname} Magnetic Moment vs Temperature at {field_val} K")
+        ax.set_ylabel(r"Magnetic Moment $(\mu_B/ion)$")
+    if material.date is not None:
+        ax.set_title(f"{material.graphname}({material.date})\n Magnetic Moment vs Temperature at {field_val} Oe")
+    else:
+        ax.set_title(f"{material.graphname}\n Magnetic Moment vs Temperature at {field_val} Oe")
     plt.show()
 
 
@@ -628,24 +684,33 @@ def make_susceptibility_vs_temp(material: Crystal, Moment: List[float], Temp: Li
             Y = [m / material.density for m in Y] # [cm^3/g]
         else:
             Y = [m for m in Y] # (無次元)
-    fig = plt.figure(figsize=(7,6))
+    
+    plt.rcParams['font.size'] = 14
+    plt.rcParams['font.family'] = 'Arial'
+    plt.rcParams['xtick.direction'] = 'in'
+    plt.rcParams['ytick.direction'] = 'in'
+    plt.rcParams["legend.framealpha"] = 0
+    fig = plt.figure(figsize=(8,7))
     ax = fig.add_subplot(111)
+    ax.xaxis.set_ticks_position('both')
+    ax.yaxis.set_ticks_position('both')
+
     ax.plot(X, Y)
-    ax.set_xlabel(r"Temperature [K]")
+    ax.set_xlabel(r"Temperature (K)")
     if SI:
         if per == "mol":
-            ax.set_ylabel(r"Susceptibility $[\mathrm{m^3\, mol^{-1}}]$")
+            ax.set_ylabel(r"Susceptibility $(\mathrm{m^3\, mol^{-1}})$")
         elif per == "weight":
-            ax.set_ylabel(r"Susceptibility $[\mathrm{m^3\, kg^{-1}}]$")
+            ax.set_ylabel(r"Susceptibility $(\mathrm{m^3\, kg^{-1}})$")
         else:
-            ax.set_ylabel(r"Susceptibility [dimensionless]")
+            ax.set_ylabel(r"Susceptibility (dimensionless)")
     else:
         if per == "mol":
-            ax.set_ylabel(r"Susceptibility $[\mathrm{cm^3\, mol^{-1}}]$")
+            ax.set_ylabel(r"Susceptibility $(\mathrm{cm^3\, mol^{-1}})$")
         elif per == "weight":
-            ax.set_ylabel(r"Susceptibility $[\mathrm{cm^3\, g^{-1}}]$")
+            ax.set_ylabel(r"Susceptibility $(\mathrm{cm^3\, g^{-1}})$")
         else:
-            ax.set_ylabel(r"Susceptibility [dimensionless]")
+            ax.set_ylabel(r"Susceptibility (dimensionless)")
     ax.set_title(f"{material.graphname} Susceptibility vs Temperature")
     plt.show()
     
@@ -661,7 +726,6 @@ def make_powder_Xray_intensity_vs_angle(filename: str, display_num: int = 10, ma
         assert len(neg)==0 # 負のintensityをもつ壊れたデータがないことを確認
         
         neighbor_num: int = 20 # peak(極大値の中でも急激に増加するもの)判定で参照する近傍のデータ点数
-        magnification: int = 4 # 周囲neighbor_num個の強度の最小値に比べて何倍大きければpeakと見なすかの閾値
         
         half: int = neighbor_num//2 # 中間点
         que: Deque[float] = deque([])
@@ -693,17 +757,25 @@ def make_powder_Xray_intensity_vs_angle(filename: str, display_num: int = 10, ma
             print(f"    Kα: d_hkl/n = {d_hkl_over_n_alpha}")
             print(f"    Kβ: d_hkl/n = {d_hkl_over_n_beta}")
         
-        fig = plt.figure(figsize=(7,6))
-        ax = fig.add_subplot(111)
-        ax.plot(two_theta, intensity)
-        ax.set_yscale('log')
-        ax.set_xlabel(r"$2\theta\, [{}^{\circ}]$")
-        ax.set_ylabel("intensity [count]")
-        if material is not None:
-            ax.set_title(f"{material.graphname} powder X-ray diffraction")
-        else:
-            ax.set_title(f"powder X-ray diffraction")
-        plt.show()
+    plt.rcParams['font.size'] = 14
+    plt.rcParams['font.family'] = 'Arial'
+    plt.rcParams['xtick.direction'] = 'in'
+    plt.rcParams['ytick.direction'] = 'in'
+    plt.rcParams["legend.framealpha"] = 0
+    fig = plt.figure(figsize=(8,7))
+    ax = fig.add_subplot(111)
+    ax.xaxis.set_ticks_position('both')
+    ax.yaxis.set_ticks_position('both')
+    
+    ax.plot(two_theta, intensity)
+    ax.set_yscale('log')
+    ax.set_xlabel(r"$2\theta\, ({}^{\circ})$")
+    ax.set_ylabel(r"intensity (count)")
+    if material is not None:
+        ax.set_title(f"{material.graphname} powder X-ray diffraction")
+    else:
+        ax.set_title(f"powder X-ray diffraction")
+    plt.show()
 
 
 
