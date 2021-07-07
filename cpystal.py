@@ -201,6 +201,8 @@ class Crystal: # 結晶の各物理量を計算
             "numbered_name": "", "components": ""
         }
 
+        self.__graphs: Dict[str, Any] = dict()
+
         # 化学式を"形態素"ごとに分割したリスト
         divided_name: List[str] = re.split(r",+", re.sub(r"([A-Z][a-z]*|\d+|[()])", ",\\1,", self.numbered_name).strip(","))
         now: int = 1 # 倍率
@@ -368,7 +370,15 @@ class Crystal: # 結晶の各物理量を計算
         else:
             print("\n".join([f"{element} = {ratio*self.w:.4g} g ({ratio:.2%})" for element, ratio in res]))
         return res
-    
+
+    def set_graph(self, name: str, ax: Any, update: bool = False):
+        if not update and name in self.__graphs:
+            raise ValueError("Basically, graphs are unupdatable. If you want to update graphs, the argument: 'update' must be True.")
+        self.__graphs[name] = ax
+
+    def get_graph(self, name: str):
+        return self.__graphs[name]
+
     def save(self, overwrite: bool = False): # Crystalインスタンスのデータを保存
         filename: str = self.name
         if self.date is not None:
@@ -423,8 +433,8 @@ def make_moment_vs_temp(material: Crystal, Moment: List[float], Temp: List[float
     plt.rcParams['xtick.direction'] = 'in'
     plt.rcParams['ytick.direction'] = 'in'
     plt.rcParams["legend.framealpha"] = 0
-    fig = plt.figure(figsize=(8,7))
-    ax = fig.add_subplot(111)
+    fig: Any =  plt.figure(figsize=(8,7))
+    ax: Any =  fig.add_subplot(111)
     ax.xaxis.set_ticks_position('both')
     ax.yaxis.set_ticks_position('both')
 
@@ -485,8 +495,8 @@ def make_moment_vs_field(material: Crystal, Moment: List[float], Field: List[flo
     plt.rcParams['xtick.direction'] = 'in'
     plt.rcParams['ytick.direction'] = 'in'
     plt.rcParams["legend.framealpha"] = 0
-    fig = plt.figure(figsize=(8,7))
-    ax = fig.add_subplot(111)
+    fig: Any =  plt.figure(figsize=(8,7))
+    ax: Any =  fig.add_subplot(111)
     ax.xaxis.set_ticks_position('both')
     ax.yaxis.set_ticks_position('both')
 
@@ -525,8 +535,8 @@ def make_magnetization_vs_temp(material: Crystal, Moment: List[float], Temp: Lis
     plt.rcParams['xtick.direction'] = 'in'
     plt.rcParams['ytick.direction'] = 'in'
     plt.rcParams["legend.framealpha"] = 0
-    fig = plt.figure(figsize=(8,7))
-    ax = fig.add_subplot(111)
+    fig: Any =  plt.figure(figsize=(8,7))
+    ax: Any =  fig.add_subplot(111)
     ax.xaxis.set_ticks_position('both')
     ax.yaxis.set_ticks_position('both')
 
@@ -562,8 +572,8 @@ def make_magnetization_vs_field(material: Crystal, Moment: List[float], Field: L
     plt.rcParams['xtick.direction'] = 'in'
     plt.rcParams['ytick.direction'] = 'in'
     plt.rcParams["legend.framealpha"] = 0
-    fig = plt.figure(figsize=(8,7))
-    ax = fig.add_subplot(111)
+    fig: Any =  plt.figure(figsize=(8,7))
+    ax: Any =  fig.add_subplot(111)
     ax.xaxis.set_ticks_position('both')
     ax.yaxis.set_ticks_position('both')
 
@@ -604,8 +614,8 @@ def make_Bohr_vs_field(material: Crystal, Moment: List[float], Field: List[float
     plt.rcParams['xtick.direction'] = 'in'
     plt.rcParams['ytick.direction'] = 'in'
     plt.rcParams["legend.framealpha"] = 0
-    fig = plt.figure(figsize=(8,7))
-    ax = fig.add_subplot(111)
+    fig: Any =  plt.figure(figsize=(8,7))
+    ax: Any =  fig.add_subplot(111)
     ax.xaxis.set_ticks_position('both')
     ax.yaxis.set_ticks_position('both')
 
@@ -639,8 +649,8 @@ def make_Bohr_vs_temp(material: Crystal, Moment: List[float], Temp: List[float],
     plt.rcParams['xtick.direction'] = 'in'
     plt.rcParams['ytick.direction'] = 'in'
     plt.rcParams["legend.framealpha"] = 0
-    fig = plt.figure(figsize=(8,7))
-    ax = fig.add_subplot(111)
+    fig: Any =  plt.figure(figsize=(8,7))
+    ax: Any =  fig.add_subplot(111)
     ax.xaxis.set_ticks_position('both')
     ax.yaxis.set_ticks_position('both')
 
@@ -696,8 +706,8 @@ def make_susceptibility_vs_temp(material: Crystal, Moment: List[float], Temp: Li
     plt.rcParams['xtick.direction'] = 'in'
     plt.rcParams['ytick.direction'] = 'in'
     plt.rcParams["legend.framealpha"] = 0
-    fig = plt.figure(figsize=(8,7))
-    ax = fig.add_subplot(111)
+    fig: Any =  plt.figure(figsize=(8,7))
+    ax: Any =  fig.add_subplot(111)
     ax.xaxis.set_ticks_position('both')
     ax.yaxis.set_ticks_position('both')
 
@@ -769,8 +779,8 @@ def make_powder_Xray_intensity_vs_angle(filename: str, display_num: int = 10, ma
     plt.rcParams['xtick.direction'] = 'in'
     plt.rcParams['ytick.direction'] = 'in'
     plt.rcParams["legend.framealpha"] = 0
-    fig = plt.figure(figsize=(8,7))
-    ax = fig.add_subplot(111)
+    fig: Any =  plt.figure(figsize=(8,7))
+    ax: Any =  fig.add_subplot(111)
     ax.xaxis.set_ticks_position('both')
     ax.yaxis.set_ticks_position('both')
 
@@ -786,6 +796,39 @@ def make_powder_Xray_intensity_vs_angle(filename: str, display_num: int = 10, ma
     return fig, ax
 
 
+def ax_decompose_reconstruct(ax: Any, figsize: Tuple[float, float]) -> Tuple[Any, Any]:
+    # 現状は最低限のpropertyしかないので必要な項目が増えたら追加する
+    fig: Any = plt.figure(figsize=figsize)
+    ax_new: Any = fig.add_subplot(111)
+    ax_new.set_title(ax.title.get_text(), fontsize=ax.title.get_fontsize())
+    ax_new.set_xlabel(ax.xaxis.label.get_text())
+    ax_new.set_ylabel(ax.yaxis.label.get_text())
+    ax_new.set_xlim(ax.get_xlim())
+    ax_new.set_ylim(ax.get_ylim())
+
+    # plot
+    for line2d in ax.lines:
+        ax_new.plot(line2d._xorig, line2d._yorig, label=line2d._label)
+
+    # scatter
+    for pathcollection in ax.collections:
+        xy = list(pathcollection._offsets)
+        x: List[float] = [i for i,j in xy]
+        y: List[float] = [j for i,j in xy]
+        ax_new.scatter(x, y, label=pathcollection._label)
+
+    # text
+    for t in ax.texts:
+        ax_new.text(t._x, t._y, t._text)
+
+    # legend
+    dict_loc_real: Dict[int, str] =  {1:"upper right", 2:"upper left", 3:"lower left", 4:"lower right"}
+    if not ax._axes.legend_._loc_used_default:
+        ax_new.legend(bbox_to_anchor=ax._axes.legend_._bbox_to_anchor._bbox._points[0], 
+                        loc=dict_loc_real[ax._axes.legend_._loc_real], 
+                        borderaxespad=ax._axes.legend_.borderaxespad, 
+                        fontsize=ax._axes.legend_._fontsize)
+    return fig, ax_new
 
 
 def main():
