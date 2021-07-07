@@ -284,7 +284,7 @@ class Crystal: # 結晶の各物理量を計算
     def cal_density(self) -> float:
         # formula_weight: モル質量(式量) [g/mol]
         # num: 単位胞の分子数 (無次元)
-        # V: 単位胞の体積 [Å^3]
+        # V: 単位胞の体積 [cm^3]
         # density: 密度 [g/cm^3]
         if self.formula_weight is None or self.num is None or self.V is None:
             raise TypeError
@@ -446,6 +446,7 @@ def make_moment_vs_temp(material: Crystal, Moment: List[float], Temp: List[float
             ax.set_ylabel(r"Magnetization $(\mathrm{emu})$")
     ax.set_title(f"{material.graphname} Magnetic Moment vs Temperature at {field_val} Oe")
     plt.show()
+    return fig, ax
 
 
 def make_moment_vs_field(material: Crystal, Moment: List[float], Field: List[float], temp_val: float, SI: bool = False, per: Optional[str] = None): # 温度固定
@@ -507,6 +508,7 @@ def make_moment_vs_field(material: Crystal, Moment: List[float], Field: List[flo
             ax.set_ylabel(r"Magnetization $(\mathrm{emu})$")
     ax.set_title(f"{material.graphname} Magnetic Moment vs Magnetic Field at {temp_val} K")
     plt.show()
+    return fig, ax
 
 
 def make_magnetization_vs_temp(material: Crystal, Moment: List[float], Temp: List[float], field_val: float, SI: bool = False, per: Optional[str] = None):
@@ -546,6 +548,7 @@ def make_magnetization_vs_temp(material: Crystal, Moment: List[float], Temp: Lis
             ax.set_ylabel(r"Magnetization $(\mathrm{G})$")
     ax.set_title(f"{material.graphname} Magnetization vs Temperature at {field_val} Oe")
     plt.show()
+    return fig, ax
 
 
 def make_magnetization_vs_field(material: Crystal, Moment: List[float], Field: List[float], temp_val: float, SI: bool = False, per: Optional[str] = None): # データはcgs固定．グラフ描画をSIにするかどうか，1molあたりにするかどうか
@@ -582,6 +585,7 @@ def make_magnetization_vs_field(material: Crystal, Moment: List[float], Field: L
             ax.set_ylabel(r"Magnetization $(\mathrm{G})$")
     ax.set_title(f"{material.graphname} Magnetization vs Magnetic Field at {temp_val} K")
     plt.show()
+    return fig, ax
 
 
 def make_Bohr_vs_field(material: Crystal, Moment: List[float], Field: List[float], temp_val: float, per_formula_unit: bool = True):
@@ -616,6 +620,7 @@ def make_Bohr_vs_field(material: Crystal, Moment: List[float], Field: List[float
     else:
         ax.set_title(f"{material.graphname}\n Magnetic Moment vs Magnetic Field at {temp_val} K")
     plt.show()
+    return fig, ax
 
 
 def make_Bohr_vs_temp(material: Crystal, Moment: List[float], Temp: List[float], field_val: float, per_formula_unit: bool = True):
@@ -650,6 +655,7 @@ def make_Bohr_vs_temp(material: Crystal, Moment: List[float], Temp: List[float],
     else:
         ax.set_title(f"{material.graphname}\n Magnetic Moment vs Temperature at {field_val} Oe")
     plt.show()
+    return fig, ax
 
 
 def make_susceptibility_vs_temp(material: Crystal, Moment: List[float], Temp: List[float], Field: float, SI: bool = False, per: Optional[str] = None): # データはcgs固定．グラフ描画をSIにするかどうか，1molあたりにするかどうか
@@ -713,6 +719,7 @@ def make_susceptibility_vs_temp(material: Crystal, Moment: List[float], Temp: Li
             ax.set_ylabel(r"Susceptibility (dimensionless)")
     ax.set_title(f"{material.graphname} Susceptibility vs Temperature")
     plt.show()
+    return fig, ax
     
 
 def make_powder_Xray_intensity_vs_angle(filename: str, display_num: int = 10, material: Optional[Crystal] = None):
@@ -776,7 +783,7 @@ def make_powder_Xray_intensity_vs_angle(filename: str, display_num: int = 10, ma
     else:
         ax.set_title(f"powder X-ray diffraction")
     plt.show()
-
+    return fig, ax
 
 
 
