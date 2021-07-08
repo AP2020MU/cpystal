@@ -831,6 +831,129 @@ def ax_decompose_reconstruct(ax: Any, figsize: Tuple[float, float]) -> Tuple[Any
     return fig, ax_new
 
 
+# 型エイリアス
+LF = List[float]
+LLF = List[List[float]] 
+class PPMS_Resistivity:
+    def __near_abs(self, x: float, k: float) -> float: # xに最も近いkの整数倍数
+        if k == 0:
+            return 0.0
+        a: int = int(x/k)
+        return min([(a-1)*k, a*k, (a+1)*k], key=lambda y:abs(x-y))
+
+    def _LSM(self, x: LF, y: LF, linear: bool = False) -> Tuple[LF, float, float]: # 最小二乗法
+        x: Any = np.array(x)
+        y: Any = np.array(y)
+        if linear: # 線形関数近似
+            a = x@y / (x ** 2).sum()
+            return list(a*x), a, 0
+        else: # 1次関数近似
+            n = len(x)
+            xs = np.sum(x)
+            ys = np.sum(y)
+            a = ((x@y - xs*ys/n) / (np.sum(x ** 2) - xs**2/n))
+            b = (ys - a * xs)/n
+            return list(a*x + b), a, b
+    
+    def __init__(self, filename: str, material: Optional[Crystal] = None):
+        self.filename: str = filename
+        self.material: Optional[Crystal] = material
+
+        with open(filename, encoding="shift_jis", mode="r") as current_file:
+            label: List[str] = []
+            data: List[List[Any]] = []
+            flag: int = 0
+            for l in current_file.readlines():
+                if flag == 0 and l == "[Data]\n":
+                    flag = 1
+                    continue
+                if flag == 1:
+                    label = l.strip().split(",")
+                    flag = 2
+                elif flag == 2:
+                    data.append(list(map(str_to_float,l.strip().split(","))))
+
+        N: int = len(data)
+
+        dict_label: Dict[str, int] = {v:k for k,v in enumerate(label)}
+        self.Temp: LF =          [data[i][dict_label["Temperature (K)"]] for i in range(N)]
+        self.Field: LF =         [data[i][dict_label["Magnetic Field (Oe)"]] for i in range(N)]
+        self.Time: LF =          [data[i][dict_label["Time Stamp (sec)"]] for i in range(N)]
+        self.B1Resistivity: LF = [data[i][dict_label["Bridge 1 Resistivity (Ohm)"]] for i in range(N)]
+        self.B2Resistivity: LF = [data[i][dict_label["Bridge 2 Resistivity (Ohm)"]] for i in range(N)]
+        self.B1R_sd: LF =        [data[i][dict_label["Bridge 1 Std. Dev. (Ohm)"]] for i in range(N)]
+        self.B2R_sd: LF =        [data[i][dict_label["Bridge 2 Std. Dev. (Ohm)"]] for i in range(N)]
+        self.B1Current: LF =     [data[i][dict_label["Bridge 1 Excitation (uA)"]] for i in range(N)]
+        self.B2Current: LF =     [data[i][dict_label["Bridge 2 Excitation (uA)"]] for i in range(N)]
+        self.Time: LF =          [data[i][dict_label["Time Stamp (sec)"]] for i in range(N)]
+
+    def set_S_l(self, Sxx: float, lxx: float, Syx: float, lyx: float): # S:[μm^2], l:[μm]
+        self.Sxx: float = Sxx
+        self.Syx: float = Syx
+        self.lxx: float = lxx
+        self.lyx: float = lyx
+    
+    def symmetrize(self, delta_H: float, up_data: LLF, down_data: LLF) -> Tuple[LF, LF, LF, LF, LF]:
+        # (up/down)_data := List[List[field: float, Rxx: float, Rxx_sd: float, Ryx: float, Ryx_sd: float]]
+        # 磁場を1往復させたときのデータから，Rxx・Ryxをそれぞれ対称化・反対称化
+
+        up_idx:   Dict[float, Tuple[int, float]] = {self.__near_abs(h, delta_H):i for i, (h, *_) in enumerate(up_data)}
+        down_idx: Dict[float, Tuple[int, float]] = {self.__near_abs(-h, delta_H):i for i, (h, *_) in enumerate(down_data)}
+        
+        effective_field: LF = []
+        Rxx: LF = []
+        Ryx: LF = []
+
+        Rxx_sd: LF = []
+        Ryx_sd: LF = []
+
+        for h in sorted(set(down_idx.keys()) & set(up_idx.keys())):
+            i: int = up_idx[h]
+            j: int = down_idx[h]
+            effective_field.append(h)
+            _, Rxx_i, Rxx_sd_i, Ryx_i, Ryx_sd_i = up_data[i]
+            _, Rxx_j, Rxx_sd_j, Ryx_j, Ryx_sd_j = down_data[j]
+            # 対称化・反対称化
+            Rxx.append( (Rxx_i+Rxx_j)/2 ) # [Ω]
+            Ryx.append( (Ryx_i-Ryx_j)/2 ) # [Ω]
+            # 標準偏差の伝播則
+            Rxx_sd.append( (Rxx_sd_i**2+Rxx_sd_j**2)**0.5 / 2 ) # [Ω]
+            Ryx_sd.append( (Ryx_sd_i**2+Ryx_sd_j**2)**0.5 / 2 ) # [Ω]
+        return effective_field, Rxx, Rxx_sd, Ryx, Ryx_sd
+                    
+
+LF = List[float]
+class MPMS:
+    def __init__(self, filename: str, material: Crystal, temp_val: Optional[float] = None):
+        self.filename: str = filename
+        self.material: Optional[Crystal] = material
+        # idxはデータの切れ目の番号
+        with open(filename, encoding="shift_jis", mode="r") as current_file:
+            label: List[str] = []
+            data: List[List[Any]] = []
+            flag: int = 0
+            for l in current_file.readlines():
+                if flag == 0 and l == "[Data]\n":
+                    flag = 1
+                    continue
+                if flag == 1:
+                    label = l.strip().split(",")
+                    flag = 2
+                elif flag == 2:
+                    data.append(list(map(str_to_float,l.strip().split(","))))
+
+        N: int = len(data)
+
+        dict_label: Dict[str, int] = {v:k for k,v in enumerate(label)}
+
+        self.Temp: List[float] =          [data[i][dict_label["Temperature (K)"]] for i in range(N)]
+        self.Field: List[float] =         [data[i][dict_label["Field (Oe)"]] for i in range(N)]
+        self.Time: List[float] =          [data[i][dict_label["Time"]] for i in range(N)]
+        self.LongMoment: List[float] =    [data[i][dict_label["Long Moment (emu)"]] for i in range(N)]
+        self.RegFit: List[float] =        [data[i][dict_label["Long Reg Fit"]] for i in range(N)]
+
+
+
 def main():
     pass
     return
