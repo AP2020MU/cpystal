@@ -230,9 +230,11 @@ class Crystal: # 結晶の各物理量を計算
     def __str__(self) -> str:
         res: str = "\n"
         for k, v in self.__dict__.items():
-            if v is None or k == "unit" or not k in self.unit:
+            if v is None or k == "unit":
                 continue
-            if type(v) is float:
+            if not k in self.unit:
+                res = res + f"{k} = {v}\n"
+            elif type(v) is float:
                 res = res + f"{k} = {v:.5g} {self.unit[k]}\n"
             else:
                 res = res + f"{k} = {v} {self.unit[k]}\n"
