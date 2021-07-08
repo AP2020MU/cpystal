@@ -831,6 +831,30 @@ def ax_decompose_reconstruct(ax: Any, figsize: Tuple[float, float]) -> Tuple[Any
     return fig, ax_new
 
 
+def ingredient_flake_dp(A: List[int], W: int) -> None: # A: 適当に整数化したフレークの重さ, W: 目標重量
+    N: int = len(A)
+    K: int = W+20 # 余裕を持って求めておく
+    dp: List[List[int]] = [[0]*K for i in range(N+1)]
+    dp[0][0] = 1
+    for i in range(1,N+1):
+        for j in range(K):
+            if dp[i-1][j] and A[i-1]+j<K:
+                dp[i][A[i-1]+j] = 1
+            if dp[i-1][j]:
+                dp[i][j] = 1
+
+    #print([i for i in range(K) if dp[N][i]])
+    for k in range(-10,11): # 目標値のまわり±10を見る
+        now: int = W+k
+        ans: List[int] = []
+        if dp[N][now]:
+            for i in range(N)[::-1]:
+                if now-A[i]>=0 and dp[i][now-A[i]]:
+                    now -= A[i]
+                    ans.append(A[i])
+        print(W+k, ans)
+    return
+
 def main():
     pass
     return
