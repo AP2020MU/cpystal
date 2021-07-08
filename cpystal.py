@@ -230,7 +230,7 @@ class Crystal: # 結晶の各物理量を計算
     def __str__(self) -> str:
         res: str = "\n"
         for k, v in self.__dict__.items():
-            if v is None or k == "unit":
+            if v is None or k == "unit" or not k in self.unit:
                 continue
             if type(v) is float:
                 res = res + f"{k} = {v:.5g} {self.unit[k]}\n"
@@ -398,7 +398,7 @@ class Crystal: # 結晶の各物理量を計算
 
 
 
-def make_moment_vs_temp(material: Crystal, Moment: List[float], Temp: List[float], field_val: float, SI: bool = False, per: Optional[str] = None) -> Tuple[Any, Any]: # 磁場固定
+def make_moment_vs_temp(material: Crystal, Temp: List[float], Moment: List[float], field_val: float, SI: bool = False, per: Optional[str] = None) -> Tuple[Any, Any]: # 磁場固定
     # 縦軸：磁気モーメント，横軸：温度 のグラフを作成
     # Moment: 磁気モーメント [emu]
     # Temp: 温度 [K]
@@ -459,7 +459,7 @@ def make_moment_vs_temp(material: Crystal, Moment: List[float], Temp: List[float
     return fig, ax
 
 
-def make_moment_vs_field(material: Crystal, Moment: List[float], Field: List[float], temp_val: float, SI: bool = False, per: Optional[str] = None) -> Tuple[Any, Any]: # 温度固定
+def make_moment_vs_field(material: Crystal, Field: List[float], Moment: List[float], temp_val: float, SI: bool = False, per: Optional[str] = None) -> Tuple[Any, Any]: # 温度固定
     # 縦軸：磁気モーメント，横軸：磁場 のグラフを作成
     # Moment: 磁気モーメント [emu]
     # Field: 磁場 [Oe]
@@ -521,7 +521,7 @@ def make_moment_vs_field(material: Crystal, Moment: List[float], Field: List[flo
     return fig, ax
 
 
-def make_magnetization_vs_temp(material: Crystal, Moment: List[float], Temp: List[float], field_val: float, SI: bool = False, per: Optional[str] = None) -> Tuple[Any, Any]:
+def make_magnetization_vs_temp(material: Crystal, Temp: List[float], Moment: List[float], field_val: float, SI: bool = False, per: Optional[str] = None) -> Tuple[Any, Any]:
     # データはcgs固定．
     # SI: グラフ描画をSIにするかどうか
     # per: molあたり，重さあたりにするかどうか
@@ -561,7 +561,7 @@ def make_magnetization_vs_temp(material: Crystal, Moment: List[float], Temp: Lis
     return fig, ax
 
 
-def make_magnetization_vs_field(material: Crystal, Moment: List[float], Field: List[float], temp_val: float, SI: bool = False, per: Optional[str] = None) -> Tuple[Any, Any]: # データはcgs固定．グラフ描画をSIにするかどうか，1molあたりにするかどうか
+def make_magnetization_vs_field(material: Crystal, Field: List[float], Moment: List[float], temp_val: float, SI: bool = False, per: Optional[str] = None) -> Tuple[Any, Any]: # データはcgs固定．グラフ描画をSIにするかどうか，1molあたりにするかどうか
     # 縦軸：磁化，横軸：磁場 のグラフを作成
     magnetization_vs_field: List[List[float]] = [[material.cal_magnetization(m=m,SI=SI,per=per),f] for m,f in zip(Moment,Field)] # 温度固定
     X: List[float] = [f for m,f in magnetization_vs_field]
@@ -598,7 +598,7 @@ def make_magnetization_vs_field(material: Crystal, Moment: List[float], Field: L
     return fig, ax
 
 
-def make_Bohr_vs_field(material: Crystal, Moment: List[float], Field: List[float], temp_val: float, per_formula_unit: bool = True) -> Tuple[Any, Any]:
+def make_Bohr_vs_field(material: Crystal, Field: List[float], Moment: List[float], temp_val: float, per_formula_unit: bool = True) -> Tuple[Any, Any]:
     Bohr_vs_field: List[List[float]]
     if per_formula_unit:
         # 縦軸：有効ボーア磁子数/式量，横軸：磁場 のグラフを作成
@@ -633,7 +633,7 @@ def make_Bohr_vs_field(material: Crystal, Moment: List[float], Field: List[float
     return fig, ax
 
 
-def make_Bohr_vs_temp(material: Crystal, Moment: List[float], Temp: List[float], field_val: float, per_formula_unit: bool = True):
+def make_Bohr_vs_temp(material: Crystal, Temp: List[float], Moment: List[float], field_val: float, per_formula_unit: bool = True):
     Bohr_vs_temp: List[List[float]]
     if per_formula_unit:
         # 縦軸：有効ボーア磁子数/式量，横軸：磁場 のグラフを作成
@@ -668,7 +668,7 @@ def make_Bohr_vs_temp(material: Crystal, Moment: List[float], Temp: List[float],
     return fig, ax
 
 
-def make_susceptibility_vs_temp(material: Crystal, Moment: List[float], Temp: List[float], Field: float, SI: bool = False, per: Optional[str] = None) -> Tuple[Any, Any]: # データはcgs固定．グラフ描画をSIにするかどうか，1molあたりにするかどうか
+def make_susceptibility_vs_temp(material: Crystal, Temp: List[float], Moment: List[float], Field: float, SI: bool = False, per: Optional[str] = None) -> Tuple[Any, Any]: # データはcgs固定．グラフ描画をSIにするかどうか，1molあたりにするかどうか
     # 縦軸：磁化率，横軸：温度 のグラフを作成
     # Moment: List[moment] moment: 磁気モーメント [emu]
     # Temp: List[temperature] temperature: 温度 [K]
