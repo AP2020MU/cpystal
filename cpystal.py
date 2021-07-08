@@ -927,7 +927,7 @@ class MPMS:
     def __init__(self, filename: str, material: Crystal, temp_val: Optional[float] = None):
         self.filename: str = filename
         self.material: Optional[Crystal] = material
-        # idxはデータの切れ目の番号
+
         with open(filename, encoding="shift_jis", mode="r") as current_file:
             label: List[str] = []
             data: List[List[Any]] = []
