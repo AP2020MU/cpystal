@@ -389,20 +389,17 @@ class Crystal: # 結晶の各物理量を計算
             print("\n".join([f"{element} = {ratio*self.w:.4g} g ({ratio:.2%})" for element, ratio in res]))
         return res
 
-    def save(self, overwrite: bool = False): # Crystalインスタンスのデータを保存
-        filename: str = self.name
-        if self.date is not None:
-            filename = filename + self.date
+    def save(self, filename: str, overwrite: bool = False): # Crystalインスタンスのデータを保存
         mode: str
         if overwrite:
             mode = 'wb' # 上書きあり
         else:
             mode = 'xb' # 上書きなし
-        with open(filename+'.pickle', mode=mode) as f:
+        with open(f"{filename}.pickle", mode=mode) as f:
             pickle.dump(self, f)
 
     def load(self, filename: str): # Crystalインスタンスのデータをロード
-        with open(filename+'.pickle', mode='rb') as f:
+        with open(f"{filename}.pickle", mode='rb') as f:
             pre: Crystal = pickle.load(f)
             self.__dict__ = pre.__dict__
 
