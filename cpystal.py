@@ -27,7 +27,7 @@ def smoothing(data: List[float], mode: Any = None) -> List[float]:
         return list(map(float, scipy.signal.savgol_filter(data, window_length=window_length, polyorder=deg, deriv=deriv)))
       
     else: # 単純移動平均
-        window: int = 5 # 移動平均の範囲
+        window: int = 9 # 移動平均の範囲
         w: Any = np.ones(window)/window
         return list(map(float, np.convolve(data, w, mode='same')))
 
@@ -163,6 +163,22 @@ atomic_weight: Dict[str, float] = {
 }
 
 
+class Semimutable_dict(dict):
+    def __init__(self, *args):
+        super().__init__(args)
+        self.__updatable: bool = False
+
+    def __setitem__(self, key: Any, value: Any):
+        if key in self and not self.__updatable:
+            raise TypeError(f"elements of '{type(self)}' cannot be changed by '[]' operator; use 'update_force' method")
+        super().__setitem__(key, value)
+        self.__updatable = False
+
+    def update_force(self, key: Any, value: Any):
+        self.__updatable = True
+        self[key] = value
+        
+
 class Crystal: # 結晶の各物理量を計算
     def __init__(self, name: str, date: Optional[str] = None, auto_formula_weight: bool = True):
         self.name: str = name # 化合物名
@@ -201,6 +217,8 @@ class Crystal: # 結晶の各物理量を計算
             "numbered_name": "", "components": ""
         }
 
+        self.graphs: Semimutable_dict = Semimutable_dict()
+
         # 化学式を"形態素"ごとに分割したリスト
         divided_name: List[str] = re.split(r",+", re.sub(r"([A-Z][a-z]*|\d+|[()])", ",\\1,", self.numbered_name).strip(","))
         now: int = 1 # 倍率
@@ -230,7 +248,9 @@ class Crystal: # 結晶の各物理量を計算
         for k, v in self.__dict__.items():
             if v is None or k == "unit":
                 continue
-            if type(v) is float:
+            if not k in self.unit:
+                res = res + f"{k} = {v}\n"
+            elif type(v) is float:
                 res = res + f"{k} = {v:.5g} {self.unit[k]}\n"
             else:
                 res = res + f"{k} = {v} {self.unit[k]}\n"
@@ -284,7 +304,7 @@ class Crystal: # 結晶の各物理量を計算
     def cal_density(self) -> float:
         # formula_weight: モル質量(式量) [g/mol]
         # num: 単位胞の分子数 (無次元)
-        # V: 単位胞の体積 [Å^3]
+        # V: 単位胞の体積 [cm^3]
         # density: 密度 [g/cm^3]
         if self.formula_weight is None or self.num is None or self.V is None:
             raise TypeError
@@ -339,7 +359,7 @@ class Crystal: # 結晶の各物理量を計算
         if w is None or self.formula_weight is None:
             raise TypeError
         # 式量あたりの有効Bohr磁子数 [μB/f.u.]
-        mu: float = (m / muB) * (self.formula_weight / w / self.NA)
+        mu: float = (m / muB) / (w / self.formula_weight * self.NA)
         return mu
 
     def cal_Bohr_per_ion(self, m: float, w: Optional[float] = None, num_magnetic_ion: Optional[int] = None) -> float:
@@ -351,7 +371,7 @@ class Crystal: # 結晶の各物理量を計算
         if w is None or num_magnetic_ion is None or self.formula_weight is None:
             raise TypeError
         # 磁性イオンあたりの有効Bohr磁子数 [μB/ion]
-        mu: float = (m / muB) * (self.formula_weight / w / self.NA / num_magnetic_ion)
+        mu: float = (m / muB) / (w / self.formula_weight * self.NA) / num_magnetic_ion
         return mu
 
     def cal_ingredients(self) -> List[Tuple[str, float]]:
@@ -368,7 +388,7 @@ class Crystal: # 結晶の各物理量を計算
         else:
             print("\n".join([f"{element} = {ratio*self.w:.4g} g ({ratio:.2%})" for element, ratio in res]))
         return res
-    
+
     def save(self, overwrite: bool = False): # Crystalインスタンスのデータを保存
         filename: str = self.name
         if self.date is not None:
@@ -388,7 +408,7 @@ class Crystal: # 結晶の各物理量を計算
 
 
 
-def make_moment_vs_temp(material: Crystal, Moment: List[float], Temp: List[float], field_val: float, SI: bool = False, per: Optional[str] = None): # 磁場固定
+def make_moment_vs_temp(material: Crystal, Temp: List[float], Moment: List[float], field_val: float, SI: bool = False, per: Optional[str] = None) -> Tuple[Any, Any]: # 磁場固定
     # 縦軸：磁気モーメント，横軸：温度 のグラフを作成
     # Moment: 磁気モーメント [emu]
     # Temp: 温度 [K]
@@ -418,29 +438,38 @@ def make_moment_vs_temp(material: Crystal, Moment: List[float], Temp: List[float
             Y = [m / material.w for m in Y] # [emu/g]
         else:
             Y = [m for m in Y] # [emu]
-    fig = plt.figure(figsize=(7,6))
-    ax = fig.add_subplot(111)
+    plt.rcParams['font.size'] = 14
+    plt.rcParams['font.family'] = 'Arial'
+    plt.rcParams['xtick.direction'] = 'in'
+    plt.rcParams['ytick.direction'] = 'in'
+    plt.rcParams["legend.framealpha"] = 0
+    fig: Any =  plt.figure(figsize=(8,7))
+    ax: Any =  fig.add_subplot(111)
+    ax.xaxis.set_ticks_position('both')
+    ax.yaxis.set_ticks_position('both')
+
     ax.plot(X, Y)
-    ax.set_xlabel(r"Temperature [K]")
+    ax.set_xlabel(r"Temperature (K)")
     if SI:
         if per == "mol":
-            ax.set_ylabel(r"Magnetization $[\mathrm{A\, m^{2}\, mol^{-1}}]$")
+            ax.set_ylabel(r"Magnetization $(\mathrm{A\, m^{2}\, mol^{-1}})$")
         elif per == "weight":
-            ax.set_ylabel(r"Magnetization $[\mathrm{A\, m^{2}\, kg^{-1}}]$")
+            ax.set_ylabel(r"Magnetization $(\mathrm{A\, m^{2}\, kg^{-1}})$")
         else:
-            ax.set_ylabel(r"Magnetization $[\mathrm{A\, m^{2}}]$")
+            ax.set_ylabel(r"Magnetization $(\mathrm{A\, m^{2}})$")
     else:
         if per == "mol":
-            ax.set_ylabel(r"Magnetization $[\mathrm{emu\, mol^{-1}}]$")
+            ax.set_ylabel(r"Magnetization $(\mathrm{emu\, mol^{-1}})$")
         elif per == "weight":
-            ax.set_ylabel(r"Magnetization $[\mathrm{emu\, g^{-1}}]$")
+            ax.set_ylabel(r"Magnetization $(\mathrm{emu\, g^{-1}})$")
         else:
-            ax.set_ylabel(r"Magnetization $[\mathrm{emu}]$")
+            ax.set_ylabel(r"Magnetization $(\mathrm{emu})$")
     ax.set_title(f"{material.graphname} Magnetic Moment vs Temperature at {field_val} Oe")
     plt.show()
+    return fig, ax
 
 
-def make_moment_vs_field(material: Crystal, Moment: List[float], Field: List[float], temp_val: float, SI: bool = False, per: Optional[str] = None): # 温度固定
+def make_moment_vs_field(material: Crystal, Field: List[float], Moment: List[float], temp_val: float, SI: bool = False, per: Optional[str] = None) -> Tuple[Any, Any]: # 温度固定
     # 縦軸：磁気モーメント，横軸：磁場 のグラフを作成
     # Moment: 磁気モーメント [emu]
     # Field: 磁場 [Oe]
@@ -471,29 +500,38 @@ def make_moment_vs_field(material: Crystal, Moment: List[float], Field: List[flo
         else:
             Y = [m for m in Y] # [emu]
     
-    fig = plt.figure(figsize=(7,6))
-    ax = fig.add_subplot(111)
+    plt.rcParams['font.size'] = 14
+    plt.rcParams['font.family'] = 'Arial'
+    plt.rcParams['xtick.direction'] = 'in'
+    plt.rcParams['ytick.direction'] = 'in'
+    plt.rcParams["legend.framealpha"] = 0
+    fig: Any =  plt.figure(figsize=(8,7))
+    ax: Any =  fig.add_subplot(111)
+    ax.xaxis.set_ticks_position('both')
+    ax.yaxis.set_ticks_position('both')
+
     ax.plot(X, Y)
-    ax.set_xlabel(r"Magnetic Field [Oe]")
+    ax.set_xlabel(r"Magnetic Field (Oe)")
     if SI:
         if per == "mol":
-            ax.set_ylabel(r"Magnetization $[\mathrm{A\, m^{2}\, mol^{-1}}]$")
+            ax.set_ylabel(r"Magnetization $(\mathrm{A\, m^{2}\, mol^{-1}})$")
         elif per == "weight":
-            ax.set_ylabel(r"Magnetization $[\mathrm{A\, m^{2}\, kg^{-1}}]$")
+            ax.set_ylabel(r"Magnetization $(\mathrm{A\, m^{2}\, kg^{-1}})$")
         else:
-            ax.set_ylabel(r"Magnetization $[\mathrm{A\, m^{2}}]$")
+            ax.set_ylabel(r"Magnetization $(\mathrm{A\, m^{2}})$")
     else:
         if per == "mol":
-            ax.set_ylabel(r"Magnetization $[\mathrm{emu\, mol^{-1}}]$")
+            ax.set_ylabel(r"Magnetization $(\mathrm{emu\, mol^{-1}})$")
         elif per == "weight":
-            ax.set_ylabel(r"Magnetization $[\mathrm{emu\, g^{-1}}]$")
+            ax.set_ylabel(r"Magnetization $(\mathrm{emu\, g^{-1}})$")
         else:
-            ax.set_ylabel(r"Magnetization $[\mathrm{emu}]$")
+            ax.set_ylabel(r"Magnetization $(\mathrm{emu})$")
     ax.set_title(f"{material.graphname} Magnetic Moment vs Magnetic Field at {temp_val} K")
     plt.show()
+    return fig, ax
 
 
-def make_magnetization_vs_temp(material: Crystal, Moment: List[float], Temp: List[float], field_val: float, SI: bool = False, per: Optional[str] = None):
+def make_magnetization_vs_temp(material: Crystal, Temp: List[float], Moment: List[float], field_val: float, SI: bool = False, per: Optional[str] = None) -> Tuple[Any, Any]:
     # データはcgs固定．
     # SI: グラフ描画をSIにするかどうか
     # per: molあたり，重さあたりにするかどうか
@@ -502,57 +540,75 @@ def make_magnetization_vs_temp(material: Crystal, Moment: List[float], Temp: Lis
     X: List[float] = [t for m,t in magnetization_vs_temp]
     Y: List[float] = [m for m,t in magnetization_vs_temp]
     
-    fig = plt.figure(figsize=(7,6))
-    ax = fig.add_subplot(111)
+    plt.rcParams['font.size'] = 14
+    plt.rcParams['font.family'] = 'Arial'
+    plt.rcParams['xtick.direction'] = 'in'
+    plt.rcParams['ytick.direction'] = 'in'
+    plt.rcParams["legend.framealpha"] = 0
+    fig: Any =  plt.figure(figsize=(8,7))
+    ax: Any =  fig.add_subplot(111)
+    ax.xaxis.set_ticks_position('both')
+    ax.yaxis.set_ticks_position('both')
+
     ax.plot(X, Y)
-    ax.set_xlabel(r"Temperature [K]")
+    ax.set_xlabel(r"Temperature (K)")
     if SI:
         if per == "mol":
-            ax.set_ylabel(r"Magnetization $[\mathrm{A\, m^{-1}\, mol^{-1}}]$")
+            ax.set_ylabel(r"Magnetization $(\mathrm{A\, m^{-1}\, mol^{-1}})$")
         elif per == "weight":
-            ax.set_ylabel(r"Magnetization $[\mathrm{A\, m^{-1}\, kg^{-1}}]$")
+            ax.set_ylabel(r"Magnetization $(\mathrm{A\, m^{-1}\, kg^{-1}})$")
         else:
-            ax.set_ylabel(r"Magnetization $[\mathrm{A\, m^{-1}}]$")
+            ax.set_ylabel(r"Magnetization $(\mathrm{A\, m^{-1}})$")
     else:
         if per == "mol":
-            ax.set_ylabel(r"Magnetization $[\mathrm{G\, mol^{-1}}]$")
+            ax.set_ylabel(r"Magnetization $(\mathrm{G\, mol^{-1}})$")
         elif per == "weight":
-            ax.set_ylabel(r"Magnetization $[\mathrm{G\, g^{-1}}]$")
+            ax.set_ylabel(r"Magnetization $(\mathrm{G\, g^{-1}})$")
         else:
-            ax.set_ylabel(r"Magnetization $[\mathrm{G}]$")
+            ax.set_ylabel(r"Magnetization $(\mathrm{G})$")
     ax.set_title(f"{material.graphname} Magnetization vs Temperature at {field_val} Oe")
     plt.show()
+    return fig, ax
 
 
-def make_magnetization_vs_field(material: Crystal, Moment: List[float], Field: List[float], temp_val: float, SI: bool = False, per: Optional[str] = None): # データはcgs固定．グラフ描画をSIにするかどうか，1molあたりにするかどうか
+def make_magnetization_vs_field(material: Crystal, Field: List[float], Moment: List[float], temp_val: float, SI: bool = False, per: Optional[str] = None) -> Tuple[Any, Any]: # データはcgs固定．グラフ描画をSIにするかどうか，1molあたりにするかどうか
     # 縦軸：磁化，横軸：磁場 のグラフを作成
     magnetization_vs_field: List[List[float]] = [[material.cal_magnetization(m=m,SI=SI,per=per),f] for m,f in zip(Moment,Field)] # 温度固定
     X: List[float] = [f for m,f in magnetization_vs_field]
     Y: List[float] = [m for m,f in magnetization_vs_field]
     
-    fig = plt.figure(figsize=(7,6))
-    ax = fig.add_subplot(111)
+    plt.rcParams['font.size'] = 14
+    plt.rcParams['font.family'] = 'Arial'
+    plt.rcParams['xtick.direction'] = 'in'
+    plt.rcParams['ytick.direction'] = 'in'
+    plt.rcParams["legend.framealpha"] = 0
+    fig: Any =  plt.figure(figsize=(8,7))
+    ax: Any =  fig.add_subplot(111)
+    ax.xaxis.set_ticks_position('both')
+    ax.yaxis.set_ticks_position('both')
+
     ax.plot(X, Y)
-    ax.set_xlabel(r"Magnetic Field [Oe]")
+    ax.set_xlabel(r"Magnetic Field (Oe)")
     if SI:
         if per == "mol":
-            ax.set_ylabel(r"Magnetization $[\mathrm{A\, m^{-1}\, mol^{-1}}]$")
+            ax.set_ylabel(r"Magnetization $(\mathrm{A\, m^{-1}\, mol^{-1}})$")
         elif per == "weight":
-            ax.set_ylabel(r"Magnetization $[\mathrm{A\, m^{-1}\, kg^{-1}}]$")
+            ax.set_ylabel(r"Magnetization $(\mathrm{A\, m^{-1}\, kg^{-1}})$")
         else:
-            ax.set_ylabel(r"Magnetization $[\mathrm{A\, m^{-1}}]$")
+            ax.set_ylabel(r"Magnetization $(\mathrm{A\, m^{-1}})$")
     else:
         if per == "mol":
-            ax.set_ylabel(r"Magnetization $[\mathrm{G\, mol^{-1}}]$")
+            ax.set_ylabel(r"Magnetization $(\mathrm{G\, mol^{-1}})$")
         elif per == "weight":
-            ax.set_ylabel(r"Magnetization $[\mathrm{G\, g^{-1}}]$")
+            ax.set_ylabel(r"Magnetization $(\mathrm{G\, g^{-1}})$")
         else:
-            ax.set_ylabel(r"Magnetization $[\mathrm{G}]$")
+            ax.set_ylabel(r"Magnetization $(\mathrm{G})$")
     ax.set_title(f"{material.graphname} Magnetization vs Magnetic Field at {temp_val} K")
     plt.show()
+    return fig, ax
 
 
-def make_Bohr_vs_field(material: Crystal, Moment: List[float], Field: List[float], temp_val: float, per_formula_unit: bool = True):
+def make_Bohr_vs_field(material: Crystal, Field: List[float], Moment: List[float], temp_val: float, per_formula_unit: bool = True) -> Tuple[Any, Any]:
     Bohr_vs_field: List[List[float]]
     if per_formula_unit:
         # 縦軸：有効ボーア磁子数/式量，横軸：磁場 のグラフを作成
@@ -562,16 +618,67 @@ def make_Bohr_vs_field(material: Crystal, Moment: List[float], Field: List[float
         Bohr_vs_field = [[material.cal_Bohr_per_ion(m=m),f] for m,f in zip(Moment,Field)] # 温度固定
     X: List[float] = [f for b,f in Bohr_vs_field]
     Y: List[float] = [b for b,f in Bohr_vs_field]
-    fig = plt.figure(figsize=(7,6))
-    ax = fig.add_subplot(111)
+    
+    plt.rcParams['font.size'] = 14
+    plt.rcParams['font.family'] = 'Arial'
+    plt.rcParams['xtick.direction'] = 'in'
+    plt.rcParams['ytick.direction'] = 'in'
+    plt.rcParams["legend.framealpha"] = 0
+    fig: Any =  plt.figure(figsize=(8,7))
+    ax: Any =  fig.add_subplot(111)
+    ax.xaxis.set_ticks_position('both')
+    ax.yaxis.set_ticks_position('both')
+
     ax.plot(X, Y)
-    ax.set_xlabel(r"Magnetic Field [Oe]")
-    ax.set_ylabel(r"Magnetic Moment per ion $[\mu_B/ion]$")
-    ax.set_title(f"{material.graphname} Magnetic Moment vs Magnetic Field at {temp_val} K")
+    ax.set_xlabel(r"Magnetic Field (Oe)")
+    if per_formula_unit:
+        ax.set_ylabel(r"Magnetic Moment $(\mu_B/\mathrm{f.u.})$")
+    else:
+        ax.set_ylabel(r"Magnetic Moment $(\mu_B/\mathrm{ion})$")
+    if material.date is not None:
+        ax.set_title(f"{material.graphname}({material.date})\n Magnetic Moment vs Magnetic Field at {temp_val} K")
+    else:
+        ax.set_title(f"{material.graphname}\n Magnetic Moment vs Magnetic Field at {temp_val} K")
     plt.show()
+    return fig, ax
 
 
-def make_susceptibility_vs_temp(material: Crystal, Moment: List[float], Temp: List[float], Field: float, SI: bool = False, per: Optional[str] = None): # データはcgs固定．グラフ描画をSIにするかどうか，1molあたりにするかどうか
+def make_Bohr_vs_temp(material: Crystal, Temp: List[float], Moment: List[float], field_val: float, per_formula_unit: bool = True):
+    Bohr_vs_temp: List[List[float]]
+    if per_formula_unit:
+        # 縦軸：有効ボーア磁子数/式量，横軸：磁場 のグラフを作成
+        Bohr_vs_temp = [[material.cal_Bohr_per_formula_unit(m=m),t] for m,t in zip(Moment,Temp)] # 温度固定
+    else:
+        # 縦軸：有効ボーア磁子数/磁性イオン，横軸：磁場 のグラフを作成
+        Bohr_vs_temp = [[material.cal_Bohr_per_ion(m=m),t] for m,t in zip(Moment,Temp)] # 温度固定
+    X: List[float] = [t for b,t in Bohr_vs_temp]
+    Y: List[float] = [b for b,t in Bohr_vs_temp]
+    
+    plt.rcParams['font.size'] = 14
+    plt.rcParams['font.family'] = 'Arial'
+    plt.rcParams['xtick.direction'] = 'in'
+    plt.rcParams['ytick.direction'] = 'in'
+    plt.rcParams["legend.framealpha"] = 0
+    fig: Any =  plt.figure(figsize=(8,7))
+    ax: Any =  fig.add_subplot(111)
+    ax.xaxis.set_ticks_position('both')
+    ax.yaxis.set_ticks_position('both')
+
+    ax.plot(X, Y)
+    ax.set_xlabel(r"Temperature (K)")
+    if per_formula_unit:
+        ax.set_ylabel(r"Magnetic Moment $(\mu_B/\mathrm{f.u.})$")
+    else:
+        ax.set_ylabel(r"Magnetic Moment $(\mu_B/\mathrm{ion})$")
+    if material.date is not None:
+        ax.set_title(f"{material.graphname}({material.date})\n Magnetic Moment vs Temperature at {field_val} Oe")
+    else:
+        ax.set_title(f"{material.graphname}\n Magnetic Moment vs Temperature at {field_val} Oe")
+    plt.show()
+    return fig, ax
+
+
+def make_susceptibility_vs_temp(material: Crystal, Temp: List[float], Moment: List[float], Field: float, SI: bool = False, per: Optional[str] = None) -> Tuple[Any, Any]: # データはcgs固定．グラフ描画をSIにするかどうか，1molあたりにするかどうか
     # 縦軸：磁化率，横軸：温度 のグラフを作成
     # Moment: List[moment] moment: 磁気モーメント [emu]
     # Temp: List[temperature] temperature: 温度 [K]
@@ -603,29 +710,39 @@ def make_susceptibility_vs_temp(material: Crystal, Moment: List[float], Temp: Li
             Y = [m / material.density for m in Y] # [cm^3/g]
         else:
             Y = [m for m in Y] # (無次元)
-    fig = plt.figure(figsize=(7,6))
-    ax = fig.add_subplot(111)
+    
+    plt.rcParams['font.size'] = 14
+    plt.rcParams['font.family'] = 'Arial'
+    plt.rcParams['xtick.direction'] = 'in'
+    plt.rcParams['ytick.direction'] = 'in'
+    plt.rcParams["legend.framealpha"] = 0
+    fig: Any =  plt.figure(figsize=(8,7))
+    ax: Any =  fig.add_subplot(111)
+    ax.xaxis.set_ticks_position('both')
+    ax.yaxis.set_ticks_position('both')
+
     ax.plot(X, Y)
-    ax.set_xlabel(r"Temperature [K]")
+    ax.set_xlabel(r"Temperature (K)")
     if SI:
         if per == "mol":
-            ax.set_ylabel(r"Susceptibility $[\mathrm{m^3\, mol^{-1}}]$")
+            ax.set_ylabel(r"Susceptibility $(\mathrm{m^3\, mol^{-1}})$")
         elif per == "weight":
-            ax.set_ylabel(r"Susceptibility $[\mathrm{m^3\, kg^{-1}}]$")
+            ax.set_ylabel(r"Susceptibility $(\mathrm{m^3\, kg^{-1}})$")
         else:
-            ax.set_ylabel(r"Susceptibility [dimensionless]")
+            ax.set_ylabel(r"Susceptibility (dimensionless)")
     else:
         if per == "mol":
-            ax.set_ylabel(r"Susceptibility $[\mathrm{cm^3\, mol^{-1}}]$")
+            ax.set_ylabel(r"Susceptibility $(\mathrm{cm^3\, mol^{-1}})$")
         elif per == "weight":
-            ax.set_ylabel(r"Susceptibility $[\mathrm{cm^3\, g^{-1}}]$")
+            ax.set_ylabel(r"Susceptibility $(\mathrm{cm^3\, g^{-1}})$")
         else:
-            ax.set_ylabel(r"Susceptibility [dimensionless]")
+            ax.set_ylabel(r"Susceptibility (dimensionless)")
     ax.set_title(f"{material.graphname} Susceptibility vs Temperature")
     plt.show()
+    return fig, ax
     
 
-def make_powder_Xray_intensity_vs_angle(filename: str, display_num: int = 10, material: Optional[Crystal] = None):
+def make_powder_Xray_intensity_vs_angle(filename: str, display_num: int = 10, material: Optional[Crystal] = None) -> Tuple[Any, Any]:
     with open(filename, encoding="shift_jis") as f:
         data: List[List[float]] = [list(map(float, s.strip().split())) for s in f.readlines()[3:]]
         N: int = len(data)
@@ -636,7 +753,6 @@ def make_powder_Xray_intensity_vs_angle(filename: str, display_num: int = 10, ma
         assert len(neg)==0 # 負のintensityをもつ壊れたデータがないことを確認
         
         neighbor_num: int = 20 # peak(極大値の中でも急激に増加するもの)判定で参照する近傍のデータ点数
-        magnification: int = 4 # 周囲neighbor_num個の強度の最小値に比べて何倍大きければpeakと見なすかの閾値
         
         half: int = neighbor_num//2 # 中間点
         que: Deque[float] = deque([])
@@ -668,21 +784,207 @@ def make_powder_Xray_intensity_vs_angle(filename: str, display_num: int = 10, ma
             print(f"    Kα: d_hkl/n = {d_hkl_over_n_alpha}")
             print(f"    Kβ: d_hkl/n = {d_hkl_over_n_beta}")
         
-        fig = plt.figure(figsize=(7,6))
-        ax = fig.add_subplot(111)
-        ax.plot(two_theta, intensity)
-        ax.set_yscale('log')
-        ax.set_xlabel(r"$2\theta\, [{}^{\circ}]$")
-        ax.set_ylabel("intensity [count]")
-        if material is not None:
-            ax.set_title(f"{material.graphname} powder X-ray diffraction")
-        else:
-            ax.set_title(f"powder X-ray diffraction")
-        plt.show()
+    plt.rcParams['font.size'] = 14
+    plt.rcParams['font.family'] = 'Arial'
+    plt.rcParams['xtick.direction'] = 'in'
+    plt.rcParams['ytick.direction'] = 'in'
+    plt.rcParams["legend.framealpha"] = 0
+    fig: Any =  plt.figure(figsize=(8,7))
+    ax: Any =  fig.add_subplot(111)
+    ax.xaxis.set_ticks_position('both')
+    ax.yaxis.set_ticks_position('both')
+
+    ax.plot(two_theta, intensity)
+    ax.set_yscale('log')
+    ax.set_xlabel(r"$2\theta\, ({}^{\circ})$")
+    ax.set_ylabel(r"intensity (count)")
+    if material is not None:
+        ax.set_title(f"{material.graphname} powder X-ray diffraction")
+    else:
+        ax.set_title(f"powder X-ray diffraction")
+    plt.show()
+    return fig, ax
 
 
+def ax_decompose_reconstruct(ax: Any, figsize: Tuple[float, float]) -> Tuple[Any, Any]:
+    # 現状は最低限のpropertyしかないので必要な項目が増えたら追加する
+    fig: Any = plt.figure(figsize=figsize)
+    ax_new: Any = fig.add_subplot(111)
+    ax_new.set_title(ax.title.get_text(), fontsize=ax.title.get_fontsize())
+    ax_new.set_xlabel(ax.xaxis.label.get_text())
+    ax_new.set_ylabel(ax.yaxis.label.get_text())
+    ax_new.set_xlim(ax.get_xlim())
+    ax_new.set_ylim(ax.get_ylim())
+
+    # plot
+    for line2d in ax.lines:
+        ax_new.plot(line2d._xorig, line2d._yorig, label=line2d._label)
+
+    # scatter
+    for pathcollection in ax.collections:
+        xy = list(pathcollection._offsets)
+        x: List[float] = [i for i,j in xy]
+        y: List[float] = [j for i,j in xy]
+        ax_new.scatter(x, y, label=pathcollection._label)
+
+    # text
+    for t in ax.texts:
+        ax_new.text(t._x, t._y, t._text)
+
+    # legend
+    dict_loc_real: Dict[int, str] =  {1:"upper right", 2:"upper left", 3:"lower left", 4:"lower right"}
+    if not ax._axes.legend_._loc_used_default:
+        ax_new.legend(bbox_to_anchor=ax._axes.legend_._bbox_to_anchor._bbox._points[0], 
+                        loc=dict_loc_real[ax._axes.legend_._loc_real], 
+                        borderaxespad=ax._axes.legend_.borderaxespad, 
+                        fontsize=ax._axes.legend_._fontsize)
+    return fig, ax_new
 
 
+# 型エイリアス
+LF = List[float]
+LLF = List[List[float]] 
+class PPMS_Resistivity:
+    def __near_abs(self, x: float, k: float) -> float: # xに最も近いkの整数倍数
+        if k == 0:
+            return 0.0
+        a: int = int(x/k)
+        return min([(a-1)*k, a*k, (a+1)*k], key=lambda y:abs(x-y))
+
+    def _LSM(self, x: LF, y: LF, linear: bool = False) -> Tuple[LF, float, float]: # 最小二乗法
+        X: Any = np.array(x)
+        Y: Any = np.array(y)
+        if linear: # 線形関数近似
+            a = X@Y / (X ** 2).sum()
+            return list(a*X), a, 0
+        else: # 1次関数近似
+            n = len(X)
+            xs = np.sum(X)
+            ys = np.sum(Y)
+            a = ((X@Y - xs*ys/n) / (np.sum(X ** 2) - xs**2/n))
+            b = (ys - a * xs)/n
+            return list(a*X + b), a, b
+    
+    def __init__(self, filename: str, material: Optional[Crystal] = None):
+        self.filename: str = filename
+        self.material: Optional[Crystal] = material
+
+        with open(filename, encoding="shift_jis", mode="r") as current_file:
+            label: List[str] = []
+            data: List[List[Any]] = []
+            flag: int = 0
+            for l in current_file.readlines():
+                if flag == 0 and l == "[Data]\n":
+                    flag = 1
+                    continue
+                if flag == 1:
+                    label = l.strip().split(",")
+                    flag = 2
+                elif flag == 2:
+                    data.append(list(map(str_to_float,l.strip().split(","))))
+
+        N: int = len(data)
+
+        dict_label: Dict[str, int] = {v:k for k,v in enumerate(label)}
+        self.Temp: LF =          [data[i][dict_label["Temperature (K)"]] for i in range(N)]
+        self.Field: LF =         [data[i][dict_label["Magnetic Field (Oe)"]] for i in range(N)]
+        self.Time: LF =          [data[i][dict_label["Time Stamp (sec)"]] for i in range(N)]
+        self.B1Resistivity: LF = [data[i][dict_label["Bridge 1 Resistivity (Ohm)"]] for i in range(N)]
+        self.B2Resistivity: LF = [data[i][dict_label["Bridge 2 Resistivity (Ohm)"]] for i in range(N)]
+        self.B1R_sd: LF =        [data[i][dict_label["Bridge 1 Std. Dev. (Ohm)"]] for i in range(N)]
+        self.B2R_sd: LF =        [data[i][dict_label["Bridge 2 Std. Dev. (Ohm)"]] for i in range(N)]
+        self.B1Current: LF =     [data[i][dict_label["Bridge 1 Excitation (uA)"]] for i in range(N)]
+        self.B2Current: LF =     [data[i][dict_label["Bridge 2 Excitation (uA)"]] for i in range(N)]
+
+
+    def set_S_l(self, Sxx: float, lxx: float, Syx: float, lyx: float): # S:[μm^2], l:[μm]
+        self.Sxx: float = Sxx
+        self.Syx: float = Syx
+        self.lxx: float = lxx
+        self.lyx: float = lyx
+    
+    def symmetrize(self, delta_H: float, up_data: LLF, down_data: LLF) -> Tuple[LF, LF, LF, LF, LF]:
+        # (up/down)_data := List[List[field: float, Rxx: float, Rxx_sd: float, Ryx: float, Ryx_sd: float]]
+        # 磁場を1往復させたときのデータから，Rxx・Ryxをそれぞれ対称化・反対称化
+
+        up_idx:   Dict[float, int] = {self.__near_abs(h, delta_H):i for i, (h, *_) in enumerate(up_data)}
+        down_idx: Dict[float, int] = {self.__near_abs(-h, delta_H):i for i, (h, *_) in enumerate(down_data)}
+        
+        effective_field: LF = []
+        Rxx: LF = []
+        Ryx: LF = []
+
+        Rxx_sd: LF = []
+        Ryx_sd: LF = []
+
+        for h in sorted(set(down_idx.keys()) & set(up_idx.keys())):
+            i: int = up_idx[h]
+            j: int = down_idx[h]
+            effective_field.append(h)
+            _, Rxx_i, Rxx_sd_i, Ryx_i, Ryx_sd_i = up_data[i]
+            _, Rxx_j, Rxx_sd_j, Ryx_j, Ryx_sd_j = down_data[j]
+            # 対称化・反対称化
+            Rxx.append( (Rxx_i+Rxx_j)/2 ) # [Ω]
+            Ryx.append( (Ryx_i-Ryx_j)/2 ) # [Ω]
+            # 標準偏差の伝播則
+            Rxx_sd.append( (Rxx_sd_i**2+Rxx_sd_j**2)**0.5 / 2 ) # [Ω]
+            Ryx_sd.append( (Ryx_sd_i**2+Ryx_sd_j**2)**0.5 / 2 ) # [Ω]
+        return effective_field, Rxx, Rxx_sd, Ryx, Ryx_sd
+                    
+
+class MPMS:
+    def __init__(self, filename: str, material: Crystal, temp_val: Optional[float] = None):
+        self.filename: str = filename
+        self.material: Optional[Crystal] = material
+
+        with open(filename, encoding="shift_jis", mode="r") as current_file:
+            label: List[str] = []
+            data: List[List[Any]] = []
+            flag: int = 0
+            for l in current_file.readlines():
+                if flag == 0 and l == "[Data]\n":
+                    flag = 1
+                    continue
+                if flag == 1:
+                    label = l.strip().split(",")
+                    flag = 2
+                elif flag == 2:
+                    data.append(list(map(str_to_float,l.strip().split(","))))
+
+        N: int = len(data)
+
+        dict_label: Dict[str, int] = {v:k for k,v in enumerate(label)}
+
+        self.Temp: List[float] =          [data[i][dict_label["Temperature (K)"]] for i in range(N)]
+        self.Field: List[float] =         [data[i][dict_label["Field (Oe)"]] for i in range(N)]
+        self.Time: List[float] =          [data[i][dict_label["Time"]] for i in range(N)]
+        self.LongMoment: List[float] =    [data[i][dict_label["Long Moment (emu)"]] for i in range(N)]
+        self.RegFit: List[float] =        [data[i][dict_label["Long Reg Fit"]] for i in range(N)]
+
+
+def ingredient_flake_dp(A: List[int], W: int) -> None: # A: 適当に整数化したフレークの重さ, W: 目標重量
+    N: int = len(A)
+    K: int = W+20 # 余裕を持って求めておく
+    dp: List[List[int]] = [[0]*K for i in range(N+1)]
+    dp[0][0] = 1
+    for i in range(1,N+1):
+        for j in range(K):
+            if dp[i-1][j] and A[i-1]+j<K:
+                dp[i][A[i-1]+j] = 1
+            if dp[i-1][j]:
+                dp[i][j] = 1
+
+    #print([i for i in range(K) if dp[N][i]])
+    for k in range(-10,11): # 目標値のまわり±10を見る
+        now: int = W+k
+        ans: List[int] = []
+        if dp[N][now]:
+            for i in range(N)[::-1]:
+                if now-A[i]>=0 and dp[i][now-A[i]]:
+                    now -= A[i]
+                    ans.append(A[i])
+        print(W+k, ans)
+    return
 
 def main():
     pass
