@@ -163,6 +163,22 @@ atomic_weight: Dict[str, float] = {
 }
 
 
+class Semimutable_dict(dict):
+    def __init__(self, *args):
+        super().__init__(args)
+        self.__updatable: bool = False
+
+    def __setitem__(self, key: Any, value: Any):
+        if key in self and not self.__updatable:
+            raise TypeError(f"elements of '{type(self)}' cannot be changed by '[]' operator; use 'update_force' method")
+        super().__setitem__(key, value)
+        self.__updatable = False
+
+    def update_force(self, key: Any, value: Any):
+        self.__updatable = True
+        self[key] = value
+        
+
 class Crystal: # 結晶の各物理量を計算
     def __init__(self, name: str, date: Optional[str] = None, auto_formula_weight: bool = True):
         self.name: str = name # 化合物名
@@ -201,7 +217,7 @@ class Crystal: # 結晶の各物理量を計算
             "numbered_name": "", "components": ""
         }
 
-        self.__graphs: Dict[str, Any] = dict()
+        self.graphs: Semimutable_dict = Semimutable_dict()
 
         # 化学式を"形態素"ごとに分割したリスト
         divided_name: List[str] = re.split(r",+", re.sub(r"([A-Z][a-z]*|\d+|[()])", ",\\1,", self.numbered_name).strip(","))
@@ -372,14 +388,6 @@ class Crystal: # 結晶の各物理量を計算
         else:
             print("\n".join([f"{element} = {ratio*self.w:.4g} g ({ratio:.2%})" for element, ratio in res]))
         return res
-
-    def set_graph(self, name: str, ax: Any, update: bool = False):
-        if not update and name in self.__graphs:
-            raise ValueError("Basically, graphs are unupdatable. If you want to update graphs, the argument: 'update' must be True.")
-        self.__graphs[name] = ax
-
-    def get_graph(self, name: str):
-        return self.__graphs[name]
 
     def save(self, overwrite: bool = False): # Crystalインスタンスのデータを保存
         filename: str = self.name
@@ -844,18 +852,18 @@ class PPMS_Resistivity:
         return min([(a-1)*k, a*k, (a+1)*k], key=lambda y:abs(x-y))
 
     def _LSM(self, x: LF, y: LF, linear: bool = False) -> Tuple[LF, float, float]: # 最小二乗法
-        x: Any = np.array(x)
-        y: Any = np.array(y)
+        X: Any = np.array(x)
+        Y: Any = np.array(y)
         if linear: # 線形関数近似
-            a = x@y / (x ** 2).sum()
-            return list(a*x), a, 0
+            a = X@Y / (X ** 2).sum()
+            return list(a*X), a, 0
         else: # 1次関数近似
-            n = len(x)
-            xs = np.sum(x)
-            ys = np.sum(y)
-            a = ((x@y - xs*ys/n) / (np.sum(x ** 2) - xs**2/n))
+            n = len(X)
+            xs = np.sum(X)
+            ys = np.sum(Y)
+            a = ((X@Y - xs*ys/n) / (np.sum(X ** 2) - xs**2/n))
             b = (ys - a * xs)/n
-            return list(a*x + b), a, b
+            return list(a*X + b), a, b
     
     def __init__(self, filename: str, material: Optional[Crystal] = None):
         self.filename: str = filename
@@ -887,7 +895,7 @@ class PPMS_Resistivity:
         self.B2R_sd: LF =        [data[i][dict_label["Bridge 2 Std. Dev. (Ohm)"]] for i in range(N)]
         self.B1Current: LF =     [data[i][dict_label["Bridge 1 Excitation (uA)"]] for i in range(N)]
         self.B2Current: LF =     [data[i][dict_label["Bridge 2 Excitation (uA)"]] for i in range(N)]
-        self.Time: LF =          [data[i][dict_label["Time Stamp (sec)"]] for i in range(N)]
+
 
     def set_S_l(self, Sxx: float, lxx: float, Syx: float, lyx: float): # S:[μm^2], l:[μm]
         self.Sxx: float = Sxx
@@ -899,8 +907,8 @@ class PPMS_Resistivity:
         # (up/down)_data := List[List[field: float, Rxx: float, Rxx_sd: float, Ryx: float, Ryx_sd: float]]
         # 磁場を1往復させたときのデータから，Rxx・Ryxをそれぞれ対称化・反対称化
 
-        up_idx:   Dict[float, Tuple[int, float]] = {self.__near_abs(h, delta_H):i for i, (h, *_) in enumerate(up_data)}
-        down_idx: Dict[float, Tuple[int, float]] = {self.__near_abs(-h, delta_H):i for i, (h, *_) in enumerate(down_data)}
+        up_idx:   Dict[float, int] = {self.__near_abs(h, delta_H):i for i, (h, *_) in enumerate(up_data)}
+        down_idx: Dict[float, int] = {self.__near_abs(-h, delta_H):i for i, (h, *_) in enumerate(down_data)}
         
         effective_field: LF = []
         Rxx: LF = []
@@ -924,7 +932,6 @@ class PPMS_Resistivity:
         return effective_field, Rxx, Rxx_sd, Ryx, Ryx_sd
                     
 
-LF = List[float]
 class MPMS:
     def __init__(self, filename: str, material: Crystal, temp_val: Optional[float] = None):
         self.filename: str = filename
