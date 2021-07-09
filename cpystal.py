@@ -440,8 +440,8 @@ def make_moment_vs_temp(material: Crystal, Temp: List[float], Moment: List[float
     plt.rcParams['xtick.direction'] = 'in'
     plt.rcParams['ytick.direction'] = 'in'
     plt.rcParams["legend.framealpha"] = 0
-    fig: Any =  plt.figure(figsize=(8,7))
-    ax: Any =  fig.add_subplot(111)
+    fig: Any = plt.figure(figsize=(8,7))
+    ax: Any = fig.add_subplot(111)
     ax.xaxis.set_ticks_position('both')
     ax.yaxis.set_ticks_position('both')
 
@@ -502,8 +502,8 @@ def make_moment_vs_field(material: Crystal, Field: List[float], Moment: List[flo
     plt.rcParams['xtick.direction'] = 'in'
     plt.rcParams['ytick.direction'] = 'in'
     plt.rcParams["legend.framealpha"] = 0
-    fig: Any =  plt.figure(figsize=(8,7))
-    ax: Any =  fig.add_subplot(111)
+    fig: Any = plt.figure(figsize=(8,7))
+    ax: Any = fig.add_subplot(111)
     ax.xaxis.set_ticks_position('both')
     ax.yaxis.set_ticks_position('both')
 
@@ -542,8 +542,8 @@ def make_magnetization_vs_temp(material: Crystal, Temp: List[float], Moment: Lis
     plt.rcParams['xtick.direction'] = 'in'
     plt.rcParams['ytick.direction'] = 'in'
     plt.rcParams["legend.framealpha"] = 0
-    fig: Any =  plt.figure(figsize=(8,7))
-    ax: Any =  fig.add_subplot(111)
+    fig: Any = plt.figure(figsize=(8,7))
+    ax: Any = fig.add_subplot(111)
     ax.xaxis.set_ticks_position('both')
     ax.yaxis.set_ticks_position('both')
 
@@ -579,8 +579,8 @@ def make_magnetization_vs_field(material: Crystal, Field: List[float], Moment: L
     plt.rcParams['xtick.direction'] = 'in'
     plt.rcParams['ytick.direction'] = 'in'
     plt.rcParams["legend.framealpha"] = 0
-    fig: Any =  plt.figure(figsize=(8,7))
-    ax: Any =  fig.add_subplot(111)
+    fig: Any = plt.figure(figsize=(8,7))
+    ax: Any = fig.add_subplot(111)
     ax.xaxis.set_ticks_position('both')
     ax.yaxis.set_ticks_position('both')
 
@@ -621,8 +621,8 @@ def make_Bohr_vs_field(material: Crystal, Field: List[float], Moment: List[float
     plt.rcParams['xtick.direction'] = 'in'
     plt.rcParams['ytick.direction'] = 'in'
     plt.rcParams["legend.framealpha"] = 0
-    fig: Any =  plt.figure(figsize=(8,7))
-    ax: Any =  fig.add_subplot(111)
+    fig: Any = plt.figure(figsize=(8,7))
+    ax: Any = fig.add_subplot(111)
     ax.xaxis.set_ticks_position('both')
     ax.yaxis.set_ticks_position('both')
 
@@ -656,8 +656,8 @@ def make_Bohr_vs_temp(material: Crystal, Temp: List[float], Moment: List[float],
     plt.rcParams['xtick.direction'] = 'in'
     plt.rcParams['ytick.direction'] = 'in'
     plt.rcParams["legend.framealpha"] = 0
-    fig: Any =  plt.figure(figsize=(8,7))
-    ax: Any =  fig.add_subplot(111)
+    fig: Any = plt.figure(figsize=(8,7))
+    ax: Any = fig.add_subplot(111)
     ax.xaxis.set_ticks_position('both')
     ax.yaxis.set_ticks_position('both')
 
@@ -713,8 +713,8 @@ def make_susceptibility_vs_temp(material: Crystal, Temp: List[float], Moment: Li
     plt.rcParams['xtick.direction'] = 'in'
     plt.rcParams['ytick.direction'] = 'in'
     plt.rcParams["legend.framealpha"] = 0
-    fig: Any =  plt.figure(figsize=(8,7))
-    ax: Any =  fig.add_subplot(111)
+    fig: Any = plt.figure(figsize=(8,7))
+    ax: Any = fig.add_subplot(111)
     ax.xaxis.set_ticks_position('both')
     ax.yaxis.set_ticks_position('both')
 
@@ -786,8 +786,8 @@ def make_powder_Xray_intensity_vs_angle(filename: str, display_num: int = 10, ma
     plt.rcParams['xtick.direction'] = 'in'
     plt.rcParams['ytick.direction'] = 'in'
     plt.rcParams["legend.framealpha"] = 0
-    fig: Any =  plt.figure(figsize=(8,7))
-    ax: Any =  fig.add_subplot(111)
+    fig: Any = plt.figure(figsize=(8,7))
+    ax: Any = fig.add_subplot(111)
     ax.xaxis.set_ticks_position('both')
     ax.yaxis.set_ticks_position('both')
 
