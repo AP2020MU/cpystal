@@ -941,7 +941,7 @@ class PPMS_Resistivity:
                     
 
 class MPMS:
-    def __init__(self, filename: str, material: Crystal, temp_val: Optional[float] = None):
+    def __init__(self, filename: str, material: Crystal):
         self.filename: str = filename
         self.material: Optional[Crystal] = material
 
