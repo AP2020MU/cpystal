@@ -838,11 +838,14 @@ def ax_transplant(ax: Any, fig_new: Optional[Any] = None, figsize: Optional[Tupl
 
     # legend
     dict_loc_real: Dict[int, str] =  {1:"upper right", 2:"upper left", 3:"lower left", 4:"lower right"}
-    if not ax._axes.legend_._loc_used_default:
-        ax_new.legend(bbox_to_anchor=ax._axes.legend_._bbox_to_anchor._bbox._points[0], 
-                        loc=dict_loc_real[ax._axes.legend_._loc_real], 
-                        borderaxespad=ax._axes.legend_.borderaxespad, 
-                        fontsize=ax._axes.legend_._fontsize)
+    if ax._axes.legend_ is not None:
+        if not ax._axes.legend_._loc_used_default:
+            ax_new.legend(bbox_to_anchor=ax._axes.legend_._bbox_to_anchor._bbox._points[0], 
+                            loc=dict_loc_real[ax._axes.legend_._loc_real], 
+                            borderaxespad=ax._axes.legend_.borderaxespad, 
+                            fontsize=ax._axes.legend_._fontsize)
+        else:
+            ax_new.legend()
     return fig_new, ax_new
 
 
