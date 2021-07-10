@@ -803,14 +803,18 @@ def make_powder_Xray_intensity_vs_angle(filename: str, display_num: int = 10, ma
     return fig, ax
 
 
-def ax_transplant(ax: Any, fig_new: Optional[Any] = None, figsize: Optional[Tuple[float, float]] = None) -> Tuple[Any, Any]:
+def ax_transplant(ax: Any, fig_new: Optional[Any] = None, figsize: Optional[Tuple[float, float]] = None, ax_new: Optional[Any] = None) -> Tuple[Any, Any]:
     # 現状は最低限のpropertyしかないので必要な項目が増えたら追加する
     if fig_new is None:
         if figsize is None:
             fig_new = plt.figure()
         else:
             fig_new = plt.figure(figsize=figsize)
-    ax_new: Any = fig_new.add_subplot(111)
+        ax_new = fig_new.add_subplot(111)
+    else:
+        if ax_new is None:
+            ax_new = fig_new.add_subplot(111)
+
     ax_new.set_title(ax.title.get_text(), fontsize=ax.title.get_fontsize())
     ax_new.set_xlabel(ax.xaxis.label.get_text())
     ax_new.set_ylabel(ax.yaxis.label.get_text())
