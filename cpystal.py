@@ -803,7 +803,7 @@ def make_powder_Xray_intensity_vs_angle(filename: str, display_num: int = 10, ma
     return fig, ax
 
 
-def ax_decompose_reconstruct(ax: Any, figsize: Tuple[float, float]) -> Tuple[Any, Any]:
+def ax_transplant(ax: Any, figsize: Tuple[float, float]) -> Tuple[Any, Any]:
     # 現状は最低限のpropertyしかないので必要な項目が増えたら追加する
     fig: Any = plt.figure(figsize=figsize)
     ax_new: Any = fig.add_subplot(111)
