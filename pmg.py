@@ -112,7 +112,7 @@ def Crystal_instance_from_cif_data(cif_filename: str) -> Crystal:
     material.alpha = structure.lattice.angles[0]
     material.beta  = structure.lattice.angles[1]
     material.gamma = structure.lattice.angles[2]
-    material.V = structure.lattice.volume
+    material.V = structure.lattice.volume / 10**24
     return material
 
 def main():
