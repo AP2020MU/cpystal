@@ -252,21 +252,21 @@ class Crystal: # 結晶の各物理量を計算
         return Crystal(re.sub(r"[0-9]+", lambda x: str(other*int(x.group())), self.numbered_name))
 
     def __setattr__(self, attr: str, value: Any):
-        is_substitute: bool = True
+        is_substitutable: bool = True
         if attr in self.__dict__ and self.__dict__[attr] is not None:
             print(f"instance variable '{attr}' is already substituted")
             while True:
                 print("Proceed ([y]/n)?")
                 s: str = input()
                 if s == "y":
-                    is_substitute = True
+                    is_substitutable = True
                     break
                 elif s == "n":
-                    is_substitute = False
+                    is_substitutable = False
                     break
                 else:
                     print(f"invalid input: {s}")
-        if is_substitute:
+        if is_substitutable:
             self.__dict__[attr] = value
 
     def set_lattice_constant(self, a: float, b: float, c: float, alpha: float, beta: float, gamma: float, num: Optional[int] = None):
