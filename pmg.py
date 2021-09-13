@@ -103,7 +103,17 @@ def compare_powder_Xray_experiment_with_calculation(experimental_data_filename: 
 
 
 def Crystal_instance_from_cif_data(cif_filename: str) -> Crystal:
-    return
+    parser: pymatgen.io.cif.CifParser = CifParser(cif_filename)
+    structure: pymatgen.core.structure.Structure = parser.get_structures()[0]
+    material: Crystal = Crystal(structure.formula)
+    material.a = structure.lattice.a
+    material.b = structure.lattice.b
+    material.c = structure.lattice.c
+    material.alpha = structure.lattice.angles[0]
+    material.beta  = structure.lattice.angles[1]
+    material.gamma = structure.lattice.angles[2]
+    material.V = structure.lattice.volume
+    return material
 
 def main():
     pass
