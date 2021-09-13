@@ -10,6 +10,8 @@ import numpy as np
 import pickle
 import scipy.signal # type: ignore
 
+from cpystal import *
+
 import pymatgen
 from pymatgen.io.cif import CifParser
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
@@ -100,9 +102,8 @@ def compare_powder_Xray_experiment_with_calculation(experimental_data_filename: 
 
 
 
-def Crystal_instance_from_cif_data(cif_data):
+def Crystal_instance_from_cif_data(cif_filename: str) -> Crystal:
     return
-
 
 def main():
     pass
