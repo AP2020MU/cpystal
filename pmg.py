@@ -137,13 +137,13 @@ def Crystal_instance_from_cif_data(cif_filename: str) -> Crystal:
     parser: pymatgen.io.cif.CifParser = CifParser(cif_filename)
     structure: pymatgen.core.structure.Structure = parser.get_structures()[0]
     material: Crystal = Crystal("".join(structure.formula.split()))
-    material.a = structure.lattice.a
-    material.b = structure.lattice.b
-    material.c = structure.lattice.c
-    material.alpha = structure.lattice.angles[0]
-    material.beta  = structure.lattice.angles[1]
-    material.gamma = structure.lattice.angles[2]
-    material.V = structure.lattice.volume / 10**24
+    material.a = structure.lattice.a # [Å]
+    material.b = structure.lattice.b # [Å]
+    material.c = structure.lattice.c # [Å]
+    material.alpha = structure.lattice.angles[0] # [°]
+    material.beta  = structure.lattice.angles[1] # [°]
+    material.gamma = structure.lattice.angles[2] # [°]
+    material.V = structure.lattice.volume / 10**24 # [cm^3]
     return material
 
 def main():
