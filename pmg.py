@@ -101,6 +101,37 @@ def compare_powder_Xray_experiment_with_calculation(experimental_data_filename: 
     plt.show()
 
 
+def make_powder_Xray_diffraction_pattern_in_calculation(cif_filename: str, material: Optional[Crystal] = None):
+    # ここから粉末X線回折の理論計算
+    try:
+        parser: pymatgen.io.cif.CifParser = CifParser(cif_filename)
+    except FileNotFoundError:
+        raise FileNotFoundError("confirm current directory or use absolute path")
+    structure: pymatgen.core.structure.Structure = parser.get_structures()[0]
+    analyzer: pymatgen.analysis.diffraction.xrd.XRDCalculator = pymatgen.analysis.diffraction.xrd.XRDCalculator(wavelength='CuKa')
+    diffraction_pattern: pymatgen.analysis.diffraction.core.DiffractionPattern = analyzer.get_pattern(structure)
+    for d_hkl, hkl, x, y in sorted(zip(diffraction_pattern.d_hkls, diffraction_pattern.hkls, diffraction_pattern.x, diffraction_pattern.y), key=lambda z:z[3], reverse=True)[:10]:
+        print(x, hkl, d_hkl)
+
+    fig = plt.figure(figsize=(7,6))
+    ax = fig.add_subplot(111)
+    ax.xaxis.set_ticks_position('both')
+    ax.yaxis.set_ticks_position('both')
+
+    # 理論計算
+    ax.bar(diffraction_pattern.x, diffraction_pattern.y, width=0.6, label="calculated", color="red")
+
+    #ax.set_yscale('log')
+    ax.set_xlabel(r"$2\theta\, [{}^{\circ}]$")
+    ax.set_ylabel("intensity [a.u.]")
+    if material is not None:
+        ax.set_title(f"{material.graphname} powder X-ray diffraction")
+    else:
+        ax.set_title(f"powder X-ray diffraction")
+    ax.legend()
+    ax.set_xticks(range(0,100,10))
+    plt.show()
+
 
 def Crystal_instance_from_cif_data(cif_filename: str) -> Crystal:
     parser: pymatgen.io.cif.CifParser = CifParser(cif_filename)
