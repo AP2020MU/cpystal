@@ -163,24 +163,24 @@ atomic_weight: Dict[str, float] = {
 }
 
 
-class Semimutable_dict(dict):
-    def __init__(self, *args):
+class Semimutable_dict(Dict[Any, Any]):
+    def __init__(self, *args: Any) -> None:
         super().__init__(args)
         self.__updatable: bool = False
 
-    def __setitem__(self, key: Any, value: Any):
+    def __setitem__(self, key: Any, value: Any) -> None:
         if key in self and not self.__updatable:
             raise TypeError(f"elements of '{type(self)}' cannot be changed by '[]' operator; use 'update_force' method")
         super().__setitem__(key, value)
         self.__updatable = False
 
-    def update_force(self, key: Any, value: Any):
+    def update_force(self, key: Any, value: Any) -> None:
         self.__updatable = True
         self[key] = value
         
 
 class Crystal: # 結晶の各物理量を計算
-    def __init__(self, name: str, date: Optional[str] = None, auto_formula_weight: bool = True):
+    def __init__(self, name: str, date: Optional[str] = None, auto_formula_weight: bool = True) -> None:
         self.name: str = name # 化合物名
         self.graphname: str = "$\mathrm{" + re.sub('([0-9]+)', '_{\\1}', name) + "}$" # グラフで表示する名前
         self.date: Optional[str] = date # 合成した日付(必要ならナンバリングもここに含める)
@@ -267,7 +267,7 @@ class Crystal: # 結晶の各物理量を計算
         # self.numbered_name中の数字をすべてother倍する
         return Crystal(re.sub(r"[0-9]+", lambda x: str(other*int(x.group())), self.numbered_name))
 
-    def __setattr__(self, attr: str, value: Any):
+    def __setattr__(self, attr: str, value: Any) -> None:
         is_substitutable: bool = True
         if attr in self.__dict__ and self.__dict__[attr] is not None:
             print(f"instance variable '{attr}' is already substituted")
@@ -285,7 +285,7 @@ class Crystal: # 結晶の各物理量を計算
         if is_substitutable:
             self.__dict__[attr] = value
 
-    def set_lattice_constant(self, a: float, b: float, c: float, alpha: float, beta: float, gamma: float, num: Optional[int] = None):
+    def set_lattice_constant(self, a: float, b: float, c: float, alpha: float, beta: float, gamma: float, num: Optional[int] = None) -> None:
         # a,b,c: 格子定数 [Å]
         # alpha,beta,gamma: 基本並進ベクトル間の角度 [°]
         self.a = a
@@ -302,20 +302,20 @@ class Crystal: # 結晶の各物理量を計算
         if num is not None:
             self.num = num # 単位胞に含まれる化学式の数 (無次元)
     
-    def set_formula_weight(self, formula_weight: float):
+    def set_formula_weight(self, formula_weight: float) -> None:
         # コンストラクタでauto_formula_weight = Trueで自動設定可能
         # formula_weight: モル質量(式量) [g/mol]
         self.formula_weight = formula_weight
 
-    def set_weight(self, w: float):
+    def set_weight(self, w: float) -> None:
         # w: 試料の質量 [g]
         self.w = w
     
-    def set_mol(self, mol: float):
+    def set_mol(self, mol: float) -> None:
         # mol: 試料の物質量 [mol]
         self.mol = mol
 
-    def set_num_magnetic_ion(self, num_magnetic_ion: int):
+    def set_num_magnetic_ion(self, num_magnetic_ion: int) -> None:
         # num_magnetic_ion: 化学式中の磁性イオンの数 (無次元)
         self.num_magnetic_ion = num_magnetic_ion
 
@@ -407,7 +407,7 @@ class Crystal: # 結晶の各物理量を計算
             print("\n".join([f"{element} = {ratio*self.w:.4g} g ({ratio:.2%})" for element, ratio in res]))
         return res
 
-    def save(self, filename: str, overwrite: bool = False): # Crystalインスタンスのデータを保存
+    def save(self, filename: str, overwrite: bool = False) -> None: # Crystalインスタンスのデータを保存
         mode: str
         if overwrite:
             mode = 'wb' # 上書きあり
@@ -416,7 +416,7 @@ class Crystal: # 結晶の各物理量を計算
         with open(f"{filename}.pickle", mode=mode) as f:
             pickle.dump(self, f)
 
-    def load(self, filename: str): # Crystalインスタンスのデータをロード
+    def load(self, filename: str) -> None: # Crystalインスタンスのデータをロード
         with open(f"{filename}.pickle", mode='rb') as f:
             pre: Crystal = pickle.load(f)
             self.__dict__ = pre.__dict__
@@ -658,7 +658,7 @@ def make_Bohr_vs_field(material: Crystal, Field: List[float], Moment: List[float
     return fig, ax
 
 
-def make_Bohr_vs_temp(material: Crystal, Temp: List[float], Moment: List[float], field_val: float, per_formula_unit: bool = True):
+def make_Bohr_vs_temp(material: Crystal, Temp: List[float], Moment: List[float], field_val: float, per_formula_unit: bool = True) -> Tuple[Any, Any]:
     Bohr_vs_temp: List[List[float]]
     if per_formula_unit:
         # 縦軸：有効ボーア磁子数/式量，横軸：磁場 のグラフを作成
@@ -927,7 +927,7 @@ class PPMS_Resistivity:
         self.B2Current: LF =     [data[i][dict_label["Bridge 2 Excitation (uA)"]] for i in range(N)]
 
 
-    def set_S_l(self, Sxx: float, lxx: float, Syx: float, lyx: float): # S:[μm^2], l:[μm]
+    def set_S_l(self, Sxx: float, lxx: float, Syx: float, lyx: float) -> None: # S:[μm^2], l:[μm]
         self.Sxx: float = Sxx
         self.Syx: float = Syx
         self.lxx: float = lxx
@@ -1016,7 +1016,7 @@ def ingredient_flake_dp(A: List[int], W: int) -> None: # A: 適当に整数化�
         print(W+k, ans)
     return
 
-def main():
+def main() -> None:
     pass
     return
 
