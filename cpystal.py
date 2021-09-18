@@ -277,6 +277,7 @@ class Crystal: # 結晶の各物理量を計算
                     divided_name[i] = f"{float(s) * other:.4g}"
         return Crystal("".join(divided_name))
 
+    # self.loadとの機能的な衝突の問題からdeactivate
     # def __setattr__(self, name: str, value: Any) -> None:
     #     is_substitutable: bool = True
     #     if name in self.__dict__ and self.__dict__[name] is not None:
