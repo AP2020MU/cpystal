@@ -182,7 +182,7 @@ class Semimutable_dict(Dict[Any, Any]):
 class Crystal: # 結晶の各物理量を計算
     def __init__(self, name: str, date: Optional[str] = None, auto_formula_weight: bool = True) -> None:
         self.name: str = name # 化合物名
-        self.graphname: str = "$\mathrm{" + re.sub('([0-9]+)', '_{\\1}', name) + "}$" # グラフで表示する名前
+        self.graphname: str = "$\mathrm{" + re.sub(r"(\d+\.*\d*)", "_{\\1}", name) + "}$" # グラフで表示する名前
         self.date: Optional[str] = date # 合成した日付(必要ならナンバリングもここに含める)
         
         self.NA: float = 6.02214076 * 10**(23) # アボガドロ定数:[/mol]
@@ -203,8 +203,8 @@ class Crystal: # 結晶の各物理量を計算
         self.density: Optional[float] = None        # 密度 [g/cm^3]
         self.mol: Optional[float] = None            # 物質量 [mol]
 
-        self.numbered_name: str = re.sub(r"([A-Z][a-z]?|\))(?=[^0-9a-z]+)", r"\g<1>1", name+"$")[:-1] # 元素数を明示したname ("$"は番兵)
-        self.components: DefaultDict[str, int] = defaultdict(int)   # 化学式中に各元素がいくつあるか
+        self.numbered_name: str = re.sub(r"([A-Z][a-z]?|\))(?=[^0-9a-z]+)", r"\g<1>1", name+"$")[:-1] # '1'を追加して元素数を明示したname ("$"は番兵)
+        self.components: DefaultDict[str, float] = defaultdict(float)   # 化学式中に各元素がいくつあるか
 
         # 各クラス変数の単位
         # 内部では基本的にCGS単位系を用いる
@@ -220,20 +220,20 @@ class Crystal: # 結晶の各物理量を計算
         self.graphs: Semimutable_dict = Semimutable_dict()
 
         # 化学式を"形態素"ごとに分割したリスト
-        divided_name: List[str] = re.split(r",+", re.sub(r"([A-Z][a-z]*|\d+|[()])", ",\\1,", self.numbered_name).strip(","))
-        now: int = 1 # 倍率
-        num_stack: List[int] = [1] # 後ろから見て，現在有効な数の積を格納するstack
+        divided_name: List[str] = re.split(r",+", re.sub(r"([A-Z][a-z]*|(\d|\.)+|[()])", ",\\1,", self.numbered_name).strip(","))
+        now: float = 1.0 # 倍率
+        num_stack: List[float] = [1.0] # 後ろから見て，現在有効な数の積を格納するstack
         for s in reversed(divided_name): # 化学式を後ろからみる
-            if s.isdigit(): # 数値
-                now *= int(s)
-                num_stack.append(int(s))
+            if re.match(r"\d+\.*\d*", s): # 数値
+                now *= float(s)
+                num_stack.append(float(s))
             elif s == ")":
                 pass
             elif s == "(": # ()を付けるときは必ず直後に1以上の数字が来る
-                now //= num_stack.pop()
+                now /= num_stack.pop()
             else:
                 self.components[s] += now
-                now //= num_stack.pop()
+                now /= num_stack.pop()
         if auto_formula_weight: # nameから自動で式量を計算
             formula_weight: float = 0.0 # 式量
             for element, n in self.components.items():
@@ -265,25 +265,35 @@ class Crystal: # 結晶の各物理量を計算
         if type(other) is not int:
             raise TypeError
         # self.numbered_name中の数字をすべてother倍する
-        return Crystal(re.sub(r"[0-9]+", lambda x: str(other*int(x.group())), self.numbered_name))
+        divided_name: List[str] = re.split(r",+", re.sub(r"([A-Z][a-z]*|(\d|\.)+|[()])", ",\\1,", self.numbered_name).strip(","))
+        parentheses_depth: int = 0 # かっこの中にある数字は飛ばす
+        for i, s in enumerate(divided_name):
+            if s == "(":
+                parentheses_depth += 1
+            elif s == ")":
+                parentheses_depth -= 1
+            else:
+                if parentheses_depth == 0 and re.match(r"\d+\.*\d*", s):
+                    divided_name[i] = f"{float(s) * other:.4g}"
+        return Crystal("".join(divided_name))
 
-    def __setattr__(self, attr: str, value: Any) -> None:
-        is_substitutable: bool = True
-        if attr in self.__dict__ and self.__dict__[attr] is not None:
-            print(f"instance variable '{attr}' is already substituted")
-            while True:
-                print("Proceed ([y]/n)?")
-                s: str = input()
-                if s == "y":
-                    is_substitutable = True
-                    break
-                elif s == "n":
-                    is_substitutable = False
-                    break
-                else:
-                    print(f"invalid input: {s}")
-        if is_substitutable:
-            self.__dict__[attr] = value
+    # def __setattr__(self, name: str, value: Any) -> None:
+    #     is_substitutable: bool = True
+    #     if name in self.__dict__ and self.__dict__[name] is not None:
+    #         print(f"instance variable '{name}' is already substituted")
+    #         while True:
+    #             print("Proceed ([y]/n)?")
+    #             s: str = input()
+    #             if s == "y":
+    #                 is_substitutable = True
+    #                 break
+    #             elif s == "n":
+    #                 is_substitutable = False
+    #                 break
+    #             else:
+    #                 print(f"invalid input: {s}")
+    #     if is_substitutable:
+    #         self.__dict__[name] = value
 
     def set_lattice_constant(self, a: float, b: float, c: float, alpha: float, beta: float, gamma: float, num: Optional[int] = None) -> None:
         # a,b,c: 格子定数 [Å]
@@ -420,6 +430,11 @@ class Crystal: # 結晶の各物理量を計算
         with open(f"{filename}.pickle", mode='rb') as f:
             pre: Crystal = pickle.load(f)
             self.__dict__ = pre.__dict__
+            # __setattr__を自前実装すると，load後のインスタンスでクラス変数へアクセスできなくなってしまった
+            # そのため，もし__setattr__を定義するなら各クラス変数にいちいち代入する
+            #for key, value in pre.__dict__.items():
+            #    self.__setattr__(key, value)
+
 
 
 
