@@ -426,7 +426,7 @@ class Crystal: # 結晶の各物理量を計算
             mode = 'xb' # 上書きなし
         with open(f"{filename}.pickle", mode=mode) as f:
             pickle.dump(self, f)
-
+    """
     def load(self, filename: str) -> None: # Crystalインスタンスのデータをロード
         with open(f"{filename}.pickle", mode='rb') as f:
             pre: Crystal = pickle.load(f)
@@ -435,7 +435,12 @@ class Crystal: # 結晶の各物理量を計算
             # そのため，もし__setattr__を定義するなら各クラス変数にいちいち代入する
             #for key, value in pre.__dict__.items():
             #    self.__setattr__(key, value)
-
+    """
+    @staticmethod
+    def load(filename: str) -> Crystal:
+        with open(f"{filename}.pickle", mode='rb') as f:
+            res: Crystal = pickle.load(f)
+        return res
 
 
 
