@@ -188,23 +188,23 @@ class Crystal: # 結晶の各物理量を計算
         self.NA: float = 6.02214076 * 10**(23) # アボガドロ定数:[/mol]
         
         # 格子定数
-        self.a: Optional[float] = None      # 格子定数 [Å]
-        self.b: Optional[float] = None      # 格子定数 [Å]
-        self.c: Optional[float] = None      # 格子定数 [Å]
-        self.alpha: Optional[float] = None  # 基本並進ベクトル間の角度 [°]
-        self.beta: Optional[float] = None   # 基本並進ベクトル間の角度 [°]
-        self.gamma: Optional[float] = None  # 基本並進ベクトル間の角度 [°]
-        self.V: Optional[float] = None      # 単位胞の体積 [cm^3]
-        self.num: Optional[int] = None      # 単位胞に含まれる化学式の数 (無次元)
+        self.a: Optional[float] = None              # 格子定数 [Å]
+        self.b: Optional[float] = None              # 格子定数 [Å]
+        self.c: Optional[float] = None              # 格子定数 [Å]
+        self.alpha: Optional[float] = None          # 基本並進ベクトル間の角度 [°]
+        self.beta: Optional[float] = None           # 基本並進ベクトル間の角度 [°]
+        self.gamma: Optional[float] = None          # 基本並進ベクトル間の角度 [°]
+        self.V: Optional[float] = None              # 単位胞の体積 [cm^3]
+        self.fu_per_unit_cell: Optional[int] = None # 単位胞に含まれる式単位の数 (無次元)
 
-        self.formula_weight: Optional[float] = None # モル質量(式量) [g/mol]
+        self.formula_weight: Optional[float] = None # モル質量(式単位あたり) [g/mol]
         self.w: Optional[float] = None              # 試料の質量 [g]
-        self.num_magnetic_ion: Optional[int] = None # 化学式中の磁性イオンの数 (無次元)
+        self.num_magnetic_ion: Optional[int] = None # 式単位中の磁性イオンの数 (無次元)
         self.density: Optional[float] = None        # 密度 [g/cm^3]
         self.mol: Optional[float] = None            # 物質量 [mol]
 
         self.numbered_name: str = re.sub(r"([A-Z][a-z]?|\))(?=[^0-9a-z]+)", r"\g<1>1", name+"$")[:-1] # '1'を追加して元素数を明示したname ("$"は番兵)
-        self.components: DefaultDict[str, float] = defaultdict(float)   # 化学式中に各元素がいくつあるか
+        self.components: DefaultDict[str, float] = defaultdict(float)   # 式単位中に各元素がいくつあるか
 
         # 各クラス変数の単位
         # 内部では基本的にCGS単位系を用いる
@@ -212,7 +212,7 @@ class Crystal: # 結晶の各物理量を計算
             "unit": "",
             "NA": "mol^-1", "name": "", "graphname": "", "date": "",
             "a": "Å", "b": "Å", "c": "Å", "alpha": "°", "beta": "°", "gamma": "°",
-            "V": "cm^3", "num": "", "formula_weight": "g/mol", "w": "g", 
+            "V": "cm^3", "fu_per_unit_cell": "", "formula_weight": "g/mol", "w": "g", 
             "num_magnetic_ion": "", "density": "g/cm^3", "mol": "mol",
             "numbered_name": "", "components": ""
         }
@@ -234,8 +234,8 @@ class Crystal: # 結晶の各物理量を計算
             else:
                 self.components[s] += now
                 now /= num_stack.pop()
-        if auto_formula_weight: # nameから自動で式量を計算
-            formula_weight: float = 0.0 # 式量
+        if auto_formula_weight: # nameから自動でモル質量を計算
+            formula_weight: float = 0.0 # モル質量(式単位あたり)
             for element, n in self.components.items():
                 if not element in atomic_weight:
                     raise KeyError
@@ -296,7 +296,7 @@ class Crystal: # 結晶の各物理量を計算
     #     if is_substitutable:
     #         self.__dict__[name] = value
 
-    def set_lattice_constant(self, a: float, b: float, c: float, alpha: float, beta: float, gamma: float, num: Optional[int] = None) -> None:
+    def set_lattice_constant(self, a: float, b: float, c: float, alpha: float, beta: float, gamma: float, fu_per_unit_cell: Optional[int] = None) -> None:
         # a,b,c: 格子定数 [Å]
         # alpha,beta,gamma: 基本並進ベクトル間の角度 [°]
         self.a = a
@@ -310,12 +310,12 @@ class Crystal: # 結晶の各物理量を計算
         cc = cos(radians(gamma))
         # 単位胞の体積 [cm^3]
         self.V = a*b*c * sqrt(1 + 2*ca*cb*cc - ca**2 - cb**2 - cc**2) * 10**(-24)
-        if num is not None:
-            self.num = num # 単位胞に含まれる化学式の数 (無次元)
+        if fu_per_unit_cell is not None:
+            self.fu_per_unit_cell = fu_per_unit_cell # 単位胞に含まれる式単位の数 (無次元)
     
     def set_formula_weight(self, formula_weight: float) -> None:
         # コンストラクタでauto_formula_weight = Trueで自動設定可能
-        # formula_weight: モル質量(式量) [g/mol]
+        # formula_weight: モル質量(式単位あたり) [g/mol]
         self.formula_weight = formula_weight
 
     def set_weight(self, w: float) -> None:
@@ -327,21 +327,21 @@ class Crystal: # 結晶の各物理量を計算
         self.mol = mol
 
     def set_num_magnetic_ion(self, num_magnetic_ion: int) -> None:
-        # num_magnetic_ion: 化学式中の磁性イオンの数 (無次元)
+        # num_magnetic_ion: 式単位中の磁性イオンの数 (無次元)
         self.num_magnetic_ion = num_magnetic_ion
 
     def cal_density(self) -> float:
-        # formula_weight: モル質量(式量) [g/mol]
-        # num: 単位胞の分子数 (無次元)
+        # formula_weight: モル質量(式単位あたり) [g/mol]
+        # fu_per_unit_cell: 単位胞の分子数 (無次元)
         # V: 単位胞の体積 [cm^3]
         # density: 密度 [g/cm^3]
-        if self.formula_weight is None or self.num is None or self.V is None:
+        if self.formula_weight is None or self.fu_per_unit_cell is None or self.V is None:
             raise TypeError
-        self.density = self.formula_weight * self.num / self.NA / self.V
+        self.density = self.formula_weight * self.fu_per_unit_cell / self.NA / self.V
         return self.density
 
     def cal_mol(self) -> float:
-        # formula_weight: モル質量(式量) [g/mol]
+        # formula_weight: モル質量(式単位あたり) [g/mol]
         # w: 試料の質量 [g]
         # mol: 試料の物質量 [mol]
         if self.formula_weight is None or self.w is None:
@@ -350,7 +350,7 @@ class Crystal: # 結晶の各物理量を計算
         return self.mol
 
     def cal_weight(self) -> float:
-        # formula_weight: モル質量(式量) [g/mol]
+        # formula_weight: モル質量(式単位あたり) [g/mol]
         # mol: 試料の物質量 [mol]
         # w: 試料の質量 [g]
         if self.formula_weight is None or self.mol is None:
@@ -387,7 +387,7 @@ class Crystal: # 結晶の各物理量を計算
             w = self.w
         if w is None or self.formula_weight is None:
             raise TypeError
-        # 式量あたりの有効Bohr磁子数 [μB/f.u.]
+        # 式単位あたりの有効Bohr磁子数 [μB/f.u.]
         mu: float = (m / muB) / (w / self.formula_weight * self.NA)
         return mu
 
@@ -638,7 +638,7 @@ def make_magnetization_vs_field(material: Crystal, Field: List[float], Moment: L
 def make_Bohr_vs_field(material: Crystal, Field: List[float], Moment: List[float], temp_val: float, per_formula_unit: bool = True) -> Tuple[Any, Any]:
     Bohr_vs_field: List[List[float]]
     if per_formula_unit:
-        # 縦軸：有効ボーア磁子数/式量，横軸：磁場 のグラフを作成
+        # 縦軸：有効ボーア磁子数/式単位，横軸：磁場 のグラフを作成
         Bohr_vs_field = [[material.cal_Bohr_per_formula_unit(m=m),f] for m,f in zip(Moment,Field)] # 温度固定
     else:
         # 縦軸：有効ボーア磁子数/磁性イオン，横軸：磁場 のグラフを作成
@@ -673,7 +673,7 @@ def make_Bohr_vs_field(material: Crystal, Field: List[float], Moment: List[float
 def make_Bohr_vs_temp(material: Crystal, Temp: List[float], Moment: List[float], field_val: float, per_formula_unit: bool = True) -> Tuple[Any, Any]:
     Bohr_vs_temp: List[List[float]]
     if per_formula_unit:
-        # 縦軸：有効ボーア磁子数/式量，横軸：磁場 のグラフを作成
+        # 縦軸：有効ボーア磁子数/式単位，横軸：磁場 のグラフを作成
         Bohr_vs_temp = [[material.cal_Bohr_per_formula_unit(m=m),t] for m,t in zip(Moment,Temp)] # 温度固定
     else:
         # 縦軸：有効ボーア磁子数/磁性イオン，横軸：磁場 のグラフを作成
