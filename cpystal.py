@@ -261,10 +261,10 @@ class Crystal: # 結晶の各物理量を計算
             raise TypeError
         return Crystal(self.name + other.name)
 
-    def __mul__(self, other: int) -> Crystal:
+    def __mul__(self, other: Union[int, float]) -> Crystal:
         if type(other) is not int:
             raise TypeError
-        # self.numbered_name中の数字をすべてother倍する
+        # 化学式をother倍する
         divided_name: List[str] = re.split(r",+", re.sub(r"([A-Z][a-z]*|(\d|\.)+|[()])", ",\\1,", self.numbered_name).strip(","))
         parentheses_depth: int = 0 # かっこの中にある数字は飛ばす
         for i, s in enumerate(divided_name):
