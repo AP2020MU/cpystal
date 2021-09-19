@@ -426,16 +426,7 @@ class Crystal: # 結晶の各物理量を計算
             mode = 'xb' # 上書きなし
         with open(f"{filename}.pickle", mode=mode) as f:
             pickle.dump(self, f)
-    """
-    def load(self, filename: str) -> None: # Crystalインスタンスのデータをロード
-        with open(f"{filename}.pickle", mode='rb') as f:
-            pre: Crystal = pickle.load(f)
-            self.__dict__ = pre.__dict__
-            # __setattr__を自前実装すると，load後のインスタンスでクラス変数へアクセスできなくなってしまった
-            # そのため，もし__setattr__を定義するなら各クラス変数にいちいち代入する
-            #for key, value in pre.__dict__.items():
-            #    self.__setattr__(key, value)
-    """
+
     @staticmethod
     def load(filename: str) -> Crystal:
         with open(f"{filename}.pickle", mode='rb') as f:
