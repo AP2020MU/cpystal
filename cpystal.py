@@ -163,48 +163,48 @@ atomic_weight: Dict[str, float] = {
 }
 
 
-class Semimutable_dict(dict):
-    def __init__(self, *args):
+class Semimutable_dict(Dict[Any, Any]):
+    def __init__(self, *args: Any) -> None:
         super().__init__(args)
         self.__updatable: bool = False
 
-    def __setitem__(self, key: Any, value: Any):
+    def __setitem__(self, key: Any, value: Any) -> None:
         if key in self and not self.__updatable:
             raise TypeError(f"elements of '{type(self)}' cannot be changed by '[]' operator; use 'update_force' method")
         super().__setitem__(key, value)
         self.__updatable = False
 
-    def update_force(self, key: Any, value: Any):
+    def update_force(self, key: Any, value: Any) -> None:
         self.__updatable = True
         self[key] = value
         
 
 class Crystal: # 結晶の各物理量を計算
-    def __init__(self, name: str, date: Optional[str] = None, auto_formula_weight: bool = True):
+    def __init__(self, name: str, date: Optional[str] = None, auto_formula_weight: bool = True) -> None:
         self.name: str = name # 化合物名
-        self.graphname: str = "$\mathrm{" + re.sub('([0-9]+)', '_{\\1}', name) + "}$" # グラフで表示する名前
+        self.graphname: str = "$\mathrm{" + re.sub(r"(\d+\.*\d*)", "_{\\1}", name) + "}$" # グラフで表示する名前
         self.date: Optional[str] = date # 合成した日付(必要ならナンバリングもここに含める)
         
         self.NA: float = 6.02214076 * 10**(23) # アボガドロ定数:[/mol]
         
         # 格子定数
-        self.a: Optional[float] = None      # 格子定数 [Å]
-        self.b: Optional[float] = None      # 格子定数 [Å]
-        self.c: Optional[float] = None      # 格子定数 [Å]
-        self.alpha: Optional[float] = None  # 基本並進ベクトル間の角度 [°]
-        self.beta: Optional[float] = None   # 基本並進ベクトル間の角度 [°]
-        self.gamma: Optional[float] = None  # 基本並進ベクトル間の角度 [°]
-        self.V: Optional[float] = None      # 単位胞の体積 [cm^3]
-        self.num: Optional[int] = None      # 単位胞に含まれる化学式の数 (無次元)
+        self.a: Optional[float] = None              # 格子定数 [Å]
+        self.b: Optional[float] = None              # 格子定数 [Å]
+        self.c: Optional[float] = None              # 格子定数 [Å]
+        self.alpha: Optional[float] = None          # 基本並進ベクトル間の角度 [°]
+        self.beta: Optional[float] = None           # 基本並進ベクトル間の角度 [°]
+        self.gamma: Optional[float] = None          # 基本並進ベクトル間の角度 [°]
+        self.V: Optional[float] = None              # 単位胞の体積 [cm^3]
+        self.fu_per_unit_cell: Optional[int] = None # 単位胞に含まれる式単位の数 (無次元)
 
-        self.formula_weight: Optional[float] = None # モル質量(式量) [g/mol]
+        self.formula_weight: Optional[float] = None # モル質量(式単位あたり) [g/mol]
         self.w: Optional[float] = None              # 試料の質量 [g]
-        self.num_magnetic_ion: Optional[int] = None # 化学式中の磁性イオンの数 (無次元)
+        self.num_magnetic_ion: Optional[int] = None # 式単位中の磁性イオンの数 (無次元)
         self.density: Optional[float] = None        # 密度 [g/cm^3]
         self.mol: Optional[float] = None            # 物質量 [mol]
 
-        self.numbered_name: str = re.sub(r"([A-Z][a-z]?|\))(?=[^0-9a-z]+)", r"\g<1>1", name+"$")[:-1] # 元素数を明示したname ("$"は番兵)
-        self.components: DefaultDict[str, int] = defaultdict(int)   # 化学式中に各元素がいくつあるか
+        self.numbered_name: str = re.sub(r"([A-Z][a-z]?|\))(?=[^0-9a-z]+)", r"\g<1>1", name+"$")[:-1] # '1'を追加して元素数を明示したname ("$"は番兵)
+        self.components: DefaultDict[str, float] = defaultdict(float)   # 式単位中に各元素がいくつあるか
 
         # 各クラス変数の単位
         # 内部では基本的にCGS単位系を用いる
@@ -212,7 +212,7 @@ class Crystal: # 結晶の各物理量を計算
             "unit": "",
             "NA": "mol^-1", "name": "", "graphname": "", "date": "",
             "a": "Å", "b": "Å", "c": "Å", "alpha": "°", "beta": "°", "gamma": "°",
-            "V": "cm^3", "num": "", "formula_weight": "g/mol", "w": "g", 
+            "V": "cm^3", "fu_per_unit_cell": "", "formula_weight": "g/mol", "w": "g", 
             "num_magnetic_ion": "", "density": "g/cm^3", "mol": "mol",
             "numbered_name": "", "components": ""
         }
@@ -220,22 +220,22 @@ class Crystal: # 結晶の各物理量を計算
         self.graphs: Semimutable_dict = Semimutable_dict()
 
         # 化学式を"形態素"ごとに分割したリスト
-        divided_name: List[str] = re.split(r",+", re.sub(r"([A-Z][a-z]*|\d+|[()])", ",\\1,", self.numbered_name).strip(","))
-        now: int = 1 # 倍率
-        num_stack: List[int] = [1] # 後ろから見て，現在有効な数の積を格納するstack
+        divided_name: List[str] = re.split(r",+", re.sub(r"([A-Z][a-z]*|(\d|\.)+|[()])", ",\\1,", self.numbered_name).strip(","))
+        now: float = 1.0 # 倍率
+        num_stack: List[float] = [1.0] # 後ろから見て，現在有効な数の積を格納するstack
         for s in reversed(divided_name): # 化学式を後ろからみる
-            if s.isdigit(): # 数値
-                now *= int(s)
-                num_stack.append(int(s))
+            if re.match(r"\d+\.*\d*", s): # 数値
+                now *= float(s)
+                num_stack.append(float(s))
             elif s == ")":
                 pass
             elif s == "(": # ()を付けるときは必ず直後に1以上の数字が来る
-                now //= num_stack.pop()
+                now /= num_stack.pop()
             else:
                 self.components[s] += now
-                now //= num_stack.pop()
-        if auto_formula_weight: # nameから自動で式量を計算
-            formula_weight: float = 0.0 # 式量
+                now /= num_stack.pop()
+        if auto_formula_weight: # nameから自動でモル質量を計算
+            formula_weight: float = 0.0 # モル質量(式単位あたり)
             for element, n in self.components.items():
                 if not element in atomic_weight:
                     raise KeyError
@@ -261,13 +261,42 @@ class Crystal: # 結晶の各物理量を計算
             raise TypeError
         return Crystal(self.name + other.name)
 
-    def __mul__(self, other: int) -> Crystal:
+    def __mul__(self, other: Union[int, float]) -> Crystal:
         if type(other) is not int:
             raise TypeError
-        # self.numbered_name中の数字をすべてother倍する
-        return Crystal(re.sub(r"[0-9]+", lambda x: str(other*int(x.group())), self.numbered_name))
+        # 化学式をother倍する
+        divided_name: List[str] = re.split(r",+", re.sub(r"([A-Z][a-z]*|(\d|\.)+|[()])", ",\\1,", self.numbered_name).strip(","))
+        parentheses_depth: int = 0 # かっこの中にある数字は飛ばす
+        for i, s in enumerate(divided_name):
+            if s == "(":
+                parentheses_depth += 1
+            elif s == ")":
+                parentheses_depth -= 1
+            else:
+                if parentheses_depth == 0 and re.match(r"\d+\.*\d*", s):
+                    divided_name[i] = f"{float(s) * other:.4g}"
+        return Crystal("".join(divided_name))
 
-    def set_lattice_constant(self, a: float, b: float, c: float, alpha: float, beta: float, gamma: float, num: Optional[int] = None):
+    # self.loadとの機能的な衝突の問題からdeactivate
+    # def __setattr__(self, name: str, value: Any) -> None:
+    #     is_substitutable: bool = True
+    #     if name in self.__dict__ and self.__dict__[name] is not None:
+    #         print(f"instance variable '{name}' is already substituted")
+    #         while True:
+    #             print("Proceed ([y]/n)?")
+    #             s: str = input()
+    #             if s == "y":
+    #                 is_substitutable = True
+    #                 break
+    #             elif s == "n":
+    #                 is_substitutable = False
+    #                 break
+    #             else:
+    #                 print(f"invalid input: {s}")
+    #     if is_substitutable:
+    #         self.__dict__[name] = value
+
+    def set_lattice_constant(self, a: float, b: float, c: float, alpha: float, beta: float, gamma: float, fu_per_unit_cell: Optional[int] = None) -> None:
         # a,b,c: 格子定数 [Å]
         # alpha,beta,gamma: 基本並進ベクトル間の角度 [°]
         self.a = a
@@ -281,38 +310,38 @@ class Crystal: # 結晶の各物理量を計算
         cc = cos(radians(gamma))
         # 単位胞の体積 [cm^3]
         self.V = a*b*c * sqrt(1 + 2*ca*cb*cc - ca**2 - cb**2 - cc**2) * 10**(-24)
-        if num is not None:
-            self.num = num # 単位胞に含まれる化学式の数 (無次元)
+        if fu_per_unit_cell is not None:
+            self.fu_per_unit_cell = fu_per_unit_cell # 単位胞に含まれる式単位の数 (無次元)
     
-    def set_formula_weight(self, formula_weight: float):
+    def set_formula_weight(self, formula_weight: float) -> None:
         # コンストラクタでauto_formula_weight = Trueで自動設定可能
-        # formula_weight: モル質量(式量) [g/mol]
+        # formula_weight: モル質量(式単位あたり) [g/mol]
         self.formula_weight = formula_weight
 
-    def set_weight(self, w: float):
+    def set_weight(self, w: float) -> None:
         # w: 試料の質量 [g]
         self.w = w
     
-    def set_mol(self, mol: float):
+    def set_mol(self, mol: float) -> None:
         # mol: 試料の物質量 [mol]
         self.mol = mol
 
-    def set_num_magnetic_ion(self, num_magnetic_ion: int):
-        # num_magnetic_ion: 化学式中の磁性イオンの数 (無次元)
+    def set_num_magnetic_ion(self, num_magnetic_ion: int) -> None:
+        # num_magnetic_ion: 式単位中の磁性イオンの数 (無次元)
         self.num_magnetic_ion = num_magnetic_ion
 
     def cal_density(self) -> float:
-        # formula_weight: モル質量(式量) [g/mol]
-        # num: 単位胞の分子数 (無次元)
+        # formula_weight: モル質量(式単位あたり) [g/mol]
+        # fu_per_unit_cell: 単位胞の分子数 (無次元)
         # V: 単位胞の体積 [cm^3]
         # density: 密度 [g/cm^3]
-        if self.formula_weight is None or self.num is None or self.V is None:
+        if self.formula_weight is None or self.fu_per_unit_cell is None or self.V is None:
             raise TypeError
-        self.density = self.formula_weight * self.num / self.NA / self.V
+        self.density = self.formula_weight * self.fu_per_unit_cell / self.NA / self.V
         return self.density
 
     def cal_mol(self) -> float:
-        # formula_weight: モル質量(式量) [g/mol]
+        # formula_weight: モル質量(式単位あたり) [g/mol]
         # w: 試料の質量 [g]
         # mol: 試料の物質量 [mol]
         if self.formula_weight is None or self.w is None:
@@ -321,7 +350,7 @@ class Crystal: # 結晶の各物理量を計算
         return self.mol
 
     def cal_weight(self) -> float:
-        # formula_weight: モル質量(式量) [g/mol]
+        # formula_weight: モル質量(式単位あたり) [g/mol]
         # mol: 試料の物質量 [mol]
         # w: 試料の質量 [g]
         if self.formula_weight is None or self.mol is None:
@@ -358,7 +387,7 @@ class Crystal: # 結晶の各物理量を計算
             w = self.w
         if w is None or self.formula_weight is None:
             raise TypeError
-        # 式量あたりの有効Bohr磁子数 [μB/f.u.]
+        # 式単位あたりの有効Bohr磁子数 [μB/f.u.]
         mu: float = (m / muB) / (w / self.formula_weight * self.NA)
         return mu
 
@@ -389,26 +418,24 @@ class Crystal: # 結晶の各物理量を計算
             print("\n".join([f"{element} = {ratio*self.w:.4g} g ({ratio:.2%})" for element, ratio in res]))
         return res
 
-    def save(self, overwrite: bool = False): # Crystalインスタンスのデータを保存
-        filename: str = self.name
-        if self.date is not None:
-            filename = filename + self.date
+    def save(self, filename: str, overwrite: bool = False) -> None: # Crystalインスタンスのデータを保存
         mode: str
         if overwrite:
             mode = 'wb' # 上書きあり
         else:
             mode = 'xb' # 上書きなし
-        with open(filename+'.pickle', mode=mode) as f:
+        with open(f"{filename}.pickle", mode=mode) as f:
             pickle.dump(self, f)
 
-    def load(self, filename: str): # Crystalインスタンスのデータをロード
-        with open(filename+'.pickle', mode='rb') as f:
-            pre: Crystal = pickle.load(f)
-            self.__dict__ = pre.__dict__
+    @staticmethod
+    def load(filename: str) -> Crystal:
+        with open(f"{filename}.pickle", mode='rb') as f:
+            res: Crystal = pickle.load(f)
+        return res
 
 
 
-def make_moment_vs_temp(material: Crystal, Temp: List[float], Moment: List[float], field_val: float, SI: bool = False, per: Optional[str] = None) -> Tuple[Any, Any]: # 磁場固定
+def make_moment_vs_temp(material: Crystal, Temp: List[float], Moment: List[float], field_val: float, SI: bool = False, per: Optional[str] = None) -> Tuple[plt.Figure, plt.Subplot]: # 磁場固定
     # 縦軸：磁気モーメント，横軸：温度 のグラフを作成
     # Moment: 磁気モーメント [emu]
     # Temp: 温度 [K]
@@ -443,8 +470,8 @@ def make_moment_vs_temp(material: Crystal, Temp: List[float], Moment: List[float
     plt.rcParams['xtick.direction'] = 'in'
     plt.rcParams['ytick.direction'] = 'in'
     plt.rcParams["legend.framealpha"] = 0
-    fig: Any =  plt.figure(figsize=(8,7))
-    ax: Any =  fig.add_subplot(111)
+    fig: plt.Figure = plt.figure(figsize=(8,7))
+    ax: plt.Subplot = fig.add_subplot(111)
     ax.xaxis.set_ticks_position('both')
     ax.yaxis.set_ticks_position('both')
 
@@ -469,7 +496,7 @@ def make_moment_vs_temp(material: Crystal, Temp: List[float], Moment: List[float
     return fig, ax
 
 
-def make_moment_vs_field(material: Crystal, Field: List[float], Moment: List[float], temp_val: float, SI: bool = False, per: Optional[str] = None) -> Tuple[Any, Any]: # 温度固定
+def make_moment_vs_field(material: Crystal, Field: List[float], Moment: List[float], temp_val: float, SI: bool = False, per: Optional[str] = None) -> Tuple[plt.Figure, plt.Subplot]: # 温度固定
     # 縦軸：磁気モーメント，横軸：磁場 のグラフを作成
     # Moment: 磁気モーメント [emu]
     # Field: 磁場 [Oe]
@@ -505,8 +532,8 @@ def make_moment_vs_field(material: Crystal, Field: List[float], Moment: List[flo
     plt.rcParams['xtick.direction'] = 'in'
     plt.rcParams['ytick.direction'] = 'in'
     plt.rcParams["legend.framealpha"] = 0
-    fig: Any =  plt.figure(figsize=(8,7))
-    ax: Any =  fig.add_subplot(111)
+    fig: plt.Figure = plt.figure(figsize=(8,7))
+    ax: plt.Subplot = fig.add_subplot(111)
     ax.xaxis.set_ticks_position('both')
     ax.yaxis.set_ticks_position('both')
 
@@ -531,7 +558,7 @@ def make_moment_vs_field(material: Crystal, Field: List[float], Moment: List[flo
     return fig, ax
 
 
-def make_magnetization_vs_temp(material: Crystal, Temp: List[float], Moment: List[float], field_val: float, SI: bool = False, per: Optional[str] = None) -> Tuple[Any, Any]:
+def make_magnetization_vs_temp(material: Crystal, Temp: List[float], Moment: List[float], field_val: float, SI: bool = False, per: Optional[str] = None) -> Tuple[plt.Figure, plt.Subplot]:
     # データはcgs固定．
     # SI: グラフ描画をSIにするかどうか
     # per: molあたり，重さあたりにするかどうか
@@ -545,8 +572,8 @@ def make_magnetization_vs_temp(material: Crystal, Temp: List[float], Moment: Lis
     plt.rcParams['xtick.direction'] = 'in'
     plt.rcParams['ytick.direction'] = 'in'
     plt.rcParams["legend.framealpha"] = 0
-    fig: Any =  plt.figure(figsize=(8,7))
-    ax: Any =  fig.add_subplot(111)
+    fig: plt.Figure = plt.figure(figsize=(8,7))
+    ax: plt.Subplot = fig.add_subplot(111)
     ax.xaxis.set_ticks_position('both')
     ax.yaxis.set_ticks_position('both')
 
@@ -571,7 +598,7 @@ def make_magnetization_vs_temp(material: Crystal, Temp: List[float], Moment: Lis
     return fig, ax
 
 
-def make_magnetization_vs_field(material: Crystal, Field: List[float], Moment: List[float], temp_val: float, SI: bool = False, per: Optional[str] = None) -> Tuple[Any, Any]: # データはcgs固定．グラフ描画をSIにするかどうか，1molあたりにするかどうか
+def make_magnetization_vs_field(material: Crystal, Field: List[float], Moment: List[float], temp_val: float, SI: bool = False, per: Optional[str] = None) -> Tuple[plt.Figure, plt.Subplot]: # データはcgs固定．グラフ描画をSIにするかどうか，1molあたりにするかどうか
     # 縦軸：磁化，横軸：磁場 のグラフを作成
     magnetization_vs_field: List[List[float]] = [[material.cal_magnetization(m=m,SI=SI,per=per),f] for m,f in zip(Moment,Field)] # 温度固定
     X: List[float] = [f for m,f in magnetization_vs_field]
@@ -582,8 +609,8 @@ def make_magnetization_vs_field(material: Crystal, Field: List[float], Moment: L
     plt.rcParams['xtick.direction'] = 'in'
     plt.rcParams['ytick.direction'] = 'in'
     plt.rcParams["legend.framealpha"] = 0
-    fig: Any =  plt.figure(figsize=(8,7))
-    ax: Any =  fig.add_subplot(111)
+    fig: plt.Figure = plt.figure(figsize=(8,7))
+    ax: plt.Subplot = fig.add_subplot(111)
     ax.xaxis.set_ticks_position('both')
     ax.yaxis.set_ticks_position('both')
 
@@ -608,10 +635,10 @@ def make_magnetization_vs_field(material: Crystal, Field: List[float], Moment: L
     return fig, ax
 
 
-def make_Bohr_vs_field(material: Crystal, Field: List[float], Moment: List[float], temp_val: float, per_formula_unit: bool = True) -> Tuple[Any, Any]:
+def make_Bohr_vs_field(material: Crystal, Field: List[float], Moment: List[float], temp_val: float, per_formula_unit: bool = True) -> Tuple[plt.Figure, plt.Subplot]:
     Bohr_vs_field: List[List[float]]
     if per_formula_unit:
-        # 縦軸：有効ボーア磁子数/式量，横軸：磁場 のグラフを作成
+        # 縦軸：有効ボーア磁子数/式単位，横軸：磁場 のグラフを作成
         Bohr_vs_field = [[material.cal_Bohr_per_formula_unit(m=m),f] for m,f in zip(Moment,Field)] # 温度固定
     else:
         # 縦軸：有効ボーア磁子数/磁性イオン，横軸：磁場 のグラフを作成
@@ -624,8 +651,8 @@ def make_Bohr_vs_field(material: Crystal, Field: List[float], Moment: List[float
     plt.rcParams['xtick.direction'] = 'in'
     plt.rcParams['ytick.direction'] = 'in'
     plt.rcParams["legend.framealpha"] = 0
-    fig: Any =  plt.figure(figsize=(8,7))
-    ax: Any =  fig.add_subplot(111)
+    fig: plt.Figure = plt.figure(figsize=(8,7))
+    ax: plt.Subplot = fig.add_subplot(111)
     ax.xaxis.set_ticks_position('both')
     ax.yaxis.set_ticks_position('both')
 
@@ -643,10 +670,10 @@ def make_Bohr_vs_field(material: Crystal, Field: List[float], Moment: List[float
     return fig, ax
 
 
-def make_Bohr_vs_temp(material: Crystal, Temp: List[float], Moment: List[float], field_val: float, per_formula_unit: bool = True):
+def make_Bohr_vs_temp(material: Crystal, Temp: List[float], Moment: List[float], field_val: float, per_formula_unit: bool = True) -> Tuple[plt.Figure, plt.Subplot]:
     Bohr_vs_temp: List[List[float]]
     if per_formula_unit:
-        # 縦軸：有効ボーア磁子数/式量，横軸：磁場 のグラフを作成
+        # 縦軸：有効ボーア磁子数/式単位，横軸：磁場 のグラフを作成
         Bohr_vs_temp = [[material.cal_Bohr_per_formula_unit(m=m),t] for m,t in zip(Moment,Temp)] # 温度固定
     else:
         # 縦軸：有効ボーア磁子数/磁性イオン，横軸：磁場 のグラフを作成
@@ -659,8 +686,8 @@ def make_Bohr_vs_temp(material: Crystal, Temp: List[float], Moment: List[float],
     plt.rcParams['xtick.direction'] = 'in'
     plt.rcParams['ytick.direction'] = 'in'
     plt.rcParams["legend.framealpha"] = 0
-    fig: Any =  plt.figure(figsize=(8,7))
-    ax: Any =  fig.add_subplot(111)
+    fig: plt.Figure = plt.figure(figsize=(8,7))
+    ax: plt.Subplot = fig.add_subplot(111)
     ax.xaxis.set_ticks_position('both')
     ax.yaxis.set_ticks_position('both')
 
@@ -678,7 +705,7 @@ def make_Bohr_vs_temp(material: Crystal, Temp: List[float], Moment: List[float],
     return fig, ax
 
 
-def make_susceptibility_vs_temp(material: Crystal, Temp: List[float], Moment: List[float], Field: float, SI: bool = False, per: Optional[str] = None) -> Tuple[Any, Any]: # データはcgs固定．グラフ描画をSIにするかどうか，1molあたりにするかどうか
+def make_susceptibility_vs_temp(material: Crystal, Temp: List[float], Moment: List[float], Field: float, SI: bool = False, per: Optional[str] = None) -> Tuple[plt.Figure, plt.Subplot]: # データはcgs固定．グラフ描画をSIにするかどうか，1molあたりにするかどうか
     # 縦軸：磁化率，横軸：温度 のグラフを作成
     # Moment: List[moment] moment: 磁気モーメント [emu]
     # Temp: List[temperature] temperature: 温度 [K]
@@ -716,8 +743,8 @@ def make_susceptibility_vs_temp(material: Crystal, Temp: List[float], Moment: Li
     plt.rcParams['xtick.direction'] = 'in'
     plt.rcParams['ytick.direction'] = 'in'
     plt.rcParams["legend.framealpha"] = 0
-    fig: Any =  plt.figure(figsize=(8,7))
-    ax: Any =  fig.add_subplot(111)
+    fig: plt.Figure = plt.figure(figsize=(8,7))
+    ax: plt.Subplot = fig.add_subplot(111)
     ax.xaxis.set_ticks_position('both')
     ax.yaxis.set_ticks_position('both')
 
@@ -742,7 +769,7 @@ def make_susceptibility_vs_temp(material: Crystal, Temp: List[float], Moment: Li
     return fig, ax
     
 
-def make_powder_Xray_intensity_vs_angle(filename: str, display_num: int = 10, material: Optional[Crystal] = None) -> Tuple[Any, Any]:
+def make_powder_Xray_intensity_vs_angle(filename: str, display_num: int = 10, material: Optional[Crystal] = None) -> Tuple[plt.Figure, plt.Subplot]:
     with open(filename, encoding="shift_jis") as f:
         data: List[List[float]] = [list(map(float, s.strip().split())) for s in f.readlines()[3:]]
         N: int = len(data)
@@ -789,8 +816,8 @@ def make_powder_Xray_intensity_vs_angle(filename: str, display_num: int = 10, ma
     plt.rcParams['xtick.direction'] = 'in'
     plt.rcParams['ytick.direction'] = 'in'
     plt.rcParams["legend.framealpha"] = 0
-    fig: Any =  plt.figure(figsize=(8,7))
-    ax: Any =  fig.add_subplot(111)
+    fig: plt.Figure = plt.figure(figsize=(8,7))
+    ax: plt.Subplot = fig.add_subplot(111)
     ax.xaxis.set_ticks_position('both')
     ax.yaxis.set_ticks_position('both')
 
@@ -806,10 +833,18 @@ def make_powder_Xray_intensity_vs_angle(filename: str, display_num: int = 10, ma
     return fig, ax
 
 
-def ax_decompose_reconstruct(ax: Any, figsize: Tuple[float, float]) -> Tuple[Any, Any]:
+def ax_transplant(ax: plt.Subplot, fig_new: Optional[plt.Figure] = None, figsize: Optional[Tuple[float, float]] = None, ax_new: Optional[plt.Subplot] = None) -> Tuple[plt.Figure, plt.Subplot]:
     # 現状は最低限のpropertyしかないので必要な項目が増えたら追加する
-    fig: Any = plt.figure(figsize=figsize)
-    ax_new: Any = fig.add_subplot(111)
+    if fig_new is None:
+        if figsize is None:
+            fig_new = plt.figure()
+        else:
+            fig_new = plt.figure(figsize=figsize)
+        ax_new = fig_new.add_subplot(111)
+    else:
+        if ax_new is None:
+            ax_new = fig_new.add_subplot(111)
+
     ax_new.set_title(ax.title.get_text(), fontsize=ax.title.get_fontsize())
     ax_new.set_xlabel(ax.xaxis.label.get_text())
     ax_new.set_ylabel(ax.yaxis.label.get_text())
@@ -833,12 +868,19 @@ def ax_decompose_reconstruct(ax: Any, figsize: Tuple[float, float]) -> Tuple[Any
 
     # legend
     dict_loc_real: Dict[int, str] =  {1:"upper right", 2:"upper left", 3:"lower left", 4:"lower right"}
-    if not ax._axes.legend_._loc_used_default:
-        ax_new.legend(bbox_to_anchor=ax._axes.legend_._bbox_to_anchor._bbox._points[0], 
-                        loc=dict_loc_real[ax._axes.legend_._loc_real], 
-                        borderaxespad=ax._axes.legend_.borderaxespad, 
-                        fontsize=ax._axes.legend_._fontsize)
-    return fig, ax_new
+    if ax._axes.legend_ is not None:
+        if not ax._axes.legend_._loc_used_default:
+            if ax._axes.legend_._bbox_to_anchor is not None:
+                bbox_to_anchor = ax._axes.legend_._bbox_to_anchor._bbox._points[0]
+            else:
+                bbox_to_anchor = None
+            ax_new.legend(bbox_to_anchor=bbox_to_anchor, 
+                            loc=dict_loc_real[ax._axes.legend_._loc_real], 
+                            borderaxespad=ax._axes.legend_.borderaxespad, 
+                            fontsize=ax._axes.legend_._fontsize)
+        else:
+            ax_new.legend()
+    return fig_new, ax_new
 
 
 # 型エイリアス
@@ -897,7 +939,7 @@ class PPMS_Resistivity:
         self.B2Current: LF =     [data[i][dict_label["Bridge 2 Excitation (uA)"]] for i in range(N)]
 
 
-    def set_S_l(self, Sxx: float, lxx: float, Syx: float, lyx: float): # S:[μm^2], l:[μm]
+    def set_S_l(self, Sxx: float, lxx: float, Syx: float, lyx: float) -> None: # S:[μm^2], l:[μm]
         self.Sxx: float = Sxx
         self.Syx: float = Syx
         self.lxx: float = lxx
@@ -933,7 +975,7 @@ class PPMS_Resistivity:
                     
 
 class MPMS:
-    def __init__(self, filename: str, material: Crystal, temp_val: Optional[float] = None):
+    def __init__(self, filename: str, material: Crystal):
         self.filename: str = filename
         self.material: Optional[Crystal] = material
 
@@ -986,7 +1028,7 @@ def ingredient_flake_dp(A: List[int], W: int) -> None: # A: 適当に整数化�
         print(W+k, ans)
     return
 
-def main():
+def main() -> None:
     pass
     return
 
