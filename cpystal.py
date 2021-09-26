@@ -219,6 +219,7 @@ class Crystal: # 結晶の各物理量を計算
     Note:
         Any attribute of a `Crystal` instance can be freely assigned from the time it is created until the end of the program (i.e. mutable).
         However, once it is saved as a pickle file, it becomes impossible to change the attributes of the instance created by loading from the pickle file (i.e. immutable).
+        This feature was implemented to prevent the unintentional destruction of the sample data which is saved in a pickle file.
 
     Attributes:
         name (str): The chemical formula of the crystal.
@@ -323,6 +324,8 @@ class Crystal: # 結晶の各物理量を計算
     def __str__(self) -> str:
         res: str = "\n"
         for k in self.__slots__:
+            if not hasattr(self, k): # 後方互換性
+                continue
             v: Any = getattr(self, k)
             if v is None or k == "unit":
                 continue
@@ -372,6 +375,10 @@ class Crystal: # 結晶の各物理量を計算
 
     def __setstate__(self, state: Dict[Any, Any]) -> None:
         for name, value in state.items():
+            # 後方互換性
+            if name == "num":
+                object.__setattr__(self, "fu_per_unit_cell", value)
+                continue
             object.__setattr__(self, name, value)
 
 
