@@ -1,3 +1,10 @@
+"""`cpystal`: for dealing with crystals and experimental data of physical property.
+
+`cpystal` is designed to handle experimental data on crystals.
+It places particular emphasis on calculating and storing data on the properties of actual synthesized samples, 
+and on graphing these data. In this respect, it is distinct from `pymatgen`, a similar crystal and material analysis module.
+Of course, pymatgen is a very useful python module, so we use it as an adjunct in `cpystal`.
+"""
 from __future__ import annotations # class定義中に自己classを型ヒントとして使用するため
 
 from collections import defaultdict, deque
@@ -13,6 +20,14 @@ import scipy.signal # type: ignore
 
 # データ処理用
 def str_to_float(s: str) -> Optional[float]:
+    """Convert str number to float object.
+
+    Args:
+        s (str): str-type number.
+    
+    Returns:
+        (Optional[int]): None if s is empty-string, float otherwise
+    """
     if s == '':
         return None
     else:
@@ -20,6 +35,15 @@ def str_to_float(s: str) -> Optional[float]:
 
 # データ平滑化
 def smoothing(data: List[float], mode: Any = None) -> List[float]:
+    """Data smoothing function.
+
+    Args:
+        data (list[float]): 1-dimension data.
+        mode (Any): To choose smoothing algorithm. Savitzky-Golay filter if mode == "s", Simple Moving Average otherwise.
+
+    Returns:
+        (list[float]): smoothed data.
+    """
     if mode == "s": # Savitzky-Golay filter
         deg: int = 2 # 多項式の次数
         window_length: int = len(data)//4*2+1 # 窓幅
@@ -164,6 +188,10 @@ atomic_weight: Dict[str, float] = {
 
 
 class Semimutable_dict(Dict[Any, Any]):
+    """Semi-mutable dictionary inherited from `dict`
+
+    The only difference from `dict` is that using `[]` is not allowed, but using `update_force` method is allowed to replace the value.
+    """
     def __init__(self, *args: Any) -> None:
         super().__init__(args)
         self.__updatable: bool = False
@@ -175,17 +203,60 @@ class Semimutable_dict(Dict[Any, Any]):
         self.__updatable = False
 
     def update_force(self, key: Any, value: Any) -> None:
+        """Instance method for replacing the value.
+
+        Args:
+            key (Any): Immutable object.
+            value (Any): New value of `key`.
+        """
         self.__updatable = True
         self[key] = value
         
 
 class Crystal: # 結晶の各物理量を計算
+    """A `Crystal` instance corresponds to a certain sample of a crystal.
+
+    Note:
+        Any attribute of a `Crystal` instance can be freely assigned from the time it is created until the end of the program (i.e. mutable).
+        However, once it is saved as a pickle file, it becomes impossible to change the attributes of the instance created by loading from the pickle file (i.e. immutable).
+
+    Attributes:
+        name (str): The chemical formula of the crystal.
+        graphname (str): TeX-formed `name`.
+        date (Optional[str]): The date the sample was synthesized. If there is a numbering system, it will be included here.
+        NA (float): Avogadro constant.
+        a (float): Lattice constant.
+        b (float): Lattice constant.
+        c (float): Lattice constant.
+        alpha (float): Lattice constant.
+        beta (float): Lattice constant.
+        gamma (float): Lattice constant.
+        V (float): Volume of a unit cell.
+        fu_per_unit_cell (float): Number of formula unit in a unit cell.
+        formula_weight (float): Weight of formula unit per mol.
+        w (float): The weight of the sample.
+        num_magnetic_ion (float): Number of magnetic ions in a formula unit.
+        density (float): Density of the crystal.
+        mol (float): The amount of substance of the sample.
+        numbered_name (float): Changed `name` that the elemental numbers in the chemical formula are clearly indicated by adding '1'.
+        components (Defaultdict[str, float]): Number of each element in a formula unit.
+        unit (dict[str, str]): The unit of each attribute.
+        graphs (Semimutable_dict[str, Any]): Semimutable dictionary of experimental data plotted in `matplotlib.axes._subplots.AxesSubplot` object.
+
+    """
     __slots__ = ("name", "graphname", "date", "NA", 
                 "a", "b", "c", "alpha", "beta", "gamma", "V", "fu_per_unit_cell",
                 "formula_weight", "w", "num_magnetic_ion", "density", "mol",
                 "numbered_name", "components", "unit", "graphs", "_Crystal__updatable",)
 
     def __init__(self, name: str, date: Optional[str] = None, auto_formula_weight: bool = True) -> None:
+        """All attributes are initialized in `__init__` method.
+
+        Args:
+            name (str): The chemical formula of the crystal.
+            date (Optional[str]): The date the sample was synthesized. If there is a numbering system, it will be included here.
+            auto_formula_weight (bool): If this argument is `True`, `formula_weight` is calculated automatically from `name`.
+        """
         self.__updatable: bool = True
         self.name: str = name # 化合物名
         self.graphname: str = "$\mathrm{" + re.sub(r"(\d+\.*\d*)", "_{\\1}", name) + "}$" # グラフで表示する名前
@@ -305,6 +376,17 @@ class Crystal: # 結晶の各物理量を計算
 
 
     def set_lattice_constant(self, a: float, b: float, c: float, alpha: float, beta: float, gamma: float, fu_per_unit_cell: Optional[int] = None) -> None:
+        """Setting lattice constants of the crystal.
+
+        Args:
+            a (float): Lattice constant.
+            b (float): Lattice constant.
+            c (float): Lattice constant.
+            alpha (float): Lattice constant.
+            beta (float): Lattice constant.
+            gamma (float): Lattice constant.
+            fu_per_unit_cell (Optional[int]): Number of formula unit in a unit cell.
+        """
         # a,b,c: 格子定数 [Å]
         # alpha,beta,gamma: 基本並進ベクトル間の角度 [°]
         self.a = a
@@ -322,23 +404,48 @@ class Crystal: # 結晶の各物理量を計算
             self.fu_per_unit_cell = fu_per_unit_cell # 単位胞に含まれる式単位の数 (無次元)
     
     def set_formula_weight(self, formula_weight: float) -> None:
+        """Setting formula weight (per formula unit) of the crystal.
+
+        Args:
+            formula_weight (float): Weight of formula unit per mol (unit: [g/mol]).
+        """
         # コンストラクタでauto_formula_weight = Trueで自動設定可能
         # formula_weight: モル質量(式単位あたり) [g/mol]
         self.formula_weight = formula_weight
 
     def set_weight(self, w: float) -> None:
+        """Setting the weight of the sample.
+
+        Args:
+            w (float): The weight of the sample (unit: [g]).
+        """
         # w: 試料の質量 [g]
         self.w = w
     
     def set_mol(self, mol: float) -> None:
+        """Setting the amount of substance of the sample.
+
+        Args:
+            mol (float): The amount of substance of the sample (unit: [mol]).
+        """
         # mol: 試料の物質量 [mol]
         self.mol = mol
 
     def set_num_magnetic_ion(self, num_magnetic_ion: int) -> None:
+        """Setting the number of magnetic ions in a formula unit.
+
+        Args:
+            num_magnetic_ion (float): Number of magnetic ions in a formula unit.
+        """
         # num_magnetic_ion: 式単位中の磁性イオンの数 (無次元)
         self.num_magnetic_ion = num_magnetic_ion
 
     def cal_density(self) -> float:
+        """Calculating the density of the crystal.
+
+        Returns:
+            (float): The density of the crystal (unit: [g/cm^3]).
+        """
         # formula_weight: モル質量(式単位あたり) [g/mol]
         # fu_per_unit_cell: 単位胞の分子数 (無次元)
         # V: 単位胞の体積 [cm^3]
@@ -349,6 +456,11 @@ class Crystal: # 結晶の各物理量を計算
         return self.density
 
     def cal_mol(self) -> float:
+        """Calculating the amount of substance of the sample from the weight of the sample.
+
+        Returns:
+            (float): The amount of substance of the sample (unit: [mol]).
+        """
         # formula_weight: モル質量(式単位あたり) [g/mol]
         # w: 試料の質量 [g]
         # mol: 試料の物質量 [mol]
@@ -358,6 +470,11 @@ class Crystal: # 結晶の各物理量を計算
         return self.mol
 
     def cal_weight(self) -> float:
+        """Calculating the weight of the sample from the amount of substance of the sample.
+
+        Returns:
+            (float): The weight of the sample (unit: [g]).
+        """
         # formula_weight: モル質量(式単位あたり) [g/mol]
         # mol: 試料の物質量 [mol]
         # w: 試料の質量 [g]
@@ -367,6 +484,17 @@ class Crystal: # 結晶の各物理量を計算
         return self.w
 
     def cal_magnetization(self, m: float, w: Optional[float] = None, SI: bool = False, per: Optional[str] = None) -> float:
+        """Calculating magnetization from measured value of magnetic moment.
+
+        Args:
+            m (float): Magnetic moment (unit: [emu]).
+            w (Optional[float]): The weight of the sample (unit: [g]).
+            SI (bool): If True, magnetization is calculated in SI (MKSA) system.
+            per (Optional[str]): If per == "mol", magnetization per mol is calculated. If per == "weight", magnetization per weight is calculated. 
+        
+        Returns:
+            (float): Magnetization (unit: [G], [G/mol], [G/g], [A/m], [A/m/mol] or [A/m/kg]).
+        """
         # m: 磁気モーメント [emu]
         # w: 試料の質量 [g]
         # density: 密度 [g/cm^3]
@@ -390,6 +518,15 @@ class Crystal: # 結晶の各物理量を計算
         return M
 
     def cal_Bohr_per_formula_unit(self, m: float, w: Optional[float] = None) -> float:
+        """Calculating magnetization in units of Bohr magneton per formula unit.
+
+        Args:
+            m (float): Magnetic moment (unit: [emu]).
+            w (Optional[float]): The weight of the sample (unit: [g]).
+        
+        Returns:
+            (float): Magnetization in units of Bohr magneton per formula unit.
+        """
         muB: float = 9.274 * 10**(-21) # Bohr磁子 [emu]
         if w is None:
             w = self.w
@@ -400,6 +537,16 @@ class Crystal: # 結晶の各物理量を計算
         return mu
 
     def cal_Bohr_per_ion(self, m: float, w: Optional[float] = None, num_magnetic_ion: Optional[int] = None) -> float:
+        """Calculating magnetization in units of Bohr magneton per magnetic ion.
+
+        Args:
+            m (float): Magnetic moment (unit: [emu]).
+            w (Optional[float]): The weight of the sample (unit: [g]).
+            num_magnetic_ion (Optional[float]): Number of magnetic ions in a formula unit.
+        
+        Returns:
+            (float): Magnetization in units of Bohr magneton per magnetic ion.
+        """
         muB: float = 9.274 * 10**(-21) # Bohr磁子 [emu]
         if w is None:
             w = self.w
@@ -412,6 +559,11 @@ class Crystal: # 結晶の各物理量を計算
         return mu
 
     def cal_ingredients(self) -> List[Tuple[str, float]]:
+        """Calculating the weight of each element in the sample.
+
+        Returns:
+            (list[tuple[str, float]]): List of tuple (element name, element weight ratio to the total).
+        """
         # selfに含まれる各元素の重量をそれぞれ求める
         res: List[Tuple[str, float]] = []
         if self.formula_weight is None:
@@ -427,6 +579,15 @@ class Crystal: # 結晶の各物理量を計算
         return res
 
     def save(self, filename: str, overwrite: bool = False) -> None: # Crystalインスタンスのデータを保存
+        """Saving the `Crystal` instance data as a pickle file.
+
+        Note:
+            Once a `Crystal` instance is saved as a pickle file, the instance created by the pickle file will be an immutable object.
+
+        Args:
+            filename (str): Output file name without extension (if necessary, add file path to the head).
+            overwrite (bool): If True, a file with the same name is overwritten.
+        """
         self.__updatable = False # saveしたらimmutableオブジェクトになる
         mode: str
         if overwrite:
@@ -438,6 +599,14 @@ class Crystal: # 結晶の各物理量を計算
 
     @staticmethod
     def load(filename: str) -> Crystal:
+        """Static method to load a `Crystal` instance from a pickle file.
+
+        Args:
+            filename (str): Input file name without extension (if necessary, add file path to the head).
+
+        Returns:
+            (Crystal): `Crystal` instance saved in the pickle file '`filename`.pickle'.
+        """
         with open(f"{filename}.pickle", mode='rb') as f:
             res: Crystal = pickle.load(f)
         return res
