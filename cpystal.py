@@ -198,7 +198,7 @@ class Semimutable_dict(Dict[Any, Any]):
 
     def __setitem__(self, key: Any, value: Any) -> None:
         if key in self and not self.__updatable:
-            raise TypeError(f"elements of '{type(self)}' cannot be changed by '[]' operator; use 'update_force' method")
+            raise TypeError(f"elements of '{__class__.__name__}' cannot be changed by '[]' operator; use 'update_force' method")
         super().__setitem__(key, value)
         self.__updatable = False
 
@@ -336,12 +336,12 @@ class Crystal: # 結晶の各物理量を計算
 
     def __add__(self, other: Crystal) -> Crystal:
         if type(other) is not Crystal:
-            raise TypeError
+            raise TypeError(f"unsupported operand type(s) for +:{__class__.__name__} and {type(other).__name__}")
         return Crystal(self.name + other.name)
 
     def __mul__(self, other: Union[int, float]) -> Crystal:
         if type(other) is not int:
-            raise TypeError
+            raise TypeError(f"unsupported operand type(s) for +:{__class__.__name__} and {type(other).__name__}")
         # 化学式をother倍する
         divided_name: List[str] = re.split(r",+", re.sub(r"([A-Z][a-z]*|(\d|\.)+|[()])", ",\\1,", self.numbered_name).strip(","))
         parentheses_depth: int = 0 # かっこの中にある数字は飛ばす
@@ -356,15 +356,15 @@ class Crystal: # 結晶の各物理量を計算
         return Crystal("".join(divided_name))
 
     def __setattr__(self, name: str, value: Any) -> None:
-        if name == "_Crystal__updatable":
+        if name == f"_{__class__.__name__}__updatable":
             object.__setattr__(self, name, value)
         elif name in self.__slots__:
             if self.__updatable:
                 object.__setattr__(self, name, value)
             else:
-                raise TypeError(f"'{type(self)}' object made by the method: 'Crystal.load' is immutable")
+                raise TypeError(f"'{__class__.__name__}' object made by the method: 'Crystal.load' is immutable")
         else:
-             raise AttributeError(f"'{type(self)}' object has no attribute '{name}'")
+            raise AttributeError(f"'{__class__.__name__}' object has no attribute '{name}'")
 
     def __getstate__(self) -> Dict[Any, Any]:
         state: Dict[Any, Any] = {key: getattr(self, key) for key in self.__slots__}
@@ -451,7 +451,7 @@ class Crystal: # 結晶の各物理量を計算
         # V: 単位胞の体積 [cm^3]
         # density: 密度 [g/cm^3]
         if self.formula_weight is None or self.fu_per_unit_cell is None or self.V is None:
-            raise TypeError
+            raise TypeError(f"one or more of the attributes are 'NoneType': 'formula_weight', 'fu_per_unit_cell', 'V'")
         self.density = self.formula_weight * self.fu_per_unit_cell / self.NA / self.V
         return self.density
 
@@ -465,7 +465,7 @@ class Crystal: # 結晶の各物理量を計算
         # w: 試料の質量 [g]
         # mol: 試料の物質量 [mol]
         if self.formula_weight is None or self.w is None:
-            raise TypeError
+            raise TypeError(f"one or more of the attributes are 'NoneType': 'formula_weight', 'w'")
         self.mol = self.w / self.formula_weight
         return self.mol
 
@@ -479,7 +479,7 @@ class Crystal: # 結晶の各物理量を計算
         # mol: 試料の物質量 [mol]
         # w: 試料の質量 [g]
         if self.formula_weight is None or self.mol is None:
-            raise TypeError
+            raise TypeError(f"one or more of the attributes are 'NoneType': 'formula_weight', 'mol'")
         self.w = self.formula_weight * self.mol
         return self.w
 
@@ -502,7 +502,7 @@ class Crystal: # 結晶の各物理量を計算
         if w is None:
             w = self.w
         if w is None or self.density is None or self.formula_weight is None:
-            raise TypeError
+            raise TypeError(f"one or more of the attributes are 'NoneType': 'formula_weight', 'w', 'density'")
         M: float = m * self.density / w # [G] = [emu/cm^3]
         if SI:
             M *= 10**3 # 1 G == 1000 A/m
@@ -531,7 +531,7 @@ class Crystal: # 結晶の各物理量を計算
         if w is None:
             w = self.w
         if w is None or self.formula_weight is None:
-            raise TypeError
+            raise TypeError(f"one or more of the attributes are 'NoneType': 'formula_weight', 'w'")
         # 式単位あたりの有効Bohr磁子数 [μB/f.u.]
         mu: float = (m / muB) / (w / self.formula_weight * self.NA)
         return mu
@@ -553,7 +553,7 @@ class Crystal: # 結晶の各物理量を計算
         if num_magnetic_ion is None:
             num_magnetic_ion = self.num_magnetic_ion
         if w is None or num_magnetic_ion is None or self.formula_weight is None:
-            raise TypeError
+            raise TypeError(f"one or more of the attributes are 'NoneType': 'formula_weight', 'w', 'num_magnetic_ion'")
         # 磁性イオンあたりの有効Bohr磁子数 [μB/ion]
         mu: float = (m / muB) / (w / self.formula_weight * self.NA) / num_magnetic_ion
         return mu
@@ -567,7 +567,7 @@ class Crystal: # 結晶の各物理量を計算
         # selfに含まれる各元素の重量をそれぞれ求める
         res: List[Tuple[str, float]] = []
         if self.formula_weight is None:
-            raise TypeError
+            raise TypeError(f"the attribute 'formula_weight' is 'NoneType'")
         for element, n in self.components.items():
             res.append((element, n*atomic_weight[element]/self.formula_weight))
         res = res[::-1]
