@@ -180,7 +180,13 @@ class Semimutable_dict(Dict[Any, Any]):
         
 
 class Crystal: # 結晶の各物理量を計算
+    __slots__ = ("name", "graphname", "date", "NA", 
+                "a", "b", "c", "alpha", "beta", "gamma", "V", "fu_per_unit_cell",
+                "formula_weight", "w", "num_magnetic_ion", "density", "mol",
+                "numbered_name", "components", "unit", "graphs", "_Crystal__updatable",)
+
     def __init__(self, name: str, date: Optional[str] = None, auto_formula_weight: bool = True) -> None:
+        self.__updatable: bool = True
         self.name: str = name # 化合物名
         self.graphname: str = "$\mathrm{" + re.sub(r"(\d+\.*\d*)", "_{\\1}", name) + "}$" # グラフで表示する名前
         self.date: Optional[str] = date # 合成した日付(必要ならナンバリングもここに含める)
@@ -245,7 +251,8 @@ class Crystal: # 結晶の各物理量を計算
 
     def __str__(self) -> str:
         res: str = "\n"
-        for k, v in self.__dict__.items():
+        for k in self.__slots__:
+            v: Any = getattr(self, k)
             if v is None or k == "unit":
                 continue
             if not k in self.unit:
@@ -277,24 +284,25 @@ class Crystal: # 結晶の各物理量を計算
                     divided_name[i] = f"{float(s) * other:.4g}"
         return Crystal("".join(divided_name))
 
-    # self.loadとの機能的な衝突の問題からdeactivate
-    # def __setattr__(self, name: str, value: Any) -> None:
-    #     is_substitutable: bool = True
-    #     if name in self.__dict__ and self.__dict__[name] is not None:
-    #         print(f"instance variable '{name}' is already substituted")
-    #         while True:
-    #             print("Proceed ([y]/n)?")
-    #             s: str = input()
-    #             if s == "y":
-    #                 is_substitutable = True
-    #                 break
-    #             elif s == "n":
-    #                 is_substitutable = False
-    #                 break
-    #             else:
-    #                 print(f"invalid input: {s}")
-    #     if is_substitutable:
-    #         self.__dict__[name] = value
+    def __setattr__(self, name: str, value: Any) -> None:
+        if name == "_Crystal__updatable":
+            object.__setattr__(self, name, value)
+        elif name in self.__slots__:
+            if self.__updatable:
+                object.__setattr__(self, name, value)
+            else:
+                raise TypeError(f"'{type(self)}' object made by the method: 'Crystal.load' is immutable")
+        else:
+             raise AttributeError(f"'{type(self)}' object has no attribute '{name}'")
+
+    def __getstate__(self) -> Dict[Any, Any]:
+        state: Dict[Any, Any] = {key: getattr(self, key) for key in self.__slots__}
+        return state
+
+    def __setstate__(self, state: Dict[Any, Any]) -> None:
+        for name, value in state.items():
+            object.__setattr__(self, name, value)
+
 
     def set_lattice_constant(self, a: float, b: float, c: float, alpha: float, beta: float, gamma: float, fu_per_unit_cell: Optional[int] = None) -> None:
         # a,b,c: 格子定数 [Å]
@@ -419,6 +427,7 @@ class Crystal: # 結晶の各物理量を計算
         return res
 
     def save(self, filename: str, overwrite: bool = False) -> None: # Crystalインスタンスのデータを保存
+        self.__updatable = False # saveしたらimmutableオブジェクトになる
         mode: str
         if overwrite:
             mode = 'wb' # 上書きあり
