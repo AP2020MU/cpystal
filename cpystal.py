@@ -365,7 +365,7 @@ class Crystal: # 結晶の各物理量を計算
             if self.__updatable:
                 object.__setattr__(self, name, value)
             else:
-                raise TypeError(f"'{__class__.__name__}' object made by the method: 'Crystal.load' is immutable")
+                raise TypeError(f"'{__class__.__name__}' object made by 'Crystal.load' is immutable")
         else:
             raise AttributeError(f"'{__class__.__name__}' object has no attribute '{name}'")
 
