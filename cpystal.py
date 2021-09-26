@@ -435,7 +435,7 @@ class Crystal: # 結晶の各物理量を計算
 
 
 
-def make_moment_vs_temp(material: Crystal, Temp: List[float], Moment: List[float], field_val: float, SI: bool = False, per: Optional[str] = None) -> Tuple[Any, Any]: # 磁場固定
+def make_moment_vs_temp(material: Crystal, Temp: List[float], Moment: List[float], field_val: float, SI: bool = False, per: Optional[str] = None) -> Tuple[plt.Figure, plt.Subplot]: # 磁場固定
     # 縦軸：磁気モーメント，横軸：温度 のグラフを作成
     # Moment: 磁気モーメント [emu]
     # Temp: 温度 [K]
@@ -470,8 +470,8 @@ def make_moment_vs_temp(material: Crystal, Temp: List[float], Moment: List[float
     plt.rcParams['xtick.direction'] = 'in'
     plt.rcParams['ytick.direction'] = 'in'
     plt.rcParams["legend.framealpha"] = 0
-    fig: Any = plt.figure(figsize=(8,7))
-    ax: Any = fig.add_subplot(111)
+    fig: plt.Figure = plt.figure(figsize=(8,7))
+    ax: plt.Subplot = fig.add_subplot(111)
     ax.xaxis.set_ticks_position('both')
     ax.yaxis.set_ticks_position('both')
 
@@ -496,7 +496,7 @@ def make_moment_vs_temp(material: Crystal, Temp: List[float], Moment: List[float
     return fig, ax
 
 
-def make_moment_vs_field(material: Crystal, Field: List[float], Moment: List[float], temp_val: float, SI: bool = False, per: Optional[str] = None) -> Tuple[Any, Any]: # 温度固定
+def make_moment_vs_field(material: Crystal, Field: List[float], Moment: List[float], temp_val: float, SI: bool = False, per: Optional[str] = None) -> Tuple[plt.Figure, plt.Subplot]: # 温度固定
     # 縦軸：磁気モーメント，横軸：磁場 のグラフを作成
     # Moment: 磁気モーメント [emu]
     # Field: 磁場 [Oe]
@@ -532,8 +532,8 @@ def make_moment_vs_field(material: Crystal, Field: List[float], Moment: List[flo
     plt.rcParams['xtick.direction'] = 'in'
     plt.rcParams['ytick.direction'] = 'in'
     plt.rcParams["legend.framealpha"] = 0
-    fig: Any = plt.figure(figsize=(8,7))
-    ax: Any = fig.add_subplot(111)
+    fig: plt.Figure = plt.figure(figsize=(8,7))
+    ax: plt.Subplot = fig.add_subplot(111)
     ax.xaxis.set_ticks_position('both')
     ax.yaxis.set_ticks_position('both')
 
@@ -558,7 +558,7 @@ def make_moment_vs_field(material: Crystal, Field: List[float], Moment: List[flo
     return fig, ax
 
 
-def make_magnetization_vs_temp(material: Crystal, Temp: List[float], Moment: List[float], field_val: float, SI: bool = False, per: Optional[str] = None) -> Tuple[Any, Any]:
+def make_magnetization_vs_temp(material: Crystal, Temp: List[float], Moment: List[float], field_val: float, SI: bool = False, per: Optional[str] = None) -> Tuple[plt.Figure, plt.Subplot]:
     # データはcgs固定．
     # SI: グラフ描画をSIにするかどうか
     # per: molあたり，重さあたりにするかどうか
@@ -572,8 +572,8 @@ def make_magnetization_vs_temp(material: Crystal, Temp: List[float], Moment: Lis
     plt.rcParams['xtick.direction'] = 'in'
     plt.rcParams['ytick.direction'] = 'in'
     plt.rcParams["legend.framealpha"] = 0
-    fig: Any = plt.figure(figsize=(8,7))
-    ax: Any = fig.add_subplot(111)
+    fig: plt.Figure = plt.figure(figsize=(8,7))
+    ax: plt.Subplot = fig.add_subplot(111)
     ax.xaxis.set_ticks_position('both')
     ax.yaxis.set_ticks_position('both')
 
@@ -598,7 +598,7 @@ def make_magnetization_vs_temp(material: Crystal, Temp: List[float], Moment: Lis
     return fig, ax
 
 
-def make_magnetization_vs_field(material: Crystal, Field: List[float], Moment: List[float], temp_val: float, SI: bool = False, per: Optional[str] = None) -> Tuple[Any, Any]: # データはcgs固定．グラフ描画をSIにするかどうか，1molあたりにするかどうか
+def make_magnetization_vs_field(material: Crystal, Field: List[float], Moment: List[float], temp_val: float, SI: bool = False, per: Optional[str] = None) -> Tuple[plt.Figure, plt.Subplot]: # データはcgs固定．グラフ描画をSIにするかどうか，1molあたりにするかどうか
     # 縦軸：磁化，横軸：磁場 のグラフを作成
     magnetization_vs_field: List[List[float]] = [[material.cal_magnetization(m=m,SI=SI,per=per),f] for m,f in zip(Moment,Field)] # 温度固定
     X: List[float] = [f for m,f in magnetization_vs_field]
@@ -609,8 +609,8 @@ def make_magnetization_vs_field(material: Crystal, Field: List[float], Moment: L
     plt.rcParams['xtick.direction'] = 'in'
     plt.rcParams['ytick.direction'] = 'in'
     plt.rcParams["legend.framealpha"] = 0
-    fig: Any = plt.figure(figsize=(8,7))
-    ax: Any = fig.add_subplot(111)
+    fig: plt.Figure = plt.figure(figsize=(8,7))
+    ax: plt.Subplot = fig.add_subplot(111)
     ax.xaxis.set_ticks_position('both')
     ax.yaxis.set_ticks_position('both')
 
@@ -635,7 +635,7 @@ def make_magnetization_vs_field(material: Crystal, Field: List[float], Moment: L
     return fig, ax
 
 
-def make_Bohr_vs_field(material: Crystal, Field: List[float], Moment: List[float], temp_val: float, per_formula_unit: bool = True) -> Tuple[Any, Any]:
+def make_Bohr_vs_field(material: Crystal, Field: List[float], Moment: List[float], temp_val: float, per_formula_unit: bool = True) -> Tuple[plt.Figure, plt.Subplot]:
     Bohr_vs_field: List[List[float]]
     if per_formula_unit:
         # 縦軸：有効ボーア磁子数/式単位，横軸：磁場 のグラフを作成
@@ -651,8 +651,8 @@ def make_Bohr_vs_field(material: Crystal, Field: List[float], Moment: List[float
     plt.rcParams['xtick.direction'] = 'in'
     plt.rcParams['ytick.direction'] = 'in'
     plt.rcParams["legend.framealpha"] = 0
-    fig: Any = plt.figure(figsize=(8,7))
-    ax: Any = fig.add_subplot(111)
+    fig: plt.Figure = plt.figure(figsize=(8,7))
+    ax: plt.Subplot = fig.add_subplot(111)
     ax.xaxis.set_ticks_position('both')
     ax.yaxis.set_ticks_position('both')
 
@@ -670,7 +670,7 @@ def make_Bohr_vs_field(material: Crystal, Field: List[float], Moment: List[float
     return fig, ax
 
 
-def make_Bohr_vs_temp(material: Crystal, Temp: List[float], Moment: List[float], field_val: float, per_formula_unit: bool = True) -> Tuple[Any, Any]:
+def make_Bohr_vs_temp(material: Crystal, Temp: List[float], Moment: List[float], field_val: float, per_formula_unit: bool = True) -> Tuple[plt.Figure, plt.Subplot]:
     Bohr_vs_temp: List[List[float]]
     if per_formula_unit:
         # 縦軸：有効ボーア磁子数/式単位，横軸：磁場 のグラフを作成
@@ -686,8 +686,8 @@ def make_Bohr_vs_temp(material: Crystal, Temp: List[float], Moment: List[float],
     plt.rcParams['xtick.direction'] = 'in'
     plt.rcParams['ytick.direction'] = 'in'
     plt.rcParams["legend.framealpha"] = 0
-    fig: Any = plt.figure(figsize=(8,7))
-    ax: Any = fig.add_subplot(111)
+    fig: plt.Figure = plt.figure(figsize=(8,7))
+    ax: plt.Subplot = fig.add_subplot(111)
     ax.xaxis.set_ticks_position('both')
     ax.yaxis.set_ticks_position('both')
 
@@ -705,7 +705,7 @@ def make_Bohr_vs_temp(material: Crystal, Temp: List[float], Moment: List[float],
     return fig, ax
 
 
-def make_susceptibility_vs_temp(material: Crystal, Temp: List[float], Moment: List[float], Field: float, SI: bool = False, per: Optional[str] = None) -> Tuple[Any, Any]: # データはcgs固定．グラフ描画をSIにするかどうか，1molあたりにするかどうか
+def make_susceptibility_vs_temp(material: Crystal, Temp: List[float], Moment: List[float], Field: float, SI: bool = False, per: Optional[str] = None) -> Tuple[plt.Figure, plt.Subplot]: # データはcgs固定．グラフ描画をSIにするかどうか，1molあたりにするかどうか
     # 縦軸：磁化率，横軸：温度 のグラフを作成
     # Moment: List[moment] moment: 磁気モーメント [emu]
     # Temp: List[temperature] temperature: 温度 [K]
@@ -743,8 +743,8 @@ def make_susceptibility_vs_temp(material: Crystal, Temp: List[float], Moment: Li
     plt.rcParams['xtick.direction'] = 'in'
     plt.rcParams['ytick.direction'] = 'in'
     plt.rcParams["legend.framealpha"] = 0
-    fig: Any = plt.figure(figsize=(8,7))
-    ax: Any = fig.add_subplot(111)
+    fig: plt.Figure = plt.figure(figsize=(8,7))
+    ax: plt.Subplot = fig.add_subplot(111)
     ax.xaxis.set_ticks_position('both')
     ax.yaxis.set_ticks_position('both')
 
@@ -769,7 +769,7 @@ def make_susceptibility_vs_temp(material: Crystal, Temp: List[float], Moment: Li
     return fig, ax
     
 
-def make_powder_Xray_intensity_vs_angle(filename: str, display_num: int = 10, material: Optional[Crystal] = None) -> Tuple[Any, Any]:
+def make_powder_Xray_intensity_vs_angle(filename: str, display_num: int = 10, material: Optional[Crystal] = None) -> Tuple[plt.Figure, plt.Subplot]:
     with open(filename, encoding="shift_jis") as f:
         data: List[List[float]] = [list(map(float, s.strip().split())) for s in f.readlines()[3:]]
         N: int = len(data)
@@ -816,8 +816,8 @@ def make_powder_Xray_intensity_vs_angle(filename: str, display_num: int = 10, ma
     plt.rcParams['xtick.direction'] = 'in'
     plt.rcParams['ytick.direction'] = 'in'
     plt.rcParams["legend.framealpha"] = 0
-    fig: Any = plt.figure(figsize=(8,7))
-    ax: Any = fig.add_subplot(111)
+    fig: plt.Figure = plt.figure(figsize=(8,7))
+    ax: plt.Subplot = fig.add_subplot(111)
     ax.xaxis.set_ticks_position('both')
     ax.yaxis.set_ticks_position('both')
 
@@ -833,7 +833,7 @@ def make_powder_Xray_intensity_vs_angle(filename: str, display_num: int = 10, ma
     return fig, ax
 
 
-def ax_transplant(ax: Any, fig_new: Optional[Any] = None, figsize: Optional[Tuple[float, float]] = None, ax_new: Optional[Any] = None) -> Tuple[Any, Any]:
+def ax_transplant(ax: plt.Subplot, fig_new: Optional[plt.Figure] = None, figsize: Optional[Tuple[float, float]] = None, ax_new: Optional[plt.Subplot] = None) -> Tuple[plt.Figure, plt.Subplot]:
     # 現状は最低限のpropertyしかないので必要な項目が増えたら追加する
     if fig_new is None:
         if figsize is None:
