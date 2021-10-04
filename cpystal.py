@@ -589,7 +589,7 @@ class Crystal: # 結晶の各物理量を計算
         """Saving the `Crystal` instance data as a pickle file.
 
         Note:
-            Once a `Crystal` instance is saved as a pickle file, the instance created by the pickle file will be an immutable object.
+            Once a `Crystal` instance is saved as a pickle file, the instance created by the class method `Crystal.load` from the pickle file will be an immutable object.
 
         Args:
             filename (str): Output file name without extension (if necessary, add file path to the head).
@@ -607,6 +607,9 @@ class Crystal: # 結晶の各物理量を計算
     @staticmethod
     def load(filename: str) -> Crystal:
         """Static method to load a `Crystal` instance from a pickle file.
+
+        Note:
+            Once a `Crystal` instance is saved as a pickle file, the instance created by the class method `Crystal.load` from the pickle file will be an immutable object.
 
         Args:
             filename (str): Input file name without extension (if necessary, add file path to the head).
