@@ -362,10 +362,13 @@ class Crystal: # 結晶の各物理量を計算
         if name == f"_{__class__.__name__}__updatable":
             object.__setattr__(self, name, value)
         elif name in self.__slots__:
-            if self.__updatable:
-                object.__setattr__(self, name, value)
+            if hasattr(self, name):
+                if self.__updatable:
+                    object.__setattr__(self, name, value)
+                else:
+                    raise TypeError(f"'{__class__.__name__}' object made by '{__class__.__name__}.load' is immutable")
             else:
-                raise TypeError(f"'{__class__.__name__}' object made by 'Crystal.load' is immutable")
+                object.__setattr__(self, name, value)
         else:
             raise AttributeError(f"'{__class__.__name__}' object has no attribute '{name}'")
 
@@ -374,12 +377,12 @@ class Crystal: # 結晶の各物理量を計算
         return state
 
     def __setstate__(self, state: Dict[Any, Any]) -> None:
-        for name, value in state.items():
-            # 後方互換性
-            if name == "num":
-                object.__setattr__(self, "fu_per_unit_cell", value)
-                continue
-            object.__setattr__(self, name, value)
+        for key in self.__slots__:
+            if key in state:
+                object.__setattr__(self, key, state[key])
+            else:
+                if key == "fu_per_unit_cell" and "num" in state:
+                    object.__setattr__(self, "fu_per_unit_cell", state["num"])
 
 
     def set_lattice_constant(self, a: float, b: float, c: float, alpha: float, beta: float, gamma: float, fu_per_unit_cell: Optional[int] = None) -> None:
