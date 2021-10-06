@@ -592,16 +592,18 @@ class Crystal: # 結晶の各物理量を計算
             Once a `Crystal` instance is saved as a pickle file, the instance created by the class method `Crystal.load` from the pickle file will be an immutable object.
 
         Args:
-            filename (str): Output file name without extension (if necessary, add file path to the head).
+            filename (str): Output file name (if necessary, add file path to the head). The suffix of `filename` must be ".pickle".
             overwrite (bool): If True, a file with the same name is overwritten.
         """
+        if not filename.endswith(".pickle"):
+            raise FileNotFoundError("suffix of 'filename' must be '.pickle'")
         self.__updatable = False # saveしたらimmutableオブジェクトになる
         mode: str
         if overwrite:
             mode = 'wb' # 上書きあり
         else:
             mode = 'xb' # 上書きなし
-        with open(f"{filename}.pickle", mode=mode) as f:
+        with open(filename, mode=mode) as f:
             pickle.dump(self, f)
 
     @staticmethod
@@ -612,15 +614,55 @@ class Crystal: # 結晶の各物理量を計算
             Once a `Crystal` instance is saved as a pickle file, the instance created by the class method `Crystal.load` from the pickle file will be an immutable object.
 
         Args:
-            filename (str): Input file name without extension (if necessary, add file path to the head).
+            filename (str): Input file name (if necessary, add file path to the head). The suffix of `filename` must be ".pickle".
 
         Returns:
-            (Crystal): `Crystal` instance saved in the pickle file '`filename`.pickle'.
+            (Crystal): `Crystal` instance saved in the pickle file `filename`.
         """
-        with open(f"{filename}.pickle", mode='rb') as f:
+        with open(filename, mode='rb') as f:
             res: Crystal = pickle.load(f)
         return res
 
+    @classmethod
+    def from_cif(cls, cif_filename: str) -> Crystal:
+        """Class method to make a `Crystal` instance from a cif file.
+        
+        Args:
+            cif_filename (str): Input file name (if necessary, add file path to the head).
+
+        Returns:
+            (Crystal): `Crystal` instance made from the cif file `cif_filename`.
+        """
+        with open(cif_filename) as f:
+            lines: List[str] = f.readlines()
+        for line in lines:
+            if line.startswith("_chemical_formula_structural"):
+                name: str = re.sub(r".+\'(.+)\'", "\\1", line).replace(" ", "").rstrip()
+        res: Crystal = cls(name)
+        a: float
+        b: float
+        c: float
+        alpha: float
+        beta: float
+        gamma: float
+        fu_per_unit_cell: int
+        for line in lines:
+            if line.startswith("_cell_length_a "):
+                a = float(re.sub(r"\(.*\)", "", line).replace("_cell_length_a ", "").rstrip())
+            if line.startswith("_cell_length_b "):
+                b = float(re.sub(r"\(.*\)", "", line).replace("_cell_length_b ", "").rstrip())
+            if line.startswith("_cell_length_c "):
+                c = float(re.sub(r"\(.*\)", "", line).replace("_cell_length_c ", "").rstrip())
+            if line.startswith("_cell_angle_alpha "):
+                alpha = float(re.sub(r"\(.*\)", "", line).replace("_cell_angle_alpha ", "").rstrip())
+            if line.startswith("_cell_angle_beta "):
+                beta = float(re.sub(r"\(.*\)", "", line).replace("_cell_angle_beta ", "").rstrip())
+            if line.startswith("_cell_angle_gamma "):
+                gamma = float(re.sub(r"\(.*\)", "", line).replace("_cell_angle_gamma ", "").rstrip())
+            if line.startswith("_cell_formula_units_Z "):
+                fu_per_unit_cell = int(line.replace("_cell_formula_units_Z ", "").rstrip())
+        res.set_lattice_constant(a, b, c, alpha, beta, gamma, fu_per_unit_cell)
+        return res
 
 
 def graph_moment_vs_temp(material: Crystal, Temp: List[float], Moment: List[float], field_val: float, SI: bool = False, per: Optional[str] = None) -> Tuple[plt.Figure, plt.Subplot]: # 磁場固定
