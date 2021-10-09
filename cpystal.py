@@ -1298,23 +1298,23 @@ def make_struct_file(cif_filename: str, p1_filename: str) -> str:
     material: Crystal = Crystal.from_cif(cif_filename)
     positions: List[str] = ["\t".join(line) for line in atoms_position_from_p1_file(p1_filename)]
     res: List[str] = ["! Text format structure file",
-    "",
-    f"{material.name}\t\t\t! Crystal Name",
-    f"{material.a}\t{material.b}\t{material.c}\t! Lattice constants a, b, c (�)",
-    f"{material.alpha}\t{material.beta}\t{material.gamma}\t! alpha, beta, gamma (degree)",
-    "",
-    f"{material.fu_per_unit_cell * int(sum(material.components.values()))}\t! Total number of atoms in the unit cell",
-    "",
-    "! Atom	X	Y	Z	Occupation",
-    *positions,
-    "",
-    "0	! Debye characteristic temperature (K)",
-    "0	! Thermal expansion coefficient (10^-6/K)"]    
+        "",
+        f"{material.name}\t\t\t! Crystal Name",
+        f"{material.a}\t{material.b}\t{material.c}\t! Lattice constants a, b, c (�)",
+        f"{material.alpha}\t{material.beta}\t{material.gamma}\t! alpha, beta, gamma (degree)",
+        "",
+        f"{material.fu_per_unit_cell * int(sum(material.components.values()))}\t! Total number of atoms in the unit cell",
+        "",
+        "! Atom	X	Y	Z	Occupation",
+        *positions,
+        "",
+        "0	! Debye characteristic temperature (K)",
+        "0	! Thermal expansion coefficient (10^-6/K)"
+    ]
     
     with open(f"{cif_filename.replace('.cif', '')}.struct", 'w') as f:
         f.write("\n".join(res))
     return "\n".join(res)
-    
 
 def main() -> None:
     pass
