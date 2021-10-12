@@ -327,7 +327,7 @@ class Crystal: # 結晶の各物理量を計算
             if not hasattr(self, k): # 後方互換性
                 continue
             v: Any = getattr(self, k)
-            if v is None or k == "unit":
+            if v is None or k == "unit" or k == "_Crystal__updatable":
                 continue
             if not k in self.unit:
                 res = res + f"{k} = {v}\n"
