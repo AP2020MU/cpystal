@@ -381,9 +381,11 @@ class Crystal: # 結晶の各物理量を計算
             if key in state:
                 object.__setattr__(self, key, state[key])
             else:
+                # 後方互換性のため(後のバージョンで削除予定)
                 if key == "fu_per_unit_cell" and "num" in state:
                     object.__setattr__(self, "fu_per_unit_cell", state["num"])
-
+                if key == "_Crystal__updatable":
+                    object.__setattr__(self, "_Crystal__updatable", False)
 
     def is_updatable(self) -> bool:
         """Return updatability of the instance.
