@@ -7,10 +7,10 @@ Of course, pymatgen is a very useful python module, so we use it as an adjunct i
 """
 from __future__ import annotations # class定義中に自己classを型ヒントとして使用するため
 
-from collections import defaultdict, deque
+from collections import defaultdict
 from math import pi, sqrt, cos, sin, radians
 import re
-from typing import Any, DefaultDict, Deque, Dict, Iterable, List, Optional, overload, Set, Tuple, Union
+from typing import Any, DefaultDict, Dict, List, Optional, Tuple, Union
 
 import matplotlib.pyplot as plt # type: ignore
 import numpy as np
@@ -381,6 +381,14 @@ class Crystal: # 結晶の各物理量を計算
                 continue
             object.__setattr__(self, name, value)
 
+
+    def is_updatable(self) -> bool:
+        """Return updatability of the instance.
+
+        Returns:
+            (bool): updatability of the instance.
+        """
+        return self.__updatable
 
     def set_lattice_constant(self, a: float, b: float, c: float, alpha: float, beta: float, gamma: float, fu_per_unit_cell: Optional[int] = None) -> None:
         """Setting lattice constants of the crystal.
