@@ -1,4 +1,4 @@
-from setuptools import setup, find_packages
+from distutils.core import setup
 
 def _requires_from_file(filename):
     return open(filename).read().splitlines()
@@ -6,9 +6,9 @@ def _requires_from_file(filename):
 setup(
     name="cpystal",
     version="0.0.0",
-    description="This is a Python package for dealing with crystals and experimental data of physical property.",
-    packages=find_packages(where="cpystal"),
-    package_dir={"": "cpystal"},
+    description="This is a Python package for dealing with crystals and experimental data of their physical property.",
+    packages=[""],
+    package_dir={"": ""},
     install_requires=_requires_from_file("/Users/ut/Desktop/AP2020MU/cpystal/requirements.txt"),
     author="AP2020MU",
     url='https://github.com/AP2020MU/cpystal',
