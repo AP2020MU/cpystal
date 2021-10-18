@@ -681,6 +681,27 @@ class Crystal: # 結晶の各物理量を計算
 LF = List[float]
 LLF = List[List[float]] 
 class PPMS_Resistivity:
+    """This is a class for acquiring experimental data of Physical Properties Measurement System (PPMS) from '.dat' files.
+
+    Attributes:
+        filename (str): Input file name (if necessary, add file path to the head). The suffix of `filename` may be ".dat".
+        material (Optional[Crystal]): `Crystal` instance of the measurement object.
+        Temp (List[float]): Temperature (K) data.
+        Field (List[float]): Magnetic field (Oe) data.
+        Time (List[float]): Time stamp (sec) data.
+        B1Resistivity (List[float]): Bridge 1 Resistivity (Ohm) data.
+        B2Resistivity (List[float]): Bridge 2 Resistivity (Ohm) data.
+        B1R_sd (List[float]): Standard deviation of Bridge 1 Resistivity (Ohm) data.
+        B2R_sd (List[float]): Standard deviation of Bridge 2 Resistivity (Ohm) data.
+        B1Current (List[float]): Bridge 1 Current (μA) data.
+        B2Current (List[float]): Bridge 2 Current (μA) data.
+
+        (optional: when used `PPMS_Resistivity.set_S_l`)
+        Sxx (float): Area of the sample perpendicular to the current (μm^2).
+        Syx (float): Area of the sample parallel to the current (μm^2).
+        lxx (float): Length of the sample parallel to the current (μm).
+        lyx (float): Length of the sample perpendicular to the current (μm).
+    """
     def __near_abs(self, x: float, k: float) -> float: # xに最も近いkの整数倍数
         if k == 0:
             return 0.0
@@ -702,6 +723,12 @@ class PPMS_Resistivity:
             return list(a*X + b), a, b
     
     def __init__(self, filename: str, material: Optional[Crystal] = None):
+        """Initializer of `PPMS_Resistivity`.
+
+        Args:
+            filename (str): Input file name (if necessary, add file path to the head). The suffix of `filename` may be ".dat".
+            material (Optional[Crystal]): `Crystal` instance of the measurement object.
+        """
         self.filename: str = filename
         self.material: Optional[Crystal] = material
 
@@ -740,6 +767,20 @@ class PPMS_Resistivity:
         self.lyx: float = lyx
     
     def symmetrize(self, delta_H: float, up_data: LLF, down_data: LLF) -> Tuple[LF, LF, LF, LF, LF]:
+        """Symmetrization and antisymmetrization are performed based on the data of the field-increasing and field-decreasing processes.
+
+        Args:
+            delta_H (float): Difference of the magnetic field between each step.
+            up_data (List[List[float]]): List of [field (float), Rxx (float), Rxx_sd (float), Ryx (float), Ryx_sd (float)] which represents field-increasing data.
+            down_data (List[List[float]]): List of [field (float), Rxx (float), Rxx_sd (float), Ryx (float), Ryx_sd (float)] which represents field-decreasing data.
+
+        Returns:
+            (Tuple[List[float], List[float], List[float]], List[float], List[float]): 
+                The first element of return value is 'effective_field' that is the list of field value whose reverse field value exists in data.
+                The second and third element of return value is the list of Rxx and Rxx_sd.
+                The fourth and fifth element of return value is the list of Ryx and Ryx_sd.
+        """
+        
         # (up/down)_data := List[List[field: float, Rxx: float, Rxx_sd: float, Ryx: float, Ryx_sd: float]]
         # 磁場を1往復させたときのデータから，Rxx・Ryxをそれぞれ対称化・反対称化
 
@@ -769,7 +810,24 @@ class PPMS_Resistivity:
                     
 
 class MPMS:
-    def __init__(self, filename: str, material: Crystal):
+    """This is a class for acquiring experimental data of Magnetic Property Measurement System (MPMS) from '.dat' files.
+    
+    Attributes:
+        filename (str): Input file name (if necessary, add file path to the head). The suffix of `filename` may be ".dat".
+        material (Optional[Crystal]): `Crystal` instance of the measurement object.
+        Temp (List[float]): Temperature (K) data.
+        Field (List[float]): Magnetic field (Oe) data.
+        Time (List[float]): Time stamp (sec) data.
+        LongMoment (List[float]): Longitudinal moment (emu) data.
+        Regfit (List[float]): Regression fit of longitudinal moment data.
+    """
+    def __init__(self, filename: str, material: Optional[Crystal] = None):
+        """Initializer of `MPMS`.
+
+        Args:
+            filename (str): Input file name (if necessary, add file path to the head). The suffix of `filename` may be ".dat".
+            material (Optional[Crystal]): `Crystal` instance of the measurement object.
+        """
         self.filename: str = filename
         self.material: Optional[Crystal] = material
 
@@ -799,6 +857,15 @@ class MPMS:
 
 
 def ingredient_flake_dp(A: List[int], W: int) -> None: # A: 適当に整数化したフレークの重さ, W: 目標重量
+    """Choose optimal flakes whose total weight meets the target value.
+
+    Note:
+        The result will be output to stdout.
+
+    Args:
+        A (List[int]): List of weight of flakes, properly integerized.
+        W (int): Target weight value.
+    """
     N: int = len(A)
     K: int = W+20 # 余裕を持って求めておく
     dp: List[List[int]] = [[0]*K for i in range(N+1)]
