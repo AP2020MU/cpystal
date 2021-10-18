@@ -1,15 +1,21 @@
-"""`cpystal`: for dealing with crystals and experimental data of physical property.
+"""`cpystal.graph` is a module for making graphs.
 
-`cpystal` is designed to handle experimental data on crystals.
-It places particular emphasis on calculating and storing data on the properties of actual synthesized samples, 
-and on graphing these data. In this respect, it is distinct from `pymatgen`, a similar crystal and material analysis module.
-Of course, pymatgen is a very useful python module, so we use it as an adjunct in `cpystal`.
+Functions:
+    `graph_moment_vs_temp`
+    `graph_moment_vs_field`
+    `graph_magnetization_vs_temp`
+    `graph_magnetization_vs_field`
+    `graph_Bohr_vs_field`
+    `graph_Bohr_vs_temp`
+    `graph_susceptibility_vs_temp`
+    `graph_powder_Xray_intensity_vs_angle`
+    `ax_transplant`
 """
 from __future__ import annotations # class定義中に自己classを型ヒントとして使用するため
 
-from collections import defaultdict, deque
-from math import pi, sqrt, cos, sin, radians
-from typing import Any, DefaultDict, Deque, Dict, Iterable, List, Optional, overload, Set, Tuple, Union
+from collections import deque
+from math import pi
+from typing import Deque, Dict, List, Optional, Tuple
 
 import matplotlib.pyplot as plt # type: ignore
 import numpy as np
