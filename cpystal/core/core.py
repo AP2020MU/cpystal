@@ -5,14 +5,13 @@ It places particular emphasis on calculating and storing data on the properties 
 and on graphing these data. In this respect, it is distinct from `pymatgen`, a similar crystal and material analysis module.
 Of course, pymatgen is a very useful python module, so we use it as an adjunct in `cpystal`.
 """
-from __future__ import annotations # class定義中に自己classを型ヒントとして使用するため
+from __future__ import annotations
 
 from collections import defaultdict
-from math import pi, sqrt, cos, sin, radians
+from math import sqrt, cos, radians
 import re
 from typing import Any, DefaultDict, Dict, List, Optional, Tuple, Union
 
-import matplotlib.pyplot as plt # type: ignore
 import numpy as np
 import pickle
 import scipy.signal # type: ignore
