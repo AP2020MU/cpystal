@@ -31,49 +31,58 @@ def compare_powder_Xray_experiment_with_calculation(experimental_data_filename: 
         (Tuple[plt.Figure, plt.Subplot]): `plt.Figure` object and plotted `plt.Subplot` object.
     """
     # ここから実験データの読み込み
+    data: List[List[float]] = []
+    flag: bool = False
     with open(experimental_data_filename, encoding="shift_jis") as f:
-        data: List[List[float]] = [list(map(float, s.strip().split())) for s in f.readlines()[3:]]
-        N: int = len(data)
-        two_theta: List[float] = [d[0] for d in data] # データは2θ
-        theta: List[float] = [d[0]/2 for d in data] # データは2θ
-        intensity: List[float] = [d[1] for d in data]
-        normalized_intensity: List[float] = [d[1]/max(intensity)*100 for d in data]
-        neg: List[float] = [i for i in intensity if i<=0]
-        assert len(neg)==0 # 負のintensityをもつ壊れたデータがないことを確認
-        
-        neighbor_num: int = 20 # peak(極大値の中でも急激に増加するもの)判定で参照する近傍のデータ点数
-        magnification: int = 4 # 周囲neighbor_num個の強度の最小値に比べて何倍大きければpeakと見なすかの閾値
-        
-        half: int = neighbor_num//2 # 中間点
-        que: Deque[float] = deque([])
-        peak: List[Tuple[float, int, float, float]] = []
-        now: float = 0.0
-        for i in range(N):
-            que.append(intensity[i])
-            now += intensity[i]
-            if len(que) > neighbor_num:
-                now -= que.popleft()
-            else: # 最初の neighbor_num//2 個は判定しない
-                continue
-            if max(que) == intensity[i-half]: # 極大性判定
-                # 近傍の(自分を除いた)平均値に対する比を元にピークを求める
-                peak.append((intensity[i-half]/(now-intensity[i-half]),i-half,theta[i-half],intensity[i-half]))
+        for line in f.readlines():
+            if line.rstrip() == "*RAS_INT_START":
+                flag = True
+            elif line.rstrip() == "*RAS_INT_END":
+                flag = False
+            elif flag:
+                data.append(list(map(float, line.strip().split())))
 
-        peak.sort(key=lambda x:x[0],reverse=True)
+    N: int = len(data)
+    two_theta: List[float] = [d[0] for d in data] # データは2θ
+    theta: List[float] = [d[0]/2 for d in data] # データは2θ
+    intensity: List[float] = [d[1] for d in data]
+    normalized_intensity: List[float] = [d[1]/max(intensity)*100 for d in data]
+    neg: List[float] = [i for i in intensity if i<=0]
+    assert len(neg)==0 # 負のintensityをもつ壊れたデータがないことを確認
+    
+    neighbor_num: int = 20 # peak(極大値の中でも急激に増加するもの)判定で参照する近傍のデータ点数
+    magnification: int = 4 # 周囲neighbor_num個の強度の最小値に比べて何倍大きければpeakと見なすかの閾値
+    
+    half: int = neighbor_num//2 # 中間点
+    que: Deque[float] = deque([])
+    peak: List[Tuple[float, int, float, float]] = []
+    now: float = 0.0
+    for i in range(N):
+        que.append(intensity[i])
+        now += intensity[i]
+        if len(que) > neighbor_num:
+            now -= que.popleft()
+        else: # 最初の neighbor_num//2 個は判定しない
+            continue
+        if max(que) == intensity[i-half]: # 極大性判定
+            # 近傍の(自分を除いた)平均値に対する比を元にピークを求める
+            peak.append((intensity[i-half]/(now-intensity[i-half]),i-half,theta[i-half],intensity[i-half]))
 
-        Cu_K_alpha: float = 1.5418 # angstrom
-        #Cu_K_alpha1 = 1.5405 # angstrom
-        #Cu_K_alpha2 = 1.5443 # angstrom
-        Cu_K_beta: float = 1.392 # angstrom
-        display_num: int = 10
-        for i, (_, p, theta_p, intensity_p) in enumerate(peak):
-            if i == display_num:
-                break
-            d_hkl_over_n_alpha: float = Cu_K_alpha/np.sin(np.radians(theta_p))/2
-            d_hkl_over_n_beta: float = Cu_K_beta/np.sin(np.radians(theta_p))/2
-            print(f"θ = {theta_p}, 2θ = {2*theta_p}, intensity = {intensity_p}")
-            print(f"    Kα: d_hkl/n = {d_hkl_over_n_alpha}")
-            #print(f"    Kβ: d_hkl/n = {d_hkl_over_n_beta}")
+    peak.sort(key=lambda x:x[0],reverse=True)
+
+    Cu_K_alpha: float = 1.5418 # angstrom
+    #Cu_K_alpha1 = 1.5405 # angstrom
+    #Cu_K_alpha2 = 1.5443 # angstrom
+    Cu_K_beta: float = 1.392 # angstrom
+    display_num: int = 10
+    for i, (_, p, theta_p, intensity_p) in enumerate(peak):
+        if i == display_num:
+            break
+        d_hkl_over_n_alpha: float = Cu_K_alpha/np.sin(np.radians(theta_p))/2
+        d_hkl_over_n_beta: float = Cu_K_beta/np.sin(np.radians(theta_p))/2
+        print(f"θ = {theta_p}, 2θ = {2*theta_p}, intensity = {intensity_p}")
+        print(f"    Kα: d_hkl/n = {d_hkl_over_n_alpha}")
+        #print(f"    Kβ: d_hkl/n = {d_hkl_over_n_beta}")
         
     # ここから粉末X線回折の理論計算
     parser: pymatgen.io.cif.CifParser = CifParser(cif_filename)
