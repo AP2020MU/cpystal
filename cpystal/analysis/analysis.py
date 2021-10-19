@@ -21,9 +21,9 @@ from typing import Deque, List, Optional, Tuple
 
 import matplotlib.pyplot as plt # type: ignore
 import numpy as np
-import pymatgen
-from pymatgen.io.cif import CifParser
-import pymatgen.analysis.diffraction.xrd
+import pymatgen # type: ignore
+from pymatgen.io.cif import CifParser # type: ignore
+import pymatgen.analysis.diffraction.xrd # type: ignore
 
 from ..core import Crystal
 
