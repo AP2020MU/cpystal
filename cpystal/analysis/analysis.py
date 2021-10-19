@@ -232,6 +232,8 @@ def make_struct_file(cif_filename: str, p1_filename: str) -> str:
     """
     material: Crystal = Crystal.from_cif(cif_filename)
     positions: List[str] = ["\t".join(line) for line in atoms_position_from_p1_file(p1_filename)]
+    if material.fu_per_unit_cell is None:
+            raise TypeError(f"unsupported operand type(s) for /: 'None' and 'int'\nset value 'fu_per_unit_cell'")
     res: List[str] = ["! Text format structure file",
         "",
         f"{material.name}\t\t\t! Crystal Name",
