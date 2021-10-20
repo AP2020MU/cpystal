@@ -11,11 +11,12 @@ Functions:
 """
 from __future__ import annotations # class定義中に自己classを型ヒントとして使用するため
 
-from typing import Any, DefaultDict, Dict, Iterable, List, Optional, overload, Set, Tuple, Union
+from collections import defaultdict
 from fractions import Fraction
 from functools import reduce
 from math import gcd
-from collections import defaultdict
+from typing import Any, DefaultDict, Dict, Iterable, List, Optional, overload, Set, Tuple, Union
+
 import re
 
 #from ..core import Crystal

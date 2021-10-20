@@ -15,9 +15,9 @@ Functions:
 """
 from __future__ import annotations # class定義中に自己classを型ヒントとして使用するため
 
-import re
 from collections import deque
 from typing import Deque, List, Optional, Tuple
+import re
 
 import matplotlib.pyplot as plt # type: ignore
 import numpy as np
