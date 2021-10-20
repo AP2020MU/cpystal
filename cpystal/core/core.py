@@ -5,14 +5,13 @@ It places particular emphasis on calculating and storing data on the properties 
 and on graphing these data. In this respect, it is distinct from `pymatgen`, a similar crystal and material analysis module.
 Of course, pymatgen is a very useful python module, so we use it as an adjunct in `cpystal`.
 """
-from __future__ import annotations # class定義中に自己classを型ヒントとして使用するため
+from __future__ import annotations
 
-from collections import defaultdict, deque
-from math import pi, sqrt, cos, sin, radians
+from collections import defaultdict
+from math import sqrt, cos, radians
 import re
-from typing import Any, DefaultDict, Deque, Dict, Iterable, List, Optional, overload, Set, Tuple, Union
+from typing import Any, DefaultDict, Dict, List, Optional, Tuple, Union
 
-import matplotlib.pyplot as plt # type: ignore
 import numpy as np
 import pickle
 import scipy.signal # type: ignore
@@ -198,7 +197,7 @@ class Semimutable_dict(Dict[Any, Any]):
 
     def __setitem__(self, key: Any, value: Any) -> None:
         if key in self and not self.__updatable:
-            raise TypeError(f"elements of '{__class__.__name__}' cannot be changed by '[]' operator; use 'update_force' method")
+            raise TypeError(f"elements of '{self.__class__.__name__}' cannot be changed by '[]' operator; use 'update_force' method")
         super().__setitem__(key, value)
         self.__updatable = False
 
@@ -225,6 +224,7 @@ class Crystal: # 結晶の各物理量を計算
         name (str): The chemical formula of the crystal.
         graphname (str): TeX-formed `name`.
         date (Optional[str]): The date the sample was synthesized. If there is a numbering system, it will be included here.
+        spacegroup_name (str): Space group name in International (Hermann-Mauguin) notation of the crytal.
         NA (float): Avogadro constant.
         a (float): Lattice constant.
         b (float): Lattice constant.
@@ -245,7 +245,7 @@ class Crystal: # 結晶の各物理量を計算
         graphs (Semimutable_dict[str, Any]): Semimutable dictionary of experimental data plotted in `matplotlib.axes._subplots.AxesSubplot` object.
 
     """
-    __slots__ = ("name", "graphname", "date", "NA", 
+    __slots__ = ("name", "graphname", "date", "spacegroup_name", "NA", 
                 "a", "b", "c", "alpha", "beta", "gamma", "V", "fu_per_unit_cell",
                 "formula_weight", "w", "num_magnetic_ion", "density", "mol",
                 "numbered_name", "components", "unit", "graphs", "_Crystal__updatable",)
@@ -262,6 +262,7 @@ class Crystal: # 結晶の各物理量を計算
         self.name: str = name # 化合物名
         self.graphname: str = "$\mathrm{" + re.sub(r"(\d+\.*\d*)", "_{\\1}", name) + "}$" # グラフで表示する名前
         self.date: Optional[str] = date # 合成した日付(必要ならナンバリングもここに含める)
+        self.spacegroup_name: Optional[str] = None  # 空間群名(国際表記)
         
         self.NA: float = 6.02214076 * 10**(23) # アボガドロ定数:[/mol]
         
@@ -287,12 +288,10 @@ class Crystal: # 結晶の各物理量を計算
         # 各クラス変数の単位
         # 内部では基本的にCGS単位系を用いる
         self.unit: Dict[str, str] = {
-            "unit": "",
-            "NA": "mol^-1", "name": "", "graphname": "", "date": "",
+            "NA": "mol^-1",
             "a": "Å", "b": "Å", "c": "Å", "alpha": "°", "beta": "°", "gamma": "°",
             "V": "cm^3", "fu_per_unit_cell": "", "formula_weight": "g/mol", "w": "g", 
             "num_magnetic_ion": "", "density": "g/cm^3", "mol": "mol",
-            "numbered_name": "", "components": ""
         }
 
         self.graphs: Semimutable_dict = Semimutable_dict()
@@ -339,12 +338,12 @@ class Crystal: # 結晶の各物理量を計算
 
     def __add__(self, other: Crystal) -> Crystal:
         if type(other) is not Crystal:
-            raise TypeError(f"unsupported operand type(s) for +:{__class__.__name__} and {type(other).__name__}")
-        return Crystal(self.name + other.name)
+            raise TypeError(f"unsupported operand type(s) for +:{self.__class__.__name__} and {type(other).__name__}")
+        return self.__class__(self.name + other.name)
 
     def __mul__(self, other: Union[int, float]) -> Crystal:
         if type(other) is not int:
-            raise TypeError(f"unsupported operand type(s) for +:{__class__.__name__} and {type(other).__name__}")
+            raise TypeError(f"unsupported operand type(s) for +:{self.__class__.__name__} and {type(other).__name__}")
         # 化学式をother倍する
         divided_name: List[str] = re.split(r",+", re.sub(r"([A-Z][a-z]*|(\d|\.)+|[()])", ",\\1,", self.numbered_name).strip(","))
         parentheses_depth: int = 0 # かっこの中にある数字は飛ばす
@@ -356,31 +355,44 @@ class Crystal: # 結晶の各物理量を計算
             else:
                 if parentheses_depth == 0 and re.match(r"\d+\.*\d*", s):
                     divided_name[i] = f"{float(s) * other:.4g}"
-        return Crystal("".join(divided_name))
+        return self.__class__("".join(divided_name))
 
     def __setattr__(self, name: str, value: Any) -> None:
-        if name == f"_{__class__.__name__}__updatable":
+        if name == f"_{self.__class__.__name__}__updatable":
             object.__setattr__(self, name, value)
         elif name in self.__slots__:
-            if self.__updatable:
-                object.__setattr__(self, name, value)
+            if hasattr(self, name):
+                if self.__updatable:
+                    object.__setattr__(self, name, value)
+                else:
+                    raise TypeError(f"'{self.__class__.__name__}' object made by '{self.__class__.__name__}.load' is immutable")
             else:
-                raise TypeError(f"'{__class__.__name__}' object made by '{__class__.__name__}.load' is immutable")
+                object.__setattr__(self, name, value)
         else:
-            raise AttributeError(f"'{__class__.__name__}' object has no attribute '{name}'")
+            raise AttributeError(f"'{self.__class__.__name__}' object has no attribute '{name}'")
 
     def __getstate__(self) -> Dict[Any, Any]:
         state: Dict[Any, Any] = {key: getattr(self, key) for key in self.__slots__}
         return state
 
     def __setstate__(self, state: Dict[Any, Any]) -> None:
-        for name, value in state.items():
-            # 後方互換性
-            if name == "num":
-                object.__setattr__(self, "fu_per_unit_cell", value)
-                continue
-            object.__setattr__(self, name, value)
+        for key in self.__slots__:
+            if key in state:
+                object.__setattr__(self, key, state[key])
+            else:
+                # 後方互換性のため(後のバージョンで削除予定)
+                if key == "fu_per_unit_cell" and "num" in state:
+                    object.__setattr__(self, "fu_per_unit_cell", state["num"])
+                if key == "_Crystal__updatable":
+                    object.__setattr__(self, "_Crystal__updatable", False)
 
+    def is_updatable(self) -> bool:
+        """Return updatability of the instance.
+
+        Returns:
+            (bool): updatability of the instance.
+        """
+        return self.__updatable
 
     def set_lattice_constant(self, a: float, b: float, c: float, alpha: float, beta: float, gamma: float, fu_per_unit_cell: Optional[int] = None) -> None:
         """Setting lattice constants of the crystal.
@@ -410,6 +422,14 @@ class Crystal: # 結晶の各物理量を計算
         if fu_per_unit_cell is not None:
             self.fu_per_unit_cell = fu_per_unit_cell # 単位胞に含まれる式単位の数 (無次元)
     
+    def set_spacegroup_name(self, spacegroup_name: str) -> None:
+        """Setting space group name of the crystal.
+
+        Args:
+            spacegroup_name (str): Space group name in International (Hermann-Mauguin) notation.
+        """
+        self.spacegroup_name = spacegroup_name
+
     def set_formula_weight(self, formula_weight: float) -> None:
         """Setting formula weight (per formula unit) of the crystal.
 
@@ -667,7 +687,28 @@ class Crystal: # 結晶の各物理量を計算
 # 型エイリアス
 LF = List[float]
 LLF = List[List[float]] 
-class PPMS_Resistivity:
+class PPMSResistivity:
+    """This is a class for acquiring experimental data of Physical Properties Measurement System (PPMS) from '.dat' files.
+
+    Attributes:
+        filename (str): Input file name (if necessary, add file path to the head). The suffix of `filename` may be ".dat".
+        material (Optional[Crystal]): `Crystal` instance of the measurement object.
+        Temp (List[float]): Temperature (K) data.
+        Field (List[float]): Magnetic field (Oe) data.
+        Time (List[float]): Time stamp (sec) data.
+        B1Resistivity (List[float]): Bridge 1 Resistivity (Ohm) data.
+        B2Resistivity (List[float]): Bridge 2 Resistivity (Ohm) data.
+        B1R_sd (List[float]): Standard deviation of Bridge 1 Resistivity (Ohm) data.
+        B2R_sd (List[float]): Standard deviation of Bridge 2 Resistivity (Ohm) data.
+        B1Current (List[float]): Bridge 1 Current (μA) data.
+        B2Current (List[float]): Bridge 2 Current (μA) data.
+
+        (optional: when used `PPMS_Resistivity.set_S_l`)
+        Sxx (float): Area of the sample perpendicular to the current (μm^2).
+        Syx (float): Area of the sample parallel to the current (μm^2).
+        lxx (float): Length of the sample parallel to the current (μm).
+        lyx (float): Length of the sample perpendicular to the current (μm).
+    """
     def __near_abs(self, x: float, k: float) -> float: # xに最も近いkの整数倍数
         if k == 0:
             return 0.0
@@ -689,6 +730,12 @@ class PPMS_Resistivity:
             return list(a*X + b), a, b
     
     def __init__(self, filename: str, material: Optional[Crystal] = None):
+        """Initializer of `PPMS_Resistivity`.
+
+        Args:
+            filename (str): Input file name (if necessary, add file path to the head). The suffix of `filename` may be ".dat".
+            material (Optional[Crystal]): `Crystal` instance of the measurement object.
+        """
         self.filename: str = filename
         self.material: Optional[Crystal] = material
 
@@ -727,6 +774,20 @@ class PPMS_Resistivity:
         self.lyx: float = lyx
     
     def symmetrize(self, delta_H: float, up_data: LLF, down_data: LLF) -> Tuple[LF, LF, LF, LF, LF]:
+        """Symmetrization and antisymmetrization are performed based on the data of the field-increasing and field-decreasing processes.
+
+        Args:
+            delta_H (float): Difference of the magnetic field between each step.
+            up_data (List[List[float]]): List of [field (float), Rxx (float), Rxx_sd (float), Ryx (float), Ryx_sd (float)] which represents field-increasing data.
+            down_data (List[List[float]]): List of [field (float), Rxx (float), Rxx_sd (float), Ryx (float), Ryx_sd (float)] which represents field-decreasing data.
+
+        Returns:
+            (Tuple[List[float], List[float], List[float]], List[float], List[float]): 
+                The first element of return value is 'effective_field' that is the list of field value whose reverse field value exists in data.
+                The second and third element of return value is the list of Rxx and Rxx_sd.
+                The fourth and fifth element of return value is the list of Ryx and Ryx_sd.
+        """
+        
         # (up/down)_data := List[List[field: float, Rxx: float, Rxx_sd: float, Ryx: float, Ryx_sd: float]]
         # 磁場を1往復させたときのデータから，Rxx・Ryxをそれぞれ対称化・反対称化
 
@@ -756,7 +817,24 @@ class PPMS_Resistivity:
                     
 
 class MPMS:
-    def __init__(self, filename: str, material: Crystal):
+    """This is a class for acquiring experimental data of Magnetic Property Measurement System (MPMS) from '.dat' files.
+    
+    Attributes:
+        filename (str): Input file name (if necessary, add file path to the head). The suffix of `filename` may be ".dat".
+        material (Optional[Crystal]): `Crystal` instance of the measurement object.
+        Temp (List[float]): Temperature (K) data.
+        Field (List[float]): Magnetic field (Oe) data.
+        Time (List[float]): Time stamp (sec) data.
+        LongMoment (List[float]): Longitudinal moment (emu) data.
+        Regfit (List[float]): Regression fit of longitudinal moment data.
+    """
+    def __init__(self, filename: str, material: Optional[Crystal] = None):
+        """Initializer of `MPMS`.
+
+        Args:
+            filename (str): Input file name (if necessary, add file path to the head). The suffix of `filename` may be ".dat".
+            material (Optional[Crystal]): `Crystal` instance of the measurement object.
+        """
         self.filename: str = filename
         self.material: Optional[Crystal] = material
 
@@ -786,6 +864,15 @@ class MPMS:
 
 
 def ingredient_flake_dp(A: List[int], W: int) -> None: # A: 適当に整数化したフレークの重さ, W: 目標重量
+    """Choose optimal flakes whose total weight meets the target value.
+
+    Note:
+        The result will be output to stdout.
+
+    Args:
+        A (List[int]): List of weight of flakes, properly integerized.
+        W (int): Target weight value.
+    """
     N: int = len(A)
     K: int = W+20 # 余裕を持って求めておく
     dp: List[List[int]] = [[0]*K for i in range(N+1)]
