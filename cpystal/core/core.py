@@ -197,7 +197,7 @@ class Semimutable_dict(Dict[Any, Any]):
 
     def __setitem__(self, key: Any, value: Any) -> None:
         if key in self and not self.__updatable:
-            raise TypeError(f"elements of '{__class__.__name__}' cannot be changed by '[]' operator; use 'update_force' method")
+            raise TypeError(f"elements of '{self.__class__.__name__}' cannot be changed by '[]' operator; use 'update_force' method")
         super().__setitem__(key, value)
         self.__updatable = False
 
@@ -338,12 +338,12 @@ class Crystal: # 結晶の各物理量を計算
 
     def __add__(self, other: Crystal) -> Crystal:
         if type(other) is not Crystal:
-            raise TypeError(f"unsupported operand type(s) for +:{__class__.__name__} and {type(other).__name__}")
-        return Crystal(self.name + other.name)
+            raise TypeError(f"unsupported operand type(s) for +:{self.__class__.__name__} and {type(other).__name__}")
+        return self.__class__(self.name + other.name)
 
     def __mul__(self, other: Union[int, float]) -> Crystal:
         if type(other) is not int:
-            raise TypeError(f"unsupported operand type(s) for +:{__class__.__name__} and {type(other).__name__}")
+            raise TypeError(f"unsupported operand type(s) for +:{self.__class__.__name__} and {type(other).__name__}")
         # 化学式をother倍する
         divided_name: List[str] = re.split(r",+", re.sub(r"([A-Z][a-z]*|(\d|\.)+|[()])", ",\\1,", self.numbered_name).strip(","))
         parentheses_depth: int = 0 # かっこの中にある数字は飛ばす
@@ -355,21 +355,21 @@ class Crystal: # 結晶の各物理量を計算
             else:
                 if parentheses_depth == 0 and re.match(r"\d+\.*\d*", s):
                     divided_name[i] = f"{float(s) * other:.4g}"
-        return Crystal("".join(divided_name))
+        return self.__class__("".join(divided_name))
 
     def __setattr__(self, name: str, value: Any) -> None:
-        if name == f"_{__class__.__name__}__updatable":
+        if name == f"_{self.__class__.__name__}__updatable":
             object.__setattr__(self, name, value)
         elif name in self.__slots__:
             if hasattr(self, name):
                 if self.__updatable:
                     object.__setattr__(self, name, value)
                 else:
-                    raise TypeError(f"'{__class__.__name__}' object made by '{__class__.__name__}.load' is immutable")
+                    raise TypeError(f"'{self.__class__.__name__}' object made by '{self.__class__.__name__}.load' is immutable")
             else:
                 object.__setattr__(self, name, value)
         else:
-            raise AttributeError(f"'{__class__.__name__}' object has no attribute '{name}'")
+            raise AttributeError(f"'{self.__class__.__name__}' object has no attribute '{name}'")
 
     def __getstate__(self) -> Dict[Any, Any]:
         state: Dict[Any, Any] = {key: getattr(self, key) for key in self.__slots__}
