@@ -224,6 +224,7 @@ class Crystal: # 結晶の各物理量を計算
         name (str): The chemical formula of the crystal.
         graphname (str): TeX-formed `name`.
         date (Optional[str]): The date the sample was synthesized. If there is a numbering system, it will be included here.
+        spacegroup_name (str): Space group name in International (Hermann-Mauguin) notation of the crytal.
         NA (float): Avogadro constant.
         a (float): Lattice constant.
         b (float): Lattice constant.
