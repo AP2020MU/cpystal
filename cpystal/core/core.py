@@ -679,7 +679,7 @@ class Crystal: # 結晶の各物理量を計算
 # 型エイリアス
 LF = List[float]
 LLF = List[List[float]] 
-class PPMS_Resistivity:
+class PPMSResistivity:
     """This is a class for acquiring experimental data of Physical Properties Measurement System (PPMS) from '.dat' files.
 
     Attributes:
