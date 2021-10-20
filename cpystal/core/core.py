@@ -244,7 +244,7 @@ class Crystal: # 結晶の各物理量を計算
         graphs (Semimutable_dict[str, Any]): Semimutable dictionary of experimental data plotted in `matplotlib.axes._subplots.AxesSubplot` object.
 
     """
-    __slots__ = ("name", "graphname", "date", "NA", 
+    __slots__ = ("name", "graphname", "date", "spacegroup_name", "NA", 
                 "a", "b", "c", "alpha", "beta", "gamma", "V", "fu_per_unit_cell",
                 "formula_weight", "w", "num_magnetic_ion", "density", "mol",
                 "numbered_name", "components", "unit", "graphs", "_Crystal__updatable",)
@@ -261,6 +261,7 @@ class Crystal: # 結晶の各物理量を計算
         self.name: str = name # 化合物名
         self.graphname: str = "$\mathrm{" + re.sub(r"(\d+\.*\d*)", "_{\\1}", name) + "}$" # グラフで表示する名前
         self.date: Optional[str] = date # 合成した日付(必要ならナンバリングもここに含める)
+        self.spacegroup_name: Optional[str] = None  # 空間群名(国際表記)
         
         self.NA: float = 6.02214076 * 10**(23) # アボガドロ定数:[/mol]
         
@@ -286,12 +287,10 @@ class Crystal: # 結晶の各物理量を計算
         # 各クラス変数の単位
         # 内部では基本的にCGS単位系を用いる
         self.unit: Dict[str, str] = {
-            "unit": "",
-            "NA": "mol^-1", "name": "", "graphname": "", "date": "",
+            "NA": "mol^-1",
             "a": "Å", "b": "Å", "c": "Å", "alpha": "°", "beta": "°", "gamma": "°",
             "V": "cm^3", "fu_per_unit_cell": "", "formula_weight": "g/mol", "w": "g", 
             "num_magnetic_ion": "", "density": "g/cm^3", "mol": "mol",
-            "numbered_name": "", "components": ""
         }
 
         self.graphs: Semimutable_dict = Semimutable_dict()
@@ -422,6 +421,14 @@ class Crystal: # 結晶の各物理量を計算
         if fu_per_unit_cell is not None:
             self.fu_per_unit_cell = fu_per_unit_cell # 単位胞に含まれる式単位の数 (無次元)
     
+    def set_spacegroup_name(self, spacegroup_name: str) -> None:
+        """Setting space group name of the crystal.
+
+        Args:
+            spacegroup_name (str): Space group name in International (Hermann-Mauguin) notation.
+        """
+        self.spacegroup_name = spacegroup_name
+
     def set_formula_weight(self, formula_weight: float) -> None:
         """Setting formula weight (per formula unit) of the crystal.
 
