@@ -582,7 +582,7 @@ def spacegroup_to_pointgroup(name: str) -> str:
     1. Capital alphabets and spaces are removed.
     2. Subscripts (represented by "_" with numbers) are removed.
     3. All "1" except a component of monoclinic symbols ("1" or "-1") are removed.
-    4. "a","b","c","d", and "n" are converted to "m"
+    4. "a","b","c","d","e", and "n" are converted to "m"
     5. Exception handling.
 
     Args:
@@ -596,10 +596,10 @@ def spacegroup_to_pointgroup(name: str) -> str:
         >>> print(point_group_name)
             m-3m
     """
-    name = re.sub(r"[A-Z]|\name", "", name)
+    name = re.sub(r"[A-Z]|\s", "", name)
     name = re.sub(r"_\d|_\{\d\}", "", name)
     name = re.sub(r"([^-])1", "\\1", name)
-    name = re.sub(r"[a-dn]", "m", name)
+    name = re.sub(r"[a-en]", "m", name)
     if name == "-4m2":
         name = "-42m"
     return name
