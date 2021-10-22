@@ -186,7 +186,7 @@ atomic_weight: Dict[str, float] = {
 }
 
 
-class Semimutable_dict(Dict[Any, Any]):
+class SemimutableDict(Dict[Any, Any]):
     """Semi-mutable dictionary inherited from `dict`
 
     The only difference from `dict` is that using `[]` is not allowed, but using `update_force` method is allowed to replace the value.
@@ -242,7 +242,7 @@ class Crystal: # 結晶の各物理量を計算
         numbered_name (float): Changed `name` that the elemental numbers in the chemical formula are clearly indicated by adding '1'.
         components (Defaultdict[str, float]): Number of each element in a formula unit.
         unit (dict[str, str]): The unit of each attribute.
-        graphs (Semimutable_dict[str, Any]): Semimutable dictionary of experimental data plotted in `matplotlib.axes._subplots.AxesSubplot` object.
+        graphs (SemimutableDict[str, Any]): Semimutable dictionary of experimental data plotted in `matplotlib.axes._subplots.AxesSubplot` object.
 
     """
     __slots__ = ("name", "graphname", "date", "spacegroup_name", "NA", 
@@ -294,7 +294,7 @@ class Crystal: # 結晶の各物理量を計算
             "num_magnetic_ion": "", "density": "g/cm^3", "mol": "mol",
         }
 
-        self.graphs: Semimutable_dict = Semimutable_dict()
+        self.graphs: SemimutableDict = SemimutableDict()
 
         # 化学式を"形態素"ごとに分割したリスト
         divided_name: List[str] = re.split(r",+", re.sub(r"([A-Z][a-z]*|(\d|\.)+|[()])", ",\\1,", self.numbered_name).strip(","))
