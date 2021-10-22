@@ -561,7 +561,7 @@ class _UnionFind:
 
 
 class SymmetryOperation(MatrixREF):
-    """Symmetry opration represented as matrix.
+    """Symmetry operation represented as matrix.
 
     This class is inherited from `MatrixREF`.
 
@@ -569,7 +569,7 @@ class SymmetryOperation(MatrixREF):
         p (int): Square of the generator of simple extension Q(√p).
         mat (List[List[REF]]): 2-dimension matrix of `REF` instance.
         shape (Tuple[int, int]): Shape of `MatrixREF.mat`. First element is the number of row, second is the number of column.
-        mirrority (bool): True if the symmetry opration changes right-handed system to left-handed system or vice versa.
+        mirrority (bool): True if the symmetry operation changes right-handed system to left-handed system or vice versa.
     """
     def __init__(self, p: int, mat: Matrix, mirrority: bool = False):
         super().__init__(p, mat=mat)
