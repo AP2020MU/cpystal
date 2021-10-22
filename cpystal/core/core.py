@@ -312,12 +312,15 @@ class Crystal: # 結晶の各物理量を計算
                 self.components[s] += now
                 now /= num_stack.pop()
         if auto_formula_weight: # nameから自動でモル質量を計算
-            formula_weight: float = 0.0 # モル質量(式単位あたり)
-            for element, n in self.components.items():
-                if not element in atomic_weight:
-                    raise KeyError
-                formula_weight += atomic_weight[element] * n
-            self.formula_weight = formula_weight
+            try:
+                formula_weight: float = 0.0 # モル質量(式単位あたり)
+                for element, n in self.components.items():
+                    if not element in atomic_weight:
+                        raise KeyError
+                    formula_weight += atomic_weight[element] * n
+                self.formula_weight = formula_weight
+            except KeyError:
+                print(f"'name' includes atom(s) whose atomic weight is undefined. please set 'formula_weight' manually")
 
 
     def __str__(self) -> str:
