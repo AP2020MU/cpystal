@@ -242,7 +242,7 @@ class Crystal: # 結晶の各物理量を計算
         numbered_name (float): Changed `name` that the elemental numbers in the chemical formula are clearly indicated by adding '1'.
         components (Defaultdict[str, float]): Number of each element in a formula unit.
         unit (dict[str, str]): The unit of each attribute.
-        graphs (SemimutableDict[str, Any]): Semimutable dictionary of experimental data plotted in `matplotlib.axes._subplots.AxesSubplot` object.
+        graphs (SemimutableDict[str, Any]): Semimutable dictionary of experimental data plotted as `matplotlib.axes._subplots.AxesSubplot` object.
 
     """
     __slots__ = ("name", "graphname", "date", "spacegroup_name", "NA", 
