@@ -669,6 +669,7 @@ class Crystal: # 結晶の各物理量を計算
         beta: float
         gamma: float
         fu_per_unit_cell: int
+        spacegroup_name: str
         for line in lines:
             if line.startswith("_cell_length_a "):
                 a = float(re.sub(r"\(.*\)", "", line).replace("_cell_length_a ", "").rstrip())
@@ -684,7 +685,10 @@ class Crystal: # 結晶の各物理量を計算
                 gamma = float(re.sub(r"\(.*\)", "", line).replace("_cell_angle_gamma ", "").rstrip())
             if line.startswith("_cell_formula_units_Z "):
                 fu_per_unit_cell = int(line.replace("_cell_formula_units_Z ", "").rstrip())
+            if line.startswith("_space_group_name_H-M_alt"):
+                spacegroup_name = line.replace("_space_group_name_H-M_alt ", "").rstrip()
         res.set_lattice_constant(a, b, c, alpha, beta, gamma, fu_per_unit_cell)
+        res.spacegroup_name = spacegroup_name
         return res
 
 # 型エイリアス
