@@ -219,9 +219,11 @@ def atoms_position_from_p1_file(p1_filename: str) -> List[List[str]]:
 def make_struct_file(cif_filename: str, p1_filename: str) -> str:
     """Make a ".struct" file from ".cif" file and ".p1" file.
 
+    Atomic coordinates in the ".p1" file must be written as "Fractional coordinates".
+    The ".struct" file will be saved in the same directory as ".cif" file.
+
     Note:
-        Atomic coordinates in the ".p1" file must be written as "Fractional coordinates".
-        The ".struct" file will be saved in the same directory as ".cif" file.
+        This function will be used for displaying theoretical Laue patterns in "Lauept.exe".
 
     Args:
         cif_filename (str): Name of the cif file.
