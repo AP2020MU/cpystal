@@ -9,8 +9,10 @@ from __future__ import annotations
 
 from collections import defaultdict
 from math import sqrt, cos, radians
+from os import stat
 import re
 from typing import Any, DefaultDict, Dict, List, Optional, Tuple, Union
+from matplotlib.pyplot import step
 
 import numpy as np
 import pickle
@@ -829,6 +831,7 @@ class MPMS:
     Attributes:
         filename (str): Input file name (if necessary, add file path to the head). The suffix of `filename` may be ".dat".
         material (Optional[Crystal]): `Crystal` instance of the measurement object.
+        N (int): Length of data.
         Temp (List[float]): Temperature (K) data.
         Field (List[float]): Magnetic field (Oe) data.
         Time (List[float]): Time stamp (sec) data.
@@ -862,13 +865,38 @@ class MPMS:
         N: int = len(data)
 
         dict_label: Dict[str, int] = {v:k for k,v in enumerate(label)}
-
+        self.N: int = N
         self.Temp: List[float] =          [data[i][dict_label["Temperature (K)"]] for i in range(N)]
         self.Field: List[float] =         [data[i][dict_label["Field (Oe)"]] for i in range(N)]
         self.Time: List[float] =          [data[i][dict_label["Time"]] for i in range(N)]
         self.LongMoment: List[float] =    [data[i][dict_label["Long Moment (emu)"]] for i in range(N)]
         self.RegFit: List[float] =        [data[i][dict_label["Long Reg Fit"]] for i in range(N)]
 
+    def __str__(self) -> str:
+        res: List[str] = []
+        res.append("----------------------------")
+        res.append("idx, Temp, Field, LongMoment")
+        for i in range(len(self.N)):
+            res.append(f"{i}, {self.Temp[i]}, {self.Field[i]}, {self.LongMoment[i]}")
+        res.append("----------------------------")
+        return "\n".join(res)
+
+    def __getitem__(self, key: Any) -> Any:
+        if isinstance(key, int):
+            return [key, self.Temp[key], self.Field[key], self.LongMoment[key]]
+        elif isinstance(key, slice):
+            start: int = 0
+            stop: int = self.N
+            step: int = 1
+            if key.start is not None:
+                start = key.start
+            if key.stop is not None:
+                stop = key.stop
+            if key.step is not None:
+                step = key.step
+            return list(zip(range(start,stop,step), self.Temp[key], self.Field[key], self.LongMoment[key]))
+        else:
+            raise KeyError("key must be 'int' or 'slice'")
 
 def ingredient_flake_dp(A: List[int], W: int) -> None: # A: 適当に整数化したフレークの重さ, W: 目標重量
     """Choose optimal flakes whose total weight meets the target value.
