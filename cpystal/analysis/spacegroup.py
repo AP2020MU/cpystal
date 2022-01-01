@@ -1178,7 +1178,7 @@ class PhysicalPropertyTensorAnalyzer:
         Args:
             rank (int): Rank of target physical property tensor.
             axiality (bool): True if the tensor is an axial tensor.
-            expr (Optional[str]): String representing a relation between elements that is already known.
+            expr (Optional[str]): String representing a relation between elements that is already known. Some relations shall be separated by comma.
 
         Returns: 
             (List[Tuple[int, ...]]): Indice(0-indexed) of non-zero elements of the tensor.
@@ -1190,6 +1190,8 @@ class PhysicalPropertyTensorAnalyzer:
             >>> PPTA.get_elements_info(rank=4, axiality=False, expr="ijkl=ijlk=jikl=klij") # elastic modulus tensor (4-tensor): 4階の弾性率テンソル
             >>> PPTA.get_elements_info(rank=3, axiality=False, expr="ijk=ikj") # Optical Parametric Oscillator: 光パラメトリック発振
 
+        ToDo:
+            To support "- (minus)" symbols in `expr`.
         """
         M: int = 3**rank
         nonzero: Set[int] = set(range(M))
@@ -1213,9 +1215,9 @@ class PhysicalPropertyTensorAnalyzer:
             relations = self._simplify_relations_value(relations) # 関係式の係数を簡単な比に変換
 
         # not necessary
-        #print(f"-----relations-----")
-        #print(*sorted([sorted(self._relation_to_ternary(relation, rank), key=lambda x:x[1]) for relation in relations]), sep="\n")
-        #print(f"-------------------")
+        print(f"-----relations-----")
+        print(*sorted([sorted(self._relation_to_ternary(relation, rank), key=lambda x:x[1]) for relation in relations]), sep="\n")
+        print(f"-------------------")
 
         # テンソル要素のうち非ゼロの要素の添字を0-indexedで出力
         print()
