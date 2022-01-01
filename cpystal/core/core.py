@@ -9,10 +9,8 @@ from __future__ import annotations
 
 from collections import defaultdict
 from math import sqrt, cos, radians
-from os import stat
 import re
 from typing import Any, DefaultDict, Dict, List, Optional, Tuple, Union
-from matplotlib.pyplot import step
 
 import numpy as np
 import pickle
@@ -227,27 +225,28 @@ class Crystal: # 結晶の各物理量を計算
         graphname (str): TeX-formed `name`.
         date (Optional[str]): The date the sample was synthesized. If there is a numbering system, it will be included here.
         spacegroup_name (str): Space group name in International (Hermann-Mauguin) notation of the crytal.
-        NA (float): Avogadro constant.
-        a (float): Lattice constant.
-        b (float): Lattice constant.
-        c (float): Lattice constant.
-        alpha (float): Lattice constant.
-        beta (float): Lattice constant.
-        gamma (float): Lattice constant.
-        V (float): Volume of a unit cell.
+        NA (float): Avogadro constant [mol^-1].
+        muB (float): Bohr magneton [emu].
+        a (float): Lattice constant [Å].
+        b (float): Lattice constant [Å].
+        c (float): Lattice constant [Å].
+        alpha (float): Lattice constant [°].
+        beta (float): Lattice constant [°].
+        gamma (float): Lattice constant [°].
+        V (float): Volume of a unit cell [cm^3].
         fu_per_unit_cell (float): Number of formula unit in a unit cell.
-        formula_weight (float): Weight of formula unit per mol.
-        w (float): The weight of the sample.
+        formula_weight (float): Weight of formula unit per mol [g/mol].
+        w (float): The weight of the sample [g].
         num_magnetic_ion (float): Number of magnetic ions in a formula unit.
-        density (float): Density of the crystal.
-        mol (float): The amount of substance of the sample.
+        density (float): Density of the crystal [g/cm^3].
+        mol (float): The amount of substance of the sample [mol].
         numbered_name (float): Changed `name` that the elemental numbers in the chemical formula are clearly indicated by adding '1'.
         components (Defaultdict[str, float]): Number of each element in a formula unit.
         unit (dict[str, str]): The unit of each attribute.
         graphs (SemimutableDict[str, Any]): Semimutable dictionary of experimental data plotted as `matplotlib.axes._subplots.AxesSubplot` object.
 
     """
-    __slots__ = ("name", "graphname", "date", "spacegroup_name", "NA", 
+    __slots__ = ("name", "graphname", "date", "spacegroup_name", "NA", "muB",
                 "a", "b", "c", "alpha", "beta", "gamma", "V", "fu_per_unit_cell",
                 "formula_weight", "w", "num_magnetic_ion", "density", "mol",
                 "numbered_name", "components", "unit", "graphs", "_Crystal__updatable",)
@@ -266,7 +265,8 @@ class Crystal: # 結晶の各物理量を計算
         self.date: Optional[str] = date # 合成した日付(必要ならナンバリングもここに含める)
         self.spacegroup_name: Optional[str] = None  # 空間群名(国際表記)
         
-        self.NA: float = 6.02214076 * 10**(23) # アボガドロ定数:[/mol]
+        self.NA: float = 6.02214076 * 10**(23) # アボガドロ定数 [mol^-1]
+        self.muB: float = 9.274 * 10**(-21) # Bohr磁子 [emu]
         
         # 格子定数
         self.a: Optional[float] = None              # 格子定数 [Å]
@@ -290,7 +290,7 @@ class Crystal: # 結晶の各物理量を計算
         # 各クラス変数の単位
         # 内部では基本的にCGS単位系を用いる
         self.unit: Dict[str, str] = {
-            "NA": "mol^-1",
+            "NA": "mol^-1", "muB": "emu",
             "a": "Å", "b": "Å", "c": "Å", "alpha": "°", "beta": "°", "gamma": "°",
             "V": "cm^3", "fu_per_unit_cell": "", "formula_weight": "g/mol", "w": "g", 
             "num_magnetic_ion": "", "density": "g/cm^3", "mol": "mol",
@@ -610,6 +610,17 @@ class Crystal: # 結晶の各物理量を計算
             print("\n".join([f"{element} = {ratio*self.w:.4g} g ({ratio:.2%})" for element, ratio in res]))
         return res
 
+    def cal_Bpfu_to_emu(self, mu: float) -> float:
+        """Calculating 'emu'-unit magnetization from the value of 'muB/f.u.'-unit magnetization.
+
+        Args:
+            mu (float): 'muB/f.u.'-unit magnetization.
+        
+        Returns:
+            (float): 'emu'-unit magnetization
+        """
+        return mu * self.muB * self.w / self.formula_weight * self.NA
+
     def save(self, filename: str, overwrite: bool = False) -> None: # Crystalインスタンスのデータを保存
         """Saving the `Crystal` instance data as a pickle file.
 
@@ -733,9 +744,9 @@ class PPMSResistivity:
         else: # 1次関数近似
             n = len(X)
             xs = np.sum(X)
-            ys = np.sum(Y)
-            a = ((X@Y - xs*ys/n) / (np.sum(X ** 2) - xs**2/n))
-            b = (ys - a * xs)/n
+            Moment_sum = np.sum(Y)
+            a = ((X@Y - xs*Moment_sum/n) / (np.sum(X ** 2) - xs**2/n))
+            b = (Moment_sum - a * xs)/n
             return list(a*X + b), a, b
     
     def __init__(self, filename: str, material: Optional[Crystal] = None):
@@ -853,14 +864,14 @@ class MPMS:
             data: List[List[Any]] = []
             flag: int = 0
             for l in current_file.readlines():
-                if flag == 0 and l == "[Data]\n":
+                if flag == 0 and l.startswith("[Data]"):
                     flag = 1
                     continue
                 if flag == 1:
-                    label = l.strip().split(",")
+                    label = re.split(r",\t*", l.strip())
                     flag = 2
                 elif flag == 2:
-                    data.append(list(map(str_to_float,l.strip().split(","))))
+                    data.append(list(map(str_to_float, re.split(r",\t*", l.strip()))))
 
         N: int = len(data)
 
@@ -876,7 +887,7 @@ class MPMS:
         res: List[str] = []
         res.append("----------------------------")
         res.append("idx, Temp, Field, LongMoment")
-        for i in range(len(self.N)):
+        for i in range(self.N):
             res.append(f"{i}, {self.Temp[i]}, {self.Field[i]}, {self.LongMoment[i]}")
         res.append("----------------------------")
         return "\n".join(res)
@@ -897,6 +908,59 @@ class MPMS:
             return list(zip(range(start,stop,step), self.Temp[key], self.Field[key], self.LongMoment[key]))
         else:
             raise KeyError("key must be 'int' or 'slice'")
+
+    def cal_Curie_Weiss_temp(self, temp: List[float], moment: List[float], field: float) -> Tuple[float, float]:
+        """Calculating Curie-Weiss temperature and Curie constant.
+
+        Note:
+            χ = M/H = C / (T-θc), where θc is Curie-Weiss temperature and C is Curie constant
+
+        Args:
+            temp (List[float]): List of temperature (K). Elements must be above Curie (or Neel) temperature.
+            moment (List[float]): List of magnetic moment (emu).
+
+        Returns:
+            (Tuple[float, float]): Curie-Weiss temperature (K) and Curie constant (emu.K/mol.Oe).
+        """
+        if self.material is None:
+            raise TypeError
+        Temp: np.ndarray = np.array(temp)
+        sus_inv: np.ndarray = field / (np.array(moment) / self.material.mol)
+        n: int = len(Temp)
+        Temp_sum: float = np.sum(Temp)
+        susinv_sum: float = np.sum(sus_inv)
+        a: float = ((Temp@sus_inv - Temp_sum*susinv_sum/n) / (np.sum(Temp ** 2) - Temp_sum**2/n))
+        b: float = (susinv_sum - a * Temp_sum)/n
+        theta_Curie_Weiss: float = abs(b/a)
+        Curie_constant: float = 1/a
+        return theta_Curie_Weiss, Curie_constant
+
+    def Bpfu(self) -> List[float]:
+        """Moment list in 'μB/f.u.'.
+        """
+        return [self.material.cal_Bohr_per_formula_unit(m) for m in self.LongMoment]
+
+    def Field_T(self) -> List[float]:
+        """Field list in 'Testa'.
+        """
+        return [f/10000 for f in self.Field]
+
+    def Susceptibility(self, H: float) -> List[float]:
+        """χ=M/H list in 'emu/mol.Oe'.
+
+        Args:
+            H (float): Magnetic field (Oe).
+        """
+        return [m * (self.material.formula_weight / self.material.w) / H for m in self.LongMoment]
+    
+    def inv_Susceptibility(self, H: float) -> List[float]:
+        """1/χ=H/M list in '(emu/mol.Oe)^{-1}'.
+
+        Args:
+            H (float): Magnetic field (Oe).
+        """
+        return [1/x for x in self.Susceptibility(H)]
+
 
 def ingredient_flake_dp(A: List[int], W: int) -> None: # A: 適当に整数化したフレークの重さ, W: 目標重量
     """Choose optimal flakes whose total weight meets the target value.
