@@ -34,7 +34,180 @@ plt.rcParams['xtick.direction'] = 'in'
 plt.rcParams['ytick.direction'] = 'in'
 plt.rcParams["legend.framealpha"] = 0
 
-def compare_powder_Xray_experiment_with_calculation(experimental_data_filename: str, cif_filename: str, material: Optional[Crystal] = None) -> Tuple[plt.Figure, plt.Subplot]:
+def compare_powder_Xray_experiment_with_calculation(experimental_data_filename: str, cif_filename: str, material: Optional[Crystal] = None, unbackground: bool = False) -> Tuple[plt.Figure, plt.Subplot]:
+    """Compare experimental intensity data of powder X-ray diffraction with theoretical intensity distribution.
+
+    Notes:
+        Removing background method should be improved.
+
+    Args:
+        experimental_data_filename (str): Input file name (if necessary, add file path to the head). The suffix of `filename` must be ".ras".
+        cif_filename (str): Input file name (if necessary, add file path to the head). The suffix of `filename` must be ".cif".
+        material (Optional[Crystal]): `Crystal` instance of the measurement object.
+        unbackground (bool): If True, remove the background with piecewise linear interpolation.
+
+    Returns:
+        (Tuple[plt.Figure, plt.Subplot]): `plt.Figure` object and plotted `plt.Subplot` object.
+    """
+    # ここから実験データの読み込み
+    data: List[List[float]] = []
+    flag: bool = False
+    with open(experimental_data_filename, encoding="shift_jis") as f:
+        for line in f.readlines():
+            if line.rstrip() == "*RAS_INT_START":
+                flag = True
+            elif line.rstrip() == "*RAS_INT_END":
+                flag = False
+            elif flag:
+                data.append(list(map(float, line.strip().split())))
+
+    N: int = len(data)
+    two_theta: List[float] = [d[0] for d in data] # データは2θ
+
+    intensity: List[float] = [d[1] for d in data]
+    
+    neg: List[float] = [i for i in intensity if i<=0]
+    assert len(neg)==0 # 負のintensityをもつ壊れたデータがないことを確認
+    
+    neighbor_num: int = 20 # peak(極大値の中でも急激に増加するもの)判定で参照する近傍のデータ点数
+    magnification: int = 4 # 周囲neighbor_num個の強度の最小値に比べて何倍大きければpeakと見なすかの閾値
+    half: int = neighbor_num//2 # 中間点
+    que: Deque[float] = deque([])
+    descending_intensity: List[Tuple[float, int, float, float]] = []
+    now: float = 0.0
+    for i in range(N):
+        que.append(intensity[i])
+        now += intensity[i]
+        if len(que) > neighbor_num:
+            now -= que.popleft()
+        else: # 最初の neighbor_num//2 個は判定しない
+            continue
+        mid: int = i-half
+        if max(que) == intensity[mid]: # 極大性判定
+            # 近傍の(自分を除いた)平均値に対する比を元にピークを求める
+            descending_intensity.append((intensity[mid]/(now-intensity[mid]), mid, two_theta[mid], intensity[mid]))
+
+    descending_intensity.sort(key=lambda x:x[0],reverse=True)
+
+    Cu_K_alpha: float = 1.5418 # angstrom
+    #Cu_K_alpha1 = 1.5405 # angstrom
+    #Cu_K_alpha2 = 1.5443 # angstrom
+    Cu_K_beta: float = 1.392 # angstrom
+    display_num: int = 10
+    for i, (_, p, theta_p, intensity_p) in enumerate(descending_intensity):
+        if i == display_num:
+            break
+        d_hkl_over_n_alpha: float = Cu_K_alpha/np.sin(np.radians(theta_p))/2
+        d_hkl_over_n_beta: float = Cu_K_beta/np.sin(np.radians(theta_p))/2
+        print(f"2θ = {2*theta_p:.3f}, intensity = {int(intensity_p)}")
+        print(f"    Kα: d_hkl/n = {d_hkl_over_n_alpha:.2f}")
+        #print(f"    Kβ: d_hkl/n = {d_hkl_over_n_beta}")
+
+    # 変化が小さい部分からバックグラウンドを求める
+    background_points: List[List[float]] = [[x,y] for _,_,x,y in sorted(descending_intensity[len(descending_intensity)//5*3:], key=lambda X:X[2])]
+    def depeak(arr):
+        score = [(arr[0][1]-arr[1][1])*2]
+        for i in range(1, len(arr)-1):
+            xim1,yim1 = arr[i-1]
+            xi,yi = arr[i]
+            xip1,yip1 = arr[i+1]
+            score.append(2*yi-yim1-yip1)
+        score.append((arr[-1][1]-arr[-2][1])*2)
+        res = [arr[i] for i in sorted(sorted(range(len(arr)), key=lambda i:score[i])[:len(arr)//3*2])]
+        return res
+    background_points = depeak(background_points)
+    background_x: List[List[float]] = [two_theta[0]] + [x for x,y in background_points] + [two_theta[-1]]
+    background_y: List[List[float]] = [intensity[0]] + [y for x,y in background_points] + [intensity[-1]]
+    
+    # background_pointsから内挿
+    def interpolate_bg(x: float):
+        if x < background_points[0][0]:
+            tht1,its1 = two_theta[0], intensity[0]
+            tht2,its2 = background_points[0]
+            return its1 + (its2-its1)/(tht2-tht1)*(x-tht1)
+        if x > background_points[-1][0]:
+            tht1,its1 = background_points[-1]
+            tht2,its2 = two_theta[-1], intensity[-1]
+            return its1 + (its2-its1)/(tht2-tht1)*(x-tht1)
+        for i in range(len(background_points)-1):
+            tht1,its1 = background_points[i]
+            tht2,its2 = background_points[i+1]
+            if tht1 <= x <= tht2:
+                return its1 + (its2-its1)/(tht2-tht1)*(x-tht1)
+    # 3次spline補間は相性が悪い
+    #interpolate_bg = interp1d(background_x, background_y, kind="cubic")
+    x = np.arange(10,90)
+    y = [interpolate_bg(i) for i in x]
+    plt.plot(x,y)
+    plt.scatter(background_x,background_y)
+    plt.show()
+    if unbackground:
+        intensity_unbackground: List[float] = [its-interpolate_bg(tht) for tht,its in zip(two_theta,intensity)]
+    else:
+        intensity_unbackground = intensity
+    exp_tops: List[List[float]] = [[x,y] for _,_,x,y in sorted(descending_intensity[:display_num], key=lambda z:z[3], reverse=True)]
+        
+    # ここから粉末X線回折の理論計算
+    parser: pymatgen.io.cif.CifParser = CifParser(cif_filename)
+    structure: pymatgen.core.structure.Structure = parser.get_structures()[0]
+    analyzer: pymatgen.analysis.diffraction.xrd.XRDCalculator = pymatgen.analysis.diffraction.xrd.XRDCalculator(wavelength='CuKa')
+    diffraction_pattern: pymatgen.analysis.diffraction.core.DiffractionPattern = analyzer.get_pattern(structure)
+    cal_tops: List[list[float]] = [[x,y] for _,_,x,y in sorted(zip(diffraction_pattern.d_hkls, diffraction_pattern.hkls, diffraction_pattern.x, diffraction_pattern.y), key=lambda z:z[3], reverse=True)[:display_num]]
+    for d_hkl, hkl, x, y in sorted(zip(diffraction_pattern.d_hkls, diffraction_pattern.hkls, diffraction_pattern.x, diffraction_pattern.y), key=lambda z:z[3], reverse=True)[:display_num]:
+        print(f"{x:.3f}, {hkl}, {d_hkl:.3f}")
+
+    fig: plt.Figure = plt.figure(figsize=(7,6))
+    ax: plt.Subplot = fig.add_subplot(111)
+    ax.xaxis.set_ticks_position('both')
+    ax.yaxis.set_ticks_position('both')
+
+    def LSM(x, y, linear=False): # x: List, y: List
+        x = np.array(x)
+        y = np.array(y)
+        if linear: # 線形関数近似
+            a = x@y / (x ** 2).sum()
+            return a*x, a, 0
+        else: # 1次関数近似
+            n = len(x)
+            xs = np.sum(x)
+            ys = np.sum(y)
+            a = ((x@y - xs*ys/n) / (np.sum(x ** 2) - xs**2/n))
+            b = (ys - a * xs)/n
+            return a*x + b, a, b
+    a: float = LSM([y for x,y in exp_tops],[y for x,y in cal_tops])[1]
+    # 実験値を理論値に合わせて定数倍
+    # 倍率は上位ピーク強度から最小二乗法
+    normalized_intensity: List[float] = [a*x for x in intensity_unbackground]
+
+    # 実験データ
+    ax.plot(two_theta, normalized_intensity, label="obs.", color="blue", marker="o", markersize=1.5, linewidth=0.5, zorder=2)
+    
+    # 理論計算
+    ax.bar(diffraction_pattern.x, diffraction_pattern.y, width=0.5, label="calc.", color="red", zorder=1)
+    
+    for x in diffraction_pattern.x:
+        ax.plot([x,x], [-8,-5], color="green", linewidth=1, zorder=0)
+    ax.plot([x,x], [-8,-5], color="green", linewidth=1, label="Bragg peak", zorder=0)
+
+    hans, labs = ax.get_legend_handles_labels()
+    hans = [hans[0],hans[2],hans[1]]
+    labs = [labs[0],labs[2],labs[1]]
+
+    #ax.set_yscale('log')
+    ax.set_xlabel(r"$2\theta\, [{}^{\circ}]$")
+    ax.set_ylabel("intensity [a.u.]")
+    if material is not None:
+        ax.set_title(f"{material.graphname} powder X-ray diffraction")
+    else:
+        ax.set_title(f"powder X-ray diffraction")
+    ax.legend(handles=hans, labels=labs)
+    ax.set_xticks(range(10,100,10))
+    ax.set_ylim(-10,110)
+    ax.yaxis.set_ticklabels([]) # 目盛を削除
+    plt.show()
+    return fig, ax
+
+def _compare_powder_Xray_experiment_with_calculation(experimental_data_filename: str, cif_filename: str, material: Optional[Crystal] = None) -> Tuple[plt.Figure, plt.Subplot]:
     """Compare experimental intensity data of powder X-ray diffraction with theoretical intensity distribution.
 
     Args:
@@ -59,7 +232,6 @@ def compare_powder_Xray_experiment_with_calculation(experimental_data_filename: 
 
     N: int = len(data)
     two_theta: List[float] = [d[0] for d in data] # データは2θ
-    theta: List[float] = [d[0]/2 for d in data] # データは2θ
     intensity: List[float] = [d[1] for d in data]
     normalized_intensity: List[float] = [d[1]/max(intensity)*100 for d in data]
     neg: List[float] = [i for i in intensity if i<=0]
@@ -70,7 +242,7 @@ def compare_powder_Xray_experiment_with_calculation(experimental_data_filename: 
     
     half: int = neighbor_num//2 # 中間点
     que: Deque[float] = deque([])
-    peak: List[Tuple[float, int, float, float]] = []
+    descending_intensity: List[Tuple[float, int, float, float]] = []
     now: float = 0.0
     for i in range(N):
         que.append(intensity[i])
@@ -81,22 +253,22 @@ def compare_powder_Xray_experiment_with_calculation(experimental_data_filename: 
             continue
         if max(que) == intensity[i-half]: # 極大性判定
             # 近傍の(自分を除いた)平均値に対する比を元にピークを求める
-            peak.append((intensity[i-half]/(now-intensity[i-half]),i-half,theta[i-half],intensity[i-half]))
+            descending_intensity.append((intensity[i-half]/(now-intensity[i-half]),i-half,two_theta[i-half],intensity[i-half]))
 
-    peak.sort(key=lambda x:x[0],reverse=True)
+    descending_intensity.sort(key=lambda x:x[0],reverse=True)
 
     Cu_K_alpha: float = 1.5418 # angstrom
     #Cu_K_alpha1 = 1.5405 # angstrom
     #Cu_K_alpha2 = 1.5443 # angstrom
     Cu_K_beta: float = 1.392 # angstrom
     display_num: int = 10
-    for i, (_, p, theta_p, intensity_p) in enumerate(peak):
+    for i, (_, p, theta_p, intensity_p) in enumerate(descending_intensity):
         if i == display_num:
             break
         d_hkl_over_n_alpha: float = Cu_K_alpha/np.sin(np.radians(theta_p))/2
         d_hkl_over_n_beta: float = Cu_K_beta/np.sin(np.radians(theta_p))/2
-        print(f"θ = {theta_p}, 2θ = {2*theta_p}, intensity = {intensity_p}")
-        print(f"    Kα: d_hkl/n = {d_hkl_over_n_alpha}")
+        print(f"2θ = {2*theta_p:.3f}, intensity = {int(intensity_p)}")
+        print(f"    Kα: d_hkl/n = {d_hkl_over_n_alpha:.2f}")
         #print(f"    Kβ: d_hkl/n = {d_hkl_over_n_beta}")
         
     # ここから粉末X線回折の理論計算
@@ -105,19 +277,19 @@ def compare_powder_Xray_experiment_with_calculation(experimental_data_filename: 
     analyzer: pymatgen.analysis.diffraction.xrd.XRDCalculator = pymatgen.analysis.diffraction.xrd.XRDCalculator(wavelength='CuKa')
     diffraction_pattern: pymatgen.analysis.diffraction.core.DiffractionPattern = analyzer.get_pattern(structure)
     for d_hkl, hkl, x, y in sorted(zip(diffraction_pattern.d_hkls, diffraction_pattern.hkls, diffraction_pattern.x, diffraction_pattern.y), key=lambda z:z[3], reverse=True)[:10]:
-        print(x, hkl, d_hkl)
+        print(f"{x:.3f}, {hkl}, {d_hkl:.3f}")
 
     fig: plt.Figure = plt.figure(figsize=(7,6))
     ax: plt.Subplot = fig.add_subplot(111)
     ax.xaxis.set_ticks_position('both')
     ax.yaxis.set_ticks_position('both')
 
-    # 理論計算
-    ax.bar(diffraction_pattern.x, diffraction_pattern.y, width=0.6, label="calculated", color="red")
-
     # 実験データ
-    ax.plot(two_theta, normalized_intensity, label="experiment", color="blue")
+    ax.plot(two_theta, normalized_intensity, label="experiment", color="blue", marker="o", markersize=2, linewidth=0.5, zorder=2)
     
+    # 理論計算
+    ax.bar(diffraction_pattern.x, diffraction_pattern.y, width=0.6, label="calculated", color="red", zorder=1)
+
     #ax.set_yscale('log')
     ax.set_xlabel(r"$2\theta\, [{}^{\circ}]$")
     ax.set_ylabel("intensity [a.u.]")
@@ -126,10 +298,10 @@ def compare_powder_Xray_experiment_with_calculation(experimental_data_filename: 
     else:
         ax.set_title(f"powder X-ray diffraction")
     ax.legend()
-    ax.set_xticks(range(0,100,10))
+    ax.set_xticks(range(10,100,10))
+    ax.yaxis.set_ticklabels([]) # 目盛を削除
     plt.show()
     return fig, ax
-
 
 def make_powder_Xray_diffraction_pattern_in_calculation(cif_filename: str, material: Optional[Crystal] = None) -> Tuple[plt.Figure, plt.Subplot]:
     """Calculate theoretical intensity distribution of powder X-ray diffraction.
