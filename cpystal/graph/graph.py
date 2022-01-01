@@ -124,7 +124,7 @@ def graph_moment_vs_field(material: Crystal, Field: List[float], Moment: List[fl
     ax.xaxis.set_ticks_position('both')
     ax.yaxis.set_ticks_position('both')
 
-    ax.plot(X, Y)
+    ax.plot(X, Y, marker="o")
     ax.set_xlabel(r"Magnetic Field (Oe)")
     if SI:
         if per == "mol":
@@ -243,12 +243,12 @@ def graph_Bohr_vs_field(material: Crystal, Field: List[float], Moment: List[floa
     ax.xaxis.set_ticks_position('both')
     ax.yaxis.set_ticks_position('both')
 
-    ax.plot(X, Y)
-    ax.set_xlabel(r"Magnetic Field (Oe)")
+    ax.plot(X, Y, marker="o", color="blue")
+    ax.set_xlabel(r"H (Oe)")
     if per_formula_unit:
-        ax.set_ylabel(r"Magnetic Moment $(\mu_B/\mathrm{f.u.})$")
+        ax.set_ylabel(r"$M$ $(\mu_B/\mathrm{f.u.})$")
     else:
-        ax.set_ylabel(r"Magnetic Moment $(\mu_B/\mathrm{ion})$")
+        ax.set_ylabel(r"$M$ $(\mu_B/\mathrm{ion})$")
     if material.date is not None:
         ax.set_title(f"{material.graphname}({material.date})\n Magnetic Moment vs Magnetic Field at {temp_val} K")
     else:
@@ -292,7 +292,7 @@ def graph_Bohr_vs_temp(material: Crystal, Temp: List[float], Moment: List[float]
     return fig, ax
 
 
-def graph_susceptibility_vs_temp(material: Crystal, Temp: List[float], Moment: List[float], Field: float, SI: bool = False, per: Optional[str] = None) -> Tuple[plt.Figure, plt.Subplot]: # データはcgs固定．グラフ描画をSIにするかどうか，1molあたりにするかどうか
+def _graph_susceptibility_vs_temp(material: Crystal, Temp: List[float], Moment: List[float], Field: float, SI: bool = False, per: Optional[str] = None) -> Tuple[plt.Figure, plt.Subplot]: # データはcgs固定．グラフ描画をSIにするかどうか，1molあたりにするかどうか
     # 縦軸：磁化率，横軸：温度 のグラフを作成
     # Moment: List[moment] moment: 磁気モーメント [emu]
     # Temp: List[temperature] temperature: 温度 [K]
@@ -352,6 +352,101 @@ def graph_susceptibility_vs_temp(material: Crystal, Temp: List[float], Moment: L
         else:
             ax.set_ylabel(r"Susceptibility (dimensionless)")
     ax.set_title(f"{material.graphname} Susceptibility vs Temperature")
+    plt.show()
+    return fig, ax
+
+def graph_susceptibility_vs_temp(material: Crystal, Temp: List[float], Moment: List[float], Field: float) -> Tuple[plt.Figure, plt.Subplot]: # データはcgs固定．グラフ描画をSIにするかどうか，1molあたりにするかどうか
+    # 縦軸：磁化率，横軸：温度 のグラフを作成
+    # Moment: List[moment] moment: 磁気モーメント [emu]
+    # Temp: List[temperature] temperature: 温度 [K]
+    # Field: 磁場 [Oe]
+    if material.formula_weight is None or material.w is None:
+        raise TypeError
+    susceptibility_temp: List[List[float]] = [[m * (material.formula_weight / material.w) / Field, t] for m,t in zip(Moment,Temp)] # 磁場固定
+    X: List[float] = [t for s,t in susceptibility_temp]
+    Y1: List[float] = [s for s,t in susceptibility_temp] # [emu/mol.Oe]
+    idx = sorted(range(len(X)),key=lambda x:X[x])
+    X = [X[i] for i in idx]
+    Y1 = [Y1[i] for i in idx]
+    
+    plt.rcParams['font.size'] = 16
+    plt.rcParams['font.family'] = 'Arial'
+    plt.rcParams['xtick.direction'] = 'in'
+    plt.rcParams['ytick.direction'] = 'in'
+    plt.rcParams["legend.framealpha"] = 0
+    fig: plt.Figure = plt.figure(figsize=(8,7))
+    ax: plt.Subplot = fig.add_subplot(111)
+    ax.xaxis.set_ticks_position('both')
+    ax.yaxis.set_ticks_position('both')
+    
+    ax.plot(X, Y1, color="blue", marker="o", markersize=5, label=r"$\chi$")
+    ax.set_xlabel(r"Temperature (K)")
+    ax.set_ylabel(r"susceptibility $\chi$ $(\mathrm{emu/mol.Oe})$")
+    # ax.annotate("", xy = (5, Y1[0]+abs(Y1[0])//7),
+    #             size = 15, xytext = (15,Y1[0]+abs(Y1[0])//7),
+    #             arrowprops = dict(arrowstyle = "<|-", color = "blue"))
+
+    ax.legend(loc="center left", bbox_to_anchor=(0.65,0.5))
+    plt.show()
+    return fig, ax
+
+
+def graph_susceptibility_vs_temp_CurieWeiss(material: Crystal, Temp: List[float], Moment: List[float], Field: float, Tc: float) -> Tuple[plt.Figure, plt.Subplot]: # データはcgs固定．グラフ描画をSIにするかどうか，1molあたりにするかどうか
+    # 縦軸：磁化率，横軸：温度 のグラフを作成
+    # Moment: List[moment] moment: 磁気モーメント [emu]
+    # Temp: List[temperature] temperature: 温度 [K]
+    # Field: 磁場 [Oe]
+    if material.formula_weight is None or material.w is None:
+        raise TypeError
+    susceptibility_temp: List[List[float]] = [[m * (material.formula_weight / material.w) / Field, t] for m,t in zip(Moment,Temp)] # 磁場固定
+    X: List[float] = [t for s,t in susceptibility_temp]
+    Y1: List[float] = [s for s,t in susceptibility_temp] # [emu/mol.Oe]
+    Y2 = [1/s for s in Y1] # # [(emu/mol.Oe)^-1]
+    idx = sorted(range(len(X)),key=lambda x:X[x])
+    X = [X[i] for i in idx]
+    Y1 = [Y1[i] for i in idx]
+    Y2 = [Y2[i] for i in idx]
+
+    
+    plt.rcParams['font.size'] = 14
+    plt.rcParams['font.family'] = 'Arial'
+    plt.rcParams['xtick.direction'] = 'in'
+    plt.rcParams['ytick.direction'] = 'in'
+    plt.rcParams["legend.framealpha"] = 0
+    fig: plt.Figure = plt.figure(figsize=(8,7))
+    ax: plt.Subplot = fig.add_subplot(111)
+    ax.xaxis.set_ticks_position('both')
+    ax.yaxis.set_ticks_position('both')
+    
+    ax.plot(X, Y1, color="blue", marker="o", markersize=5, label=r"$\chi$")
+    ax.set_xlabel(r"Temperature (K)")
+    ax.set_ylabel(r"susceptibility $\chi$ $(\mathrm{emu/mol.Oe})$")
+    # ax.annotate("", xy = (5, Y1[0]+abs(Y1[0])//7),
+    #             size = 15, xytext = (15,Y1[0]+abs(Y1[0])//7),
+    #             arrowprops = dict(arrowstyle = "<|-", color = "blue"))
+    ax.set_xlim(0,310)
+
+    ax2: plt.Subplot = ax.twinx()
+    ax2.plot(X, Y2, color="black", marker="o", markersize=5, label=r"$\chi^{-1}$")
+    ax2.set_ylabel(r"$\chi^{-1}$ $((\mathrm{emu/mol.Oe})^{-1})$")
+    # ax2.annotate("", xy = (295, Y2[-1]+abs(Y2[-1])//7),
+    #             size = 15, xytext = (285,Y2[-1]+abs(Y2[-1])//7),
+    #             arrowprops = dict(arrowstyle = "-|>", color = "black"))
+    ax2.set_xlim(0,310)
+
+    Temp_high: np.ndarray = np.array([t for t in Temp if t>Tc])
+    sus_inv: np.ndarray = Field / (np.array([m for t,m in zip(Temp,Moment) if t>Tc]) / material.mol)
+    n: int = len(Temp_high)
+    Temp_high_sum: float = np.sum(Temp_high)
+    susinv_sum: float = np.sum(sus_inv)
+    a: float = ((Temp_high@sus_inv - Temp_high_sum*susinv_sum/n) / (np.sum(Temp_high ** 2) - Temp_high_sum**2/n))
+    b: float = (susinv_sum - a * Temp_high_sum)/n
+    theta_Curie_Weiss: float = -b/a
+    Curie_constant: float = 1/a
+    ax.set_title(fr"$\Theta_{{CW}}={theta_Curie_Weiss:.3g}$ K, $C={Curie_constant:.3g}$ emu.K/mol.Oe")
+    ax2.plot(Temp_high, a*Temp_high+b, label="Curie Weiss fit", color="red")
+    ax.legend(loc="center left", bbox_to_anchor=(0.65,0.5))
+    ax2.legend(loc="center left", bbox_to_anchor=(0.65,0.42))
     plt.show()
     return fig, ax
     
