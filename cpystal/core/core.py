@@ -225,8 +225,9 @@ class Crystal: # 結晶の各物理量を計算
         graphname (str): TeX-formed `name`.
         date (Optional[str]): The date the sample was synthesized. If there is a numbering system, it will be included here.
         spacegroup_name (str): Space group name in International (Hermann-Mauguin) notation of the crytal.
-        NA (float): Avogadro constant [mol^-1].
-        muB (float): Bohr magneton [emu].
+        NA (float): Avogadro constant 6.02214076 * 10**(23) [mol^-1].
+        muB (float): Bohr magneton 9.27401 * 10**(-21) [emu].
+        kB (float): Boltzmann constant 1.380649 * 10**(-23) [J/K].
         a (float): Lattice constant [Å].
         b (float): Lattice constant [Å].
         c (float): Lattice constant [Å].
@@ -246,7 +247,7 @@ class Crystal: # 結晶の各物理量を計算
         graphs (SemimutableDict[str, Any]): Semimutable dictionary of experimental data plotted as `matplotlib.axes._subplots.AxesSubplot` object.
 
     """
-    __slots__ = ("name", "graphname", "date", "spacegroup_name", "NA", "muB",
+    __slots__ = ("name", "graphname", "date", "spacegroup_name", "NA", "muB", "kB",
                 "a", "b", "c", "alpha", "beta", "gamma", "V", "fu_per_unit_cell",
                 "formula_weight", "w", "num_magnetic_ion", "density", "mol",
                 "numbered_name", "components", "unit", "graphs", "_Crystal__updatable",)
@@ -266,7 +267,8 @@ class Crystal: # 結晶の各物理量を計算
         self.spacegroup_name: Optional[str] = None  # 空間群名(国際表記)
         
         self.NA: float = 6.02214076 * 10**(23) # アボガドロ定数 [mol^-1]
-        self.muB: float = 9.274 * 10**(-21) # Bohr磁子 [emu]
+        self.muB: float = 9.27401 * 10**(-21) # Bohr磁子 [emu]
+        self.kB: float = 1.380649 * 10**(-23) # Boltzmann定数 [J/K]
         
         # 格子定数
         self.a: Optional[float] = None              # 格子定数 [Å]
@@ -290,7 +292,7 @@ class Crystal: # 結晶の各物理量を計算
         # 各クラス変数の単位
         # 内部では基本的にCGS単位系を用いる
         self.unit: Dict[str, str] = {
-            "NA": "mol^-1", "muB": "emu",
+            "NA": "mol^-1", "muB": "emu", "kB": "J/K",
             "a": "Å", "b": "Å", "c": "Å", "alpha": "°", "beta": "°", "gamma": "°",
             "V": "cm^3", "fu_per_unit_cell": "", "formula_weight": "g/mol", "w": "g", 
             "num_magnetic_ion": "", "density": "g/cm^3", "mol": "mol",
@@ -559,13 +561,12 @@ class Crystal: # 結晶の各物理量を計算
         Returns:
             (float): Magnetization in units of Bohr magneton per formula unit.
         """
-        muB: float = 9.274 * 10**(-21) # Bohr磁子 [emu]
         if w is None:
             w = self.w
         if w is None or self.formula_weight is None:
             raise TypeError(f"one or more of the attributes are 'NoneType': 'formula_weight', 'w'")
         # 式単位あたりの有効Bohr磁子数 [μB/f.u.]
-        mu: float = (m / muB) / (w / self.formula_weight * self.NA)
+        mu: float = (m / self.muB) / (w / self.formula_weight * self.NA)
         return mu
 
     def cal_Bohr_per_ion(self, m: float, w: Optional[float] = None, num_magnetic_ion: Optional[int] = None) -> float:
@@ -579,7 +580,6 @@ class Crystal: # 結晶の各物理量を計算
         Returns:
             (float): Magnetization in units of Bohr magneton per magnetic ion.
         """
-        muB: float = 9.274 * 10**(-21) # Bohr磁子 [emu]
         if w is None:
             w = self.w
         if num_magnetic_ion is None:
@@ -587,7 +587,7 @@ class Crystal: # 結晶の各物理量を計算
         if w is None or num_magnetic_ion is None or self.formula_weight is None:
             raise TypeError(f"one or more of the attributes are 'NoneType': 'formula_weight', 'w', 'num_magnetic_ion'")
         # 磁性イオンあたりの有効Bohr磁子数 [μB/ion]
-        mu: float = (m / muB) / (w / self.formula_weight * self.NA) / num_magnetic_ion
+        mu: float = (m / self.muB) / (w / self.formula_weight * self.NA) / num_magnetic_ion
         return mu
 
     def cal_ingredients(self) -> List[Tuple[str, float]]:
@@ -620,6 +620,25 @@ class Crystal: # 結晶の各物理量を計算
             (float): 'emu'-unit magnetization
         """
         return mu * self.muB * self.w / self.formula_weight * self.NA
+
+    def cal_effective_moment(self, Curie_constant: float) -> float:
+        """Calculating effective moment from the value of Curie constant.
+
+        Note:
+            C = Nμ^2/3kB
+            μ^2 = g^2 J(J+1) μB^2
+            where N is the number of magnetic ion per mol,
+                g is Lande factor,
+                J is total angular momentum quantum number.
+            (emu*Oe = erg = 10^(-7) Joule)
+
+        Args:
+            Curie_constant (float): Curie constant [emu.K/mol.Oe].
+
+        Returns:
+            (float): Effective moment μ/μB = g√J(J+1).
+        """
+        return (Curie_constant / (self.num_magnetic_ion * self.NA / 3 / self.kB) * 10**7) ** 0.5 / self.muB
 
     def save(self, filename: str, overwrite: bool = False) -> None: # Crystalインスタンスのデータを保存
         """Saving the `Crystal` instance data as a pickle file.
