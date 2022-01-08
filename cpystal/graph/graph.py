@@ -685,7 +685,7 @@ def graph_2zone_temperature_profile(sequence: List[List[float]]) -> Tuple[plt.Fi
     ax.yaxis.set_ticklabels(["R.T."]+list(map(str, [i for i in Temp_material+Temp_growth if i != min_temp])))
     ax.set_xlabel("Time (hour)")
     ax.set_ylabel(u"Temperature (\u00B0C)")
-    ax.legend()
+    ax.legend(loc="lower center")
     plt.show()
     return fig, ax
 
