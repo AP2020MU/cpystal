@@ -9,3 +9,4 @@ from .graph import graph_powder_Xray_intensity_vs_angle as graph_powder_Xray_int
 from .graph import ax_transplant as ax_transplant
 from .graph import graph_furnace_temperature_profile as graph_furnace_temperature_profile
 from .graph import graph_2zone_temperature_profile as graph_2zone_temperature_profile
+from .graph import graph_susceptibility_vs_temp_CurieWeiss as graph_susceptibility_vs_temp_CurieWeiss
