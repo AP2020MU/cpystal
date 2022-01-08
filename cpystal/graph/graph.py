@@ -601,7 +601,11 @@ def graph_furnace_temperature_profile(sequence: List[List[float]]) -> Tuple[plt.
     t_end: float = max(Time_acc_log)
     room_temp: float = min(Temp)
     Temp_high: List[float] = [t for t in Temp if t > room_temp]
-    min_temp: float = max(Temp_high) - (max(Temp_high)-min(Temp_high))*2.5
+    min_temp: float
+    if len(set(Temp_high)) != 1:
+        min_temp = max(Temp_high) - (max(Temp_high)-min(Temp_high))*2.5
+    else:
+        min_temp = room_temp
     Temp = [t if t != room_temp else min_temp for t in Temp] # 見やすくするため，室温をmin_tempに変更
     ax.plot(Time_acc_log, Temp, color="black")
     ax.set_xlim(0, t_end*1.1)
@@ -657,7 +661,11 @@ def graph_2zone_temperature_profile(sequence: List[List[float]]) -> Tuple[plt.Fi
     t_end: float = max(Time_acc_log)
     room_temp: float = min(Temp_material)
     Temp_high: List[float] = [t for t in Temp_material+Temp_growth if t > room_temp]
-    min_temp: float = max(Temp_high) - (max(Temp_high)-min(Temp_high))*2.5
+    min_temp: float
+    if len(set(Temp_high)) != 1:
+        min_temp = max(Temp_high) - (max(Temp_high)-min(Temp_high))*2.5
+    else:
+        min_temp = room_temp
     Temp_material = [t if t != room_temp else min_temp for t in Temp_material] # 見やすくするため，室温をmin_tempに変更
     Temp_growth = [t if t != room_temp else min_temp for t in Temp_growth] # 見やすくするため，室温をmin_tempに変更
     max_temp: float = max(max(Temp_material),max(Temp_growth))
