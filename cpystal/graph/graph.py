@@ -18,6 +18,7 @@ from math import pi
 from typing import Deque, Dict, List, Optional, Tuple
 
 import matplotlib.pyplot as plt # type: ignore
+from mpl_toolkits.axisartist.axislines import SubplotZero
 import numpy as np
 
 from ..core import Crystal
@@ -564,6 +565,121 @@ def ax_transplant(ax: plt.Subplot, fig_new: Optional[plt.Figure] = None, figsize
             ax_new.legend()
     return fig_new, ax_new
 
+
+def graph_furnace_temperature_profile(sequence: List[List[float]]) -> Tuple[plt.Figure, plt.Subplot]:
+    """Graph the furnace temperature profile from the sequence.
+
+    Args:
+        sequence (List[List[float]]):
+            List of [time_length (hour): float, target_temperature (Celsius degree): float].
+            `sequence[0]` should be [0, {room_temperature}].
+
+    Returns:
+        (Tuple[plt.Figure, plt.Subplot]): `plt.Figure` object and `plt.axes._subplots.AxesZeroSubplot` object.
+    """
+    plt.rcParams['font.size'] = 14
+    plt.rcParams['font.family'] = 'Arial'
+    plt.rcParams['xtick.direction'] = 'in'
+    plt.rcParams['ytick.direction'] = 'in'
+    plt.rcParams["legend.framealpha"] = 0
+    fig: plt.Figure = plt.figure(figsize=(7,5))
+    ax: plt.axes._subplots.AxesZeroSubplot = SubplotZero(fig, 111)
+    fig.add_subplot(ax)
+    for direction in ["right", "top"]:
+        ax.axis[direction].set_visible(False)    
+    for direction in ["left",  "bottom"]:
+        ax.axis[direction].set_axisline_style("-|>")
+        ax.axis[direction].line.set_facecolor("black")
+
+    Time: List[float] = [ti for ti,te in sequence]
+    Temp: List[float] = [te for ti,te in sequence]
+    Time_acc: List[float] = [0]
+    Time_acc_log: List[float] = [0]
+    for i in range(1,len(Time)):
+        Time_acc.append(Time_acc[i-1]+Time[i])
+        Time_acc_log.append(Time_acc_log[i-1]+np.log(1+Time[i]))
+    t_end: float = max(Time_acc_log)
+    room_temp: float = min(Temp)
+    Temp_high: List[float] = [t for t in Temp if t > room_temp]
+    min_temp: float = max(Temp_high) - (max(Temp_high)-min(Temp_high))*2.5
+    Temp = [t if t != room_temp else min_temp for t in Temp] # 見やすくするため，室温をmin_tempに変更
+    ax.plot(Time_acc_log, Temp, color="black")
+    ax.set_xlim(0, t_end*1.1)
+    ax.set_ylim(min_temp, min_temp+(max(Temp)-min_temp)*1.1)
+    for i, temp in enumerate(Temp):
+        ax.plot([0,Time_acc_log[i]], [temp,temp], color='black', linewidth=0.8, linestyle=':')
+        ax.plot([Time_acc_log[i],Time_acc_log[i]], [min_temp,temp], color='black', linewidth=0.8, linestyle=':')
+    ax.xaxis.set_ticks(Time_acc_log)
+    ax.yaxis.set_ticks([min_temp]+[i for i in Temp if i != min_temp])
+    ax.xaxis.set_ticklabels(map(str, Time_acc))
+    ax.yaxis.set_ticklabels(["R.T."]+list(map(str, [i for i in Temp if i != min_temp])))
+    ax.set_xlabel("Time (hour)")
+    ax.set_ylabel(u"Temperature (\u00B0C)")
+    plt.show()
+    return fig, ax
+
+
+def graph_2zone_temperature_profile(sequence: List[List[float]]) -> Tuple[plt.Figure, plt.Subplot]:
+    """Graph the 2-zones furnace temperature profile from the sequence.
+
+    Args:
+        sequence (List[List[float]]): 
+            List of [time_length (hour): float, 
+                    target_temperature_material (Celsius degree): float, 
+                    target_temperature_growth (Celsius degree): float].
+            `sequence[0]` should be [0, {room_temperature}, {room_temperature}].
+
+    Returns:
+        (Tuple[plt.Figure, plt.Subplot]): `plt.Figure` object and `plt.axes._subplots.AxesZeroSubplot` object.
+    """
+    plt.rcParams['font.size'] = 14
+    plt.rcParams['font.family'] = 'Arial'
+    plt.rcParams['xtick.direction'] = 'in'
+    plt.rcParams['ytick.direction'] = 'in'
+    plt.rcParams["legend.framealpha"] = 0
+    fig: plt.Figure = plt.figure(figsize=(7,5))
+    ax: plt.axes._subplots.AxesZeroSubplot = SubplotZero(fig, 111)
+    fig.add_subplot(ax)
+    for direction in ["right", "top"]:
+        ax.axis[direction].set_visible(False)    
+    for direction in ["left",  "bottom"]:
+        ax.axis[direction].set_axisline_style("-|>")
+        ax.axis[direction].line.set_facecolor("black")
+
+    Time: List[float] = [ti for ti, te1, te2 in sequence]
+    Temp_material: List[float] = [te1 for ti, te1, te2 in sequence]
+    Temp_growth: List[float] = [te2 for ti, te1, te2 in sequence]
+    Time_acc: List[float] = [0]
+    Time_acc_log: List[float] = [0]
+    for i in range(1,len(Time)):
+        Time_acc.append(Time_acc[i-1]+Time[i])
+        Time_acc_log.append(Time_acc_log[i-1]+np.log(1+Time[i]))
+    t_end: float = max(Time_acc_log)
+    room_temp: float = min(Temp_material)
+    Temp_high: List[float] = [t for t in Temp_material+Temp_growth if t > room_temp]
+    min_temp: float = max(Temp_high) - (max(Temp_high)-min(Temp_high))*2.5
+    Temp_material = [t if t != room_temp else min_temp for t in Temp_material] # 見やすくするため，室温をmin_tempに変更
+    Temp_growth = [t if t != room_temp else min_temp for t in Temp_growth] # 見やすくするため，室温をmin_tempに変更
+    max_temp: float = max(max(Temp_material),max(Temp_growth))
+    ax.plot(Time_acc_log, Temp_material, color="red", label="Materials side")
+    ax.plot(Time_acc_log, Temp_growth, color="blue", label="Growth side")
+    ax.set_xlim(0, t_end*1.1)
+    ax.set_ylim(min_temp, min_temp+(max_temp-min_temp)*1.1)
+    for i, temp in enumerate(Temp_material):
+        ax.plot([0,Time_acc_log[i]], [temp,temp], color='black', linewidth=0.8, linestyle=':')
+        ax.plot([Time_acc_log[i],Time_acc_log[i]], [min_temp,temp], color='black', linewidth=0.8, linestyle=':')
+    for i, temp in enumerate(Temp_growth):
+        ax.plot([0,Time_acc_log[i]], [temp,temp], color='black', linewidth=0.8, linestyle=':')
+        ax.plot([Time_acc_log[i],Time_acc_log[i]], [min_temp,temp], color='black', linewidth=0.8, linestyle=':')
+    ax.xaxis.set_ticks(Time_acc_log)
+    ax.yaxis.set_ticks([min_temp]+[i for i in Temp_material+Temp_growth if i != min_temp])
+    ax.xaxis.set_ticklabels(map(str, Time_acc))
+    ax.yaxis.set_ticklabels(["R.T."]+list(map(str, [i for i in Temp_material+Temp_growth if i != min_temp])))
+    ax.set_xlabel("Time (hour)")
+    ax.set_ylabel(u"Temperature (\u00B0C)")
+    ax.legend()
+    plt.show()
+    return fig, ax
 
 def main() -> None:
     pass
