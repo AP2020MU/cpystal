@@ -22,10 +22,10 @@ import re
 #from ..core import Crystal
 
 
-class REF: # 有理数体Qに√pを添加した単純拡大体Q[√p]のclass REF(Rational Extension Field)
+class REF: # 有理数体Qに√pを添加した単純拡大体Q(√p)のclass REF(Rational Extension Field)
     """Rational Extension Field.
 
-    This class represents a algebraic simple Rational Extension Field with a root of a polynomial: x^2-p, 
+    This class represents an algebraic simple Rational Extension Field with a root of a polynomial: x^2-p, 
     where p is an integer, and negative values are allowed. 
     Depending on the value of p, it may not be an extension field (e.g. p=4), 
     but it can be formally defined even in such cases.
@@ -40,7 +40,7 @@ class REF: # 有理数体Qに√pを添加した単純拡大体Q[√p]のclass R
         b (Fraction): Rational number. (definition: see above)
     """
     def __init__(self, p: int, a: Fraction = Fraction(), b: Fraction = Fraction()) -> None:
-        self.p: int = p # Q[√p]の生成元の2乗
+        self.p: int = p # Q(√p)の生成元√pの2乗
         self.a: Fraction = a
         self.b: Fraction = b
     
@@ -612,7 +612,7 @@ Relations_ternary = List[List[Tuple[REF, Tuple[int, ...]]]]
 class PhysicalPropertyTensorAnalyzer:
     """Analyze non-zero elements of physical property tensors based on the symmetry of crystallographic point group.
 
-    All symmetry operations of crystallographic point groups can be represented as a 3×3 matrix on a simple rationnal extension field: 'M_{3×3}(Q[√3])' in an appropriate orthogonal basis.
+    All symmetry operations of crystallographic point groups can be represented as a 3×3 matrix on a simple rational extension field: 'M_{3×3}(Q(√3))' in an appropriate orthogonal basis.
     Therefore, it is possible to determine which elements are equivalent or zero by straightforward exact calculation.
 
     Attributes:
