@@ -969,7 +969,7 @@ class MPMS:
 
         Args:
             H (float): Magnetic field (Oe).
-            magnification (float): Amplification magnification. Defaults to '1.0'.
+            magnification (float): Amplification magnification. Defaults to 1.0.
         """
         return [magnification * m * (self.material.formula_weight / self.material.w) / H for m in self.LongMoment]
     
@@ -978,7 +978,7 @@ class MPMS:
 
         Args:
             H (float): Magnetic field (Oe).
-            magnification (float): Amplification magnification. Defaults to '1.0'.
+            magnification (float): Amplification magnification. Defaults to 1.0.
         """
         return [magnification * 1/x for x in self.Susceptibility(H)]
 
