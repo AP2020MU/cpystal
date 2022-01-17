@@ -964,21 +964,23 @@ class MPMS:
         """
         return [f/10000 for f in self.Field]
 
-    def Susceptibility(self, H: float) -> List[float]:
+    def Susceptibility(self, H: float, magnification: float = 1.0) -> List[float]:
         """χ=M/H list in 'emu/mol.Oe'.
 
         Args:
             H (float): Magnetic field (Oe).
+            magnification (float): Amplification magnification. Defaults to '1.0'.
         """
-        return [m * (self.material.formula_weight / self.material.w) / H for m in self.LongMoment]
+        return [magnification * m * (self.material.formula_weight / self.material.w) / H for m in self.LongMoment]
     
-    def inv_Susceptibility(self, H: float) -> List[float]:
+    def inv_Susceptibility(self, H: float, magnification: float = 1.0) -> List[float]:
         """1/χ=H/M list in '(emu/mol.Oe)^{-1}'.
 
         Args:
             H (float): Magnetic field (Oe).
+            magnification (float): Amplification magnification. Defaults to '1.0'.
         """
-        return [1/x for x in self.Susceptibility(H)]
+        return [magnification * 1/x for x in self.Susceptibility(H)]
 
 
 def ingredient_flake_dp(A: List[int], W: int) -> None: # A: 適当に整数化したフレークの重さ, W: 目標重量
