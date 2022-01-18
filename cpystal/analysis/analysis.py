@@ -15,6 +15,7 @@ Functions:
 """
 from __future__ import annotations # class定義中に自己classを型ヒントとして使用するため
 
+from bisect import bisect_left
 from collections import deque
 from typing import Deque, List, Optional, Tuple
 import re
@@ -24,6 +25,7 @@ import numpy as np
 import pymatgen # type: ignore
 from pymatgen.io.cif import CifParser # type: ignore
 import pymatgen.analysis.diffraction.xrd # type: ignore
+from scipy.stats import norm
 
 from ..core import Crystal
 
@@ -34,7 +36,7 @@ plt.rcParams['xtick.direction'] = 'in'
 plt.rcParams['ytick.direction'] = 'in'
 plt.rcParams["legend.framealpha"] = 0
 
-def compare_powder_Xray_experiment_with_calculation(experimental_data_filename: str, cif_filename: str, material: Optional[Crystal] = None, unbackground: bool = False) -> Tuple[plt.Figure, plt.Subplot]:
+def compare_powder_Xray_experiment_with_calculation(experimental_data_filename: str, cif_filename: str, material: Optional[Crystal] = None, unbackground: bool = False, issave: bool = False) -> Tuple[plt.Figure, plt.Subplot]:
     """Compare experimental intensity data of powder X-ray diffraction with theoretical intensity distribution.
 
     Notes:
@@ -183,28 +185,36 @@ def compare_powder_Xray_experiment_with_calculation(experimental_data_filename: 
     ax.plot(two_theta, normalized_intensity, label="obs.", color="blue", marker="o", markersize=1.5, linewidth=0.5, zorder=2)
     
     # 理論計算
-    ax.bar(diffraction_pattern.x, diffraction_pattern.y, width=0.5, label="calc.", color="red", zorder=1)
+    theor_x = np.arange(0,90,0.001)
+    theor_y = np.zeros_like(theor_x)
+    for tx, ty in zip(diffraction_pattern.x, diffraction_pattern.y):
+        theor_y[bisect_left(theor_x,tx)] = ty
+    Gaussian = norm.pdf(np.arange(-1,1,0.001),0,0.09)
+    Gaussian /= Gaussian[len(Gaussian)//2]
+    theor_y = np.convolve(theor_y, Gaussian, mode="same")
+    ax.plot(theor_x, theor_y, linewidth=1.2, label="calc.", color="red", zorder=0)
     
     for x in diffraction_pattern.x:
-        ax.plot([x,x], [-8,-5], color="green", linewidth=1, zorder=0)
-    ax.plot([x,x], [-8,-5], color="green", linewidth=1, label="Bragg peak", zorder=0)
+        ax.plot([x,x], [-8,-5], color="green", linewidth=1, zorder=1)
+    ax.plot([x,x], [-8,-5], color="green", linewidth=1, label="Bragg peak", zorder=1)
 
-    hans, labs = ax.get_legend_handles_labels()
-    hans = [hans[0],hans[2],hans[1]]
-    labs = [labs[0],labs[2],labs[1]]
-
-    #ax.set_yscale('log')
     ax.set_xlabel(r"$2\theta\, [{}^{\circ}]$")
     ax.set_ylabel("intensity [a.u.]")
     if material is not None:
         ax.set_title(f"{material.graphname} powder X-ray diffraction")
     else:
         ax.set_title(f"powder X-ray diffraction")
-    ax.legend(handles=hans, labels=labs)
-    ax.set_xticks(range(10,100,10))
+    ax.legend()
+    ax.set_xticks(range(0,100,10))
+    ax.set_xlim(0,90)
     ax.set_ylim(-10,110)
     ax.yaxis.set_ticklabels([]) # 目盛を削除
     plt.show()
+    if issave:
+        if unbackground:
+            fig.savefig("./pXray_unbackground.png")
+        else:
+            fig.savefig("./pXray.png")
     return fig, ax
 
 def _compare_powder_Xray_experiment_with_calculation(experimental_data_filename: str, cif_filename: str, material: Optional[Crystal] = None) -> Tuple[plt.Figure, plt.Subplot]:
