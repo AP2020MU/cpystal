@@ -158,7 +158,7 @@ def compare_powder_Xray_experiment_with_calculation(experimental_data_filename: 
     for d_hkl, hkl, x, y in sorted(zip(diffraction_pattern.d_hkls, diffraction_pattern.hkls, diffraction_pattern.x, diffraction_pattern.y), key=lambda z:z[3], reverse=True)[:display_num]:
         print(f"{x:.3f}, {hkl}, {d_hkl:.3f}")
 
-    fig: plt.Figure = plt.figure(figsize=(7,6))
+    fig: plt.Figure = plt.figure(figsize=(12,6))
     ax: plt.Subplot = fig.add_subplot(111)
     ax.xaxis.set_ticks_position('both')
     ax.yaxis.set_ticks_position('both')
@@ -189,7 +189,7 @@ def compare_powder_Xray_experiment_with_calculation(experimental_data_filename: 
     theor_y = np.zeros_like(theor_x)
     for tx, ty in zip(diffraction_pattern.x, diffraction_pattern.y):
         theor_y[bisect_left(theor_x,tx)] = ty
-    Gaussian = norm.pdf(np.arange(-1,1,0.001),0,0.09)
+    Gaussian = norm.pdf(np.arange(-1,1,0.001),0,0.05)
     Gaussian /= Gaussian[len(Gaussian)//2]
     theor_y = np.convolve(theor_y, Gaussian, mode="same")
     ax.plot(theor_x, theor_y, linewidth=1.2, label="calc.", color="red", zorder=0)
@@ -207,14 +207,14 @@ def compare_powder_Xray_experiment_with_calculation(experimental_data_filename: 
     ax.legend()
     ax.set_xticks(range(0,100,10))
     ax.set_xlim(0,90)
-    ax.set_ylim(-10,110)
+    ax.set_ylim(-10,max(max(normalized_intensity),max(theor_y))*1.1)
     ax.yaxis.set_ticklabels([]) # 目盛を削除
     plt.show()
     if issave:
         if unbackground:
-            fig.savefig("./pXray_unbackground.png")
+            fig.savefig("./pXray_unbackground.png", transparent=True)
         else:
-            fig.savefig("./pXray.png")
+            fig.savefig("./pXray.png", transparent=True)
     return fig, ax
 
 def _compare_powder_Xray_experiment_with_calculation(experimental_data_filename: str, cif_filename: str, material: Optional[Crystal] = None) -> Tuple[plt.Figure, plt.Subplot]:
