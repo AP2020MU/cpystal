@@ -950,7 +950,7 @@ class MPMS:
         susinv_sum: float = np.sum(sus_inv)
         a: float = ((Temp@sus_inv - Temp_sum*susinv_sum/n) / (np.sum(Temp ** 2) - Temp_sum**2/n))
         b: float = (susinv_sum - a * Temp_sum)/n
-        theta_Curie_Weiss: float = abs(b/a)
+        theta_Curie_Weiss: float = -(b/a)
         Curie_constant: float = 1/a
         return theta_Curie_Weiss, Curie_constant
 
