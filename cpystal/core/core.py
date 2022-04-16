@@ -10,7 +10,7 @@ from __future__ import annotations
 from collections import defaultdict
 from math import pi, sqrt, cos, radians
 import re
-from typing import Any, DefaultDict, Dict, List, Optional, Tuple, Union
+from typing import Any, DefaultDict, Dict, List, Optional, Tuple, TypeVar, Union
 
 import numpy as np
 import pickle
@@ -212,6 +212,8 @@ class SemimutableDict(Dict[Any, Any]):
         self[key] = value
         
 
+Crystalchild = TypeVar("Crystalchild", bound="Crystal")
+
 class Crystal: # 結晶の各物理量を計算
     """A `Crystal` instance corresponds to a certain sample of a crystal.
 
@@ -327,7 +329,7 @@ class Crystal: # 結晶の各物理量を計算
                 print(f"'name' includes atom(s) whose atomic weight is undefined. please set 'formula_weight' manually")
 
 
-    def __str__(self) -> str:
+    def __str__(self: Crystalchild) -> str:
         res: str = "\n"
         for k in self.__slots__:
             if not hasattr(self, k): # 後方互換性
@@ -343,12 +345,12 @@ class Crystal: # 結晶の各物理量を計算
                 res = res + f"{k} = {v} {self.unit[k]}\n"
         return res
 
-    def __add__(self, other: Crystal) -> Crystal:
-        if type(other) is not Crystal:
+    def __add__(self: Crystalchild, other: Crystalchild) -> Crystalchild:
+        if isinstance(other, Crystal):
             raise TypeError(f"unsupported operand type(s) for +:{self.__class__.__name__} and {type(other).__name__}")
         return self.__class__(self.name + other.name)
 
-    def __mul__(self, other: Union[int, float]) -> Crystal:
+    def __mul__(self: Crystalchild, other: Union[int, float]) -> Crystalchild:
         if type(other) is not int:
             raise TypeError(f"unsupported operand type(s) for +:{self.__class__.__name__} and {type(other).__name__}")
         # 化学式をother倍する
@@ -364,7 +366,7 @@ class Crystal: # 結晶の各物理量を計算
                     divided_name[i] = f"{float(s) * other:.4g}"
         return self.__class__("".join(divided_name))
 
-    def __setattr__(self, name: str, value: Any) -> None:
+    def __setattr__(self: Crystalchild, name: str, value: Any) -> None:
         if name == f"_{self.__class__.__name__}__updatable":
             object.__setattr__(self, name, value)
         elif name in self.__slots__:
@@ -378,11 +380,11 @@ class Crystal: # 結晶の各物理量を計算
         else:
             raise AttributeError(f"'{self.__class__.__name__}' object has no attribute '{name}'")
 
-    def __getstate__(self) -> Dict[Any, Any]:
+    def __getstate__(self: Crystalchild) -> Dict[Any, Any]:
         state: Dict[Any, Any] = {key: getattr(self, key) for key in self.__slots__}
         return state
 
-    def __setstate__(self, state: Dict[Any, Any]) -> None:
+    def __setstate__(self: Crystalchild, state: Dict[Any, Any]) -> None:
         for key in self.__slots__:
             if key in state:
                 object.__setattr__(self, key, state[key])
@@ -393,7 +395,7 @@ class Crystal: # 結晶の各物理量を計算
                 if key == "_Crystal__updatable":
                     object.__setattr__(self, "_Crystal__updatable", False)
 
-    def is_updatable(self) -> bool:
+    def is_updatable(self: Crystalchild) -> bool:
         """Return updatability of the instance.
 
         Returns:
@@ -401,7 +403,7 @@ class Crystal: # 結晶の各物理量を計算
         """
         return self.__updatable
 
-    def set_lattice_constant(self, a: float, b: float, c: float, alpha: float, beta: float, gamma: float, fu_per_unit_cell: Optional[int] = None) -> None:
+    def set_lattice_constant(self: Crystalchild, a: float, b: float, c: float, alpha: float, beta: float, gamma: float, fu_per_unit_cell: Optional[int] = None) -> None:
         """Setting lattice constants of the crystal.
 
         Args:
@@ -429,7 +431,7 @@ class Crystal: # 結晶の各物理量を計算
         if fu_per_unit_cell is not None:
             self.fu_per_unit_cell = fu_per_unit_cell # 単位胞に含まれる式単位の数 (無次元)
     
-    def set_spacegroup_name(self, spacegroup_name: str) -> None:
+    def set_spacegroup_name(self: Crystalchild, spacegroup_name: str) -> None:
         """Setting space group name of the crystal.
 
         Args:
@@ -437,7 +439,7 @@ class Crystal: # 結晶の各物理量を計算
         """
         self.spacegroup_name = spacegroup_name
 
-    def set_formula_weight(self, formula_weight: float) -> None:
+    def set_formula_weight(self: Crystalchild, formula_weight: float) -> None:
         """Setting formula weight (per formula unit) of the crystal.
 
         Args:
@@ -447,7 +449,7 @@ class Crystal: # 結晶の各物理量を計算
         # formula_weight: モル質量(式単位あたり) [g/mol]
         self.formula_weight = formula_weight
 
-    def set_weight(self, w: float) -> None:
+    def set_weight(self: Crystalchild, w: float) -> None:
         """Setting the weight of the sample.
 
         Args:
@@ -456,7 +458,7 @@ class Crystal: # 結晶の各物理量を計算
         # w: 試料の質量 [g]
         self.w = w
     
-    def set_mol(self, mol: float) -> None:
+    def set_mol(self: Crystalchild, mol: float) -> None:
         """Setting the amount of substance of the sample.
 
         Args:
@@ -465,7 +467,7 @@ class Crystal: # 結晶の各物理量を計算
         # mol: 試料の物質量 [mol]
         self.mol = mol
 
-    def set_num_magnetic_ion(self, num_magnetic_ion: int) -> None:
+    def set_num_magnetic_ion(self: Crystalchild, num_magnetic_ion: int) -> None:
         """Setting the number of magnetic ions in a formula unit.
 
         Args:
@@ -474,7 +476,7 @@ class Crystal: # 結晶の各物理量を計算
         # num_magnetic_ion: 式単位中の磁性イオンの数 (無次元)
         self.num_magnetic_ion = num_magnetic_ion
 
-    def cal_density(self) -> float:
+    def cal_density(self: Crystalchild) -> float:
         """Calculating the density of the crystal.
 
         Returns:
@@ -489,7 +491,7 @@ class Crystal: # 結晶の各物理量を計算
         self.density = self.formula_weight * self.fu_per_unit_cell / self.NA / self.V
         return self.density
 
-    def cal_mol(self) -> float:
+    def cal_mol(self: Crystalchild) -> float:
         """Calculating the amount of substance of the sample from the weight of the sample.
 
         Returns:
@@ -503,7 +505,7 @@ class Crystal: # 結晶の各物理量を計算
         self.mol = self.w / self.formula_weight
         return self.mol
 
-    def cal_weight(self) -> float:
+    def cal_weight(self: Crystalchild) -> float:
         """Calculating the weight of the sample from the amount of substance of the sample.
 
         Returns:
@@ -517,7 +519,7 @@ class Crystal: # 結晶の各物理量を計算
         self.w = self.formula_weight * self.mol
         return self.w
 
-    def cal_magnetization(self, m: float, w: Optional[float] = None, SI: bool = False, per: Optional[str] = None) -> float:
+    def cal_magnetization(self: Crystalchild, m: float, w: Optional[float] = None, SI: bool = False, per: Optional[str] = None) -> float:
         """Calculating magnetization from measured value of magnetic moment.
 
         Args:
@@ -551,7 +553,7 @@ class Crystal: # 結晶の各物理量を計算
                 M *= 1/w
         return M
 
-    def cal_Bohr_per_formula_unit(self, m: float, w: Optional[float] = None) -> float:
+    def cal_Bohr_per_formula_unit(self: Crystalchild, m: float, w: Optional[float] = None) -> float:
         """Calculating magnetization in units of Bohr magneton per formula unit.
 
         Args:
@@ -569,7 +571,7 @@ class Crystal: # 結晶の各物理量を計算
         mu: float = (m / self.muB) / (w / self.formula_weight * self.NA)
         return mu
 
-    def cal_Bohr_per_ion(self, m: float, w: Optional[float] = None, num_magnetic_ion: Optional[int] = None) -> float:
+    def cal_Bohr_per_ion(self: Crystalchild, m: float, w: Optional[float] = None, num_magnetic_ion: Optional[int] = None) -> float:
         """Calculating magnetization in units of Bohr magneton per magnetic ion.
 
         Args:
@@ -590,7 +592,7 @@ class Crystal: # 結晶の各物理量を計算
         mu: float = (m / self.muB) / (w / self.formula_weight * self.NA) / num_magnetic_ion
         return mu
 
-    def cal_ingredients(self) -> List[Tuple[str, float]]:
+    def cal_ingredients(self: Crystalchild) -> List[Tuple[str, float]]:
         """Calculating the weight of each element in the sample.
 
         Returns:
@@ -640,7 +642,7 @@ class Crystal: # 結晶の各物理量を計算
         """
         return (Curie_constant / (self.num_magnetic_ion * self.NA / 3 / self.kB) * 10**7) ** 0.5 / self.muB
 
-    def save(self, filename: str, overwrite: bool = False) -> None: # Crystalインスタンスのデータを保存
+    def save(self: Crystalchild, filename: str, overwrite: bool = False) -> None: # Crystalインスタンスのデータを保存
         """Saving the `Crystal` instance data as a pickle file.
 
         Note:
@@ -662,7 +664,7 @@ class Crystal: # 結晶の各物理量を計算
             pickle.dump(self, f)
 
     @staticmethod
-    def load(filename: str) -> Crystal:
+    def load(filename: str) -> Crystalchild:
         """Static method to load a `Crystal` instance from a pickle file.
 
         Note:
@@ -675,7 +677,7 @@ class Crystal: # 結晶の各物理量を計算
             (Crystal): `Crystal` instance saved in the pickle file `filename`.
         """
         with open(filename, mode='rb') as f:
-            res: Crystal = pickle.load(f)
+            res: Crystalchild = pickle.load(f)
         return res
 
     @classmethod

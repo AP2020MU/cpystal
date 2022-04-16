@@ -477,7 +477,7 @@ def _compare_powder_Xray_experiment_with_calculation(experimental_data_filename:
     structure: pymatgen.core.structure.Structure = parser.get_structures()[0]
     analyzer: pymatgen.analysis.diffraction.xrd.XRDCalculator = pymatgen.analysis.diffraction.xrd.XRDCalculator(wavelength='CuKa')
     diffraction_pattern: pymatgen.analysis.diffraction.core.DiffractionPattern = analyzer.get_pattern(structure)
-    for d_hkl, hkl, x, y in sorted(zip(diffraction_pattern.d_hkls, diffraction_pattern.hkls, diffraction_pattern.x, diffraction_pattern.y), key=lambda z:z[3], reverse=True)[:10]:
+    for d_hkl, hkl, x, y in sorted(zip(diffraction_pattern.d_hkls, diffraction_pattern.hkls, diffraction_pattern.x, diffraction_pattern.y), key=lambda z:z[3], reverse=True)[:10]: # type: ignore
         print(f"{x:.3f}, {hkl}, {d_hkl:.3f}")
 
     fig: plt.Figure = plt.figure(figsize=(7,6))
@@ -521,7 +521,7 @@ def make_powder_Xray_diffraction_pattern_in_calculation(cif_filename: str, mater
     structure: pymatgen.core.structure.Structure = parser.get_structures()[0]
     analyzer: pymatgen.analysis.diffraction.xrd.XRDCalculator = pymatgen.analysis.diffraction.xrd.XRDCalculator(wavelength='CuKa')
     diffraction_pattern: pymatgen.analysis.diffraction.core.DiffractionPattern = analyzer.get_pattern(structure)
-    for d_hkl, hkl, x, y in sorted(zip(diffraction_pattern.d_hkls, diffraction_pattern.hkls, diffraction_pattern.x, diffraction_pattern.y), key=lambda z:z[3], reverse=True)[:10]:
+    for d_hkl, hkl, x, y in sorted(zip(diffraction_pattern.d_hkls, diffraction_pattern.hkls, diffraction_pattern.x, diffraction_pattern.y), key=lambda z:z[3], reverse=True)[:10]: # type: ignore
         print(x, hkl, d_hkl)
 
     fig: plt.Figure = plt.figure(figsize=(7,6))

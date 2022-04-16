@@ -15,12 +15,14 @@ from collections import defaultdict
 from fractions import Fraction
 from functools import reduce
 from math import gcd
-from typing import Any, DefaultDict, Dict, Iterable, List, Optional, overload, Set, Tuple, Union
+from typing import Any, DefaultDict, Dict, Iterable, List, Optional, overload, Set, Tuple, TypeVar, Union
 
 import re
 
 #from ..core import Crystal
 
+REFchild = TypeVar("REFchild", bound="REF")
+MatrixREFchild = TypeVar("MatrixREFchild", bound="MatrixREF")
 
 class REF: # 有理数体Qに√pを添加した単純拡大体Q(√p)のclass REF(Rational Extension Field)
     """Rational Extension Field.
@@ -39,57 +41,57 @@ class REF: # 有理数体Qに√pを添加した単純拡大体Q(√p)のclass R
         a (Fraction): Rational number. (definition: see above)
         b (Fraction): Rational number. (definition: see above)
     """
-    def __init__(self, p: int, a: Fraction = Fraction(), b: Fraction = Fraction()) -> None:
-        self.p: int = p # Q(√p)の生成元√pの2乗
+    def __init__(self: REFchild, p: int, a: Fraction = Fraction(), b: Fraction = Fraction()) -> None:
+        self.p: int = p # Q[√p]の生成元の2乗
         self.a: Fraction = a
         self.b: Fraction = b
     
-    def __str__(self) -> str:
+    def __str__(self: REFchild) -> str:
         return f"({str(self.a)}, {str(self.b)})"
     
-    def __repr__(self) -> str:
+    def __repr__(self: REFchild) -> str:
         return f"({str(self.a)}, {str(self.b)})"
 
-    def __neg__(self) -> REF:
+    def __neg__(self: REFchild) -> REFchild:
         return self.__class__(self.p, -self.a, -self.b)
     
-    def __eq__(self, other: Any) -> bool:
-        if type(other) is REF and self.p == other.p and self.a == other.a and self.b == other.b:
+    def __eq__(self: REFchild, other: Any) -> bool:
+        if isinstance(other, REF) and self.p == other.p and self.a == other.a and self.b == other.b:
             return True
         else:
             return False
 
-    def __ne__(self, other: Any) -> bool:
+    def __ne__(self: REFchild, other: Any) -> bool:
         return not self.__eq__(other)
 
-    def __lt__(self, other: REF) -> bool:
-        if type(other) is REF:
+    def __lt__(self: REFchild, other: REFchild) -> bool:
+        if isinstance(other, REF):
             return self.to_float() < other.to_float()
         else:
             raise TypeError(f"'<' not supported between instances of '{type(self).__name__}' and '{type(other).__name__}'")
     
-    def __le__(self, other: REF) -> bool:
-        if type(other) is REF:
+    def __le__(self: REFchild, other: REFchild) -> bool:
+        if isinstance(other, REF):
             return self.to_float() <= other.to_float()
         else:
             raise TypeError(f"'<=' not supported between instances of '{type(self).__name__}' and '{type(other).__name__}'")
     
-    def __gt__(self, other: REF) -> bool:
-        if type(other) is REF:
+    def __gt__(self: REFchild, other: REFchild) -> bool:
+        if isinstance(other, REF):
             return self.to_float() > other.to_float()
         else:
             raise TypeError(f"'>' not supported between instances of '{type(self).__name__}' and '{type(other).__name__}'")
 
-    def __ge__(self, other: REF) -> bool:
-        if type(other) is REF:
+    def __ge__(self: REFchild, other: REFchild) -> bool:
+        if isinstance(other, REF):
             return self.to_float() >= other.to_float()
         else:
             raise TypeError(f"'>=' not supported between instances of '{type(self).__name__}' and '{type(other).__name__}'")
 
-    def __add__(self, other: Any) -> REF:
+    def __add__(self: REFchild, other: Any) -> REFchild:
         if type(other) is int or type(other) is Fraction:
             return self.__class__(self.p, self.a+other, self.b)
-        elif type(other) is REF:
+        elif isinstance(other, REF):
             if self.p == other.p:
                 return self.__class__(self.p, self.a+other.a, self.b+other.b)
             else:
@@ -97,10 +99,10 @@ class REF: # 有理数体Qに√pを添加した単純拡大体Q(√p)のclass R
         else:
             raise TypeError(f"unsupported operand type(s) for +: '{type(self).__name__}' and '{type(other).__name__}'")
 
-    def __radd__(self, other: Any) -> REF:
+    def __radd__(self: REFchild, other: Any) -> REFchild:
         if type(other) is int or type(other) is Fraction:
             return self.__class__(self.p, self.a+other, self.b)
-        elif type(other) is REF:
+        elif isinstance(other, REF):
             if self.p == other.p:
                 return self.__class__(self.p, self.a+other.a, self.b+other.b)
             else:
@@ -108,11 +110,11 @@ class REF: # 有理数体Qに√pを添加した単純拡大体Q(√p)のclass R
         else:
             raise TypeError(f"unsupported operand type(s) for +: '{type(self).__name__}' and '{type(other).__name__}'")
     
-    def __iadd__(self, other: Any) -> REF:
+    def __iadd__(self: REFchild, other: Any) -> REFchild:
         if type(other) is int or type(other) is Fraction:
             self.a += other
             return self
-        elif type(other) is REF:
+        elif isinstance(other, REF):
             if self.p == other.p:
                 self.a += other.a
                 self.b += other.b
@@ -122,10 +124,10 @@ class REF: # 有理数体Qに√pを添加した単純拡大体Q(√p)のclass R
         else:
             raise TypeError(f"unsupported operand type(s) for +: '{type(self).__name__}' and '{type(other).__name__}'")
     
-    def __sub__(self, other: Any) -> REF:
+    def __sub__(self: REFchild, other: Any) -> REFchild:
         if type(other) is int or type(other) is Fraction:
             return self.__class__(self.p, self.a-other, self.b)
-        elif type(other) is REF:
+        elif isinstance(other, REF):
             if self.p == other.p:
                 return self.__class__(self.p, self.a-other.a, self.b-other.b)
             else:
@@ -133,10 +135,10 @@ class REF: # 有理数体Qに√pを添加した単純拡大体Q(√p)のclass R
         else:
             raise TypeError(f"unsupported operand type(s) for -: '{type(self).__name__}' and '{type(other).__name__}'")
     
-    def __rsub__(self, other: Any) -> REF:
+    def __rsub__(self: REFchild, other: Any) -> REFchild:
         if type(other) is int or type(other) is Fraction:
             return self.__class__(self.p, self.a-other, self.b)
-        elif type(other) is REF:
+        elif isinstance(other, REF):
             if self.p == other.p:
                 return self.__class__(self.p, self.a-other.a, self.b-other.b)
             else:
@@ -144,11 +146,11 @@ class REF: # 有理数体Qに√pを添加した単純拡大体Q(√p)のclass R
         else:
             raise TypeError(f"unsupported operand type(s) for -: '{type(self).__name__}' and '{type(other).__name__}'")
     
-    def __isub__(self, other: Any) -> REF:
+    def __isub__(self: REFchild, other: Any) -> REFchild:
         if type(other) is int or type(other) is Fraction:
             self.a -= other
             return self
-        elif type(other) is REF:
+        elif isinstance(other, REF):
             if self.p == other.p:
                 self.a -= other.a
                 self.b -= other.b
@@ -158,10 +160,10 @@ class REF: # 有理数体Qに√pを添加した単純拡大体Q(√p)のclass R
         else:
             raise TypeError(f"unsupported operand type(s) for -: '{type(self).__name__}' and '{type(other).__name__}'")
 
-    def __mul__(self, other: Any) -> REF:
+    def __mul__(self: REFchild, other: Any) -> REFchild:
         if type(other) is int or type(other) is Fraction:
             return self.__class__(self.p, self.a*other, self.b*other)
-        elif type(other) is REF:
+        elif isinstance(other, REF):
             if self.p == other.p:
                 p: int = self.p
                 a: Fraction = self.a
@@ -174,10 +176,10 @@ class REF: # 有理数体Qに√pを添加した単純拡大体Q(√p)のclass R
         else:
             raise TypeError(f"unsupported operand type(s) for *: '{type(self).__name__}' and '{type(other).__name__}'")
 
-    def __rmul__(self, other: Any) -> REF:
+    def __rmul__(self: REFchild, other: Any) -> REFchild:
         if type(other) is int or type(other) is Fraction:
             return self.__class__(self.p, self.a*other, self.b*other)
-        elif type(other) is REF:
+        elif isinstance(other, REF):
             if self.p == other.p:
                 p: int = self.p
                 a: Fraction = self.a
@@ -190,12 +192,12 @@ class REF: # 有理数体Qに√pを添加した単純拡大体Q(√p)のclass R
         else:
             raise TypeError(f"unsupported operand type(s) for *: '{type(self).__name__}' and '{type(other).__name__}'")
 
-    def __imul__(self, other: Any) -> REF:
+    def __imul__(self: REFchild, other: Any) -> REFchild:
         if type(other) is int or type(other) is Fraction:
             self.a *= other
             self.b *= other
             return self
-        elif type(other) is REF:
+        elif isinstance(other, REF):
             if self.p == other.p:
                 p: int = self.p
                 a: Fraction = self.a
@@ -210,10 +212,10 @@ class REF: # 有理数体Qに√pを添加した単純拡大体Q(√p)のclass R
         else:
             raise TypeError(f"unsupported operand type(s) for *: '{type(self).__name__}' and '{type(other).__name__}'")
     
-    def __truediv__(self, other: Any) -> REF:
+    def __truediv__(self: REFchild, other: Any) -> REFchild:
         if type(other) is int or type(other) is Fraction:
             return self.__class__(self.p, self.a/other, self.b/other)
-        elif type(other) is REF:
+        elif isinstance(other, REF):
             if self.p == other.p:
                 p: int = self.p
                 a: Fraction = self.a
@@ -228,10 +230,10 @@ class REF: # 有理数体Qに√pを添加した単純拡大体Q(√p)のclass R
         else:
             raise TypeError(f"unsupported operand type(s) for /: '{type(self).__name__}' and '{type(other).__name__}'")
 
-    def __rtruediv__(self, other: Any) -> REF:
+    def __rtruediv__(self: REFchild, other: Any) -> REFchild:
         if type(other) is int or type(other) is Fraction:
             return self.__class__(self.p, self.a/other, self.b/other)
-        elif type(other) is REF:
+        elif isinstance(other, REF):
             if self.p == other.p:
                 p: int = self.p
                 a: Fraction = self.a
@@ -246,12 +248,12 @@ class REF: # 有理数体Qに√pを添加した単純拡大体Q(√p)のclass R
         else:
             raise TypeError(f"unsupported operand type(s) for /: '{type(self).__name__}' and '{type(other).__name__}'")
 
-    def __itruediv__(self, other: Any) -> REF:
+    def __itruediv__(self: REFchild, other: Any) -> REFchild:
         if type(other) is int or type(other) is Fraction:
             self.a /= other
             self.b /= other
             return self
-        elif type(other) is REF:
+        elif isinstance(other, REF):
             if self.p == other.p:
                 p: int = self.p
                 a: Fraction = self.a
@@ -266,40 +268,40 @@ class REF: # 有理数体Qに√pを添加した単純拡大体Q(√p)のclass R
         else:
             raise TypeError(f"unsupported operand type(s) for /: '{type(self).__name__}' and '{type(other).__name__}'")
 
-    def __copy__(self) -> REF:
+    def __copy__(self: REFchild) -> REFchild:
         return self
     
-    def copy(self) -> REF:
+    def copy(self: REFchild) -> REFchild:
         return self
 
-    def __deepcopy__(self) -> REF:
+    def __deepcopy__(self: REFchild) -> REFchild:
         return self.__class__(self.p, self.a, self.b)
 
-    def deepcopy(self) -> REF:
+    def deepcopy(self: REFchild) -> REFchild:
         return self.__class__(self.p, self.a, self.b)
     
-    def zero(self) -> REF: # 加法単位元 乗法零元
+    def zero(self: REFchild) -> REFchild: # 加法単位元 乗法零元
         return self.__class__(self.p, Fraction(), Fraction())
     
-    def inv(self) -> REF: # 乗法逆元
+    def inv(self: REFchild) -> REFchild: # 乗法逆元
         p: int = self.p
         a: Fraction = self.a
         b: Fraction = self.b
         return self.__class__(p, a/(a**2 - p*b**2), -b/(a**2 - p*b**2))
 
-    def swap(self) -> REF: # 有理部と無理部を入れ替えたREFを生成
+    def swap(self: REFchild) -> REFchild: # 有理部と無理部を入れ替えたREFを生成
         p: int = self.p
         a: Fraction = self.a
         b: Fraction = self.b
         return self.__class__(p, b, a)
 
-    def conjugate(self) -> REF: # 一般化した共役(p=-1のとき複素共役に一致)
+    def conjugate(self: REFchild) -> REFchild: # 一般化した共役(p=-1のとき複素共役に一致)
         p: int = self.p
         a: Fraction = self.a
         b: Fraction = self.b
         return self.__class__(p, a, -b)
 
-    def to_float(self) -> float:
+    def to_float(self: REFchild) -> float:
         p: int = self.p
         if p < 0:
             raise ValueError(f"negative `REF.p`: {self.p}; to get the value of this REF instance, use 'to_complex'")
@@ -307,7 +309,7 @@ class REF: # 有理数体Qに√pを添加した単純拡大体Q(√p)のclass R
         b: Fraction = self.b
         return a.numerator/a.denominator + b.numerator/b.denominator*(p**0.5) # float
 
-    def to_complex(self) -> complex:
+    def to_complex(self: REFchild) -> complex:
         p: int = self.p
         a: Fraction = self.a
         b: Fraction = self.b
@@ -324,7 +326,7 @@ class MatrixREF:
         mat (List[List[REF]]): 2-dimension matrix of `REF` instance.
         shape (Tuple[int, int]): Shape of `MatrixREF.mat`. First element is the number of row, second is the number of column.
     """
-    def __init__(self, p: int, mat: Optional[Matrix] = None): # p:int, mat:List[List[int/Fraction]]
+    def __init__(self: MatrixREFchild, p: int, mat: Optional[Matrix] = None): # p:int, mat:List[List[int/Fraction]]
         self.p: int = p
         self.mat: List[List[REF]] = []
         self.shape: Tuple[int, int]
@@ -337,7 +339,7 @@ class MatrixREF:
                 for r in row:
                     if type(r) is int or type(r) is Fraction:
                         now.append(REF(p, Fraction(r)))
-                    elif type(r) is REF:
+                    elif isinstance(r, REF):
                         if self.p == r.p:
                             now.append(r.deepcopy())
                         else:
@@ -346,18 +348,18 @@ class MatrixREF:
                         raise TypeError(f"type of matrix components must be int/Fraction/REF")
                 self.mat.append(now)
 
-    def __str__(self) -> str:
+    def __str__(self: MatrixREFchild) -> str:
         res: str = ',\n '.join([str(m) for m in self.mat])
         return f"[{res}]"
 
-    def __repr__(self) -> str:
+    def __repr__(self: MatrixREFchild) -> str:
         res: str = ',\n '.join([str(m) for m in self.mat])
         return f"[{res}]"
     
-    def __len__(self) -> int:
+    def __len__(self: MatrixREFchild) -> int:
         return len(self.mat)
     
-    def __eq__(self, other: Any) -> List[List[bool]]: # type: ignore
+    def __eq__(self: MatrixREFchild, other: Any) -> List[List[bool]]: # type: ignore
         m: int
         n: int
         m, n = self.shape
@@ -370,7 +372,7 @@ class MatrixREF:
             res = [[smat[i][j]==other_ for j in range(n)] for i in range(m)]
             return res # List[List[bool]]
 
-        elif type(other) is MatrixREF:
+        elif isinstance(other, MatrixREF):
             if self.p == other.p:
                 smat = self.mat
                 omat = other.mat
@@ -381,7 +383,7 @@ class MatrixREF:
         else:
             raise TypeError(f"incompatible type(s) for : '{type(self).__name__}' and '{type(other).__name__}'")
         
-    def __ne__(self, other: Any) -> bool:
+    def __ne__(self: MatrixREFchild, other: Any) -> bool:
         if type(self).__name__ != type(other).__name__:
             return True
         if self.shape != other.shape:
@@ -395,7 +397,7 @@ class MatrixREF:
                     return True
         return False
 
-    def __neg__(self) -> MatrixREF:
+    def __neg__(self: MatrixREFchild) -> MatrixREFchild:
         m: int
         n: int
         m, n = self.shape
@@ -403,13 +405,13 @@ class MatrixREF:
         for i in range(m):
             for j in range(n):
                 res[i][j] = -self.mat[i][j]
-        ret: MatrixREF = self.__class__(self.p, mat=None)
+        ret: MatrixREFchild = self.__class__(self.p, mat=None)
         ret.mat = res
         ret.shape = (m, n)
         return ret
 
-    def __matmul__(self, other: MatrixREF) -> MatrixREF:
-        if type(other) is MatrixREF:
+    def __matmul__(self: MatrixREFchild, other: MatrixREFchild) -> MatrixREFchild:
+        if isinstance(other, MatrixREF):
             if self.p == other.p:
                 if self.shape[1] == other.shape[0]:
                     # (l,m)*(m,n) -> (l,n)
@@ -425,10 +427,10 @@ class MatrixREF:
                             for j in range(m):
                                 val += smat[i][j]*omat[j][k]
                             res[i][k] = val
-                    ret: MatrixREF = self.__class__(self.p, mat=None)
+                    ret: MatrixREFchild = self.__class__(self.p, mat=None)
                     ret.mat = res
                     ret.shape = (l, n)
-                    return ret # ret: MatrixREF
+                    return ret
                 else:
                     raise TypeError(f"matrix shape is inappropriate")
             else:
@@ -437,50 +439,36 @@ class MatrixREF:
             raise TypeError(f"unsupported operand type(s) for @: '{type(self).__name__}' and '{type(other).__name__}'")
     
     @overload
-    def __getitem__(self, key: int) -> List[REF]:
+    def __getitem__(self: MatrixREFchild, key: int) -> List[REF]:
         ...
     @overload
-    def __getitem__(self, key: slice) -> Iterable[List[REF]]:
+    def __getitem__(self: MatrixREFchild, key: slice) -> Iterable[List[REF]]:
         ...
-    def __getitem__(self, key: Any) -> Any:
+    def __getitem__(self: MatrixREFchild, key: Any) -> Any:
         return self.mat[key]
     
-    @overload
-    def __setitem__(self, key: int, value: List[REF]) -> None:
-        ...
-    @overload
-    def __setitem__(self, key: slice, value: Iterable[List[REF]]) -> None:
-        ...
-    def __setitem__(self, key, value):
-        if type(value) is int or type(value) is Fraction:
-            self.mat[key] = REF(self.p, value)
-        elif type(value) is REF:
-            if self.p == value.p:
-                self.mat[key] = value
-            else:
-                raise TypeError(f"REF generator is not same")
-        else:
-            raise TypeError(f"invalid type for an element of MatrixREF: {type(value)}")
-
-    def __copy__(self) -> MatrixREF:
+    def __setitem__(self: MatrixREFchild, key: Any, value: Any) -> None:
+        self.mat[key] = value
+        
+    def __copy__(self: MatrixREFchild) -> MatrixREFchild:
         return self
     
-    def copy(self) -> MatrixREF:
+    def copy(self: MatrixREFchild) -> MatrixREFchild:
         return self
 
-    def __deepcopy__(self) -> MatrixREF:
-        ret: MatrixREF = self.__class__(self.p)
+    def __deepcopy__(self: MatrixREFchild) -> MatrixREFchild:
+        ret: MatrixREFchild = self.__class__(self.p)
         ret.mat = [[self.mat[i][j].deepcopy() for j in range(self.shape[1])] for i in range(self.shape[0])]
         ret.shape = self.shape
         return ret
 
-    def deepcopy(self) -> MatrixREF:
-        ret: MatrixREF = self.__class__(self.p)
+    def deepcopy(self: MatrixREFchild) -> MatrixREFchild:
+        ret: MatrixREFchild = self.__class__(self.p)
         ret.mat = [[self.mat[i][j].deepcopy() for j in range(self.shape[1])] for i in range(self.shape[0])]
         ret.shape = self.shape
         return ret
 
-    def identity(self, shape: Optional[Tuple[int, int]] = None) -> MatrixREF:
+    def identity(self: MatrixREFchild, shape: Optional[Tuple[int, int]] = None) -> MatrixREFchild:
         # m×n単位行列
         m: int
         n: int
@@ -492,12 +480,12 @@ class MatrixREF:
         res: List[List[REF]] = [[REF(p)]*n for _ in range(m)]
         for i in range(min(m,n)):
             res[i][i] = REF(p, Fraction(1,1), Fraction())
-        ret: MatrixREF = self.__class__(p)
+        ret: MatrixREFchild = self.__class__(p)
         ret.shape = (m,n)
         ret.mat = res
-        return ret # ret: MatrixREF
+        return ret
     
-    def sum(self, axis: Optional[int] = None) -> Union[REF, List[REF]]:
+    def sum(self: MatrixREFchild, axis: Optional[int] = None) -> Union[REF, List[REF]]:
         m: int
         n: int
         m, n = self.shape
@@ -768,11 +756,11 @@ class PhysicalPropertyTensorAnalyzer:
         "T":  [C2_001, C2_010, C3_111],
         # 正方晶
         "D4h":[C2_001, C4_001, C2_010, inversion],
-        "D2d":[C2_001, -C4_001, C2_010], # type: ignore # problem: type hint in inherited class
+        "D2d":[C2_001, -C4_001, C2_010],
         "C4v":[C2_001, C4_001, m_010],
         "D4": [C2_001, C4_001, C2_010],
         "C4h":[C2_001, C4_001, inversion],
-        "S4": [C2_001, -C4_001], # type: ignore # problem: type hint in inherited class
+        "S4": [C2_001, -C4_001],
         "C4": [C2_001, C4_001],
         # 直方晶
         "D2h":[C2_001, C2_010, inversion],
