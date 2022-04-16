@@ -8,7 +8,7 @@ Of course, pymatgen is a very useful python module, so we use it as an adjunct i
 from __future__ import annotations
 
 from collections import defaultdict
-from math import sqrt, cos, radians
+from math import pi, sqrt, cos, radians
 import re
 from typing import Any, DefaultDict, Dict, List, Optional, Tuple, Union
 
@@ -981,6 +981,77 @@ class MPMS:
             magnification (float): Amplification magnification. Defaults to 1.0.
         """
         return [magnification * 1/x for x in self.Susceptibility(H)]
+
+class Energy:
+    """from energy to other physical quantity or vice versa.
+
+    Note:
+        All units stand for SI.
+
+    Args:
+        quantity (float): Quantity part of a physical quantity.
+        unit (str): Unit part of a physical quantity.
+    """
+    def __init__(self, quantity: float, unit: str) -> None:
+        self.quantity: float = quantity
+        self.unit: str = unit
+        self.c: float = 299792458 # m/s
+        self.kB: float = 1.380649e-23 # J/K
+        self.e: float = 1.602176634e-19 # C
+        self.h: float = 6.62607015e-34 # Js
+        self.NA: float = 6.02214076e23 # mol^-1
+        self.hbar: float = self.h/2/pi # Js
+        self.me: float = 9.1093837015e-31 # kg
+        self.muB: float = self.hbar * self.e / self.me / 2 # J/T
+
+        # 数値の単位は [unit/meV]
+        # eV, hν, hck, kBT, muBH
+        self.mapping: Dict[str, float] = {
+            "meV": 1.,
+            "THz":  (1e-3*self.e) / (self.h*1e12),
+            "cm^-1": (1e-3*self.e) / (1e2*self.h*self.c),
+            "A^-1": (1e-3*self.e) / (1e10*self.h*self.c),
+            "K":    (1e-3*self.e) / self.kB,
+            "T":    (1e-3*self.e) / (self.muB),
+            "J":    (1e-3*self.e)
+        }
+
+    def __str__(self) -> str:
+        return f"{self.quantity} {self.unit}"
+
+    def __add__(self, other: Any) -> Energy:
+        new_quantity: float = self.quantity + other.quantity * self.mapping[self.unit] / self.mapping[other.unit]
+        return self.__class__(new_quantity, self.unit)
+    
+    def __iadd__(self, other: Any) -> Energy:
+        self.quantity += other.quantity * self.mapping[self.unit] / self.mapping[other.unit]
+        return self
+    
+    def __mul__(self, other: Any) -> Energy:
+        return self.__class__(self.quantity * other, self.unit)
+    
+    def __rmul__(self, other: Any) -> Energy:
+        return self.__class__(self.quantity * other, self.unit)
+    
+    def __imul__(self, other: Any) -> Energy:
+        self.quantity *= other
+        return self
+
+    def to(self, new_unit: str) -> Energy:
+        """Translate the physical quantity as other units.
+
+        Args:
+            new_unit (str): New unit.
+
+        Example:
+            1 meV -> 11.6 K
+            1 THz -> 4.14 meV
+        """
+        if new_unit in self.mapping:
+            new_quantity: float = self.quantity * self.mapping[new_unit] / self.mapping[self.unit]
+            return self.__class__(new_quantity, new_unit)
+        else:
+            raise ValueError("the argument 'new_unit' is invalid.")
 
 
 def ingredient_flake_dp(A: List[int], W: int) -> None: # A: 適当に整数化したフレークの重さ, W: 目標重量
