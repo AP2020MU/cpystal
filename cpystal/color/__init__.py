@@ -1,6 +1,5 @@
 from .color import Color as Color
-from .color import gradation_linear as gradation_linear
-from .color import gradation_helical as gradation_helical
+from .color import Gradation as Gradation
 from .color import rgb_to_hsv as rgb_to_hsv
 from .color import hsv_to_rgb as hsv_to_rgb
 from .color import rgb_to_hls as rgb_to_hls
