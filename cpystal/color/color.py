@@ -22,7 +22,7 @@ class Color:
             V: [0.0, 1.0] (or [0, MAX_SV]), black-weak -> black-strong.
         HLS = Hue(color phase), Luminance(lightness), Saturation(colorfulness)
             H: [0.0, 1.0] (or [0, 360]), red -> yellow -> green -> blue -> magenta -> red.
-            V: [0.0, 1.0] (or [0, MAX_SV]), black -> white.
+            L: [0.0, 1.0] (or [0, MAX_SV]), black -> white.
             S: [0.0, 1.0] (or [0, MAX_SV]), medium -> maximum.
         YIQ = Y(perceived grey level), I(same-phase), Q(anti-phase)
             Y: [0.0, 1.0], black -> white.
@@ -36,6 +36,10 @@ class Color:
             Otherwise floating point number in [0.0, 1.0].
         MAX_SV (int): Max value of S,V in HSV system.
         MAX_LS (int): Max value of L,S in HLS system.
+
+    ToDo:
+        implement __add__, __sub__, __mul__, __div__
+        add XYZ, L*a*b*
     
     """
     def __init__(self,
@@ -53,6 +57,33 @@ class Color:
     
     def __str__(self) -> str:
         return f"{self.color_system}{self.color}"
+
+    def __neg__(self) -> Color:
+        new_color: Color = self.__deepcopy__()
+        if new_color.color_system == "RGB":
+            r,g,b = new_color.color
+            m: int = max(r,g,b) + min(r,g,b)
+            new_color.color = (m-r, m-g, m-b)
+            return new_color
+        elif new_color.color_system == "HSV":
+            h,s,v = new_color.color
+            if new_color.digitization:
+                new_color.color = ((h+180) % 360, s, v)
+            else:
+                new_color.color = ((h+0.5) % 1.0, s, v)
+            return new_color
+        elif new_color.color_system == "HLS":
+            h,l,s = new_color.color
+            if new_color.digitization:
+                new_color.color = ((h+180) % 360, l, s)
+            else:
+                new_color.color = ((h+0.5) % 1.0, l, s)
+            return new_color
+        elif new_color.color_system == "YIQ":
+            new_color = (-new_color.to_rgb()).to_yiq()
+            return new_color
+        else:
+            pass
 
     def __iter__(self) -> float:
         yield from self.color
@@ -1287,8 +1318,9 @@ def main() -> None:
     C: Color = Color(RED_RGB, RGB)
     C: Color = Color(RED_HSV, HSV)
     C: Color = Color(GREEN_HSV, HSV)
-    C: Color = Color(BLUE_HSV, HSV)
+    C: Color = Color(BLUE_YIQ, YIQ)
     print(C.color_code())
+    print(-(-C.to_rgb()))
     pass
     return
 
