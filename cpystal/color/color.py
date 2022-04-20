@@ -6,7 +6,7 @@ from typing import Any, List, Optional, Tuple, Union
 
 Color_type = Union[Tuple[int,int,int], Tuple[float,float,float]]
 class Color:
-    """Express color spaces. A part of this class is based on the standard module 'colorsys'.
+    """Express color spaces. A part of this class is based on MATLAB and the Python standard module 'colorsys'.
 
     Note:
         Thereafter, we use the following type alias without notice:
@@ -16,6 +16,7 @@ class Color:
             R: [0.0, 1.0] (or [0, 255]), transparent -> red.
             G: [0.0, 1.0] (or [0, 255]), transparent -> green.
             B: [0.0, 1.0] (or [0, 255]), transparent -> blue.
+            This RGB is supposed to be linearized.
         HSV = Hue(color phase), Saturation(colorfulness), Value(brightness)
             H: [0.0, 1.0] (or [0, 360]), red -> yellow -> green -> blue -> magenta -> red.
             S: [0.0, 1.0] (or [0, MAX_SV]), medium -> maximum.
@@ -28,7 +29,15 @@ class Color:
             Y: [0.0, 1.0], black -> white.
             I: [-0.5959, 0.5959], blue -> orange.
             Q: [-0.5229, 0.5229], green -> violet.
-        
+        XYZ
+            X: 
+            Y:
+            Z:
+        L*a*b*
+            L*: [0, 100]
+            a*: 
+            b*:
+
     Attributes:
         color (Color_type): Color value.
         color_system (str): Color system (RGB, HSV, HLS, YIQ).
@@ -39,7 +48,6 @@ class Color:
 
     ToDo:
         implement __add__, __sub__, __mul__, __div__
-        add XYZ, L*a*b*
     
     """
     def __init__(self,
@@ -500,7 +508,411 @@ class Color:
                 MAX_LS=self.MAX_LS,
                 )
         return new_color
-    
+
+    def rgb_to_srgb(self, digitization: Optional[bool] = None) -> Color:
+        """RGB -> sRGB
+
+        Note:
+            The value range of (r,g,b) in RGB and sRGB is:
+                r: [0.0, 1.0] (or [0, 255])
+                g: [0.0, 1.0] (or [0, 255])
+                b: [0.0, 1.0] (or [0, 255])
+                (if 'digitization' is True, the right side is used).
+        
+        Args:
+            digitization (Optional[bool]): If True, elements of 'color' will be integers. Defaults to None. 
+
+        Returns:
+            (Color): Color expressed in sRGB.
+        """
+        if self.color_system != "RGB":
+            raise ValueError("'color_system' must be 'RGB'")
+
+        def _f(u: float) -> float:
+            if u <= 0.0031308:
+                return 12.92 * u
+            else:
+                return 1.055 * u**(1/2.4) - 0.055
+
+        if digitization is None:
+            digitization = self.digitization
+
+        r,g,b = self.color
+        if self.digitization:
+            r /= 255
+            g /= 255
+            b /= 255
+        sr, sg, sb = _f(r), _f(g), _f(b)
+        color: Color_type
+        if digitization:
+            color = (int(sr*255), int(sg*255), int(sb*255))
+        else:
+            color = (sr, sg, sb)
+        
+        new_color: Color = self.__class__(
+                color=color,
+                color_system="sRGB",
+                digitization=digitization,
+                MAX_SV=self.MAX_SV,
+                MAX_LS=self.MAX_LS,
+                )
+        return new_color
+
+    def srgb_to_rgb(self, digitization: Optional[bool] = None) -> Color:
+        """sRGB -> RGB
+
+        Note:
+            The value range of (r,g,b) in RGB and sRGB is:
+                r: [0.0, 1.0] (or [0, 255])
+                g: [0.0, 1.0] (or [0, 255])
+                b: [0.0, 1.0] (or [0, 255])
+                (if 'digitization' is True, the right side is used).
+        
+        Args:
+            digitization (Optional[bool]): If True, elements of 'color' will be integers. Defaults to None. 
+
+        Returns:
+            (Color): Color expressed in RGB.
+        """
+        if self.color_system != "sRGB":
+            raise ValueError("'color_system' must be 'sRGB'")
+
+        def _f(u: float) -> float:
+            if u <= 0.040450:
+                return u / 12.92
+            else:
+                return ((u + 0.055) / 1.055) ** 2.4
+        
+        if digitization is None:
+            digitization = self.digitization
+
+        sr,sg,sb = self.color
+        r, g, b = _f(sr), _f(sg), _f(sb)
+        color: Color_type
+        if digitization:
+            color = (int(r*255), int(g*255), int(b*255))
+        else:
+            color = (r, g, b)
+
+        new_color: Color = self.__class__(
+                color=color,
+                color_system="RGB",
+                digitization=False,
+                MAX_SV=self.MAX_SV,
+                MAX_LS=self.MAX_LS,
+                )
+        return new_color
+
+    def rgb_to_adobergb(self, digitization: Optional[bool] = None) -> Color:
+        """RGB -> Adobe RGB
+
+        Note:
+            The value range of (r,g,b) in RGB and Adobe RGB is:
+                r: [0.0, 1.0] (or [0, 255])
+                g: [0.0, 1.0] (or [0, 255])
+                b: [0.0, 1.0] (or [0, 255])
+                (if 'digitization' is True, the right side is used).
+
+        Args:
+            digitization (Optional[bool]): If True, elements of 'color' will be integers. Defaults to None. 
+
+        Returns:
+            (Color): Color expressed in Adobe RGB.
+        """
+        if self.color_system != "RGB":
+            raise ValueError("'color_system' must be 'RGB'")
+
+        def _f(u: float) -> float:
+            if u <= 0.00174:
+                return 32.0 * u
+            else:
+                return u ** (1/2.2)
+
+        if digitization is None:
+            digitization = self.digitization
+
+        r,g,b = self.color
+        if self.digitization:
+            r /= 255
+            g /= 255
+            b /= 255
+        ar, ag, ab = _f(r), _f(g), _f(b)
+        color: Color_type
+        if digitization:
+            color = (int(ar*255), int(ag*255), int(ab*255))
+        else:
+            color = (ar, ag, ab)
+        
+        new_color: Color = self.__class__(
+                color=color,
+                color_system="Adobe RGB",
+                digitization=digitization,
+                MAX_SV=self.MAX_SV,
+                MAX_LS=self.MAX_LS,
+                )
+        return new_color
+
+    def adobergb_to_rgb(self, digitization: Optional[bool] = None) -> Color:
+        """Adobe RGB -> RGB
+
+        Note:
+            The value range of (r,g,b) in RGB and Adobe RGB is:
+                r: [0.0, 1.0] (or [0, 255])
+                g: [0.0, 1.0] (or [0, 255])
+                b: [0.0, 1.0] (or [0, 255])
+                (if 'digitization' is True, the right side is used).
+
+        Args:
+            digitization (Optional[bool]): If True, elements of 'color' will be integers. Defaults to None. 
+
+        Returns:
+            (Color): Color expressed in Adobe RGB.
+        """
+        if self.color_system != "Adobe RGB":
+            raise ValueError("'color_system' must be 'Adobe RGB'")
+
+        def _f(u: float) -> float:
+            if u <= 0.0556:
+                return u / 32.0
+            else:
+                return u ** 2.2
+
+        if digitization is None:
+            digitization = self.digitization
+
+        ar,ag,ab = self.color
+
+        r, g, b = _f(ar), _f(ag), _f(ab)
+        color: Color_type
+        if digitization:
+            color = (int(r*255), int(g*255), int(b*255))
+        else:
+            color = (r, g, b)
+
+        new_color: Color = self.__class__(
+                color=color,
+                color_system="RGB",
+                digitization=False,
+                MAX_SV=self.MAX_SV,
+                MAX_LS=self.MAX_LS,
+                )
+        return new_color
+
+    def rgb_to_xyz(self, white_point: str = "D65") -> Color:
+        """RGB -> XYZ
+
+        Note:
+            The value range of (r,g,b) is:
+                r: [0.0, 1.0] (or [0, 255])
+                g: [0.0, 1.0] (or [0, 255])
+                b: [0.0, 1.0] (or [0, 255])
+                (if 'digitization' is True, the right side is used).
+        
+        Args:
+            white point (str):
+                'D65': (x,y,z) = (0.95046, 1.0, 1.08906)
+                'D50': (x,y,z) = (0.9642, 1.0, 0.8249)
+
+        Returns:
+            (Color): Color expressed in XYZ.
+        """
+        if self.color_system != "RGB":
+            raise ValueError("'color_system' must be 'RGB'")
+
+        r,g,b = self.color
+        if self.digitization:
+            r /= 255
+            g /= 255
+            b /= 255
+        x: float = 0.412391*r + 0.357584*g + 0.180481*b
+        y: float = 0.212639*r + 0.715169*g + 0.072192*b
+        z: float = 0.019331*r + 0.119195*g + 0.950532*b
+        color: Color_type = (x, y, z)
+        new_color: Color = self.__class__(
+                color=color,
+                color_system="XYZ",
+                digitization=False,
+                MAX_SV=self.MAX_SV,
+                MAX_LS=self.MAX_LS,
+                )
+        return new_color
+
+    def xyz_to_rgb(self, digitization: Optional[bool] = None) -> Color:
+        """XYZ -> RGB
+
+        Note:
+            The value range of (r,g,b) is:
+                r: [0.0, 1.0] (or [0, 255])
+                g: [0.0, 1.0] (or [0, 255])
+                b: [0.0, 1.0] (or [0, 255])
+                (if 'digitization' is True, the right side is used).
+            
+            D65 white point: (x,y,z) = (0.95046, 1.0, 1.08906)
+            D50 white point: (x,y,z) = (0.9642, 1.0, 0.8249)
+            
+        Args:
+            digitization (Optional[bool]): If True, elements of 'color' will be integers. Defaults to None. 
+
+        Returns:
+            (Color): Color expressed in RGB.
+        """
+        if self.color_system != "XYZ":
+            raise ValueError("'color_system' must be 'XYZ'")
+
+        if digitization is None:
+            digitization = self.digitization
+            
+        x,y,z = self.color
+
+        r: float = 3.240970*x - 1.537383*y - 0.498611*z
+        g: float = -0.969244*x + 1.875968*y + 0.041555*z
+        b: float = 0.055630*x - 0.203977*y + 1.056972*z
+        color: Color_type = (r, g, b)
+        new_color: Color = self.__class__(
+                color=color,
+                color_system="RGB",
+                digitization=digitization,
+                MAX_SV=self.MAX_SV,
+                MAX_LS=self.MAX_LS,
+                )
+        return new_color
+
+    def _d65_to_d50(self, xyz: Color_type) -> Color_type:
+        """D65 -> D50
+
+        Note:
+            In CIE1931,
+            D65 white point: (x,y,z) = (0.95046, 1.0, 1.08906)
+            D50 white point: (x,y,z) = (0.9642, 1.0, 0.8249).
+            D65 and D50 represent Planck radiation 
+            with correlated color temperatures of ~6500 K and ~5000 K, respectively.
+        
+        Args:
+            xyz (Color_type): Color value in xyz(D65).
+        
+        Returns:
+            (Color_type): Color value in xyz(D50).
+        """
+        x,y,z = xyz
+        xx: float = 1.047886*x + 0.022919*y - 0.050216*z
+        yy: float = 0.029582*x + 0.990484*y - 0.017079*z
+        zz: float = -0.009252*x + 0.015073*y + 0.751678*z
+        return (xx, yy, zz)
+
+    def _d50_to_d65(self, xyz: Color_type) -> Color_type:
+        """D65 -> D50
+
+        Note:
+            In CIE1931,
+            D65 white point: (x,y,z) = (0.95046, 1.0, 1.08906)
+            D50 white point: (x,y,z) = (0.9642, 1.0, 0.8249).
+            D65 and D50 represent Planck radiation 
+            with correlated color temperatures of ~6500 K and ~5000 K, respectively.
+        
+        Args:
+            xyz (Color_type): Color value in xyz(D50).
+        
+        Returns:
+            (Color_type): Color value in xyz(D65).
+        """
+        x,y,z = xyz
+        xx: float = 0.955512*x - 0.023073*y - 0.063309*z
+        yy: float = -0.028325*x + 1.009942*y + 0.021055*z
+        zz: float = 0.012329*x - 0.020536*y + 1.330714*z
+        return (xx, yy, zz)
+
+    def xyz_to_lab(self) -> Color:
+        """XYZ -> L*a*b*
+
+         Note:
+            The XYZ and RGB color systems basically use the D65 standard light source as the white point,
+            but the L*a*b* color system uses the D50.
+            In order to adjust for this difference, Bradford transformation is used.
+
+            The value range of (l,a,b) is:
+                l: [0.0, 100.0]
+                a: may take an absolute value greater than 100
+                b: may take an absolute value greater than 100. 
+
+            D65 white point: (x,y,z) = (0.95046, 1.0, 1.08906)
+            D50 white point: (x,y,z) = (0.9642, 1.0, 0.8249).
+            
+        Returns:
+            (Color): Color expressed in L*a*b*.
+        """
+
+        if self.color_system != "XYZ":
+            raise ValueError("'color_system' must be 'XYZ'")
+
+        def _f(u: float) -> float:
+            if u > (6/29)**3:
+                return u ** (1/3)
+            else:
+                return ((29/3)**3 * u + 16) / 116
+
+        xw,yw,zw = 0.9642, 1.0, 0.8249 # D50 white point
+        x,y,z = self._d65_to_d50(self.color) # Bradford transformation
+        fx,fy,fz = _f(x/xw), _f(y/yw), _f(z/zw)
+        l: float = 116*fy - 16
+        a: float = 500 * (fx-fy)
+        b: float = 200 * (fy-fz)
+        color: Color_type = (l, a, b)
+        new_color: Color = self.__class__(
+                color=color,
+                color_system="L*a*b*",
+                digitization=False,
+                MAX_SV=self.MAX_SV,
+                MAX_LS=self.MAX_LS,
+                )
+        return new_color
+
+    def lab_to_xyz(self) -> Color:
+        """L*a*b* -> XYZ
+
+         Note:
+            The XYZ and RGB color systems basically use the D65 standard light source as the white point,
+            but the L*a*b* color system uses the D50.
+            In order to adjust for this difference, Bradford transformation is used.
+
+            The value range of (l,a,b) is:
+                l: [0.0, 100.0]
+                a: may take an absolute value greater than 100
+                b: may take an absolute value greater than 100. 
+            
+            D65 white point: (x,y,z) = (0.95046, 1.0, 1.08906)
+            D50 white point: (x,y,z) = (0.9642, 1.0, 0.8249).
+            
+        Returns:
+            (Color): Color expressed in L*a*b*.
+        """
+
+        if self.color_system != "L*a*b*":
+            raise ValueError("'color_system' must be 'L*a*b*'")
+
+        def _invf(u: float) -> float:
+            if u > 6/29:
+                return u ** 3
+            else:
+                return (3/29)**3 * (116*u - 16)
+
+        xw,yw,zw = 0.9642, 1.0, 0.8249 # D50 white point
+        l,a,b = self.color
+        fy: float = (l+16) / 116
+        fx: float = fy + a/500
+        fz: float = fy - b/200
+        x: float = _invf(fx) * xw
+        y: float = _invf(fy) * yw
+        z: float = _invf(fz) * zw
+        color: Color_type = self._d50_to_d65((x, y, z)) # inverse Bradford transformation
+        new_color: Color = self.__class__(
+                color=color,
+                color_system="XYZ",
+                digitization=False,
+                MAX_SV=self.MAX_SV,
+                MAX_LS=self.MAX_LS,
+                )
+        return new_color
+
     def to_rgb(self, digitization: Optional[bool] = None) -> Color:
         if self.color_system == "RGB":
             new_color: Color = self.__deepcopy__()
@@ -512,6 +924,14 @@ class Color:
             return self.hls_to_rgb(digitization=digitization)
         elif self.color_system == "YIQ":
             return self.yiq_to_rgb(digitization=digitization)
+        elif self.color_system == "sRGB":
+            return self.srgb_to_rgb(digitization=digitization)
+        elif self.color_system == "Adobe RGB":
+            return self.adobergb_to_rgb(digitization=digitization)
+        elif self.color_system == "XYZ":
+            return self.xyz_to_rgb(digitization=digitization)
+        elif self.color_system == "L*a*b*":
+            return self.lab_to_xyz().xyz_to_rgb(digitization=digitization)
         else:
             return
     
@@ -526,6 +946,14 @@ class Color:
             return self.hls_to_rgb().rgb_to_hsv(digitization=digitization, MAX_SV=MAX_SV)
         elif self.color_system == "YIQ":
             return self.yiq_to_rgb().rgb_to_hsv(digitization=digitization, MAX_SV=MAX_SV)
+        elif self.color_system == "sRGB":
+            return self.srgb_to_rgb().rgb_to_hsv(digitization=digitization, MAX_SV=MAX_SV)
+        elif self.color_system == "Adobe RGB":
+            return self.adobergb_to_rgb().rgb_to_hsv(digitization=digitization, MAX_SV=MAX_SV)
+        elif self.color_system == "XYZ":
+            return self.xyz_to_rgb().rgb_to_hsv(digitization=digitization, MAX_SV=MAX_SV)
+        elif self.color_system == "L*a*b*":
+            return self.lab_to_xyz().xyz_to_rgb().rgb_to_hsv(digitization=digitization, MAX_SV=MAX_SV)
         else:
             return
     
@@ -540,6 +968,14 @@ class Color:
             return new_color
         elif self.color_system == "YIQ":
             return self.yiq_to_rgb().rgb_to_hls(digitization=digitization, MAX_LS=MAX_LS)
+        elif self.color_system == "sRGB":
+            return self.srgb_to_rgb().rgb_to_hls(digitization=digitization, MAX_LS=MAX_LS)
+        elif self.color_system == "Adobe RGB":
+            return self.adobergb_to_rgb().rgb_to_hls(digitization=digitization, MAX_LS=MAX_LS)
+        elif self.color_system == "XYZ":
+            return self.xyz_to_rgb().rgb_to_hls(digitization=digitization, MAX_LS=MAX_LS)
+        elif self.color_system == "L*a*b*":
+            return self.lab_to_xyz().xyz_to_rgb().rgb_to_hls(digitization=digitization, MAX_LS=MAX_LS)
         else:
             return
 
@@ -554,8 +990,59 @@ class Color:
             new_color: Color = self.__deepcopy__()
             new_color.change_digitization(digitization=digitization)
             return new_color
+        elif self.color_system == "sRGB":
+            return self.srgb_to_rgb().rgb_to_yiq()
+        elif self.color_system == "Adobe RGB":
+            return self.adobergb_to_rgb().rgb_to_yiq()
+        elif self.color_system == "XYZ":
+            return self.xyz_to_rgb().rgb_to_yiq()
+        elif self.color_system == "L*a*b*":
+            return self.lab_to_xyz().xyz_to_rgb().rgb_to_yiq()
         else:
             return
+    
+    def to_xyz(self) -> Color:
+        if self.color_system == "RGB":
+            return self.rgb_to_xyz()
+        elif self.color_system == "HSV":
+            return self.hsv_to_rgb().rgb_to_xyz()
+        elif self.color_system == "HLS":
+            return self.hls_to_rgb().rgb_to_xyz()
+        elif self.color_system == "YIQ":
+            return self.yiq_to_rgb().rgb_to_xyz()
+        elif self.color_system == "sRGB":
+            return self.srgb_to_rgb().rgb_to_xyz()
+        elif self.color_system == "Adobe RGB":
+            return self.adobergb_to_rgb().rgb_to_xyz()
+        elif self.color_system == "XYZ":
+            new_color: Color = self.__deepcopy__()
+            return new_color
+        elif self.color_system == "L*a*b*":
+            return self.lab_to_xyz().xyz_to_rgb().rgb_to_xyz()
+        else:
+            return
+    
+    def to_lab(self) -> Color:
+        if self.color_system == "RGB":
+            return self.rgb_to_xyz().xyz_to_lab()
+        elif self.color_system == "HSV":
+            return self.hsv_to_rgb().rgb_to_xyz().xyz_to_lab()
+        elif self.color_system == "HLS":
+            return self.hls_to_rgb().rgb_to_xyz().xyz_to_lab()
+        elif self.color_system == "YIQ":
+            return self.yiq_to_rgb().rgb_to_xyz().xyz_to_lab()
+        elif self.color_system == "sRGB":
+            return self.srgb_to_rgb().rgb_to_xyz().xyz_to_lab()
+        elif self.color_system == "Adobe RGB":
+            return self.adobergb_to_rgb().rgb_to_xyz().xyz_to_lab()
+        elif self.color_system == "XYZ":
+            return self.xyz_to_lab()
+        elif self.color_system == "L*a*b*":
+            new_color: Color = self.__deepcopy__()
+            return new_color
+        else:
+            return
+
     
     def color_code(self) -> str:
         """Hexadecimal color code
@@ -1321,6 +1808,14 @@ def main() -> None:
     C: Color = Color(BLUE_YIQ, YIQ)
     print(C.color_code())
     print(-(-C.to_rgb()))
+
+    import numpy as np
+    A = np.array([
+        [1.047886,  0.022919, -0.050216],
+        [0.029582,  0.990484, -0.017079],
+        [-0.009252,  0.015073,  0.751678]
+    ])
+    print(np.linalg.inv(A))
     pass
     return
 
