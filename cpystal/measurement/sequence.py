@@ -348,13 +348,13 @@ class ScanPower(SequenceCommandBase):
             raise TypeError("arguments are invalid")
         
 
-def SequenceMaker(command_list: List[SequenceCommand]) -> SequenceCommandBase:
+def sequence_maker(command_list: List[SequenceCommand]) -> SequenceCommandBase:
     res: SequenceCommandBase = sum(command_list, start=SequenceCommandBase())
     return res
     
 
 def main():
-    res = SequenceMaker([
+    res = sequence_maker([
             WaitForTemp(extra_wait=1),
             ScanTemp([300,250,200,150,100,50,2],
                 substructure=Measure()

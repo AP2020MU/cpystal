@@ -8,4 +8,4 @@ from .sequence import SetPower as SetPower
 from .sequence import ScanField as ScanField
 from .sequence import ScanTemp as ScanTemp
 from .sequence import ScanPower as ScanPower
-from .sequence import SequenceMaker as SequenceMaker
+from .sequence import sequence_maker as sequence_maker
