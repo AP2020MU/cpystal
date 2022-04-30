@@ -8,6 +8,42 @@ import numpy as np
 SequenceCommand = TypeVar("SequenceCommand", bound="SequenceCommandBase")
 
 class SequenceCommandBase:
+    """Base class of 'SequenceCommand'.
+
+    Attributes:
+        commands (List[Tuple[Any]]): Commands of the sequence. The first element of the tuple indicates command type in integers (details below).
+        command_number (Dict[str, int]):
+            Dictionary of 'command name' to 'command number':
+                `"Measure": 0,
+                "WaitForField": 1,
+                "WaitForTemp": 2,
+                "SetField": 3,
+                "SetTemp": 4,
+                "SetPower": 5`
+        field_approach_method_number (Dict[str, int]):
+            Dictionary of 'field approach method' to the number:
+                `"Linear": 0,
+                "No overshoot": 1,
+                "Oscillate": 2`
+        magnet_mode_number (Dict[str, int]):
+            Dictionary of 'magnet mode' to the number:
+                `"Persistent": 0,
+                "Driven": 1`
+        temp_approach_method_number (Dict[str, int]):
+            Dictionary of 'temperature approach method' to the number:
+                `"Fast settle": 0,
+                "No overshoot": 1`
+    
+    Methods:
+        to_csv
+            Args:
+                filename (str): File name of output csv file.
+    
+    Note:
+        Additive operation (operator:`+`) is defined between this class and its child classes.
+        The resulting instance of addition is always derived from `SequenceCommandBase`.
+        Additive identity of this operation is `SequenceCommandBase()`.
+    """
     def __init__(self) -> None:
         self.commands: List[Tuple[Any]] = []
         self.command_number: Dict[str, int] = {
@@ -289,8 +325,6 @@ class ScanTemp(SequenceCommandBase):
                 self._formatted_commands = self._formatted_commands + ["\t" + s for s in substructure._formatted_commands]
         else:
             raise TypeError("arguments are invalid")
-        
-
 
 class ScanPower(SequenceCommandBase):
     """Command K6221 to scan power.
@@ -349,22 +383,69 @@ class ScanPower(SequenceCommandBase):
         
 
 def sequence_maker(command_list: List[SequenceCommand]) -> SequenceCommandBase:
+    """Make a sequence for controlling PPMS.
+
+    Args:
+        command_list (List[SequenceCommand]):
+            List of instances of `SequenceCommand`.
+            If you need to add commands while `ScanField`, `ScanTemp` and `ScanPower`,
+            you will use the argument `substructure` of those (the details are as follows).
+
+    Example:
+        >>> res = sequence_maker([
+                SetPower(target=0.2),
+                WaitForTemp(extra_wait=1),
+                ScanTemp([300,250,200,150,100,50,2],
+                    substructure=WaitForTemp(extra_wait=5) + Measure()
+                ),
+                SetField(target=0, rate=100, approach_method="Linear", magnet_mode="Persistent"),
+                ScanTemp(2, 10, 2, rate=5,
+                    substructure=ScanField(70000, -70000, 10000, rate=100, approach_method="Linear", magnet_mode="Persistent",
+                        substructure=WaitForField(extra_wait=0.5) + Measure()
+                    ) + ScanField(-70000, 70000, 10000, rate=100, approach_method="Linear", magnet_mode="Persistent", 
+                        substructure=WaitForField(extra_wait=0.5) + Measure()
+                    )
+                ),
+            ])
+        >>> res.to_csv("./a.csv") # csv file save
+        >>> print(res)
+        '''
+        0 SetPower: 0.2 mW
+        1 WaitForTemp: extra wait 1 min
+        2 ScanTemp: from 300 K to 2 K at 5 K/min [7 steps], Fast settle
+        3       WaitForTemp: extra wait 5 min
+        4       Measure
+        5 SetField: 0 Oe, Linear, Persistent
+        6 ScanTemp: from 2 K to 10 K at 5 K/min in 2 K increments [5 steps], Fast settle
+        7       ScanField: from 70000 Oe to -70000 Oe at 100 Oe/s in 10000 Oe increments [15 steps], Linear, Persistent
+        8               WaitForField: extra wait 0.5 min
+        9               Measure
+        10      ScanField: from -70000 Oe to 70000 Oe at 100 Oe/s in 10000 Oe increments [15 steps], Linear, Persistent
+        11              WaitForField: extra wait 0.5 min
+        12              Measure
+        '''
+
+    """
     res: SequenceCommandBase = sum(command_list, start=SequenceCommandBase())
     return res
     
 
 def main():
     res = sequence_maker([
-            WaitForTemp(extra_wait=1),
-            ScanTemp([300,250,200,150,100,50,2],
-                substructure=Measure()
-            ),
-            SetField(target=0, rate=100, approach_method="Linear", magnet_mode="Persistent"),
-            ScanTemp(2, 10, 2, rate=5,
-                substructure=ScanField(70000, -70000, 10000, rate=100, approach_method="Linear", magnet_mode="Persistent", substructure=Measure()
-                ) + ScanField(-70000, 70000, 10000, rate=100, approach_method="Linear", magnet_mode="Persistent", substructure=Measure())
-            ),
-        ])
+                SetPower(target=0.2),
+                WaitForTemp(extra_wait=1),
+                ScanTemp([300,250,200,150,100,50,2],
+                    substructure=WaitForTemp(extra_wait=5) + Measure()
+                ),
+                SetField(target=0, rate=100, approach_method="Linear", magnet_mode="Persistent"),
+                ScanTemp(2, 10, 2, rate=5,
+                    substructure=ScanField(70000, -70000, 10000, rate=100, approach_method="Linear", magnet_mode="Persistent",
+                        substructure=WaitForField(extra_wait=0.5) + Measure()
+                    ) + ScanField(-70000, 70000, 10000, rate=100, approach_method="Linear", magnet_mode="Persistent", 
+                        substructure=WaitForField(extra_wait=0.5) + Measure()
+                    )
+                ),
+            ])
     print(res)
     # res.to_csv("/Users/ut/Desktop/a.csv")
 
