@@ -1,8 +1,8 @@
 """`sequence`: for making sequences to control PPMS.
 """
+import csv
 from typing import Any, Dict, Iterable, List, Tuple, TypeVar, Optional, Union
 
-import csv
 import numpy as np
 
 SequenceCommand = TypeVar("SequenceCommand", bound="SequenceCommandBase")
@@ -124,7 +124,7 @@ class SetField(SequenceCommandBase):
     """Command PPMS to set magnetic field.
 
     Args:
-        target (float): Target field (Oe).
+        target (float): Target magnetic field value (Oe).
         rate (float): Speed of changing magnetic field (Oe/s). Defaults to 100.
         approach_method (str): Approach method of magnetic field to the target. Defaults to "Linear".
             ["Linear", "No overshoot", "Oscillate"] can be used.
@@ -148,14 +148,14 @@ class SetTemp(SequenceCommandBase):
     """Command PPMS to set temperature.
 
     Args:
-        target (float): Target temperature (K).
-        rate (float): Speed of changing temperature (K/min). Defaults to 5. Make sure that 0 <= rate <= 20.
+        target (float): Target temperature value (K).
+        rate (float): Speed of changing temperature (K/min). Defaults to 3. Make sure that 0 <= rate <= 20.
         approach_method (str): Approach method of temperature to the target. Defaults to "Fast settle". 
             ["Fast settle", "No overshoot"] can be used.
     """
     def __init__(self,
             target: float,
-            rate: float = 5,
+            rate: float = 3,
             approach_method: str = "Fast settle",
         ) -> None:
         if not (0 <= rate <= 20):
@@ -170,7 +170,7 @@ class SetPower(SequenceCommandBase):
     """Command K6221 to set heater power.
 
     Args:
-        target: Target power (mW).
+        target: Target power value (mW).
     """
     def __init__(self,
             target: float,
@@ -389,7 +389,7 @@ def sequence_maker(command_list: List[SequenceCommand]) -> SequenceCommandBase:
         command_list (List[SequenceCommand]):
             List of instances of `SequenceCommand`.
             If you need to add commands while `ScanField`, `ScanTemp` and `ScanPower`,
-            you will use the argument `substructure` of those (the details are as follows).
+            you will use the argument `substructure` of those classes (the details are as follows).
 
     Example:
         >>> res = sequence_maker([
@@ -447,7 +447,7 @@ def main():
                 ),
             ])
     print(res)
-    # res.to_csv("/Users/ut/Desktop/a.csv")
+    # res.to_csv("./a.csv")
 
 if __name__ == "__main__":
     main()
