@@ -38,6 +38,14 @@ class SequenceCommandBase:
         to_csv
             Args:
                 filename (str): File name of output csv file.
+        calc_required_time
+            Args:
+                T0 (float): Temperature value before excuting the sequence (K). Defaults to 300.
+                H0 (float): Magnetic field value before excuting the sequence (Oe). Defaults to 0.
+                measuring_time (float): Required time of measuring sequence (min). Defaults to 6.
+            
+            Returns:
+                (float): Required time of the entire sequence (min).
     
     Note:
         Additive operation (operator:`+`) is defined between this class and its child classes.
@@ -70,7 +78,9 @@ class SequenceCommandBase:
         self._formatted_commands: List[str] = []
 
     def __str__(self) -> str:
-        return "\n".join([f"{i} {row}" for i, row in enumerate(self._formatted_commands)])
+        res: str = "\n".join([f"{i} {row}" for i, row in enumerate(self._formatted_commands)])
+        res = res + f"\nRequired time: {self.calc_required_time():.5g} min (assuming initial (T,H) = (300K,0T))"
+        return res
 
     def __add__(self, other: SequenceCommand) -> SequenceCommand:
         res: SequenceCommand = SequenceCommandBase()
@@ -82,6 +92,45 @@ class SequenceCommandBase:
         with open(filename, 'w') as f:
             writer = csv.writer(f)
             writer.writerows(self.commands)
+
+    def calc_required_time(self, T0: float = 300., H0: float = 0., measuring_time: float = 6.) -> float:
+        """Calculate required time of the sequence.
+
+        Args:
+            T0 (float): Temperature value before excuting the sequence (K). Defaults to 300.
+            H0 (float): Magnetic field value before excuting the sequence (Oe). Defaults to 0.
+            measuring_time (float): Required time of measuring sequence (min). Defaults to 6.
+        
+        Returns:
+            (float): Required time of the entire sequence (min).
+        """
+        res: float = 0.
+        num_measure: int = 0
+        curT: float = T0
+        curH: float = H0
+        for com_num, *contents in self.commands:
+            if com_num == self.command_number["Measure"]:
+                num_measure += 1
+            elif com_num == self.command_number["WaitForField"]:
+                extra_wait, = contents
+                res += extra_wait
+            elif com_num == self.command_number["WaitForTemp"]:
+                extra_wait, = contents
+                res += extra_wait
+            elif com_num == self.command_number["SetField"]:
+                target, rate, app_num, mag_num = contents
+                res += abs(target-curH) / abs(rate) / 60 # unit of 'rate' is [Oe/s]
+                curH = target
+            elif com_num == self.command_number["SetTemp"]:
+                target, rate, app_num = contents
+                res += abs(target-curT) / abs(rate) # unit of 'rate' is [K/min]
+                curT = target
+            elif com_num == self.command_number["SetPower"]:
+                res += 0
+            else:
+                raise RuntimeError("Command number is invalid. Make sure it an integer 0-5")
+        res += num_measure * measuring_time
+        return res
 
 class Measure(SequenceCommandBase):
     """Command Labview to enter measuring sequence.
@@ -182,6 +231,9 @@ class SetPower(SequenceCommandBase):
 
 class ScanField(SequenceCommandBase):
     """Command PPMS to scan magnetic field.
+
+    Note:
+        This sequence commands PPMS to wait for the magnetic field to stabilize each time it changes the value of the magnetic field.
     
     Args:
         *args (float, float, float):
@@ -215,7 +267,10 @@ class ScanField(SequenceCommandBase):
             mag_num = self.magnet_mode_number[magnet_mode]
             for v in value_list:
                 self.commands.append(
-                    (com_num, v, rate, app_num, mag_num)
+                    (com_num, v, rate, app_num, mag_num) # set field
+                )
+                self.commands.append(
+                    (self.command_number["WaitForField"], 0) # wait for field stability
                 )
                 if substructure is not None:
                     self.commands.extend(substructure.commands)
@@ -243,7 +298,10 @@ class ScanField(SequenceCommandBase):
             steps: int = int(abs(end-start) / abs(increment)) + 1
             for v in np.linspace(start, end, steps):
                 self.commands.append(
-                    (com_num, v, rate, app_num, mag_num)
+                    (com_num, v, rate, app_num, mag_num) # set field
+                )
+                self.commands.append(
+                    (self.command_number["WaitForField"], 0) # wait for field stability
                 )
                 if substructure is not None:
                     self.commands.extend(substructure.commands)
@@ -258,6 +316,9 @@ class ScanField(SequenceCommandBase):
 
 class ScanTemp(SequenceCommandBase):
     """Command PPMS to scan temperature.
+    
+    Note:
+        This sequence commands PPMS to wait for the temperature to stabilize each time it changes the value of the temperature.
     
     Args:
         *args (float, float, float):
@@ -288,7 +349,10 @@ class ScanTemp(SequenceCommandBase):
             app_num = self.temp_approach_method_number[approach_method]
             for v in value_list:
                 self.commands.append(
-                    (com_num, v, rate, app_num)
+                    (com_num, v, rate, app_num) # set temperature
+                )
+                self.commands.append(
+                    (self.command_number["WaitForTemp"], 0) # wait for temperature stability
                 )
                 if substructure is not None:
                     self.commands.extend(substructure.commands)
@@ -314,7 +378,10 @@ class ScanTemp(SequenceCommandBase):
             steps: int = int(abs(end-start) / abs(increment)) + 1
             for v in np.linspace(start, end, steps):
                 self.commands.append(
-                    (com_num, v, rate, app_num)
+                    (com_num, v, rate, app_num) # set temperature
+                )
+                self.commands.append(
+                    (self.command_number["WaitForTemp"], 0) # wait for temperature stability
                 )
                 if substructure is not None:
                     self.commands.extend(substructure.commands)
@@ -382,10 +449,11 @@ class ScanPower(SequenceCommandBase):
             raise TypeError("arguments are invalid")
         
 
-def sequence_maker(command_list: List[SequenceCommand]) -> SequenceCommandBase:
+def sequence_maker(filename: str, command_list: List[SequenceCommand]) -> SequenceCommandBase:
     """Make a sequence for controlling PPMS.
 
     Args:
+        filename (str): File name.
         command_list (List[SequenceCommand]):
             List of instances of `SequenceCommand`.
             If you need to add commands while `ScanField`, `ScanTemp` and `ScanPower`,
@@ -427,6 +495,7 @@ def sequence_maker(command_list: List[SequenceCommand]) -> SequenceCommandBase:
 
     """
     res: SequenceCommandBase = sum(command_list, start=SequenceCommandBase())
+    res.to_csv(filename)
     return res
     
 
@@ -448,6 +517,7 @@ def main():
             ])
     print(res)
     # res.to_csv("./a.csv")
+    print(res.calc_required_time())
 
 if __name__ == "__main__":
     main()
