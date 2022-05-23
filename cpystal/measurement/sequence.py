@@ -79,7 +79,7 @@ class SequenceCommandBase:
 
     def __str__(self) -> str:
         res: str = "\n".join([f"{i} {row}" for i, row in enumerate(self._formatted_commands)])
-        res = res + f"\nRequired time: {self.calc_required_time():.5g} min (assuming initial (T,H) = (300K,0T))"
+        res = res + f"\nRequired time: {self.calc_required_time():.5g} min (assuming initial (T,H) = (300K,0T) and necessary time for one measure = 6 min)"
         return res
 
     def __add__(self, other: SequenceCommand) -> SequenceCommand:
@@ -198,13 +198,13 @@ class SetTemp(SequenceCommandBase):
 
     Args:
         target (float): Target temperature value (K).
-        rate (float): Speed of changing temperature (K/min). Defaults to 3. Make sure that 0 <= rate <= 20.
+        rate (float): Speed of changing temperature (K/min). Defaults to 5. Make sure that 0 <= rate <= 20.
         approach_method (str): Approach method of temperature to the target. Defaults to "Fast settle". 
             ["Fast settle", "No overshoot"] can be used.
     """
     def __init__(self,
             target: float,
-            rate: float = 3,
+            rate: float = 5,
             approach_method: str = "Fast settle",
         ) -> None:
         if not (0 <= rate <= 20):
@@ -251,7 +251,9 @@ class ScanField(SequenceCommandBase):
         substructure (Optional[SequenceCommand]): Commands to be executed while scanning for magnetic field. Defaults to None.
     """
     def __init__(self,
-            *args: Any,
+            start: float,
+            end: float,
+            increment: float,
             rate: float = 100,
             approach_method: str = "Linear",
             magnet_mode: str = "Persistent",
@@ -259,61 +261,67 @@ class ScanField(SequenceCommandBase):
         ) -> None:
         super().__init__()
         com_num: int = self.command_number["SetField"]
-        app_num: int
-        mag_num: int
-        if len(args) == 1 and hasattr(args[0], "__iter__"):
-            value_list: Iterable[float] = args[0]
-            app_num = self.field_approach_method_number[approach_method]
-            mag_num = self.magnet_mode_number[magnet_mode]
-            for v in value_list:
-                self.commands.append(
-                    (com_num, v, rate, app_num, mag_num) # set field
-                )
-                self.commands.append(
+        app_num: int = self.field_approach_method_number[approach_method]
+        mag_num: int = self.magnet_mode_number[magnet_mode]
+        steps: int = int(abs(end-start) / abs(increment)) + 1
+        for v in np.linspace(start, end, steps):
+            self.commands.extend(
+                [
+                    (com_num, v, rate, app_num, mag_num), # set field
                     (self.command_number["WaitForField"], 0) # wait for field stability
-                )
-                if substructure is not None:
-                    self.commands.extend(substructure.commands)
-            self._formatted_commands = [
-                    f"ScanField: from {value_list[0]:.6g} Oe to {value_list[-1]:.6g} Oe at {rate:.6g} Oe/s [{len(value_list)} steps], {approach_method}, {magnet_mode}"
                 ]
+            )
             if substructure is not None:
-                self._formatted_commands = self._formatted_commands + ["\t" + s for s in substructure._formatted_commands]
-        elif 3 <= len(args) <= 7:
-            start: float
-            end: float
-            increment: float
-            if len(args) == 3:
-                start, end, increment = args
-            elif len(args) == 4:
-                start, end, increment, rate = args
-            elif len(args) == 5:
-                start, end, increment, rate, approach_method = args
-            elif len(args) == 6:
-                start, end, increment, rate, approach_method, magnet_mode = args
-            else:
-                start, end, increment, rate, approach_method, magnet_mode, substructure = args
-            app_num = self.field_approach_method_number[approach_method]
-            mag_num = self.magnet_mode_number[magnet_mode]
-            steps: int = int(abs(end-start) / abs(increment)) + 1
-            for v in np.linspace(start, end, steps):
-                self.commands.append(
-                    (com_num, v, rate, app_num, mag_num) # set field
-                )
-                self.commands.append(
+                self.commands.extend(substructure.commands)
+        self._formatted_commands = [
+                f"ScanField: from {start:.6g} Oe to {end:.6g} Oe at {rate:.6g} Oe/s in {increment:.6g} Oe increments [{steps} steps], {approach_method}, {magnet_mode}"
+            ]
+        if substructure is not None:
+            self._formatted_commands = self._formatted_commands + ["\t" + s for s in substructure._formatted_commands]
+
+    @classmethod
+    def from_field_list(cls,
+            value_list: Iterable[float],
+            rate: float = 100,
+            approach_method: str = "Linear",
+            magnet_mode: str = "Persistent",
+            substructure: Optional[SequenceCommand] = None
+        ) -> None:
+        """
+        Args:
+            value_list (Iterable[float]): List of magnetic field (Oe).
+            rate (float): Speed of changing magnetic field (Oe/s). Defaults to 100.
+            approach_method (str): Approach method of magnetic field to the target. Defaults to "Linear".
+                ["Linear", "No overshoot", "Oscillate"] can be used.
+            magnet_mode (str): Mode of magnet in PPMS. Defaults to "Persistent".
+                ["Persistent", "Driven"] can be used.
+            substructure (Optional[SequenceCommand]): Commands to be executed while scanning for magnetic field. Defaults to None.
+        
+        Returns:
+            (ScanField): Instance of 'ScanField'.
+        """
+        self = cls(0, 0, 1)
+        self.commands = []
+        self._formatted_commands = []
+        com_num: int = self.command_number["SetField"]
+        app_num: int = self.field_approach_method_number[approach_method]
+        mag_num: int = self.magnet_mode_number[magnet_mode]
+        for v in value_list:
+            self.commands.extend(
+                [
+                    (com_num, v, rate, app_num, mag_num), # set field
                     (self.command_number["WaitForField"], 0) # wait for field stability
-                )
-                if substructure is not None:
-                    self.commands.extend(substructure.commands)
-            self._formatted_commands = [
-                    f"ScanField: from {start:.6g} Oe to {end:.6g} Oe at {rate:.6g} Oe/s in {increment:.6g} Oe increments [{steps} steps], {approach_method}, {magnet_mode}"
                 ]
+            )
             if substructure is not None:
-                self._formatted_commands = self._formatted_commands + ["\t" + s for s in substructure._formatted_commands]
-
-        else:
-            raise TypeError("arguments are invalid")
-
+                self.commands.extend(substructure.commands)
+        self._formatted_commands = [
+                f"ScanField: from {value_list[0]:.6g} Oe to {value_list[-1]:.6g} Oe at {rate:.6g} Oe/s [{len(value_list)} steps], {approach_method}, {magnet_mode}"
+            ]
+        if substructure is not None:
+            self._formatted_commands = self._formatted_commands + ["\t" + s for s in substructure._formatted_commands]
+        return self
+    
 class ScanTemp(SequenceCommandBase):
     """Command PPMS to scan temperature.
     
@@ -321,20 +329,18 @@ class ScanTemp(SequenceCommandBase):
         This sequence commands PPMS to wait for the temperature to stabilize each time it changes the value of the temperature.
     
     Args:
-        *args (float, float, float):
-            start (float): Initial temperature value (K).
-            end (float): Final temperature value (K).
-            increment (float): Increment temperature value by a step (K).
-        *args (Iterable[float]):
-            value_list (Iterable[float]): List of temperature (K).
-
+        start (float): Initial temperature value (K).
+        end (float): Final temperature value (K).
+        increment (float): Increment temperature value by a step (K).
         rate (float): Speed of changing temperature (K/min). Defaults to 5. Make sure that 0 <= rate <= 20.
         approach_method (str): Approach method of temperature to the target. Defaults to "Fast settle".
             ["Fast settle", "No overshoot"] can be used.
         substructure (Optional[SequenceCommand]): Commands to be executed while scanning for temperature. Defaults to None.
     """
     def __init__(self,
-            *args: Any,
+            start: float,
+            end: float,
+            increment: float,
             rate: float = 5,
             approach_method: str = "Fast settle",
             substructure: Optional[SequenceCommand] = None
@@ -343,111 +349,123 @@ class ScanTemp(SequenceCommandBase):
             raise ValueError("'rate' must be in [0, 20]")
         super().__init__()
         com_num: int = self.command_number["SetTemp"]
-        app_num: int
-        if len(args) == 1 and hasattr(args[0], "__iter__"):
-            value_list: Iterable[float] = args[0]
-            app_num = self.temp_approach_method_number[approach_method]
-            for v in value_list:
-                self.commands.append(
-                    (com_num, v, rate, app_num) # set temperature
-                )
-                self.commands.append(
+        app_num: int = self.temp_approach_method_number[approach_method]
+        steps: int = int(abs(end-start) / abs(increment)) + 1
+        for v in np.linspace(start, end, steps):
+            self.commands.extend(
+                [
+                    (com_num, v, rate, app_num), # set temperature
                     (self.command_number["WaitForTemp"], 0) # wait for temperature stability
-                )
-                if substructure is not None:
-                    self.commands.extend(substructure.commands)
-            self._formatted_commands = [
-                    f"ScanTemp: from {value_list[0]:.6g} K to {value_list[-1]:.6g} K at {rate:.6g} K/min [{len(value_list)} steps], {approach_method}"
                 ]
+            )
             if substructure is not None:
-                self._formatted_commands = self._formatted_commands + ["\t" + s for s in substructure._formatted_commands]
-        elif 3 <= len(args) <= 6:
-            start: float
-            end: float
-            increment: float
-            if len(args) == 3:
-                start, end, increment = args
-            elif len(args) == 4:
-                start, end, increment, rate = args
-            elif len(args) == 5:
-                start, end, increment, rate, approach_method = args
-            else:
-                start, end, increment, rate, approach_method, substructure = args
-            app_num = self.temp_approach_method_number[approach_method]
-            
-            steps: int = int(abs(end-start) / abs(increment)) + 1
-            for v in np.linspace(start, end, steps):
-                self.commands.append(
-                    (com_num, v, rate, app_num) # set temperature
-                )
-                self.commands.append(
+                self.commands.extend(substructure.commands)
+        self._formatted_commands = [
+                f"ScanTemp: from {start:.6g} K to {end:.6g} K at {rate:.6g} K/min in {increment:.6g} K increments [{steps} steps], {approach_method}"
+            ]
+        if substructure is not None:
+            self._formatted_commands = self._formatted_commands + ["\t" + s for s in substructure._formatted_commands]
+
+    @classmethod
+    def from_temp_list(cls,
+            value_list: Iterable[float],
+            rate: float = 5,
+            approach_method: str = "Fast settle",
+            substructure: Optional[SequenceCommand] = None
+        ) -> None:
+        """
+        Args:
+            value_list (Iterable[float]): List of temperature (K).
+            rate (float): Speed of changing temperature (K/min). Defaults to 5. Make sure that 0 <= rate <= 20.
+            approach_method (str): Approach method of temperature to the target. Defaults to "Fast settle".
+                ["Fast settle", "No overshoot"] can be used.
+            substructure (Optional[SequenceCommand]): Commands to be executed while scanning for temperature. Defaults to None.
+        
+        Returns:
+            (ScanTemp): Instance of 'ScanTemp'.
+        """
+        if not (0 <= rate <= 20):
+            raise ValueError("'rate' must be in [0, 20]")
+        self = cls(0, 0, 1)
+        self.commands = []
+        self._formatted_commands = []
+        com_num: int = self.command_number["SetTemp"]
+        app_num: int = self.temp_approach_method_number[approach_method]
+        for v in value_list:
+            self.commands.extend(
+                [
+                    (com_num, v, rate, app_num), # set temperature
                     (self.command_number["WaitForTemp"], 0) # wait for temperature stability
-                )
-                if substructure is not None:
-                    self.commands.extend(substructure.commands)
-            self._formatted_commands = [
-                    f"ScanTemp: from {start:.6g} K to {end:.6g} K at {rate:.6g} K/min in {increment:.6g} K increments [{steps} steps], {approach_method}"
                 ]
+            )
             if substructure is not None:
-                self._formatted_commands = self._formatted_commands + ["\t" + s for s in substructure._formatted_commands]
-        else:
-            raise TypeError("arguments are invalid")
+                self.commands.extend(substructure.commands)
+        self._formatted_commands = [
+                f"ScanTemp: from {value_list[0]:.6g} K to {value_list[-1]:.6g} K at {rate:.6g} K/min [{len(value_list)} steps], {approach_method}"
+            ]
+        if substructure is not None:
+            self._formatted_commands = self._formatted_commands + ["\t" + s for s in substructure._formatted_commands]
+        return self
 
 class ScanPower(SequenceCommandBase):
     """Command K6221 to scan power.
     
     Args:
-        *args (float, float, float):
-            start (float): Initial power value (mW).
-            end (float): Final power value (mW).
-            increment (float): Increment power value by a step (mW).
-        *args (Iterable[float]):
-            value_list (Iterable[float]): List of power (mW).
-
+        start (float): Initial power value (mW).
+        end (float): Final power value (mW).
+        increment (float): Increment power value by a step (mW).
         substructure (Optional[SequenceCommand]): Commands to be executed while scanning for power. Defaults to None.
     """
     def __init__(self,
-            *args:Any,
+            start: float,
+            end: float,
+            increment: float,
             substructure: Optional[SequenceCommand] = None
         ) -> None:
         super().__init__()
         com_num: int = self.command_number["SetPower"]
-        if len(args) == 1 and hasattr(args[0], "__iter__"):
-            value_list: Iterable[float] = args[0]
-            for v in value_list:
-                self.commands.append(
+        steps: int = int(abs(end-start) / abs(increment)) + 1
+        for v in np.linspace(start, end, steps):
+            self.commands.append(
+                (com_num, v)
+            )
+            if substructure is not None:
+                self.commands.extend(substructure.commands)
+        self._formatted_commands = [
+                f"ScanPower: from {start:.6g} mW to {end:.6g} mW in {increment:.6g} K increments [{steps} steps]"
+            ]
+        if substructure is not None:
+            self._formatted_commands = self._formatted_commands + ["\t" + s for s in substructure._formatted_commands]
+
+    @classmethod
+    def from_power_list(cls,
+            value_list: Iterable[float],
+            substructure: Optional[SequenceCommand] = None
+        ) -> None:
+        """
+        Args:
+            value_list (Iterable[float]): List of power (mW).
+            substructure (Optional[SequenceCommand]): Commands to be executed while scanning for power. Defaults to None.
+        
+        Returns:
+            (ScanPower): Instance of 'ScanPower'.
+        """
+        self = cls(0, 0, 1)
+        self.commands = []
+        self._formatted_commands = []
+        com_num: int = self.command_number["SetPower"]
+        for v in value_list:
+            self.commands.append(
                     (com_num, v)
                 )
-                if substructure is not None:
-                    self.commands.extend(substructure.commands)
-            self._formatted_commands = [
+            if substructure is not None:
+                self.commands.extend(substructure.commands)
+        self._formatted_commands = [
                     f"ScanPower: from {value_list[0]:.6g} mW to {value_list[-1]:.6g} mW [{len(value_list)} steps]"
                 ]
-            if substructure is not None:
-                self._formatted_commands = self._formatted_commands + ["\t" + s for s in substructure._formatted_commands]
-        elif 3 <= len(args) <= 4:
-            start: float
-            end: float
-            increment: float
-            if len(args) == 3:
-                start, end, increment = args
-            else:
-                start, end, increment, substructure = args
-            steps: int = int(abs(end-start) / abs(increment)) + 1
-            for v in np.linspace(start, end, steps):
-                self.commands.append(
-                    (com_num, v)
-                )
-                if substructure is not None:
-                    self.commands.extend(substructure.commands)
-            self._formatted_commands = [
-                    f"ScanPower: from {start:.6g} mW to {end:.6g} mW in {increment:.6g} K increments [{steps} steps]"
-                ]
-            if substructure is not None:
-                self._formatted_commands = self._formatted_commands + ["\t" + s for s in substructure._formatted_commands]
-        else:
-            raise TypeError("arguments are invalid")
-        
+        if substructure is not None:
+            self._formatted_commands = self._formatted_commands + ["\t" + s for s in substructure._formatted_commands]
+        return self
 
 def sequence_maker(filename: str, command_list: List[SequenceCommand]) -> SequenceCommandBase:
     """Make a sequence for controlling PPMS.
@@ -456,43 +474,58 @@ def sequence_maker(filename: str, command_list: List[SequenceCommand]) -> Sequen
         filename (str): File name.
         command_list (List[SequenceCommand]):
             List of instances of `SequenceCommand`.
-            If you need to add commands while `ScanField`, `ScanTemp` and `ScanPower`,
+            If you want to add some commands while `ScanField`, `ScanTemp` and `ScanPower`,
             you will use the argument `substructure` of those classes (the details are as follows).
 
     Example:
-        >>> res = sequence_maker([
-                SetPower(target=0.2),
+        >>> res = sequence_maker(filename="./a.csv", command_list=
+            [
+                SetPower(target=0.1),
                 WaitForTemp(extra_wait=1),
-                ScanTemp([300,250,200,150,100,50,2],
+                ScanTemp.from_temp_list([300,250,200,150,100,50,2],
                     substructure=WaitForTemp(extra_wait=5) + Measure()
                 ),
                 SetField(target=0, rate=100, approach_method="Linear", magnet_mode="Persistent"),
-                ScanTemp(2, 10, 2, rate=5,
-                    substructure=ScanField(70000, -70000, 10000, rate=100, approach_method="Linear", magnet_mode="Persistent",
+                ScanTemp(start=2, end=10, increment=2, rate=5,
+                    substructure=ScanField(90000, -90000, 10000, rate=100, approach_method="Linear", magnet_mode="Persistent",
                         substructure=WaitForField(extra_wait=0.5) + Measure()
-                    ) + ScanField(-70000, 70000, 10000, rate=100, approach_method="Linear", magnet_mode="Persistent", 
+                    ) + ScanField(-90000, 90000, 10000, rate=100, approach_method="Linear", magnet_mode="Persistent", 
                         substructure=WaitForField(extra_wait=0.5) + Measure()
                     )
                 ),
-            ])
-        >>> res.to_csv("./a.csv") # csv file save
+                ScanField.from_field_list([0, 1000, 2000, 3000, 5000, 10000, 90000],
+                    substructure=WaitForField(extra_wait=0.5) + Measure()
+                ),
+                SetField(0),
+                SetTemp(300)
+            ]
+        )
+
         >>> print(res)
         '''
-        0 SetPower: 0.2 mW
+        0 SetPower: 0.1 mW
         1 WaitForTemp: extra wait 1 min
         2 ScanTemp: from 300 K to 2 K at 5 K/min [7 steps], Fast settle
         3       WaitForTemp: extra wait 5 min
         4       Measure
         5 SetField: 0 Oe, Linear, Persistent
         6 ScanTemp: from 2 K to 10 K at 5 K/min in 2 K increments [5 steps], Fast settle
-        7       ScanField: from 70000 Oe to -70000 Oe at 100 Oe/s in 10000 Oe increments [15 steps], Linear, Persistent
+        7       ScanField: from 90000 Oe to -90000 Oe at 100 Oe/s in 10000 Oe increments [19 steps], Linear, Persistent
         8               WaitForField: extra wait 0.5 min
         9               Measure
-        10      ScanField: from -70000 Oe to 70000 Oe at 100 Oe/s in 10000 Oe increments [15 steps], Linear, Persistent
+        10      ScanField: from -90000 Oe to 90000 Oe at 100 Oe/s in 10000 Oe increments [19 steps], Linear, Persistent
         11              WaitForField: extra wait 0.5 min
         12              Measure
+        13 ScanField: from 0 Oe to 90000 Oe at 100 Oe/s [7 steps], Linear, Persistent
+        14      WaitForField: extra wait 0.5 min
+        15      Measure
+        16 SetField: 0 Oe, Linear, Persistent
+        17 SetTemp: 300 K, Fast settle
+        Required time: 1837.7 min (assuming initial (T,H) = (300K,0T) and necessary time for one measure = 6 min)
         '''
 
+        >>> print(res.calc_required_time(T0=300, H0=0, measuring_time=10)) # necessary time for one measure = 10 min
+        2653.7
     """
     res: SequenceCommandBase = sum(command_list, start=SequenceCommandBase())
     res.to_csv(filename)
@@ -500,24 +533,45 @@ def sequence_maker(filename: str, command_list: List[SequenceCommand]) -> Sequen
     
 
 def main():
-    res = sequence_maker([
-                SetPower(target=0.2),
-                WaitForTemp(extra_wait=1),
-                ScanTemp([300,250,200,150,100,50,2],
-                    substructure=WaitForTemp(extra_wait=5) + Measure()
-                ),
-                SetField(target=0, rate=100, approach_method="Linear", magnet_mode="Persistent"),
-                ScanTemp(2, 10, 2, rate=5,
-                    substructure=ScanField(70000, -70000, 10000, rate=100, approach_method="Linear", magnet_mode="Persistent",
-                        substructure=WaitForField(extra_wait=0.5) + Measure()
-                    ) + ScanField(-70000, 70000, 10000, rate=100, approach_method="Linear", magnet_mode="Persistent", 
-                        substructure=WaitForField(extra_wait=0.5) + Measure()
-                    )
-                ),
-            ])
+    res = sequence_maker(filename="./a.csv", command_list=
+        [
+            SetPower(target=0.1),
+            WaitForTemp(extra_wait=1),
+            ScanTemp.from_temp_list([300,250,200,150,100,50,2],
+                substructure=WaitForTemp(extra_wait=5) + Measure()
+            ),
+            SetField(target=0, rate=100, approach_method="Linear", magnet_mode="Persistent"),
+            ScanTemp(start=2, end=10, increment=2, rate=5,
+                substructure=ScanField(90000, -90000, 10000, rate=100, approach_method="Linear", magnet_mode="Persistent",
+                    substructure=WaitForField(extra_wait=0.5) + Measure()
+                ) + ScanField(-90000, 90000, 10000, rate=100, approach_method="Linear", magnet_mode="Persistent", 
+                    substructure=WaitForField(extra_wait=0.5) + Measure()
+                )
+            ),
+            ScanField.from_field_list([0, 1000, 2000, 3000, 5000, 10000, 90000],
+                substructure=WaitForField(extra_wait=0.5) + Measure()
+            ),
+            SetField(0),
+            SetTemp(300)
+        ]
+    )
     print(res)
-    # res.to_csv("./a.csv")
-    print(res.calc_required_time())
+    print(res.calc_required_time(T0=300, H0=0, measuring_time=10))
+
+    # res = sequence_maker("./a.csv", [
+    #             ScanField.from_field_list([0, 1000, 40000, 90000], rate=100,
+    #                 substructure=WaitForField(extra_wait=0.5) + Measure()
+    #                 )
+    #         ])
+    # print(res)
+
+    # res = sequence_maker("./a.csv", [
+    #             ScanTemp.from_temp_list([300, 150, 100], rate=5,
+    #                 substructure=WaitForTemp(extra_wait=0.5) + Measure()
+    #                 )
+    #         ])
+    # print(res)
+
 
 if __name__ == "__main__":
     main()
