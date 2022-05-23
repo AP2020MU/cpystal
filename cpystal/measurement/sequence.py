@@ -35,6 +35,9 @@ class SequenceCommandBase:
                 "No overshoot": 1`
     
     Methods:
+        reset
+            Note:
+                reset 'commands' of the instance.
         to_csv
             Args:
                 filename (str): File name of output csv file.
@@ -54,6 +57,9 @@ class SequenceCommandBase:
     """
     def __init__(self) -> None:
         self.commands: List[Tuple[Any]] = []
+        self._formatted_commands: List[str] = []
+
+        # basically these are constant:
         self.command_number: Dict[str, int] = {
             "Measure": 0,
             "WaitForField": 1,
@@ -75,7 +81,7 @@ class SequenceCommandBase:
             "Fast settle": 0,
             "No overshoot": 1,
         }
-        self._formatted_commands: List[str] = []
+        
 
     def __str__(self) -> str:
         res: str = "\n".join([f"{i} {row}" for i, row in enumerate(self._formatted_commands)])
@@ -87,6 +93,11 @@ class SequenceCommandBase:
         res.commands = self.commands + other.commands
         res._formatted_commands = self._formatted_commands + other._formatted_commands
         return res
+
+    def reset(self) -> None:
+        self.commands = []
+        self._formatted_commands = []
+
     
     def to_csv(self, filename: str) -> None:
         with open(filename, 'w') as f:
@@ -236,13 +247,9 @@ class ScanField(SequenceCommandBase):
         This sequence commands PPMS to wait for the magnetic field to stabilize each time it changes the value of the magnetic field.
     
     Args:
-        *args (float, float, float):
-            start (float): Initial magnetic field value (Oe).
-            end (float): Final magnetic field value (Oe).
-            increment (float): Increment magnetic field value by a step (Oe).
-        *args (Iterable[float]):
-            value_list (Iterable[float]): List of magnetic field (Oe).
-        
+        start (float): Initial magnetic field value (Oe).
+        end (float): Final magnetic field value (Oe).
+        increment (float): Increment magnetic field value by a step (Oe).
         rate (float): Speed of changing magnetic field (Oe/s). Defaults to 100.
         approach_method (str): Approach method of magnetic field to the target. Defaults to "Linear".
             ["Linear", "No overshoot", "Oscillate"] can be used.
@@ -301,8 +308,7 @@ class ScanField(SequenceCommandBase):
             (ScanField): Instance of 'ScanField'.
         """
         self = cls(0, 0, 1)
-        self.commands = []
-        self._formatted_commands = []
+        self.reset()
         com_num: int = self.command_number["SetField"]
         app_num: int = self.field_approach_method_number[approach_method]
         mag_num: int = self.magnet_mode_number[magnet_mode]
@@ -387,8 +393,7 @@ class ScanTemp(SequenceCommandBase):
         if not (0 <= rate <= 20):
             raise ValueError("'rate' must be in [0, 20]")
         self = cls(0, 0, 1)
-        self.commands = []
-        self._formatted_commands = []
+        self.reset()
         com_num: int = self.command_number["SetTemp"]
         app_num: int = self.temp_approach_method_number[approach_method]
         for v in value_list:
@@ -451,8 +456,7 @@ class ScanPower(SequenceCommandBase):
             (ScanPower): Instance of 'ScanPower'.
         """
         self = cls(0, 0, 1)
-        self.commands = []
-        self._formatted_commands = []
+        self.reset()
         com_num: int = self.command_number["SetPower"]
         for v in value_list:
             self.commands.append(
