@@ -100,7 +100,7 @@ class SequenceCommandBase:
 
     
     def to_csv(self, filename: str) -> None:
-        with open(filename, 'w') as f:
+        with open(filename, 'w', newline='') as f:
             writer = csv.writer(f)
             writer.writerows(self.commands)
 
