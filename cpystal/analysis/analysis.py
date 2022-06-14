@@ -70,10 +70,10 @@ def compare_powder_Xray_experiment_with_calculation(experimental_data_filename: 
 
     intensity: List[float] = [d[1] for d in data]
     
-    neg: List[float] = [i for i in intensity if i<=0]
+    neg: List[float] = [i for i in intensity if i<0]
     assert len(neg)==0 # 負のintensityをもつ壊れたデータがないことを確認
     
-    neighbor_num: int = 20 # peak(極大値の中でも急激に増加するもの)判定で参照する近傍のデータ点数
+    neighbor_num: int = 50 # peak(極大値の中でも急激に増加するもの)判定で参照する近傍のデータ点数
     magnification: int = 4 # 周囲neighbor_num個の強度の最小値に比べて何倍大きければpeakと見なすかの閾値
     half: int = neighbor_num//2 # 中間点
     que: Deque[float] = deque([])
@@ -250,10 +250,10 @@ def compare_powder_Xray_experiment_with_calculation_of_some_materials(experiment
 
     intensity: List[float] = [d[1] for d in data]
     
-    neg: List[float] = [i for i in intensity if i<=0]
+    neg: List[float] = [i for i in intensity if i<0]
     assert len(neg)==0 # 負のintensityをもつ壊れたデータがないことを確認
     
-    neighbor_num: int = 20 # peak(極大値の中でも急激に増加するもの)判定で参照する近傍のデータ点数
+    neighbor_num: int = 50 # peak(極大値の中でも急激に増加するもの)判定で参照する近傍のデータ点数
     magnification: int = 4 # 周囲neighbor_num個の強度の最小値に比べて何倍大きければpeakと見なすかの閾値
     half: int = neighbor_num//2 # 中間点
     que: Deque[float] = deque([])
@@ -435,7 +435,7 @@ def _compare_powder_Xray_experiment_with_calculation(experimental_data_filename:
     two_theta: List[float] = [d[0] for d in data] # データは2θ
     intensity: List[float] = [d[1] for d in data]
     normalized_intensity: List[float] = [d[1]/max(intensity)*100 for d in data]
-    neg: List[float] = [i for i in intensity if i<=0]
+    neg: List[float] = [i for i in intensity if i<0]
     assert len(neg)==0 # 負のintensityをもつ壊れたデータがないことを確認
     
     neighbor_num: int = 20 # peak(極大値の中でも急激に増加するもの)判定で参照する近傍のデータ点数
