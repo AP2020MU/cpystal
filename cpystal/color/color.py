@@ -1,9 +1,11 @@
 """`color`: for dealing with color space.
 """
 from __future__ import annotations
-from turtle import color
 
 from typing import Any, Dict, List, Optional, Tuple, Union
+
+import matplotlib.pyplot as plt
+import numpy as np
 
 Color_type = Union[Tuple[int,int,int], Tuple[float,float,float]]
 class Color:
@@ -56,8 +58,8 @@ class Color:
                 color_system: str,
                 white_point: str = "D65",
                 ) -> None:
-        self.color: Color_type = color
-        self.color_system: str = color_system
+        self.__color: Color_type = color
+        self.__color_system: str = color_system
         self.__white_point: str = white_point
         self.__value_range: Dict[str, List[Tuple[int, int], Tuple[int, int], Tuple[int, int]]] = {
             "RGB": [(0.0, 1.0), (0.0, 1.0), (0.0, 1.0)],
@@ -65,70 +67,30 @@ class Color:
             "HLS": [(0.0, 1.0), (0.0, 1.0), (0.0, 1.0)],
             "sRGB": [(0.0, 1.0), (0.0, 1.0), (0.0, 1.0)],
             "Adobe RGB": [(0.0, 1.0), (0.0, 1.0), (0.0, 1.0)],
-            #"YIQ": [(0.0, 1.0), (-0.5959, 0.5959), (-0.5229, 0.5229)],
-            #"L*a*b*": [(0, 100), (-128, 127), (-128, 127)],
+            "YIQ": [(0.0, 1.0), (-0.5959, 0.5959), (-0.5229, 0.5229)],
+            "L*a*b*": [(0, 100), (-128, 127), (-128, 127)],
         }
 
-    
-    def set_max_value(self, color_sys: str, attr_name: str, max_value: Union[int, float]) -> None:
-        """Set max value of an attribute of a color system.
-
-        Note:
-            The default max values are the following:
-                "RGB": [R=1.0, G=1.0, G=1.0],
-                "HSV": [H=1.0, S=1.0, V=1.0],
-                "HLS": [H=1.0, L=1.0, S=1.0],
-                "sRGB": [R=1.0, G=1.0, G=1.0],
-                "Adobe RGB": [R=1.0, G=1.0, G=1.0],
-
-        Args:
-            color_sys (str): Name of color system.
-            attr_name (str): Attribute name of the color system.
-            max_value (Union[int, float]): Max value of the attribute.
-        """
-        if not color_sys in self.__value_range:
-            return
-        idx: int
-        if "RGB" in color_sys:
-            idx = "RGB".index(attr_name)
-            self.__value_range[color_sys][idx] = (0.0, max_value)
-        else:
-            idx = color_sys.index(attr_name)
-            self.__value_range[color_sys][idx] = (0.0, max_value)
-        return
-
-    @property
-    def white_point(self) -> str:
-        return self.__white_point
-    
-    @white_point.setter
-    def white_point(self, value: str) -> None:
-        """あとで実装する．これを実装するには，各white point間での colorの変換メソッドを実装する必要がある
-        途中でwhite pointを変更されるとself.colorが指す色が変わってしまうので管理する．
-        """
-        if self.__white_point != value:
-            if self.color_system == "XYZ":
-                pass
-            if self.color_system == "L*a*b*":
-                pass
-    
     def __str__(self) -> str:
         return f"{self.color_system}{self.color}"
+    
+    def __repr__(self) -> str:
+        return str(self)
 
     def __neg__(self) -> Color:
         new_color: Color = self.__deepcopy__()
         if new_color.color_system == "RGB":
             r,g,b = new_color.color
             m: int = max(r,g,b) + min(r,g,b)
-            new_color.color = (m-r, m-g, m-b)
+            new_color.__color = (m-r, m-g, m-b)
             return new_color
         elif new_color.color_system == "HSV":
             h,s,v = new_color.color
-            new_color.color = ((h+0.5) % 1.0, s, v)
+            new_color.__color = ((h+0.5) % 1.0, s, v)
             return new_color
         elif new_color.color_system == "HLS":
             h,l,s = new_color.color
-            new_color.color = ((h+0.5) % 1.0, l, s)
+            new_color.__color = ((h+0.5) % 1.0, l, s)
             return new_color
         elif new_color.color_system == "YIQ":
             new_color = (-new_color.to_rgb()).rgb_to_yiq()
@@ -151,22 +113,90 @@ class Color:
     def __iter__(self) -> float:
         yield from self.color
     
+    def __getitem__(self, key: Any) -> float:
+        return self.color[key]
+    
     def __deepcopy__(self) -> Color:
         return self.__class__(
             color=self.color,
             color_system=self.color_system,
         )
+    
+    def __check_color_value(self) -> None:
+        res: List = list(self.color)
+        for i, c in enumerate(self.color):
+            minc, maxc = self.__value_range[self.color_system][i]
+            if c < minc:
+                res[i] = minc
+            if c > maxc:
+                res[i] = maxc
+        self.__color = tuple(res)
 
+    def __hls_calc(self, m1: float, m2: float, hue: float) -> float:
+        hue = hue % 1.0
+        if hue < 1.0/6.0:
+            return m1 + (m2-m1)*hue*6.0
+        if hue < 0.5:
+            return m2
+        if hue < 2.0/3.0:
+            return m1 + (m2-m1)*(2.0/3.0-hue)*6.0
+        return m1
+
+    @property
+    def color(self) -> Color_type:
+        return self.__color
+
+    @property
+    def color_system(self) -> Color_type:
+        return self.__color_system
+
+    @property
+    def white_point(self) -> str:
+        return self.__white_point
+    
+    @white_point.setter
+    def white_point(self, value: str) -> None:
+        """あとで実装する．これを実装するには，各white point間での colorの変換メソッドを実装する必要がある
+        途中でwhite pointを変更されるとself.colorが指す色が変わってしまうので管理する．
+        """
+        raise NotImplementedError("future works")
+        if self.__white_point != value:
+            if self.color_system == "XYZ":
+                pass
+            if self.color_system == "L*a*b*":
+                pass
+    
     def deepcopy(self) -> Color:
         return self.__deepcopy__()
-    
-    def set_color(self, color: Color_type) -> None:
-        self.color = color
 
-    def set_color_system(self, color_system: str) -> None:
-        self.color_system = color_system
-    
-    def get_properties(self) -> Tuple[str, bool, int, int]:
+    def set_max_value(self, color_sys: str, attr_name: str, max_value: Union[int, float]) -> None:
+        """Set max value of an attribute of a color system.
+
+        Note:
+            The default max values are the following:
+                "RGB": [R=1.0, G=1.0, G=1.0],
+                "HSV": [H=1.0, S=1.0, V=1.0],
+                "HLS": [H=1.0, L=1.0, S=1.0],
+                "sRGB": [R=1.0, G=1.0, G=1.0],
+                "Adobe RGB": [R=1.0, G=1.0, G=1.0],
+
+        Args:
+            color_sys (str): Name of color system.
+            attr_name (str): Attribute name of the color system (e.g. "G" (color system: RGB)). 
+            max_value (Union[int, float]): Max value of the attribute.
+        """
+        if not color_sys in self.__value_range:
+            return
+        idx: int
+        if "RGB" in color_sys:
+            idx = "RGB".index(attr_name)
+            self.__value_range[color_sys][idx] = (0.0, max_value)
+        else:
+            idx = color_sys.index(attr_name)
+            self.__value_range[color_sys][idx] = (0.0, max_value)
+        return
+
+    def get_properties(self) -> Tuple[str]:
         return (self.color_system, )
 
     def rgb_to_hsv(self) -> Color:
@@ -212,6 +242,7 @@ class Color:
             color=color,
             color_system="HSV",
         )
+        new_color.__check_color_value()
         return new_color
 
     def hsv_to_rgb(self) -> Color:
@@ -260,6 +291,7 @@ class Color:
             color=color,
             color_system="RGB",
         )
+        new_color.__check_color_value()
         return new_color
         
     def rgb_to_hls(self) -> Color:
@@ -309,6 +341,7 @@ class Color:
             color=color,
             color_system="HLS",
         )
+        new_color.__check_color_value()
         return new_color
 
     
@@ -351,17 +384,8 @@ class Color:
             color=color,
             color_system="RGB",
         )
+        new_color.__check_color_value()
         return new_color
-    
-    def __hls_calc(self, m1: float, m2: float, hue: float) -> float:
-        hue = hue % 1.0
-        if hue < 1.0/6.0:
-            return m1 + (m2-m1)*hue*6.0
-        if hue < 0.5:
-            return m2
-        if hue < 2.0/3.0:
-            return m1 + (m2-m1)*(2.0/3.0-hue)*6.0
-        return m1
     
     def rgb_to_yiq(self) -> Color:
         """RGB -> YIQ
@@ -392,6 +416,7 @@ class Color:
             color=color,
             color_system="YIQ",
         )
+        new_color.__check_color_value()
         return new_color
 
     def yiq_to_rgb(self) -> Color:
@@ -423,6 +448,7 @@ class Color:
             color=color,
             color_system="RGB",
         )
+        new_color.__check_color_value()
         return new_color
 
     def rgb_to_srgb(self) -> Color:
@@ -452,6 +478,7 @@ class Color:
             color=color,
             color_system="sRGB",
         )
+        new_color.__check_color_value()
         return new_color
 
     def srgb_to_rgb(self) -> Color:
@@ -481,6 +508,7 @@ class Color:
             color=color,
             color_system="RGB",
         )
+        new_color.__check_color_value()
         return new_color
 
     def rgb_to_adobergb(self) -> Color:
@@ -510,6 +538,7 @@ class Color:
             color=color,
             color_system="Adobe RGB",
         )
+        new_color.__check_color_value()
         return new_color
 
     def adobergb_to_rgb(self) -> Color:
@@ -539,6 +568,7 @@ class Color:
             color=color,
             color_system="RGB",
         )
+        new_color.__check_color_value()
         return new_color
 
     def rgb_to_xyz(self, white_point: str = "D65") -> Color:
@@ -570,6 +600,7 @@ class Color:
             color=color,
             color_system="XYZ",
         )
+        # new_color.__check_color_value()
         return new_color
 
     def xyz_to_rgb(self) -> Color:
@@ -599,6 +630,7 @@ class Color:
             color=color,
             color_system="RGB",
         )
+        new_color.__check_color_value()
         return new_color
 
     def _d65_to_d50(self, xyz: Color_type) -> Color_type:
@@ -685,6 +717,7 @@ class Color:
             color=color,
             color_system="L*a*b*",
         )
+        new_color.__check_color_value()
         return new_color
 
     def lab_to_xyz(self) -> Color:
@@ -729,6 +762,7 @@ class Color:
             color=color,
             color_system="XYZ",
         )
+        # new_color.__check_color_value()
         return new_color
 
     def to_rgb(self) -> Color:
@@ -885,7 +919,7 @@ class Gradation:
     Attributes:
         start (Color): Start color of the gradation.
         end (Color): End color of the gradation.
-        middle (Optional[Color_type]): Middle color of the gradation. Defaults to None.
+        middle (Optional[Color]): Middle color of the gradation. Defaults to None.
 
     Examples:
         >>> ### you can use this class as 'matplotlib.cm' objects.
@@ -921,7 +955,7 @@ class Gradation:
     def rgb_to_rgba(self, color_list: List[Color]) -> List[Tuple[float,float,float,float]]:
         res: List[Tuple[float,float,float,float]] = []
         for color in color_list:
-            r,g,b = color.to_rgb(digitization=False)
+            r,g,b = color.to_rgb()
             res.append((r, g, b, 1.0))
         return res
 
@@ -950,18 +984,15 @@ class Gradation:
                 raise ValueError("'start' and 'middle' and 'end' must have same properties")
 
         color_system: str = self.start.color_system
-        digitization: bool = self.start.digitization
-        MAX_SV: int = self.start.MAX_SV
-        MAX_LS: int = self.start.MAX_LS
         u: float
         v: float
         w: float
         if self.middle is None:
             a,b,c = self.start
             x,y,z = self.end
-            u = a + (x-a)*proportion
-            v = b + (y-b)*proportion
-            w = c + (z-c)*proportion
+            u = a + (x-a) * proportion
+            v = b + (y-b) * proportion
+            w = c + (z-c) * proportion
         else:
             a,b,c = self.start
             p,q,r = self.middle
@@ -976,16 +1007,96 @@ class Gradation:
                 w = r + (z-r) * (proportion-0.5)
         return Color(color=(u,v,w),
             color_system=color_system,
-            digitization=digitization,
-            MAX_SV=MAX_SV,
-            MAX_LS=MAX_LS,
+        )
+
+    def gradation_chart(self, proportion: float, order: Tuple[int, int, int] = (0,1,2)) -> Color:
+        """Make a color gradation like a chart line in a color space.
+
+        Note:
+            A gradation can be represented as a curve in a color space.
+            Chart lines along with each color axis are used as the gradation curves in this method,
+            assuming that the color space is considered as a real 3D Euclidean space.
+
+        Args:
+            proportion (float): Floating point number in [0.0, 1.0].
+                proportion = 0.0 -> start color, proportion = 1.0 -> end color.
+            order (Tuple[int, int, int]): Priority of color axes in selecting the direction of chart.
+                Defaults to (0,1,2). In RGB color space, the chart heads "R" direction at first, 
+                "G" direction at second and "B" direction at last if `order = (0,1,2)`.
+
+        Returns:
+            (Color): Color corresponding the number 'proportion' in the gradation.
+        """
+        if not (0.0 <= proportion <= 1.0):
+            raise ValueError("'proportion' must be in [0.0, 1.0]")
+        if self.middle is None:
+            if self.start.get_properties() != self.end.get_properties():
+                raise ValueError("'start' and 'end' must have same properties")
+        else:
+            if not (self.start.get_properties() == self.middle.get_properties() == self.end.get_properties()):
+                raise ValueError("'start' and 'middle' and 'end' must have same properties")
+
+        color_system: str = self.start.color_system
+
+        if self.middle is None:
+            a,b,c = self.start
+            x,y,z = self.end
+            res: List[float, float, float] = [0., 0., 0.]
+            dist: float = (abs(a-x) + abs(b-y) + abs(c-z)) * proportion
+            if dist < abs(self.start[order[0]]-self.end[order[0]]):
+                res[order[0]] = self.start[order[0]] + (self.end[order[0]]-self.start[order[0]]) * proportion
+                res[order[1]] = self.start[order[1]]
+                res[order[2]] = self.start[order[2]]
+            elif dist < abs(self.start[order[0]]-self.end[order[0]]) + abs(self.start[order[1]]-self.end[order[1]]):
+                res[order[0]] = self.end[order[0]]
+                res[order[1]] = self.start[order[1]] + (self.end[order[1]]-self.start[order[1]]) * proportion
+                res[order[2]] = self.start[order[2]]
+            else:
+                res[order[0]] = self.end[order[0]]
+                res[order[1]] = self.start[order[1]]
+                res[order[2]] = self.start[order[2]] + (self.end[order[2]]-self.start[order[2]]) * proportion
+        else:
+            a,b,c = self.start
+            p,q,r = self.middle
+            x,y,z = self.end
+            res: List[float, float, float] = [0., 0., 0.]
+            dist: float = (abs(a-p) + abs(b-q) + abs(c-r) + abs(p-x) + abs(q-y) + abs(r-z)) * proportion
+            if dist < abs(a-p) + abs(b-q) + abs(c-r):
+                if dist < abs(self.start[order[0]]-self.middle[order[0]]):
+                    res[order[0]] = self.start[order[0]] + (self.middle[order[0]]-self.start[order[0]]) * proportion
+                    res[order[1]] = self.start[order[1]]
+                    res[order[2]] = self.start[order[2]]
+                elif dist < abs(self.start[order[0]]-self.middle[order[0]]) + abs(self.start[order[1]]-self.middle[order[1]]):
+                    res[order[0]] = self.middle[order[0]]
+                    res[order[1]] = self.start[order[1]] + (self.middle[order[1]]-self.start[order[1]]) * proportion
+                    res[order[2]] = self.start[order[2]]
+                else:
+                    res[order[0]] = self.middle[order[0]]
+                    res[order[1]] = self.start[order[1]]
+                    res[order[2]] = self.start[order[2]] + (self.middle[order[2]]-self.start[order[2]]) * proportion
+            else:
+                dist -= abs(a-p) + abs(b-q) + abs(c-r)
+                if dist < abs(self.middle[order[0]]-self.end[order[0]]):
+                    res[order[0]] = self.middle[order[0]] + (self.end[order[0]]-self.middle[order[0]]) * proportion
+                    res[order[1]] = self.middle[order[1]]
+                    res[order[2]] = self.middle[order[2]]
+                elif dist < abs(self.middle[order[0]]-self.end[order[0]]) + abs(self.middle[order[1]]-self.end[order[1]]):
+                    res[order[0]] = self.end[order[0]]
+                    res[order[1]] = self.middle[order[1]] + (self.end[order[1]]-self.middle[order[1]]) * proportion
+                    res[order[2]] = self.middle[order[2]]
+                else:
+                    res[order[0]] = self.end[order[0]]
+                    res[order[1]] = self.middle[order[1]]
+                    res[order[2]] = self.middle[order[2]] + (self.end[order[2]]-self.middle[order[2]]) * proportion
+        return Color(color=tuple(res),
+            color_system=color_system,
         )
 
     def gradation_helical(self,
                         proportion: float,
                         clockwise: bool = True,
-                        ) -> List[Color]:
-        """Make a list of color gradation helically in a color space.
+                        ) -> Color:
+        """Make a color gradation helically in a color space.
         This method is mainly used for HSV or HLS.
 
         Note:
@@ -1016,15 +1127,6 @@ class Gradation:
         if middle is not None:
             middle = self.middle.deepcopy()
         color_system: str = start.color_system
-        digitization: bool = start.digitization
-        if digitization:
-            digitization = False
-            start.change_digitization(False)
-            end.change_digitization(False)
-            if middle is not None:
-                middle.change_digitization(False)
-        MAX_SV: int = start.MAX_SV
-        MAX_LS: int = start.MAX_LS
         u: float
         v: float
         w: float
@@ -1060,9 +1162,6 @@ class Gradation:
                 w = r + (z-r) * (proportion-0.5)
         return Color(color=(u%1.0, v, w),
             color_system=color_system,
-            digitization=digitization,
-            MAX_SV=MAX_SV,
-            MAX_LS=MAX_LS,
         )
 
     def gradation_linear_list(self, num: int = 50) -> Color:
@@ -1087,9 +1186,6 @@ class Gradation:
                 raise ValueError("'start' and 'middle' and 'end' must have same properties")
 
         color_system: str = self.start.color_system
-        digitization: bool = self.start.digitization
-        MAX_SV: int = self.start.MAX_SV
-        MAX_LS: int = self.start.MAX_LS
         res: List[Color] = []
         if num == 1:
             return [self.start.deepcopy()]
@@ -1106,9 +1202,6 @@ class Gradation:
                 res.append(
                     Color(color=(u,v,w),
                     color_system=color_system,
-                    digitization=digitization,
-                    MAX_SV=MAX_SV,
-                    MAX_LS=MAX_LS,
                     )
                 )
             return res
@@ -1124,9 +1217,6 @@ class Gradation:
                     res.append(
                         Color(color=(u,v,w),
                         color_system=color_system,
-                        digitization=digitization,
-                        MAX_SV=MAX_SV,
-                        MAX_LS=MAX_LS,
                         )
                     )
                 for i in range(1,num-num//2):
@@ -1136,9 +1226,6 @@ class Gradation:
                     res.append(
                         Color(color=(u,v,w),
                         color_system=color_system,
-                        digitization=digitization,
-                        MAX_SV=MAX_SV,
-                        MAX_LS=MAX_LS,
                         )
                     )
             else:
@@ -1149,9 +1236,6 @@ class Gradation:
                     res.append(
                         Color(color=(u,v,w),
                         color_system=color_system,
-                        digitization=digitization,
-                        MAX_SV=MAX_SV,
-                        MAX_LS=MAX_LS,
                         )
                     )
                 for i in range(num//2-1,-1,-1):
@@ -1161,12 +1245,35 @@ class Gradation:
                     res.append(
                         Color(color=(u,v,w),
                         color_system=color_system,
-                        digitization=digitization,
-                        MAX_SV=MAX_SV,
-                        MAX_LS=MAX_LS,
                         )
                     )
             return res
+
+    def gradation_chart_list(self, num: int = 50, order: Tuple[float, float, float] = (0,1,2)) -> Color:
+        """Make a list of color gradation like a chart in a color space.
+
+        Note:
+            A gradation can be represented as a curve in a color space.
+            Chart lines along with each color axis are used as the gradation curves in this method,
+            assuming that the color space is considered as a real 3D Euclidean space.
+
+        Args:
+            num (int): Length of the return list.
+
+        Returns:
+            (List[Color]): Gradation color list.
+        """
+        if self.middle is None:
+            if self.start.get_properties() != self.end.get_properties():
+                raise ValueError("'start' and 'end' must have same properties")
+        else:
+            if not (self.start.get_properties() == self.middle.get_properties() == self.end.get_properties()):
+                raise ValueError("'start' and 'middle' and 'end' must have same properties")
+
+        if num == 1:
+            return [self.start.deepcopy()]
+        
+        return [self.gradation_chart(proportion=i/(num-1), order=order) for i in range(num)]
         
     def gradation_helical_list(self,
                         num: int = 50,
@@ -1201,15 +1308,6 @@ class Gradation:
             middle = self.middle.deepcopy()
 
         color_system: str = start.color_system
-        digitization: bool = start.digitization
-        if digitization:
-            digitization = False
-            start.change_digitization(False)
-            end.change_digitization(False)
-            if middle is not None:
-                middle.change_digitization(False)
-        MAX_SV: int = start.MAX_SV
-        MAX_LS: int = start.MAX_LS
         res: List[Color] = []
         if num == 1:
             return [start.deepcopy()]
@@ -1230,9 +1328,6 @@ class Gradation:
                 res.append(
                     Color(color=(u%1.0, v, w),
                     color_system=color_system,
-                    digitization=digitization,
-                    MAX_SV=MAX_SV,
-                    MAX_LS=MAX_LS,
                     )
                 )
             return res
@@ -1252,9 +1347,6 @@ class Gradation:
                     res.append(
                         Color(color=(u%1.0, v, w),
                         color_system=color_system,
-                        digitization=digitization,
-                        MAX_SV=MAX_SV,
-                        MAX_LS=MAX_LS,
                         )
                     )
                 p %= 1.0
@@ -1269,9 +1361,6 @@ class Gradation:
                     res.append(
                         Color(color=(u%1.0, v, w),
                         color_system=color_system,
-                        digitization=digitization,
-                        MAX_SV=MAX_SV,
-                        MAX_LS=MAX_LS,
                         )
                     )
             else:
@@ -1286,9 +1375,6 @@ class Gradation:
                     res.append(
                         Color(color=(u%1.0, v, w),
                         color_system=color_system,
-                        digitization=digitization,
-                        MAX_SV=MAX_SV,
-                        MAX_LS=MAX_LS,
                         )
                     )
                 p %= 1.0
@@ -1303,54 +1389,9 @@ class Gradation:
                     res.append(
                         Color(color=(u%1.0, v, w),
                         color_system=color_system,
-                        digitization=digitization,
-                        MAX_SV=MAX_SV,
-                        MAX_LS=MAX_LS,
                         )
                     )
             return res
-
-
-RGB: str = "RGB"
-HSV: str = "HSV"
-HLS: str = "HLS"
-YIQ: str = "YIQ"
-
-RED_RGB: Color_type = (1.0, 0.0, 0.0)
-GREEN_RGB: Color_type = (0.0, 1.0, 0.0)
-BLUE_RGB: Color_type = (0.0, 0.0, 1.0)
-YELLOW_RGB: Color_type = (1.0, 1.0, 0.0)
-MAGENTA_RGB: Color_type = (1.0, 0.0, 1.0)
-CYAN_RGB: Color_type = (0.0, 1.0, 1.0)
-WHITE_RGB: Color_type = (1.0, 1.0, 1.0)
-BLACK_RGB: Color_type = (0.0, 0.0, 0.0)
-
-RED_HSV: Color_type = (0.0, 1.0, 1.0)
-YELLOW_HSV: Color_type = (1/6, 1.0, 0.0)
-GREEN_HSV: Color_type = (2/6, 1.0, 1.0)
-CYAN_HSV: Color_type = (3/6, 1.0, 1.0)
-BLUE_HSV: Color_type = (4/6, 1.0, 1.0)
-MAGENTA_HSV: Color_type = (5/6, 0.0, 1.0)
-WHITE_HSV: Color_type = (0.0, 0.0, 1.0)
-BLACK_HSV: Color_type = (0.0, 0.0, 0.0)
-
-RED_HLS: Color_type = (0.0, 0.5, 1.0)
-YELLOW_HLS: Color_type = (1/6, 0.5, 1.0)
-GREEN_HLS: Color_type = (2/6, 0.5, 1.0)
-CYAN_HLS: Color_type = (3/6, 0.5, 1.0)
-BLUE_HLS: Color_type = (4/6, 0.5, 1.0)
-MAGENTA_HLS: Color_type = (5/6, 0.5, 1.0)
-WHITE_HLS: Color_type = (0.0, 1.0, 0.0)
-BLACK_HLS: Color_type = (0.0, 0.0, 0.0)
-
-RED_YIQ: Color_type = (0.299, 0.596, 0.211)
-YELLOW_YIQ: Color_type = (0.886, 0.322, -0.312)
-GREEN_YIQ: Color_type = (0.587, -0.274, -0.523)
-CYAN_YIQ: Color_type = (0.701, -0.596, -0.211)
-BLUE_YIQ: Color_type = (0.114, -0.322, 0.312)
-MAGENTA_YIQ: Color_type = (0.413, 0.274, 0.523)
-WHITE_YIQ: Color_type = (1.0, 0.0, 0.0)
-BLACK_YIQ: Color_type = (0.0, 0.0, 0.0)
 
 
 
@@ -1609,6 +1650,65 @@ def yiq_to_rgb(yiq: Color_type, digitization: bool = False) -> Color_type:
     else:
         return (r, g, b)
 
+def view_gradation(color_list: List[Color]) -> None:
+    """Plot the color gradation by matplotlib.
+
+    Args:
+        color_list (List[Color]): List of `Color` instances.
+
+    """
+    x: np.ndarray = np.linspace(-np.pi, np.pi)
+    for i, c in enumerate(color_list):
+        print(i,c.to_rgb().color)
+        y: np.ndarray = i/len(color_list) * np.sin(x)
+        plt.plot(x, y, color=c.to_rgb().color)
+    plt.show()
+    return
+
+
+# constants
+RGB: str = "RGB"
+HSV: str = "HSV"
+HLS: str = "HLS"
+YIQ: str = "YIQ"
+
+RED_RGB: Color_type = (1.0, 0.0, 0.0)
+GREEN_RGB: Color_type = (0.0, 1.0, 0.0)
+BLUE_RGB: Color_type = (0.0, 0.0, 1.0)
+YELLOW_RGB: Color_type = (1.0, 1.0, 0.0)
+MAGENTA_RGB: Color_type = (1.0, 0.0, 1.0)
+CYAN_RGB: Color_type = (0.0, 1.0, 1.0)
+WHITE_RGB: Color_type = (1.0, 1.0, 1.0)
+BLACK_RGB: Color_type = (0.0, 0.0, 0.0)
+
+RED_HSV: Color_type = (0.0, 1.0, 1.0)
+YELLOW_HSV: Color_type = (1/6, 1.0, 0.0)
+GREEN_HSV: Color_type = (2/6, 1.0, 1.0)
+CYAN_HSV: Color_type = (3/6, 1.0, 1.0)
+BLUE_HSV: Color_type = (4/6, 1.0, 1.0)
+MAGENTA_HSV: Color_type = (5/6, 0.0, 1.0)
+WHITE_HSV: Color_type = (0.0, 0.0, 1.0)
+BLACK_HSV: Color_type = (0.0, 0.0, 0.0)
+
+RED_HLS: Color_type = (0.0, 0.5, 1.0)
+YELLOW_HLS: Color_type = (1/6, 0.5, 1.0)
+GREEN_HLS: Color_type = (2/6, 0.5, 1.0)
+CYAN_HLS: Color_type = (3/6, 0.5, 1.0)
+BLUE_HLS: Color_type = (4/6, 0.5, 1.0)
+MAGENTA_HLS: Color_type = (5/6, 0.5, 1.0)
+WHITE_HLS: Color_type = (0.0, 1.0, 0.0)
+BLACK_HLS: Color_type = (0.0, 0.0, 0.0)
+
+RED_YIQ: Color_type = (0.299, 0.596, 0.211)
+YELLOW_YIQ: Color_type = (0.886, 0.322, -0.312)
+GREEN_YIQ: Color_type = (0.587, -0.274, -0.523)
+CYAN_YIQ: Color_type = (0.701, -0.596, -0.211)
+BLUE_YIQ: Color_type = (0.114, -0.322, 0.312)
+MAGENTA_YIQ: Color_type = (0.413, 0.274, 0.523)
+WHITE_YIQ: Color_type = (1.0, 0.0, 0.0)
+BLACK_YIQ: Color_type = (0.0, 0.0, 0.0)
+
+
 
 def main() -> None:
     C: Color = Color(RED_RGB, RGB)
@@ -1626,6 +1726,16 @@ def main() -> None:
     ])
     print(np.linalg.inv(A))
     pass
+    # G = Gradation(Color(RED_RGB, RGB), Color(BLUE_RGB, RGB), middle=Color(GREEN_RGB, RGB))
+
+    G = Gradation(Color(RED_HSV, HSV), Color(BLUE_HSV, HSV), middle=Color(GREEN_HSV, HSV))
+    # G = Gradation(Color(RED_HLS, HLS), Color(BLUE_HLS, HLS))
+    # G = Gradation(Color(RED_YIQ, YIQ), Color(BLUE_YIQ, YIQ))
+
+    # view_gradation(G.gradation_linear_list())
+    # view_gradation(G.gradation_helical_list(clockwise=False))
+    print(G.gradation_chart_list(order=(2,1,0)))
+    view_gradation(G.gradation_chart_list(num=100,order=(0,2,1)))
     return
 
 if __name__ == "__main__":
