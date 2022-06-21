@@ -23,7 +23,7 @@ class Color:
         HSV = Hue(color phase), Saturation(colorfulness), Value(brightness)
             H: [0.0, 1.0], red -> yellow -> green -> blue -> magenta -> red.
             S: [0.0, 1.0], medium -> maximum.
-            V: [0.0, 1.0], black-weak -> black-strong.
+            V: [0.0, 1.0], black-strong -> black-weak.
         HLS = Hue(color phase), Luminance(lightness), Saturation(colorfulness)
             H: [0.0, 1.0], red -> yellow -> green -> blue -> magenta -> red.
             L: [0.0, 1.0], black -> white.
@@ -33,23 +33,19 @@ class Color:
             I: [-0.5959, 0.5959], blue -> orange.
             Q: [-0.5229, 0.5229], green -> violet.
         XYZ
-            X: 
-            Y:
-            Z:
+            X: [0.0, 0.951]
+            Y: [0.0, 1.0]
+            Z: [0.0, 1.090]
         L*a*b*
             L*: [0, 100]
-            a*: 
-            b*:
+            a*: [-128, 127]
+            b*: [-128, 127]
+
+        Note that `color_system` of the result color of binary operation is always 'RGB'.
 
     Attributes:
         color (Color_type): Color value.
         color_system (str): Color system (RGB, HSV, HLS, YIQ).
-
-    ToDo:
-        implement __add__, __sub__, __mul__, __div__
-        一度全面的に仕様変更を行う
-        ・インスタンスメソッドの引数digitizationを廃止し，self.digitizationも廃止
-        ・RGB，HSV，HLSの最大値はすべて1.0をデフォルトとし，self.__value_range: Dict[str, List]に保存
 
 
     """
@@ -68,6 +64,7 @@ class Color:
             "sRGB": [(0.0, 1.0), (0.0, 1.0), (0.0, 1.0)],
             "Adobe RGB": [(0.0, 1.0), (0.0, 1.0), (0.0, 1.0)],
             "YIQ": [(0.0, 1.0), (-0.5959, 0.5959), (-0.5229, 0.5229)],
+            "XYZ": [(0.0, 0.951), (0.0, 1.0), (0.0, 1.090)],
             "L*a*b*": [(0, 100), (-128, 127), (-128, 127)],
         }
 
@@ -109,6 +106,62 @@ class Color:
             return new_color
         else:
             pass
+
+    def __add__(self, other: Color) -> Color:
+        a,b,c = self.to_rgb().color
+        x,y,z = other.to_rgb().color
+        _, maxr, _, maxg, _, maxb = self.__value_range["RGB"]
+        return self.__class__(
+            color=(min(a+x,maxr), min(b+y, maxg), min(c+z, maxb)),
+            color_system="RGB",
+        )
+
+    def __sub__(self, other: Color) -> Color:
+        a,b,c = self.to_rgb().color
+        x,y,z = other.to_rgb().color
+        minr, _, ming, _, minb, _ = self.__value_range["RGB"]
+        return self.__class__(
+            color=(max(a-x,minr), max(b-y, ming), max(c-z, minb)),
+            color_system="RGB",
+        )
+    
+    def __mul__(self, other: Color) -> Color:
+        """Additive color change.
+
+        ref: A. Kitaoka, Journal of Color Science Association of Japan, 35(3), 234-236, (2011).
+        """
+        a,b,c = self.to_rgb().color
+        x,y,z = other.to_rgb().color
+        t: float = 0.5
+        return self.__class__(
+            color=(t*a+(1-t)*x, t*b+(1-t)*y, t*c+(1-t)*z),
+            color_system="RGB",
+        )
+    
+    def __div__(self, other: Color) -> Color:
+        a,b,c = self.to_rgb().color
+        x,y,z = other.to_rgb().color
+        t: float = 0.5
+        return self.__class__(
+            color=(a/t-(1-t)/t*x, b/t+(1-t)/t*y, c/t+(1-t)/t*z),
+            color_system="RGB",
+        )
+    
+    def __mutmul__(self, other: Color) -> Color:
+        """Multiplicative color change.
+
+        ref: A. Kitaoka, Journal of Color Science Association of Japan, 35(3), 234-236, (2011).
+        """
+        a,b,c = self.to_rgb().color
+        x,y,z = other.to_rgb().color
+        t: float = 0.5
+        return self.__class__(
+            color=((t+(1-t)*x)*a, (t+(1-t)*y)*b, (t+(1-t)*z)*c),
+            color_system="RGB",
+        )
+    
+    def __len__(self) -> int:
+        return len(self.color)
 
     def __iter__(self) -> float:
         yield from self.color
@@ -169,32 +222,36 @@ class Color:
     def deepcopy(self) -> Color:
         return self.__deepcopy__()
 
-    def set_max_value(self, color_sys: str, attr_name: str, max_value: Union[int, float]) -> None:
-        """Set max value of an attribute of a color system.
+    ### 不要
+    # def set_max_value(self, color_sys: str, attr_name: str, max_value: Union[int, float]) -> None:
+    #     """Set max value of an attribute of a color system.
 
-        Note:
-            The default max values are the following:
-                "RGB": [R=1.0, G=1.0, G=1.0],
-                "HSV": [H=1.0, S=1.0, V=1.0],
-                "HLS": [H=1.0, L=1.0, S=1.0],
-                "sRGB": [R=1.0, G=1.0, G=1.0],
-                "Adobe RGB": [R=1.0, G=1.0, G=1.0],
+    #     Note:
+    #         The default max values are the following:
+    #             "RGB": [R=1.0, G=1.0, G=1.0],
+    #             "HSV": [H=1.0, S=1.0, V=1.0],
+    #             "HLS": [H=1.0, L=1.0, S=1.0],
+    #             "sRGB": [R=1.0, G=1.0, G=1.0],
+    #             "Adobe RGB": [R=1.0, G=1.0, G=1.0],
+    #             "YIQ": [(0.0, 1.0), (-0.5959, 0.5959), (-0.5229, 0.5229)],
+    #             "XYZ": [(0.0, 0.951), (0.0, 1.0), (0.0, 1.090)],
+    #             "L*a*b*": [(0, 100), (-128, 127), (-128, 127)],
 
-        Args:
-            color_sys (str): Name of color system.
-            attr_name (str): Attribute name of the color system (e.g. "G" (color system: RGB)). 
-            max_value (Union[int, float]): Max value of the attribute.
-        """
-        if not color_sys in self.__value_range:
-            return
-        idx: int
-        if "RGB" in color_sys:
-            idx = "RGB".index(attr_name)
-            self.__value_range[color_sys][idx] = (0.0, max_value)
-        else:
-            idx = color_sys.index(attr_name)
-            self.__value_range[color_sys][idx] = (0.0, max_value)
-        return
+    #     Args:
+    #         color_sys (str): Name of color system.
+    #         attr_name (str): Attribute name of the color system (e.g. "G" (color system: RGB)). 
+    #         max_value (Union[int, float]): Max value of the attribute.
+    #     """
+    #     if not color_sys in self.__value_range:
+    #         return
+    #     idx: int
+    #     if "RGB" in color_sys:
+    #         idx = "RGB".index(attr_name)
+    #         self.__value_range[color_sys][idx] = (0.0, max_value)
+    #     else:
+    #         idx = color_sys.index(attr_name)
+    #         self.__value_range[color_sys][idx] = (0.0, max_value)
+    #     return
 
     def get_properties(self) -> Tuple[str]:
         return (self.color_system, )
@@ -910,7 +967,38 @@ class Color:
             a = alpha
         return (r, g, b, a)
 
+    def projection(self, other_color: Color) -> Color:
+        """Project the color onto the other color like a mathematical 3D vector.
 
+        Args:
+            other_color (Color): Target of color projection.
+
+        Returns:
+            (Color): Projected color. Note that `color_system` of the returned color is always 'RGB'.
+        """
+        u = np.array(self.to_rgb().color)
+        v = np.array(other_color.to_rgb().color)
+        lv = np.linalg.norm(v)
+        if lv == 0.0:
+            a, b, c = 0.0, 0.0, 0.0
+        else:
+            a, b, c = (u @ v) * v / (lv ** 2) # orthographic projection
+        return self.__class__(
+            color=(a,b,c),
+            color_system="RGB",
+        )
+    
+    def to_grayscale(self) -> str:
+        """Get the grayscaled color. 
+            The return type is `str` to conform to the specifications of `matplotlib`.
+
+        Note:
+            The 'Y' value in 'CIE XYZ' color system is used to convert the color to grayscale.
+
+        Returns:
+            (str): String of float value. The value will be in [0.0, 1.0].
+        """
+        return str(self.to_xyz().color[1])
 
 
 class Gradation:
@@ -1682,11 +1770,11 @@ WHITE_RGB: Color_type = (1.0, 1.0, 1.0)
 BLACK_RGB: Color_type = (0.0, 0.0, 0.0)
 
 RED_HSV: Color_type = (0.0, 1.0, 1.0)
-YELLOW_HSV: Color_type = (1/6, 1.0, 0.0)
+YELLOW_HSV: Color_type = (1/6, 1.0, 1.0)
 GREEN_HSV: Color_type = (2/6, 1.0, 1.0)
 CYAN_HSV: Color_type = (3/6, 1.0, 1.0)
 BLUE_HSV: Color_type = (4/6, 1.0, 1.0)
-MAGENTA_HSV: Color_type = (5/6, 0.0, 1.0)
+MAGENTA_HSV: Color_type = (5/6, 1.0, 1.0)
 WHITE_HSV: Color_type = (0.0, 0.0, 1.0)
 BLACK_HSV: Color_type = (0.0, 0.0, 0.0)
 
@@ -1736,7 +1824,8 @@ def main() -> None:
     # view_gradation(G.gradation_helical_list(clockwise=False))
     print(G.gradation_chart_list(order=(2,1,0)))
     view_gradation(G.gradation_chart_list(num=100,order=(0,2,1)))
-    return
+
+
 
 if __name__ == "__main__":
     main()
