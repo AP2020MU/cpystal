@@ -4,3 +4,5 @@ from .analysis import make_powder_Xray_diffraction_pattern_in_calculation as mak
 from .analysis import Crystal_instance_from_cif_data as Crystal_instance_from_cif_data
 from .analysis import atoms_position_from_p1_file as atoms_position_from_p1_file
 from .analysis import make_struct_file as make_struct_file
+from .analysis import cal_Debye_specific_heat as cal_Debye_specific_heat
+from .analysis import cal_thermal_conductivity as cal_thermal_conductivity
