@@ -268,7 +268,7 @@ class Crystal: # 結晶の各物理量を計算
         self.date: Optional[str] = date # 合成した日付(必要ならナンバリングもここに含める)
         self.spacegroup_name: Optional[str] = None  # 空間群名(国際表記)
         
-        self.NA: float = 6.02214076 * 10**(23) # アボガドロ定数 [mol^-1]
+        self.NA: float = 6.02214076 * 10**(23) # Avogadro定数 [mol^-1]
         self.muB: float = 9.27401 * 10**(-21) # Bohr磁子 [emu]
         self.kB: float = 1.380649 * 10**(-23) # Boltzmann定数 [J/K]
         
@@ -394,6 +394,11 @@ class Crystal: # 結晶の各物理量を計算
                     object.__setattr__(self, "fu_per_unit_cell", state["num"])
                 if key == "_Crystal__updatable":
                     object.__setattr__(self, "_Crystal__updatable", False)
+    @property
+    def num_atom_per_formula_unit(self) -> int:
+        """Return the number of atom in a formula unit.
+        """
+        return sum(self.components.values())
 
     def is_updatable(self: Crystalchild) -> bool:
         """Return updatability of the instance.
@@ -635,12 +640,29 @@ class Crystal: # 結晶の各物理量を計算
             (emu*Oe = erg = 10^(-7) Joule)
 
         Args:
-            Curie_constant (float): Curie constant [emu.K/mol.Oe].
+            Curie_constant (float): Curie constant (unit: [emu.K/mol.Oe]).
 
         Returns:
             (float): Effective moment μ/μB = g√J(J+1).
         """
         return (Curie_constant / (self.num_magnetic_ion * self.NA / 3 / self.kB) * 10**7) ** 0.5 / self.muB
+
+    def cal_phonon_velocity(self, TD: float) -> float:
+        """Calculating phonon velocity from Debye temperature.
+
+        Note:
+            k_B T_D = \hbar \omega_D = \hbar v k_D,
+            where Debye wave number k_D satifies 4/3 \pi k_D^3 = (2\pi)^3 N / V,
+            where N is the number of atom in the sample and V is the volume of the sample.
+
+        Args:
+            TD (float): Debye temperature (unit: [K]).
+        
+        Returns:
+            (float): Phonon velocity (unit: [cm/s]).
+        """
+        P: PhysicalConstant = PhysicalConstant()
+        return P.kB * TD / P.hbar * (6*P.pi**2 * self.num_atom_per_formula_unit * self.fu_per_unit_cell / self.V)**(-1/3) # cm/s
 
     def save(self: Crystalchild, filename: str, overwrite: bool = False) -> None: # Crystalインスタンスのデータを保存
         """Saving the `Crystal` instance data as a pickle file.
@@ -1090,6 +1112,172 @@ def ingredient_flake_dp(A: List[int], W: int) -> None: # A: 適当に整数化�
     return
 
 
+class PhysicalConstant:
+    """Physical constants.
+
+    Attributes:
+        pi: 3.14159265358979
+        exp: 2.
+        NA: 6.02214076e+23 mol^-1
+        kB: 1.380649e-23 J/K
+        c: 299792458 m/s
+        h: 6.62607015e-34 Js
+        hbar: 1.0545718176461565e-34 Js
+        e: 1.6021766340000001e-19 C
+        Patm: 101325 Pa
+        Celsius: 273.15 K
+        gn: 9.80665 ms^-2
+        mu0: 1.2566370614359173e-06 NA^-2
+        epsilon0: 8.854187817620389e-12 CV^-1m^-1
+        me: 9.1093837015e-31 kg
+        muB: 9.274010078362165e-24 J/T
+        muB_emu: 9.274010078299999e-21 emu
+        sigma: 5.670374419184428e-08 Wm-2K-4
+        G: 6.6743e-11 Nm^2kg^-2
+        alpha: 0.007297352565305217 
+        phi0: 2.067833848461929e-15 Wb
+        Rydberg: 10973731.556123963 m^-1
+        a0: 5.291772111941794e-11 m
+        R: 8.31446261815324 JK^-1mol^-1
+    """
+    def __init__(self) -> None:
+        # 数学定数
+        self._pi: float = float(np.pi)
+        self._exp: float = float(np.e)
+
+        # 定義値
+        self._NA: float = 6.02214076 * 10**(23) # Avogadro定数 [mol^-1]
+        self._kB: float = 1.380649 * 10**(-23) # Boltzmann定数 [J/K]
+        self._c: float = 299792458 # 光速 [m/s]
+        self._h: float = 6.62607015 * 10**(-34) # Planck定数 [Js]
+        self._hbar: float = self._h / (2*self._pi) # Dirac定数 [Js]
+        self._e: float = 1.602176634 * 10**(-19) # 電気素量 [C]
+        self._Kcd: float = 683 # 発光効率 [lm/W]
+        self._Patm: float = 101325 # 標準大気圧 [Pa]
+        self._Celsius: float = 273.15 # Celsius温度ゼロ点 [K]
+        self._gn: float = 9.80665 # 標準重力加速度 [ms^-2]
+
+        self._mu0: float = 4 * self._pi * 10**(-7) # 真空の透磁率(旧定義) [NA^-2]
+        self._epsilon0: float = 1 / (self._mu0 * self._c**2) # 真空の誘電率 [F/m]
+        self._me: float = 9.1093837015 * 10**(-31) # 電子質量 [kg]
+        self._muB: float = self._e * self._hbar / (2 * self._me) # Bohr磁子 [J/T]
+        self._muB_emu: float = 9.2740100783 * 10**(-21) # Bohr磁子 [emu]
+        self._sigma: float = self._pi**2 / 60 * self._kB**4 / self._hbar**3 / self._c**2 # Stefan-Boltzmann定数 [Wm^-2K^-4]
+        self._G: float = 6.67430 * 10**(-11) # 万有引力定数 [Nm^2kg^-2]
+        self._alpha: float = self._e**2 / (4 * self._pi * self._epsilon0 * self._hbar * self._c) # 微細構造定数 [dimensionless]
+        self._phi0: float = self._h / (2 * self._e) # 磁束量子 [Wb]
+        self._Rydberg: float = self._alpha**2 * self._me * self._c / (2 * self._h) # Rydberg定数 [m^-1]
+        self._a0: float = self._alpha / (4 * self._pi * self._Rydberg) # Bohr半径 [m]
+        self._R: float = self._NA * self._kB # 気体定数 [JK^-1mol^-1]
+
+        self._unit: Dict[str, str] = {
+            "NA": "mol^-1",
+            "kB": "J/K",
+            "c": "m/s",
+            "h": "Js",
+            "hbar": "Js",
+            "e": "C",
+            "Patm": "Pa",
+            "Celsius": "K",
+            "gn": "ms^-2",
+
+            "mu0": "NA^-2",
+            "epsilon0": "CV^-1m^-1",
+            "me": "kg",
+            "muB": "J/T",
+            "muB_emu": "emu",
+            "sigma": "Wm^-2K^-4",
+            "G": "Nm^2kg^-2",
+            "alpha": "",
+            "phi0": "Wb",
+            "Rydberg": "m^-1",
+            "a0": "m",
+            "R": "JK^-1mol^-1",
+            
+        }
+    
+    @property
+    def pi(self) -> float: return self._pi
+
+    @property
+    def exp(self) -> float: return self._exp
+
+    @property
+    def NA(self) -> float: return self._NA
+
+    @property
+    def kB(self) -> float: return self._kB
+
+    @property
+    def c(self) -> float: return self._c
+
+    @property
+    def h(self) -> float: return self._h
+
+    @property
+    def hbar(self) -> float: return self._hbar
+
+    @property
+    def e(self) -> float: return self._e
+
+    @property
+    def Kcd(self) -> float: return self._Kcd
+
+    @property
+    def Patm(self) -> float: return self._Patm
+
+    @property
+    def Celsius(self) -> float: return self._Celsius
+
+    @property
+    def gn(self) -> float: return self._gn
+
+    @property
+    def mu0(self) -> float: return self._mu0
+
+    @property
+    def epsilon0(self) -> float: return self._epsilon0
+
+    @property
+    def me(self) -> float: return self._me
+
+    @property
+    def muB(self) -> float: return self._muB
+
+    @property
+    def muB_emu(self) -> float: return self._muB_emu
+
+    @property
+    def sigma(self) -> float: return self._sigma
+
+    @property
+    def G(self) -> float: return self._G
+
+    @property
+    def alpha(self) -> float: return self._alpha
+
+    @property
+    def phi0(self) -> float: return self._phi0
+
+    @property
+    def Rydberg(self) -> float: return self._Rydberg
+
+    @property
+    def a0(self) -> float: return self._a0
+
+    @property
+    def R(self) -> float: return self._R
+
+    @property
+    def unit(self) -> float: return self._unit
+
+    def __str__(self) -> str:
+        res: List[str] = []
+        for k, v in self.__dict__.items():
+            if k[1:] in self._unit:
+                res.append(f"{k[1:]}: {v} {self._unit[k[1:]]}")
+        return "\n".join(res)
+        
 
 def main() -> None:
     pass

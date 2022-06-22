@@ -26,8 +26,9 @@ import pymatgen # type: ignore
 from pymatgen.io.cif import CifParser # type: ignore
 import pymatgen.analysis.diffraction.xrd # type: ignore
 from scipy.stats import norm
+from scipy import integrate
 
-from ..core import Crystal
+from ..core import Crystal, PhysicalConstant
 
 
 plt.rcParams['font.size'] = 14
@@ -627,6 +628,42 @@ def make_struct_file(cif_filename: str, p1_filename: str) -> str:
     with open(f"{cif_filename.replace('.cif', '')}.struct", 'w') as f:
         f.write("\n".join(res))
     return "\n".join(res)
+
+def cal_Debye_specific_heat(T: float, TD: float, num_atom_per_formula_unit: int) -> np.ndarray:
+    """Calculating Debye mol specific heat.
+
+    Args:
+        T (float): Temperature (K).
+        TD (float): Debye temperature (K).
+        num_atom_per_formula_unit (int): Number of atom in a formula unit.
+    
+    Returns:
+        (float): Debye mol specific heat (JK^-1mol^-1).
+    """
+    def fD(t: float):
+        def integrand(x):
+            return 0. if x == 0. else x**4 / np.sinh(x/2.)**2
+        return 0. if t == 0. else (3/4) * t**3 * integrate.quad(integrand, 0, 1./t)[0]
+    R: float = PhysicalConstant().R # 気体定数 [JK^-1mol^-1]
+    return 3 * R * num_atom_per_formula_unit * fD(T/TD)
+
+def cal_thermal_conductivity(material: Crystal, T: float, TD: float, l: float) -> float:
+        """Calculating thermal conductivity of phonon based on Debye model.
+
+        Args:
+            material (Crystal): Crystal instance.
+            T (float): Temperature (K).
+            TD (float): Debye temperature (K).
+            l (float): Mean free path (cm).
+        
+        Returns:
+            (float): Thermal conductivity of phonon based on Debye model (WK^-1m^-1).
+        """
+        n: int = material.num_atom_per_formula_unit
+        v: float = material.cal_phonon_velocity(TD) # cm/s
+        C_mol: float = cal_Debye_specific_heat(T, TD=TD, num_atom_per_formula_unit=n) # J/K/mol
+        c: float = C_mol * n / (material.V * material.NA / material.fu_per_unit_cell) # J/K/cm^3
+        return 1/3 * c * v * l * 100. # W/Km
 
 def main() -> None:
     pass
