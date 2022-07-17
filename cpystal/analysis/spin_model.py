@@ -4,9 +4,9 @@ Classes:
     `SpinOperator`
     `MultiSpinSystemOperator`
 """
+from __future__ import annotations
 import numpy as np
 from functools import reduce
-from typing import List, Union
 
 
 class SpinOperator:
@@ -72,14 +72,14 @@ class MultiSpinSystemOperator:
             <- Taking the inner product of the DM vector and this, 
                 the DM interaction term will be obtained.
     """
-    def __init__(self, S: Union[float, List[float]], K: int) -> None:
+    def __init__(self, S: float | list[float], K: int) -> None:
         if isinstance(S, float) or isinstance(S,int):
             S = [S for _ in range(K)]
         assert len(S) == K
-        self.S: List[float] = S
-        self.spins: List[SpinOperator] = [SpinOperator(s) for s in S]
+        self.S: list[float] = S
+        self.spins: list[SpinOperator] = [SpinOperator(s) for s in S]
         self.K: int = K
-        self.N: List[int] = [int(2*s+1) for s in S]
+        self.N: list[int] = [int(2*s+1) for s in S]
         self.dim: int = reduce(lambda x,y:x*y, self.N)
 
     def _tensorproduct(self, i: int, j: int, A: np.ndarray, B: np.ndarray) -> np.ndarray:

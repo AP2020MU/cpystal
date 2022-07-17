@@ -2,18 +2,18 @@
 """
 from __future__ import annotations
 
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Union
 
 import matplotlib.pyplot as plt
 import numpy as np
 
-Color_type = Union[Tuple[int,int,int], Tuple[float,float,float]]
+Color_type = Union[tuple[int,int,int], tuple[float,float,float]]
 class Color:
     """Express color spaces. A part of this class is based on MATLAB and the Python standard module 'colorsys'.
 
     Note:
         Thereafter, we use the following type alias without notice:
-            Color_type := Union[Tuple[int,int,int], Tuple[float,float,float]].
+            Color_type := tuple[int,int,int] | tuple[float,float,float].
 
         RGB = Red, Green, Blue
             R: [0.0, 1.0], transparent -> red.
@@ -57,7 +57,7 @@ class Color:
         self.__color: Color_type = color
         self.__color_system: str = color_system
         self.__white_point: str = white_point
-        self.__value_range: Dict[str, List[Tuple[int, int], Tuple[int, int], Tuple[int, int]]] = {
+        self.__value_range: dict[str, list[tuple[int, int], tuple[int, int], tuple[int, int]]] = {
             "RGB": [(0.0, 1.0), (0.0, 1.0), (0.0, 1.0)],
             "HSV": [(0.0, 1.0), (0.0, 1.0), (0.0, 1.0)],
             "HLS": [(0.0, 1.0), (0.0, 1.0), (0.0, 1.0)],
@@ -176,7 +176,7 @@ class Color:
         )
     
     def __check_color_value(self) -> None:
-        res: List = list(self.color)
+        res: list = list(self.color)
         for i, c in enumerate(self.color):
             minc, maxc = self.__value_range[self.color_system][i]
             if c < minc:
@@ -222,38 +222,7 @@ class Color:
     def deepcopy(self) -> Color:
         return self.__deepcopy__()
 
-    ### 不要
-    # def set_max_value(self, color_sys: str, attr_name: str, max_value: Union[int, float]) -> None:
-    #     """Set max value of an attribute of a color system.
-
-    #     Note:
-    #         The default max values are the following:
-    #             "RGB": [R=1.0, G=1.0, G=1.0],
-    #             "HSV": [H=1.0, S=1.0, V=1.0],
-    #             "HLS": [H=1.0, L=1.0, S=1.0],
-    #             "sRGB": [R=1.0, G=1.0, G=1.0],
-    #             "Adobe RGB": [R=1.0, G=1.0, G=1.0],
-    #             "YIQ": [(0.0, 1.0), (-0.5959, 0.5959), (-0.5229, 0.5229)],
-    #             "XYZ": [(0.0, 0.951), (0.0, 1.0), (0.0, 1.090)],
-    #             "L*a*b*": [(0, 100), (-128, 127), (-128, 127)],
-
-    #     Args:
-    #         color_sys (str): Name of color system.
-    #         attr_name (str): Attribute name of the color system (e.g. "G" (color system: RGB)). 
-    #         max_value (Union[int, float]): Max value of the attribute.
-    #     """
-    #     if not color_sys in self.__value_range:
-    #         return
-    #     idx: int
-    #     if "RGB" in color_sys:
-    #         idx = "RGB".index(attr_name)
-    #         self.__value_range[color_sys][idx] = (0.0, max_value)
-    #     else:
-    #         idx = color_sys.index(attr_name)
-    #         self.__value_range[color_sys][idx] = (0.0, max_value)
-    #     return
-
-    def get_properties(self) -> Tuple[str]:
+    def get_properties(self) -> tuple[str]:
         return (self.color_system, )
 
     def rgb_to_hsv(self) -> Color:
@@ -953,11 +922,11 @@ class Color:
         return f"#{int(r*255):02x}{int(g*255):02x}{int(b*255):02x}"
 
     
-    def to_rgba(self, alpha: Optional[float] = None) -> Tuple[float, float, float, float]:
+    def to_rgba(self, alpha: float | None = None) -> tuple[float, float, float, float]:
         """Hexadecimal color code
 
         Returns:
-            (Tuple[float, float, float, float]): (r,g,b,a)
+            (tuple[float, float, float, float]): (r,g,b,a)
         """
         r,g,b = self.to_rgb()
         a: float
@@ -1007,7 +976,7 @@ class Gradation:
     Attributes:
         start (Color): Start color of the gradation.
         end (Color): End color of the gradation.
-        middle (Optional[Color]): Middle color of the gradation. Defaults to None.
+        middle (Color | None): Middle color of the gradation. Defaults to None.
 
     Examples:
         >>> ### you can use this class as 'matplotlib.cm' objects.
@@ -1028,7 +997,7 @@ class Gradation:
     """
     def __init__(self, start: Color,
                 end: Color,
-                middle: Optional[Color] = None,
+                middle: Color | None = None,
                 ) -> None:
         if middle is None:
             if start.get_properties() != end.get_properties():
@@ -1038,10 +1007,10 @@ class Gradation:
                 raise ValueError("'start' and 'middle' and 'end' must have same properties")
         self.start: Color = start
         self.end: Color = end
-        self.middle: Optional[Color_type] = middle
+        self.middle: Color_type | None = middle
 
-    def rgb_to_rgba(self, color_list: List[Color]) -> List[Tuple[float,float,float,float]]:
-        res: List[Tuple[float,float,float,float]] = []
+    def rgb_to_rgba(self, color_list: list[Color]) -> list[tuple[float,float,float,float]]:
+        res: list[tuple[float,float,float,float]] = []
         for color in color_list:
             r,g,b = color.to_rgb()
             res.append((r, g, b, 1.0))
@@ -1097,7 +1066,7 @@ class Gradation:
             color_system=color_system,
         )
 
-    def gradation_chart(self, proportion: float, order: Tuple[int, int, int] = (0,1,2)) -> Color:
+    def gradation_chart(self, proportion: float, order: tuple[int, int, int] = (0,1,2)) -> Color:
         """Make a color gradation like a chart line in a color space.
 
         Note:
@@ -1108,7 +1077,7 @@ class Gradation:
         Args:
             proportion (float): Floating point number in [0.0, 1.0].
                 proportion = 0.0 -> start color, proportion = 1.0 -> end color.
-            order (Tuple[int, int, int]): Priority of color axes in selecting the direction of chart.
+            order (tuple[int, int, int]): Priority of color axes in selecting the direction of chart.
                 Defaults to (0,1,2). In RGB color space, the chart heads "R" direction at first, 
                 "G" direction at second and "B" direction at last if `order = (0,1,2)`.
 
@@ -1129,7 +1098,7 @@ class Gradation:
         if self.middle is None:
             a,b,c = self.start
             x,y,z = self.end
-            res: List[float, float, float] = [0., 0., 0.]
+            res: list[float, float, float] = [0., 0., 0.]
             dist: float = (abs(a-x) + abs(b-y) + abs(c-z)) * proportion
             if dist < abs(self.start[order[0]]-self.end[order[0]]):
                 res[order[0]] = self.start[order[0]] + (self.end[order[0]]-self.start[order[0]]) * proportion
@@ -1147,7 +1116,7 @@ class Gradation:
             a,b,c = self.start
             p,q,r = self.middle
             x,y,z = self.end
-            res: List[float, float, float] = [0., 0., 0.]
+            res: list[float, float, float] = [0., 0., 0.]
             dist: float = (abs(a-p) + abs(b-q) + abs(c-r) + abs(p-x) + abs(q-y) + abs(r-z)) * proportion
             if dist < abs(a-p) + abs(b-q) + abs(c-r):
                 if dist < abs(self.start[order[0]]-self.middle[order[0]]):
@@ -1211,7 +1180,7 @@ class Gradation:
         
         start: Color = self.start.deepcopy()
         end: Color = self.end.deepcopy()
-        middle: Optional[Color] = self.middle
+        middle: Color | None = self.middle
         if middle is not None:
             middle = self.middle.deepcopy()
         color_system: str = start.color_system
@@ -1264,7 +1233,7 @@ class Gradation:
             num (int): Length of the return list.
 
         Returns:
-            (List[Color]): Gradation color list.
+            (list[Color]): Gradation color list.
         """
         if self.middle is None:
             if self.start.get_properties() != self.end.get_properties():
@@ -1274,7 +1243,7 @@ class Gradation:
                 raise ValueError("'start' and 'middle' and 'end' must have same properties")
 
         color_system: str = self.start.color_system
-        res: List[Color] = []
+        res: list[Color] = []
         if num == 1:
             return [self.start.deepcopy()]
         u: float
@@ -1337,7 +1306,7 @@ class Gradation:
                     )
             return res
 
-    def gradation_chart_list(self, num: int = 50, order: Tuple[float, float, float] = (0,1,2)) -> Color:
+    def gradation_chart_list(self, num: int = 50, order: tuple[float, float, float] = (0,1,2)) -> Color:
         """Make a list of color gradation like a chart in a color space.
 
         Note:
@@ -1349,7 +1318,7 @@ class Gradation:
             num (int): Length of the return list.
 
         Returns:
-            (List[Color]): Gradation color list.
+            (list[Color]): Gradation color list.
         """
         if self.middle is None:
             if self.start.get_properties() != self.end.get_properties():
@@ -1366,7 +1335,7 @@ class Gradation:
     def gradation_helical_list(self,
                         num: int = 50,
                         clockwise: bool = True,
-                        ) -> List[Color]:
+                        ) -> list[Color]:
         """Make a list of color gradation helically in a color space.
         This method is mainly used for HSV or HLS.
 
@@ -1380,7 +1349,7 @@ class Gradation:
             clockwise (bool): If True, direction of spiral winding is clockwise. Defaults to True.
 
         Returns:
-            (List[Color]): Gradation color list.
+            (list[Color]): Gradation color list.
         """
         if self.middle is None:
             if self.start.get_properties() != self.end.get_properties():
@@ -1391,12 +1360,12 @@ class Gradation:
         
         start: Color = self.start.deepcopy()
         end: Color = self.end.deepcopy()
-        middle: Optional[Color] = self.middle
+        middle: Color | None = self.middle
         if middle is not None:
             middle = self.middle.deepcopy()
 
         color_system: str = start.color_system
-        res: List[Color] = []
+        res: list[Color] = []
         if num == 1:
             return [start.deepcopy()]
         u: float
@@ -1738,11 +1707,11 @@ def yiq_to_rgb(yiq: Color_type, digitization: bool = False) -> Color_type:
     else:
         return (r, g, b)
 
-def view_gradation(color_list: List[Color]) -> None:
+def view_gradation(color_list: list[Color]) -> None:
     """Plot the color gradation by matplotlib.
 
     Args:
-        color_list (List[Color]): List of `Color` instances.
+        color_list (list[Color]): list of `Color` instances.
 
     """
     x: np.ndarray = np.linspace(-np.pi, np.pi)
