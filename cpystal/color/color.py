@@ -2,12 +2,12 @@
 """
 from __future__ import annotations
 
-from typing import Any, Union
+from typing import Any, Tuple, Union
 
 import matplotlib.pyplot as plt
 import numpy as np
 
-Color_type = Union[tuple[int,int,int], tuple[float,float,float]]
+Color_type = Union[Tuple[int,int,int], Tuple[float,float,float]]
 class Color:
     """Express color spaces. A part of this class is based on MATLAB and the Python standard module 'colorsys'.
 
