@@ -6,3 +6,8 @@ from .analysis import atoms_position_from_p1_file as atoms_position_from_p1_file
 from .analysis import make_struct_file as make_struct_file
 from .analysis import cal_Debye_specific_heat as cal_Debye_specific_heat
 from .analysis import cal_thermal_conductivity as cal_thermal_conductivity
+from .analysis import brillouin as brillouin
+from .analysis import paramagnetization_curie as paramagnetization_curie
+from .analysis import fit_paramagnetism as fit_paramagnetism
+from .analysis import demagnetizating_factor_ellipsoid as demagnetizating_factor_ellipsoid
+from .analysis import demagnetizating_factor_rectangular_prism as demagnetizating_factor_rectangular_prism
