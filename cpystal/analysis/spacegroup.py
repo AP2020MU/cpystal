@@ -9,13 +9,13 @@ Classes:
 Functions:
     `spacegroup_to_pointgroup`
 """
-from __future__ import annotations # class定義中に自己classを型ヒントとして使用するため
+from __future__ import annotations
 
 from collections import defaultdict
 from fractions import Fraction
 from functools import reduce
 from math import gcd
-from typing import Any, DefaultDict, Dict, Iterable, List, Optional, overload, Set, Tuple, TypeVar, Union
+from typing import Any, Iterable, List, overload, Set, Tuple, TypeVar, Union
 
 import re
 
@@ -323,19 +323,19 @@ class MatrixREF:
 
     Attributes:
         p (int): Square of the generator of simple extension Q(√p).
-        mat (List[List[REF]]): 2-dimension matrix of `REF` instance.
+        mat (list[list[REF]]): 2-dimension matrix of `REF` instance.
         shape (Tuple[int, int]): Shape of `MatrixREF.mat`. First element is the number of row, second is the number of column.
     """
-    def __init__(self: MatrixREFchild, p: int, mat: Optional[Matrix] = None): # p:int, mat:List[List[int/Fraction]]
+    def __init__(self: MatrixREFchild, p: int, mat: Matrix | None = None): # p:int, mat:list[list[int/Fraction]]
         self.p: int = p
-        self.mat: List[List[REF]] = []
+        self.mat: list[list[REF]] = []
         self.shape: Tuple[int, int]
         if mat is None:
             self.shape = (0, 0)         
         else:
             self.shape = (len(mat), len(mat[0]))
             for row in mat:
-                now: List[REF] = []
+                now: list[REF] = []
                 for r in row:
                     if type(r) is int or type(r) is Fraction:
                         now.append(REF(p, Fraction(r)))
@@ -359,25 +359,25 @@ class MatrixREF:
     def __len__(self: MatrixREFchild) -> int:
         return len(self.mat)
     
-    def __eq__(self: MatrixREFchild, other: Any) -> List[List[bool]]: # type: ignore
+    def __eq__(self: MatrixREFchild, other: Fraction) -> list[list[bool]]: # type: ignore
         m: int
         n: int
         m, n = self.shape
-        smat: List[List[REF]] 
-        omat: List[List[REF]]
-        res: List[List[bool]]
+        smat: list[list[REF]] 
+        omat: list[list[REF]]
+        res: list[list[bool]]
         if type(other) is int or type(other) is Fraction:
             other_: REF = REF(self.p, other)
             smat = self.mat
             res = [[smat[i][j]==other_ for j in range(n)] for i in range(m)]
-            return res # List[List[bool]]
+            return res # list[list[bool]]
 
         elif isinstance(other, MatrixREF):
             if self.p == other.p:
                 smat = self.mat
                 omat = other.mat
                 res = [[smat[i][j]==omat[i][j] for j in range(n)] for i in range(m)]
-                return res # List[List[bool]]
+                return res # list[list[bool]]
             else:
                 raise TypeError(f"REF generator is not same")
         else:
@@ -401,7 +401,7 @@ class MatrixREF:
         m: int
         n: int
         m, n = self.shape
-        res: List[List[REF]] = [[REF(self.p)]*n for _ in range(m)]
+        res: list[list[REF]] = [[REF(self.p)]*n for _ in range(m)]
         for i in range(m):
             for j in range(n):
                 res[i][j] = -self.mat[i][j]
@@ -418,9 +418,9 @@ class MatrixREF:
                     l: int = self.shape[0]
                     m: int = self.shape[1]
                     n: int = other.shape[1]
-                    smat: List[List[REF]] = self.mat
-                    omat: List[List[REF]] = other.mat
-                    res: List[List[REF]] = [[REF(self.p)]*n for _ in range(l)]
+                    smat: list[list[REF]] = self.mat
+                    omat: list[list[REF]] = other.mat
+                    res: list[list[REF]] = [[REF(self.p)]*n for _ in range(l)]
                     for i in range(l):
                         for k in range(n):
                             val: REF = REF(self.p)
@@ -439,10 +439,10 @@ class MatrixREF:
             raise TypeError(f"unsupported operand type(s) for @: '{type(self).__name__}' and '{type(other).__name__}'")
     
     @overload
-    def __getitem__(self: MatrixREFchild, key: int) -> List[REF]:
+    def __getitem__(self: MatrixREFchild, key: int) -> list[REF]:
         ...
     @overload
-    def __getitem__(self: MatrixREFchild, key: slice) -> Iterable[List[REF]]:
+    def __getitem__(self: MatrixREFchild, key: slice) -> Iterable[list[REF]]:
         ...
     def __getitem__(self: MatrixREFchild, key: Any) -> Any:
         return self.mat[key]
@@ -468,7 +468,7 @@ class MatrixREF:
         ret.shape = self.shape
         return ret
 
-    def identity(self: MatrixREFchild, shape: Optional[Tuple[int, int]] = None) -> MatrixREFchild:
+    def identity(self: MatrixREFchild, shape: Tuple[int, int] | None = None) -> MatrixREFchild:
         # m×n単位行列
         m: int
         n: int
@@ -477,7 +477,7 @@ class MatrixREF:
         else:
             m, n = shape
         p: int = self.p
-        res: List[List[REF]] = [[REF(p)]*n for _ in range(m)]
+        res: list[list[REF]] = [[REF(p)]*n for _ in range(m)]
         for i in range(min(m,n)):
             res[i][i] = REF(p, Fraction(1,1), Fraction())
         ret: MatrixREFchild = self.__class__(p)
@@ -485,12 +485,12 @@ class MatrixREF:
         ret.mat = res
         return ret
     
-    def sum(self: MatrixREFchild, axis: Optional[int] = None) -> Union[REF, List[REF]]:
+    def sum(self: MatrixREFchild, axis: int | None = None) -> Union[REF, list[REF]]:
         m: int
         n: int
         m, n = self.shape
         smat = self.mat
-        res: Union[REF, List[REF]]
+        res: Union[REF, list[REF]]
         if axis is None:
             res = REF(self.p)
             for i in range(m):
@@ -503,20 +503,20 @@ class MatrixREF:
                 for i in range(m):
                     for j in range(n):
                         res[j] += smat[i][j]
-                return res # List[REF]
+                return res # list[REF]
             elif axis == 1 or axis == -1:
                 res = [REF(self.p)]*m
                 for i in range(m):
                     for j in range(n):
                         res[i] += smat[i][j]
-                return res # List[REF]
+                return res # list[REF]
             else:
                 raise KeyError(f"axis {axis} is out of bounds for MatrixREF of dimension {len(self.shape)}")
 
 
 class _UnionFind:
     def __init__(self, n: int): # O(n)
-        self.parent: List[int] = [-1]*n
+        self.parent: list[int] = [-1]*n
         self.n: int = n
     def root(self, x: int) -> int: # 要素xの根の番号を返す O(α(n))
         if self.parent[x] < 0:
@@ -538,13 +538,13 @@ class _UnionFind:
         return True 
     def issame(self, x: int, y: int) -> bool: # xとyが同じグループにあるならTrue O(α(n))
         return self.root(x) == self.root(y)
-    def family(self, x:int) -> List[int]: # xが属する連結成分を返す O(n)
+    def family(self, x:int) -> list[int]: # xが属する連結成分を返す O(n)
         return [i for i in range(self.n) if self.issame(i,x)]
-    def maximum(self) -> List[int]: # 最大連結成分を返す O(n)
+    def maximum(self) -> list[int]: # 最大連結成分を返す O(n)
         return self.family(self.parent.index(min(self.parent)))
-    def all_root(self) -> List[int]: # 全ての根の番号を返す O(n)
+    def all_root(self) -> list[int]: # 全ての根の番号を返す O(n)
         return [i for i in range(self.n) if self.parent[i] < 0]
-    def decompose(self) -> List[List[int]]: # 連結成分分解を返す O(nα(n))
+    def decompose(self) -> list[list[int]]: # 連結成分分解を返す O(nα(n))
         return [self.family(i) for i in self.all_root()]
 
 
@@ -555,7 +555,7 @@ class SymmetryOperation(MatrixREF):
 
     Attributes:
         p (int): Square of the generator of simple extension Q(√p).
-        mat (List[List[REF]]): 2-dimension matrix of `REF` instance.
+        mat (list[list[REF]]): 2-dimension matrix of `REF` instance.
         shape (Tuple[int, int]): Shape of `MatrixREF.mat`. First element is the number of row, second is the number of column.
         mirrority (bool): True if the symmetry operation changes right-handed system to left-handed system or vice versa.
     """
@@ -605,7 +605,7 @@ class PhysicalPropertyTensorAnalyzer:
 
     Attributes:
         point_group_name (str): Target point group name written in Schönflies notation.
-        unitary_matrice (List[MatrixREF]): List of the symmetry operations of the crystallographic point group represented as a matrix in an appropriate orthogonal basis.
+        unitary_matrice (list[MatrixREF]): list of the symmetry operations of the crystallographic point group represented as a matrix in an appropriate orthogonal basis.
 
     Todo:
         To implement the converter from spacegroup name to point group name.
@@ -699,7 +699,7 @@ class PhysicalPropertyTensorAnalyzer:
                                         [0,0,-1]], mirrority=True)
 
     # 国際表記 -> Schönflies表記
-    international_to_schoenflies_notation: Dict[str, str] = {
+    international_to_schoenflies_notation: dict[str, str] = {
         # 立方晶(cubic system)
         "m-3m": "Oh",
         "-43m": "Td",
@@ -747,7 +747,7 @@ class PhysicalPropertyTensorAnalyzer:
     # 三方晶では
     # (default):   [111]方向をz軸，c軸とz軸とy軸がx=0上になるようにとる
     # _rombohedral: [111]方向をxyzでの(1,1,1)方向，c軸とz軸と[111]がx=y上になるようにとる
-    PointGroup_generators: Dict[str, List[SymmetryOperation]] = {
+    PointGroup_generators: dict[str, list[SymmetryOperation]] = {
         # 立方晶
         "Oh": [C2_001, C2_010, C3_111, C2_110, inversion],
         "Td": [C2_001, C2_010, C3_111, m_1n10],
@@ -797,7 +797,7 @@ class PhysicalPropertyTensorAnalyzer:
     def __init__(self, point_group_name: str) -> None:
         self.point_group_name: str = point_group_name
         pgname_in_schoenflies_notation: str = self.international_to_schoenflies_notation[self.point_group_name]
-        self.unitary_matrice: List[SymmetryOperation] = self.PointGroup_generators[pgname_in_schoenflies_notation]
+        self.unitary_matrice: list[SymmetryOperation] = self.PointGroup_generators[pgname_in_schoenflies_notation]
 
     @classmethod
     def _Gauss_Elimination_REF(cls, A: MatrixREF) -> MatrixREF: # 掃き出し法による行簡約化
@@ -832,7 +832,7 @@ class PhysicalPropertyTensorAnalyzer:
 
     @classmethod
     def _ternary(cls, n: int, fill: int) -> Tuple[int, ...]: # fill: 桁数
-        res: List[int] = [] # res[i] := nの3進展開の"下から"i桁目
+        res: list[int] = [] # res[i] := nの3進展開の"下から"i桁目
         r: int
         while n:
             n, r = divmod(n,3)
@@ -870,23 +870,23 @@ class PhysicalPropertyTensorAnalyzer:
                 now.append((val_ijk, ijk))
             if now:
                 relations.append(now)
-        return relations # List[List[Tuple[REF,int]]]
+        return relations # list[list[Tuple[REF,int]]]
 
     @classmethod
     def _symmetry(cls, N: int, expr: str) -> Relations: # 対称性から同値になるテンソル要素たちの関係式を生成
         # "ijk = jki = kij" のように，添字で物理的な制約に基づくテンソルの対称性を導入する
         # 複数の条件がある場合はカンマで区切る
         M: int = 3**N
-        expressions: List[List[str]] = [s.split("=") for s in re.sub(r"[\u3000 \t]", "", expr).split(",")]
-        expressions_data : List[Tuple[List[str], str, DefaultDict[str,List[int]], str, DefaultDict[str,List[int]]]] = []
+        expressions: list[list[str]] = [s.split("=") for s in re.sub(r"[\u3000 \t]", "", expr).split(",")]
+        expressions_data : list[Tuple[list[str], str, defaultdict[str,list[int]], str, defaultdict[str,list[int]]]] = []
         relations: Relations = []
         for expression in expressions:
             for i in range(1,len(expression)):
                 if len(expression[0]) != N or len(expression[i]) != N:
                     raise ValueError(f"expressions must be all the same length: {N}")
-                characters: List[str] = list(set(list(expression[0]+expression[i])))
-                d0: DefaultDict[str, List[int]] = defaultdict(list) # 添字表現=expressionにおいて，文字cが出現するindexのリスト
-                d1: DefaultDict[str, List[int]] = defaultdict(list)
+                characters: list[str] = list(set(list(expression[0]+expression[i])))
+                d0: defaultdict[str, list[int]] = defaultdict(list) # 添字表現=expressionにおいて，文字cが出現するindexのリスト
+                d1: defaultdict[str, list[int]] = defaultdict(list)
                 for j in range(N):
                     d0[expression[0][j]].append(j)
                     d1[expression[i][j]].append(j)
@@ -911,7 +911,7 @@ class PhysicalPropertyTensorAnalyzer:
                     if flag: # 全ての文字について条件を満たすならそれらのテンソル要素は同値
                         relations.append([(REF(3, Fraction(1,1)), ijk), (REF(3, Fraction(-1,1)), lmn)])
                         break
-        return relations # List[List[Tuple[REF, int]]]
+        return relations # list[list[Tuple[REF, int]]]
 
     @classmethod
     def _relation_to_ternary(cls, relation: Relation, N: int) -> Relation_ternary: # relationの添字を3進数に変換(printでの出力用)
@@ -937,7 +937,7 @@ class PhysicalPropertyTensorAnalyzer:
                     now.append((val,ijk))
                 if now:
                     renewed.append(now)
-        return renewed, nonzero, flag # Tuple[List[List[Tuple[REF,int]]], Set[int], bool]
+        return renewed, nonzero, flag # Tuple[list[list[Tuple[REF,int]]], Set[int], bool]
 
     @classmethod
     def _untangle_relations(cls, M: int, relations: Relations, nonzero: Set[int]) -> Tuple[Relations, Set[int], bool]: # 係数行列簡約化で関係式を簡約化
@@ -956,8 +956,8 @@ class PhysicalPropertyTensorAnalyzer:
         for family in U.decompose(): # 関係式で結びついているテンソル要素たちごとに処理
             if len(family) == 1:
                 continue
-            family_inv: Dict[int, int] = {a:i for i, a in enumerate(family)}
-            A: List[List[REF]] = [] # 係数行列
+            family_inv: dict[int, int] = {a:i for i, a in enumerate(family)}
+            A: list[list[REF]] = [] # 係数行列
             for relation in relations:
                 if U.issame(relation[0][1], family[0]):
                     a = [zero]*len(family)
@@ -969,12 +969,12 @@ class PhysicalPropertyTensorAnalyzer:
             AA: MatrixREF = cls._Gauss_Elimination_REF(MatrixREF(3, A)) # Gaussの消去法(掃き出し法)で行簡約
             # 簡約化して行の非ゼロ要素が1つだけならそれに対応するテンソル要素の値は0
             # それ以外の行は前よりも簡単になった関係式になっている
-            zero_elements: List[int] = []
+            zero_elements: list[int] = []
             m: int
             n: int
             m, n = AA.shape
             for i in range(m):
-                idxs: List[int] = []
+                idxs: list[int] = []
                 for j in range(n):
                     if AA[i][j] != zero:
                         idxs.append(j)
@@ -987,22 +987,22 @@ class PhysicalPropertyTensorAnalyzer:
                 if z in nonzero:
                     flag = True
                     nonzero.discard(z)
-        return renewed, nonzero, flag # Tuple[List[List[Tuple[REF,int]]], Set[int], bool]
+        return renewed, nonzero, flag # Tuple[list[list[Tuple[REF,int]]], Set[int], bool]
 
     @classmethod
     def _remove_duplicate(cls, relations: Relations, nonzero: Set[int]) -> Tuple[Relations, Set[int], bool]: # 複数の等価な式を一本化
         flag: bool = False
         renewed: Relations = []
         for idx1 in range(len(relations)):
-            d1: DefaultDict[int, REF] = defaultdict(lambda: REF(3))
+            d1: defaultdict[int, REF] = defaultdict(lambda: REF(3))
             for val, ijk in relations[idx1]:
                 d1[ijk] += val
             flag2: bool = True # relations[idx1]と等価なものが存在するならFalse
             for idx2 in range(idx1,len(relations)):
                 if idx1 == idx2:
                     continue
-                d2: DefaultDict[int, REF] = defaultdict(lambda: REF(3)) # (関係式)=0において，関係式の各テンソル要素の係数を計算
-                d2_inv: DefaultDict[int, REF] = defaultdict(lambda: REF(3)) # 両辺に-1をかけた関係式
+                d2: defaultdict[int, REF] = defaultdict(lambda: REF(3)) # (関係式)=0において，関係式の各テンソル要素の係数を計算
+                d2_inv: defaultdict[int, REF] = defaultdict(lambda: REF(3)) # 両辺に-1をかけた関係式
                 for val, ijk in relations[idx2]:
                     d2[ijk] += val
                     d2_inv[ijk] -= val
@@ -1014,15 +1014,15 @@ class PhysicalPropertyTensorAnalyzer:
                 renewed.append(relations[idx1])
             else:
                 flag = True
-        return renewed, nonzero, flag # Tuple[List[List[Tuple[REF,int]]], Set[int], bool]
+        return renewed, nonzero, flag # Tuple[list[list[Tuple[REF,int]]], Set[int], bool]
 
     @classmethod
-    def _simplify_coefficient(cls, R: List[REF]) -> List[REF]: # O(len(A))
+    def _simplify_coefficient(cls, R: list[REF]) -> list[REF]: # O(len(A))
         # Rの要素たちの比を保ったままREFの有理部と無理部の係数を整数に簡約化
         def lcm(a: int, b: int) -> int:
             return a * b // gcd(a, b) # int 
-        L: List[int] = []
-        G: List[int] = []
+        L: list[int] = []
+        G: list[int] = []
         z: Fraction = Fraction()
         flag: bool = False # 有理部の係数が全て0ならFalse
         for r in R:
@@ -1039,27 +1039,27 @@ class PhysicalPropertyTensorAnalyzer:
         l: int = reduce(lcm, L)
         g: int = reduce(gcd, G)
         f: Fraction = Fraction(l, g)
-        res: List[REF]
+        res: list[REF]
         if flag:
             res = [r*f for r in R]
         else: # 有理部と無理部の入れ替え
             res = [r.swap()*f for r in R]
-        return res # List[REF]
+        return res # list[REF]
 
     @classmethod
     def _simplify_relations_value(cls, relations: Relations) -> Relations:
-        # relation: List[Tuple[REF,int]] (in relations)の比を保ったままREFの有理部と無理部の係数を整数に簡約化
+        # relation: list[Tuple[REF,int]] (in relations)の比を保ったままREFの有理部と無理部の係数を整数に簡約化
         res: Relations = []
         for relation in relations:
             if len(relation) == 0:
                 continue
-            vals: List[REF] = []
-            ijks: List[int] = []
+            vals: list[REF] = []
+            ijks: list[int] = []
             for val, ijk in relation:
                 vals.append(val)
                 ijks.append(ijk)
             res.append(list(zip(cls._simplify_coefficient(vals), ijks))) # REFの有理部と無理部の簡約化
-        return res # List[List[Tuple[REF, int]]]
+        return res # list[list[Tuple[REF, int]]]
 
     @classmethod
     def _extract_independent(cls, N: int, relations: Relations, nonzero: Set[int]) -> Relations: # 独立な成分と従属成分に分離
@@ -1069,7 +1069,7 @@ class PhysicalPropertyTensorAnalyzer:
         dep: Set[int] = set()
         relations = sorted([sorted(relation, key=lambda x:cls._ternary(x[1], N)) for relation in relations], key=lambda x:x[0][1])
         for relation in relations:
-            family: List[int] = [ijk for _, ijk in relation]
+            family: list[int] = [ijk for _, ijk in relation]
             undetermined: int = 0
             for i, ijk in enumerate(family):
                 if (not ijk in indep) and (not ijk in dep):
@@ -1087,9 +1087,9 @@ class PhysicalPropertyTensorAnalyzer:
         
         # 行列の列を入れ替えて，左側にdepを，右側にindepを寄せる
         # 掃き出せばdepをindepたちだけで表現できる
-        active: List[int] = sorted(list(nonzero), key=lambda x:cls._ternary(x, N))
-        l: List[int] = []
-        r: List[int] = []
+        active: list[int] = sorted(list(nonzero), key=lambda x:cls._ternary(x, N))
+        l: list[int] = []
+        r: list[int] = []
         for ijk in active:
             if ijk in dep:
                 l.append(ijk)
@@ -1099,9 +1099,9 @@ class PhysicalPropertyTensorAnalyzer:
                 indep.add(ijk)
                 r.append(ijk)
         active = l + r
-        active_inv: Dict[int, int] = {a:i for i, a in enumerate(active)}
+        active_inv: dict[int, int] = {a:i for i, a in enumerate(active)}
         
-        A: List[List[REF]] = [] # 係数行列
+        A: list[list[REF]] = [] # 係数行列
         for relation in relations:
             a = [REF(3)]*len(active)
             for val, ijk in relation:
@@ -1111,7 +1111,7 @@ class PhysicalPropertyTensorAnalyzer:
         
         dep_represented_by_indep: Relations = [] # 従属成分たちのみを対象とした関係式(基本的に引数のrelationsと等価)
         for i in range(len(AA)):
-            idxs: List[int] = []
+            idxs: list[int] = []
             for j in range(len(active)):
                 if AA[i][j] != REF(3):
                     idxs.append(j)
@@ -1121,7 +1121,7 @@ class PhysicalPropertyTensorAnalyzer:
             r: REF
             ijk0: int
             r, ijk0 = relation[0]
-            res: List[str] = []
+            res: list[str] = []
             for val, ijk in relation[1:]:
                 v: REF = -val/r
                 if v.b == 0:
@@ -1155,9 +1155,9 @@ class PhysicalPropertyTensorAnalyzer:
         print(*[represent(N, relation) for relation in dep_represented_by_indep], sep="\n")
         print(f"-------------------------------------------")
 
-        return relations # List[List[Tuple[REF,int]]]
+        return relations # list[list[Tuple[REF,int]]]
 
-    def get_elements_info(self, rank: int, axiality: bool, expr: Optional[str] = None) -> List[Tuple[int, ...]]: # N階の極性テンソルがR∈self.unitary_matriceの対称操作で不変となるときの非ゼロになりうる要素の添字を計算
+    def get_elements_info(self, rank: int, axiality: bool, expr: str | None = None) -> list[Tuple[int, ...]]: # N階の極性テンソルがR∈self.unitary_matriceの対称操作で不変となるときの非ゼロになりうる要素の添字を計算
         """Determine which elements are equivalent or zero by straightforward exact calculation based on Neumann's principle.
 
         Note:
@@ -1166,10 +1166,10 @@ class PhysicalPropertyTensorAnalyzer:
         Args:
             rank (int): Rank of target physical property tensor.
             axiality (bool): True if the tensor is an axial tensor.
-            expr (Optional[str]): String representing a relation between elements that is already known. Some relations shall be separated by comma.
+            expr (str | None): String representing a relation between elements that is already known. Some relations shall be separated by comma.
 
         Returns: 
-            (List[Tuple[int, ...]]): Indice(0-indexed) of non-zero elements of the tensor.
+            (list[Tuple[int, ...]]): Indice(0-indexed) of non-zero elements of the tensor.
 
         Examples:
             >>> point_group_name = spacegroup_to_pointgroup("Fd-3m") # Diamond
@@ -1210,13 +1210,13 @@ class PhysicalPropertyTensorAnalyzer:
         # テンソル要素のうち非ゼロの要素の添字を0-indexedで出力
         print()
         print(f"number of nonzero elements: {len(nonzero)}")
-        res: List[Tuple[int, ...]] = sorted([self._ternary(ijk, rank) for ijk in nonzero])
+        res: list[Tuple[int, ...]] = sorted([self._ternary(ijk, rank) for ijk in nonzero])
         print(f"nonzero elements: {res}")
         print()
         
         # 独立成分と従属成分を分離
         self._extract_independent(rank, relations, nonzero)
-        return res # List[Tuple[int, ...]]
+        return res # list[Tuple[int, ...]]
 
 
 def main() -> None:

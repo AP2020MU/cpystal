@@ -13,11 +13,10 @@ Functions:
         -Make a ".struct" file from ".cif" file and ".p1" file.
 
 """
-from __future__ import annotations # class定義中に自己classを型ヒントとして使用するため
+from __future__ import annotations
 
 from bisect import bisect_left
 from collections import deque
-from typing import Deque, List, Optional, Tuple
 import re
 
 import matplotlib.pyplot as plt # type: ignore
@@ -25,9 +24,9 @@ import numpy as np
 import pymatgen # type: ignore
 from pymatgen.io.cif import CifParser # type: ignore
 import pymatgen.analysis.diffraction.xrd # type: ignore
-from scipy.optimize import curve_fit
-from scipy.stats import norm
-from scipy import integrate
+from scipy.optimize import curve_fit # type: ignore
+from scipy.stats import norm # type: ignore
+from scipy import integrate # type: ignore
 
 from ..core import Crystal, PhysicalConstant
 
@@ -38,7 +37,7 @@ plt.rcParams['xtick.direction'] = 'in'
 plt.rcParams['ytick.direction'] = 'in'
 plt.rcParams["legend.framealpha"] = 0
 
-def compare_powder_Xray_experiment_with_calculation(experimental_data_filename: str, cif_filename: str, material: Optional[Crystal] = None, unbackground: bool = False, issave: bool = False) -> Tuple[plt.Figure, plt.Subplot]:
+def compare_powder_Xray_experiment_with_calculation(experimental_data_filename: str, cif_filename: str, material: Crystal | None = None, unbackground: bool = False, issave: bool = False) -> tuple[plt.Figure, plt.Subplot]:
     """Compare experimental intensity data of powder X-ray diffraction with theoretical intensity distribution.
 
     Notes:
@@ -48,15 +47,15 @@ def compare_powder_Xray_experiment_with_calculation(experimental_data_filename: 
     Args:
         experimental_data_filename (str): Input file name (if necessary, add file path to the head). The suffix of `filename` must be ".ras".
         cif_filename (str): Input file name (if necessary, add file path to the head). The suffix of `filename` must be ".cif".
-        material (Optional[Crystal]): `Crystal` instance of the measurement object.
+        material (Crystal | None): `Crystal` instance of the measurement object.
         unbackground (bool): If True, remove the background with piecewise linear interpolation.
 
     Returns:
-        (Tuple[plt.Figure, plt.Subplot]): `plt.Figure` object and plotted `plt.Subplot` object.
+        (tuple[plt.Figure, plt.Subplot]): `plt.Figure` object and plotted `plt.Subplot` object.
     """
     material = Crystal.from_cif(cif_filename)
     # ここから実験データの読み込み
-    data: List[List[float]] = []
+    data: list[list[float]] = []
     flag: bool = False
     with open(experimental_data_filename, encoding="shift_jis") as f:
         for line in f.readlines():
@@ -68,18 +67,18 @@ def compare_powder_Xray_experiment_with_calculation(experimental_data_filename: 
                 data.append(list(map(float, line.strip().split())))
 
     N: int = len(data)
-    two_theta: List[float] = [d[0] for d in data] # データは2θ
+    two_theta: list[float] = [d[0] for d in data] # データは2θ
 
-    intensity: List[float] = [d[1] for d in data]
+    intensity: list[float] = [d[1] for d in data]
     
-    neg: List[float] = [i for i in intensity if i<0]
+    neg: list[float] = [i for i in intensity if i<0]
     assert len(neg)==0 # 負のintensityをもつ壊れたデータがないことを確認
     
     neighbor_num: int = 50 # peak(極大値の中でも急激に増加するもの)判定で参照する近傍のデータ点数
     magnification: int = 4 # 周囲neighbor_num個の強度の最小値に比べて何倍大きければpeakと見なすかの閾値
     half: int = neighbor_num//2 # 中間点
-    que: Deque[float] = deque([])
-    descending_intensity: List[Tuple[float, int, float, float]] = []
+    que: deque[float] = deque([])
+    descending_intensity: list[tuple[float, int, float, float]] = []
     now: float = 0.0
     for i in range(N):
         que.append(intensity[i])
@@ -110,7 +109,7 @@ def compare_powder_Xray_experiment_with_calculation(experimental_data_filename: 
         #print(f"    Kβ: d_hkl/n = {d_hkl_over_n_beta}")
 
     # 変化が小さい部分からバックグラウンドを求める
-    background_points: List[List[float]] = [[x,y] for _,_,x,y in sorted(descending_intensity[len(descending_intensity)//5*3:], key=lambda X:X[2])]
+    background_points: list[list[float]] = [[x,y] for _,_,x,y in sorted(descending_intensity[len(descending_intensity)//5*3:], key=lambda X:X[2])]
     def depeak(arr):
         score = [(arr[0][1]-arr[1][1])*2]
         for i in range(1, len(arr)-1):
@@ -122,8 +121,8 @@ def compare_powder_Xray_experiment_with_calculation(experimental_data_filename: 
         res = [arr[i] for i in sorted(sorted(range(len(arr)), key=lambda i:score[i])[:len(arr)//3*2])]
         return res
     background_points = depeak(background_points)
-    background_x: List[List[float]] = [two_theta[0]] + [x for x,y in background_points] + [two_theta[-1]]
-    background_y: List[List[float]] = [intensity[0]] + [y for x,y in background_points] + [intensity[-1]]
+    background_x: list[float] = [two_theta[0]] + [x for x,y in background_points] + [two_theta[-1]]
+    background_y: list[float] = [intensity[0]] + [y for x,y in background_points] + [intensity[-1]]
     
     # background_pointsから内挿
     def interpolate_bg(x: float):
@@ -148,17 +147,17 @@ def compare_powder_Xray_experiment_with_calculation(experimental_data_filename: 
     # plt.scatter(background_x,background_y)
     # plt.show()
     if unbackground:
-        intensity_unbackground: List[float] = [its-interpolate_bg(tht) for tht,its in zip(two_theta,intensity)]
+        intensity_unbackground: list[float] = [its-interpolate_bg(tht) for tht,its in zip(two_theta,intensity)]
     else:
         intensity_unbackground = intensity
-    exp_tops: List[List[float]] = [[x,y] for _,_,x,y in sorted(descending_intensity[:display_num], key=lambda z:z[3], reverse=True)]
+    exp_tops: list[list[float]] = [[x,y] for _,_,x,y in sorted(descending_intensity[:display_num], key=lambda z:z[3], reverse=True)]
         
     # ここから粉末X線回折の理論計算
     parser: pymatgen.io.cif.CifParser = CifParser(cif_filename)
     structure: pymatgen.core.structure.Structure = parser.get_structures()[0]
     analyzer: pymatgen.analysis.diffraction.xrd.XRDCalculator = pymatgen.analysis.diffraction.xrd.XRDCalculator(wavelength='CuKa')
     diffraction_pattern: pymatgen.analysis.diffraction.core.DiffractionPattern = analyzer.get_pattern(structure)
-    cal_tops: List[list[float]] = [[x,y] for _,_,x,y in sorted(zip(diffraction_pattern.d_hkls, diffraction_pattern.hkls, diffraction_pattern.x, diffraction_pattern.y), key=lambda z:z[3], reverse=True)[:display_num]]
+    cal_tops: list[list[float]] = [[x,y] for _,_,x,y in sorted(zip(diffraction_pattern.d_hkls, diffraction_pattern.hkls, diffraction_pattern.x, diffraction_pattern.y), key=lambda z:z[3], reverse=True)[:display_num]]
     for d_hkl, hkl, x, y in sorted(zip(diffraction_pattern.d_hkls, diffraction_pattern.hkls, diffraction_pattern.x, diffraction_pattern.y), key=lambda z:z[3], reverse=True)[:display_num]:
         print(f"{x:.3f}, {hkl}, {d_hkl:.3f}")
 
@@ -167,7 +166,7 @@ def compare_powder_Xray_experiment_with_calculation(experimental_data_filename: 
     ax.xaxis.set_ticks_position('both')
     ax.yaxis.set_ticks_position('both')
 
-    def LSM(x, y, linear=False): # x: List, y: List
+    def LSM(x, y, linear=False): # x: list, y: list
         x = np.array(x)
         y = np.array(y)
         if linear: # 線形関数近似
@@ -183,7 +182,7 @@ def compare_powder_Xray_experiment_with_calculation(experimental_data_filename: 
     a: float = LSM([y for x,y in exp_tops],[y for x,y in cal_tops])[1]
     # 実験値を理論値に合わせて定数倍
     # 倍率は上位ピーク強度から最小二乗法
-    normalized_intensity: List[float] = [a*x for x in intensity_unbackground]
+    normalized_intensity: list[float] = [a*x for x in intensity_unbackground]
 
     # 実験データ
     ax.plot(two_theta, normalized_intensity, label="obs.", color="blue", marker="o", markersize=1.5, linewidth=0.5, zorder=2)
@@ -221,7 +220,7 @@ def compare_powder_Xray_experiment_with_calculation(experimental_data_filename: 
             fig.savefig(f"./{material.name}_pXray.png", transparent=True)
     return fig, ax
 
-def compare_powder_Xray_experiment_with_calculation_of_some_materials(experimental_data_filename: str, cif_filename_list: List[str], unbackground: bool = False, issave: bool = False) -> Tuple[plt.Figure, plt.Subplot]:
+def compare_powder_Xray_experiment_with_calculation_of_some_materials(experimental_data_filename: str, cif_filename_list: list[str], unbackground: bool = False, issave: bool = False) -> tuple[plt.Figure, plt.Subplot]:
     """Compare experimental intensity data of powder X-ray diffraction with theoretical intensity distribution of some materials.
 
     Notes:
@@ -229,14 +228,14 @@ def compare_powder_Xray_experiment_with_calculation_of_some_materials(experiment
 
     Args:
         experimental_data_filename (str): Input file name (if necessary, add file path to the head). The suffix of `filename` must be ".ras".
-        cif_filename (list[str]): List of input file name (if necessary, add file path to the head). The suffix of `filename` must be ".cif".
+        cif_filename (list[str]): list of input file name (if necessary, add file path to the head). The suffix of `filename` must be ".cif".
         unbackground (bool): If True, remove the background with piecewise linear interpolation.
 
     Returns:
-        (Tuple[plt.Figure, plt.Subplot]): `plt.Figure` object and plotted `plt.Subplot` object.
+        (tuple[plt.Figure, plt.Subplot]): `plt.Figure` object and plotted `plt.Subplot` object.
     """
     # ここから実験データの読み込み
-    data: List[List[float]] = []
+    data: list[list[float]] = []
     flag: bool = False
     with open(experimental_data_filename, encoding="shift_jis") as f:
         for line in f.readlines():
@@ -248,18 +247,18 @@ def compare_powder_Xray_experiment_with_calculation_of_some_materials(experiment
                 data.append(list(map(float, line.strip().split())))
 
     N: int = len(data)
-    two_theta: List[float] = [d[0] for d in data] # データは2θ
+    two_theta: list[float] = [d[0] for d in data] # データは2θ
 
-    intensity: List[float] = [d[1] for d in data]
+    intensity: list[float] = [d[1] for d in data]
     
-    neg: List[float] = [i for i in intensity if i<0]
+    neg: list[float] = [i for i in intensity if i<0]
     assert len(neg)==0 # 負のintensityをもつ壊れたデータがないことを確認
     
     neighbor_num: int = 50 # peak(極大値の中でも急激に増加するもの)判定で参照する近傍のデータ点数
     magnification: int = 4 # 周囲neighbor_num個の強度の最小値に比べて何倍大きければpeakと見なすかの閾値
     half: int = neighbor_num//2 # 中間点
-    que: Deque[float] = deque([])
-    descending_intensity: List[Tuple[float, int, float, float]] = []
+    que: deque[float] = deque([])
+    descending_intensity: list[tuple[float, int, float, float]] = []
     now: float = 0.0
     for i in range(N):
         que.append(intensity[i])
@@ -290,7 +289,7 @@ def compare_powder_Xray_experiment_with_calculation_of_some_materials(experiment
         #print(f"    Kβ: d_hkl/n = {d_hkl_over_n_beta}")
 
     # 変化が小さい部分からバックグラウンドを求める
-    background_points: List[List[float]] = [[x,y] for _,_,x,y in sorted(descending_intensity[len(descending_intensity)//5*3:], key=lambda X:X[2])]
+    background_points: list[list[float]] = [[x,y] for _,_,x,y in sorted(descending_intensity[len(descending_intensity)//5*3:], key=lambda X:X[2])]
     def depeak(arr):
         score = [(arr[0][1]-arr[1][1])*2]
         for i in range(1, len(arr)-1):
@@ -302,8 +301,8 @@ def compare_powder_Xray_experiment_with_calculation_of_some_materials(experiment
         res = [arr[i] for i in sorted(sorted(range(len(arr)), key=lambda i:score[i])[:len(arr)//3*2])]
         return res
     background_points = depeak(background_points)
-    background_x: List[List[float]] = [two_theta[0]] + [x for x,y in background_points] + [two_theta[-1]]
-    background_y: List[List[float]] = [intensity[0]] + [y for x,y in background_points] + [intensity[-1]]
+    background_x: list[float] = [two_theta[0]] + [x for x,y in background_points] + [two_theta[-1]]
+    background_y: list[float] = [intensity[0]] + [y for x,y in background_points] + [intensity[-1]]
     
     # background_pointsから内挿
     def interpolate_bg(x: float):
@@ -328,14 +327,14 @@ def compare_powder_Xray_experiment_with_calculation_of_some_materials(experiment
     # plt.scatter(background_x,background_y)
     # plt.show()
     if unbackground:
-        intensity_unbackground: List[float] = [its-interpolate_bg(tht) for tht,its in zip(two_theta,intensity)]
+        intensity_unbackground: list[float] = [its-interpolate_bg(tht) for tht,its in zip(two_theta,intensity)]
     else:
         intensity_unbackground = intensity
-    exp_tops: List[List[float]] = [[x,y] for _,_,x,y in sorted(descending_intensity[:display_num], key=lambda z:z[3], reverse=True)]
+    exp_tops: list[list[float]] = [[x,y] for _,_,x,y in sorted(descending_intensity[:display_num], key=lambda z:z[3], reverse=True)]
 
     fig: plt.Figure = plt.figure(figsize=(14,8))
     plt.subplots_adjust(wspace=0.4, hspace=0)
-    axs: List[plt.Subplot] = []
+    axs: list[plt.Subplot] = []
     for i in range(len(cif_filename_list)):
         axs.append(fig.add_subplot(len(cif_filename_list),1,i+1))
         axs[i].xaxis.set_ticks_position('both')
@@ -351,13 +350,13 @@ def compare_powder_Xray_experiment_with_calculation_of_some_materials(experiment
         structure: pymatgen.core.structure.Structure = parser.get_structures()[0]
         analyzer: pymatgen.analysis.diffraction.xrd.XRDCalculator = pymatgen.analysis.diffraction.xrd.XRDCalculator(wavelength='CuKa')
         diffraction_pattern: pymatgen.analysis.diffraction.core.DiffractionPattern = analyzer.get_pattern(structure)
-        cal_tops: List[list[float]] = [[x,y] for _,_,x,y in sorted(zip(diffraction_pattern.d_hkls, diffraction_pattern.hkls, diffraction_pattern.x, diffraction_pattern.y), key=lambda z:z[3], reverse=True)[:display_num]]
+        cal_tops: list[list[float]] = [[x,y] for _,_,x,y in sorted(zip(diffraction_pattern.d_hkls, diffraction_pattern.hkls, diffraction_pattern.x, diffraction_pattern.y), key=lambda z:z[3], reverse=True)[:display_num]]
         print(f"####### {material.name} start #########")
         for d_hkl, hkl, x, y in sorted(zip(diffraction_pattern.d_hkls, diffraction_pattern.hkls, diffraction_pattern.x, diffraction_pattern.y), key=lambda z:z[3], reverse=True)[:display_num]:
             print(f"{x:.3f}, {hkl}, {d_hkl:.3f}")
         print(f"####### {material.name} end #########")
 
-        def LSM(x, y, linear=False): # x: List, y: List
+        def LSM(x, y, linear=False): # x: list, y: list
             x = np.array(x)
             y = np.array(y)
             if linear: # 線形関数近似
@@ -410,19 +409,19 @@ def compare_powder_Xray_experiment_with_calculation_of_some_materials(experiment
     return fig, ax
 
 
-def _compare_powder_Xray_experiment_with_calculation(experimental_data_filename: str, cif_filename: str, material: Optional[Crystal] = None) -> Tuple[plt.Figure, plt.Subplot]:
+def _compare_powder_Xray_experiment_with_calculation(experimental_data_filename: str, cif_filename: str, material: Crystal | None = None) -> tuple[plt.Figure, plt.Subplot]:
     """Compare experimental intensity data of powder X-ray diffraction with theoretical intensity distribution.
 
     Args:
         experimental_data_filename (str): Input file name (if necessary, add file path to the head). The suffix of `filename` must be ".ras".
         cif_filename (str): Input file name (if necessary, add file path to the head). The suffix of `filename` must be ".cif".
-        material (Optional[Crystal]): `Crystal` instance of the measurement object.
+        material (Crystal | None): `Crystal` instance of the measurement object.
 
     Returns:
-        (Tuple[plt.Figure, plt.Subplot]): `plt.Figure` object and plotted `plt.Subplot` object.
+        (tuple[plt.Figure, plt.Subplot]): `plt.Figure` object and plotted `plt.Subplot` object.
     """
     # ここから実験データの読み込み
-    data: List[List[float]] = []
+    data: list[list[float]] = []
     flag: bool = False
     with open(experimental_data_filename, encoding="shift_jis") as f:
         for line in f.readlines():
@@ -434,18 +433,18 @@ def _compare_powder_Xray_experiment_with_calculation(experimental_data_filename:
                 data.append(list(map(float, line.strip().split())))
 
     N: int = len(data)
-    two_theta: List[float] = [d[0] for d in data] # データは2θ
-    intensity: List[float] = [d[1] for d in data]
-    normalized_intensity: List[float] = [d[1]/max(intensity)*100 for d in data]
-    neg: List[float] = [i for i in intensity if i<0]
+    two_theta: list[float] = [d[0] for d in data] # データは2θ
+    intensity: list[float] = [d[1] for d in data]
+    normalized_intensity: list[float] = [d[1]/max(intensity)*100 for d in data]
+    neg: list[float] = [i for i in intensity if i<0]
     assert len(neg)==0 # 負のintensityをもつ壊れたデータがないことを確認
     
     neighbor_num: int = 20 # peak(極大値の中でも急激に増加するもの)判定で参照する近傍のデータ点数
     magnification: int = 4 # 周囲neighbor_num個の強度の最小値に比べて何倍大きければpeakと見なすかの閾値
     
     half: int = neighbor_num//2 # 中間点
-    que: Deque[float] = deque([])
-    descending_intensity: List[Tuple[float, int, float, float]] = []
+    que: deque[float] = deque([])
+    descending_intensity: list[tuple[float, int, float, float]] = []
     now: float = 0.0
     for i in range(N):
         que.append(intensity[i])
@@ -506,15 +505,15 @@ def _compare_powder_Xray_experiment_with_calculation(experimental_data_filename:
     plt.show()
     return fig, ax
 
-def make_powder_Xray_diffraction_pattern_in_calculation(cif_filename: str, material: Optional[Crystal] = None) -> Tuple[plt.Figure, plt.Subplot]:
+def make_powder_Xray_diffraction_pattern_in_calculation(cif_filename: str, material: Crystal | None = None) -> tuple[plt.Figure, plt.Subplot]:
     """Calculate theoretical intensity distribution of powder X-ray diffraction.
     
     Args:
         cif_filename (str): Input file name (if necessary, add file path to the head). The suffix of `filename` must be ".cif".
-        material (Optional[Crystal]): `Crystal` instance of the measurement object.
+        material (Crystal | None): `Crystal` instance of the measurement object.
     
     Returns:
-        (Tuple[plt.Figure, plt.Subplot]): `plt.Figure` object and plotted `plt.Subplot` object.
+        (tuple[plt.Figure, plt.Subplot]): `plt.Figure` object and plotted `plt.Subplot` object.
     """
     try:
         parser: pymatgen.io.cif.CifParser = CifParser(cif_filename)
@@ -568,7 +567,7 @@ def Crystal_instance_from_cif_data(cif_filename: str) -> Crystal:
     material.V = structure.lattice.volume / 10**24 # [cm^3]
     return material
 
-def atoms_position_from_p1_file(p1_filename: str) -> List[List[str]]:
+def atoms_position_from_p1_file(p1_filename: str) -> list[list[str]]:
     """Get the position of atoms in unit cell from ".p1" file.
 
     Note:
@@ -578,16 +577,16 @@ def atoms_position_from_p1_file(p1_filename: str) -> List[List[str]]:
         p1_filename (str): Name of the p1 file.
     
     Returns:
-        (List[List[str]]): list of [`atom_name`, `X`, `Y`, `Z`, `Occupation`]
+        (list[list[str]]): list of [`atom_name`, `X`, `Y`, `Z`, `Occupation`]
     """
     with open(p1_filename) as f:
-        lines: List[str] = f.readlines()
+        lines: list[str] = f.readlines()
     idx: int = lines.index("Direct\n")
-    res: List[List[str]] = []
+    res: list[list[str]] = []
     for i in range(idx+1,len(lines)):
-        line: List[str] = lines[i].split()
+        line: list[str] = lines[i].split()
         atom: str = re.sub(r"\d", "", line[3])
-        XYZOccupation: List[str] = line[:3] + line[4:5]
+        XYZOccupation: list[str] = line[:3] + line[4:5]
         res.append([atom, *XYZOccupation])
     return res
 
@@ -608,10 +607,10 @@ def make_struct_file(cif_filename: str, p1_filename: str) -> str:
         (str): The content of saved ".struct" file.
     """
     material: Crystal = Crystal.from_cif(cif_filename)
-    positions: List[str] = ["\t".join(line) for line in atoms_position_from_p1_file(p1_filename)]
+    positions: list[str] = ["\t".join(line) for line in atoms_position_from_p1_file(p1_filename)]
     if material.fu_per_unit_cell is None:
             raise TypeError(f"unsupported operand type(s) for /: 'None' and 'int'\nset value 'fu_per_unit_cell'")
-    res: List[str] = ["! Text format structure file",
+    res: list[str] = ["! Text format structure file",
         "",
         f"{material.name}\t\t\t! Crystal Name",
         f"{material.a}\t{material.b}\t{material.c}\t! Lattice constants a, b, c (�)",
@@ -630,7 +629,7 @@ def make_struct_file(cif_filename: str, p1_filename: str) -> str:
         f.write("\n".join(res))
     return "\n".join(res)
 
-def cal_Debye_specific_heat(T: float, TD: float, num_atom_per_formula_unit: int) -> np.ndarray:
+def cal_Debye_specific_heat(T: float, TD: float, num_atom_per_formula_unit: int) -> float:
     """Calculating Debye mol specific heat.
 
     Args:
@@ -706,7 +705,7 @@ def paramagnetization_curie(H: float, T: float, g: float, J: float, n: int) -> f
     kB: float = 1.380649e-23 # Boltzmann定数 [J/K]
     return n * g * J * brillouin(g*J*muB*H/(kB*T), J)
 
-def fit_paramagnetism(material: Crystal, H: List[float], moment: List[float], T: float) -> Tuple[float, float]:
+def fit_paramagnetism(material: Crystal, H: list[float], moment: list[float], T: float) -> tuple[float, float]:
     """Fitting magnetic field dependence of magnetic moment to theoretical paramagnetism.
 
     Note:
@@ -721,18 +720,18 @@ def fit_paramagnetism(material: Crystal, H: List[float], moment: List[float], T:
             T = temperature.
     Args:
         material (Crystal): Crystal instance.
-        H (List[float]): Magnetic field (Oe).
-        moment (List[float]): Magnetic moment (emu).
+        H (list[float]): Magnetic field (Oe).
+        moment (list[float]): Magnetic moment (emu).
 
     Returns:
-        (Tuple[float, float]): g and J.
+        (tuple[float, float]): g and J.
     """
     n: int = material.num_magnetic_ion
     magnetization = lambda h, g, J: paramagnetization_curie(h, T, g, J, n)
     popt, pcov = curve_fit(magnetization, np.array(H), moment)
     return popt
 
-def demagnetizating_factor_ellipsoid(a: float, b: float, c: float) -> Tuple[float]:
+def demagnetizating_factor_ellipsoid(a: float, b: float, c: float) -> tuple[float, float, float]:
     """Calculating demagnetizating factor of ellipsoid 2a x 2b x 2c.
 
     Args:
@@ -741,7 +740,7 @@ def demagnetizating_factor_ellipsoid(a: float, b: float, c: float) -> Tuple[floa
         c (float): Length of an edge (arb. unit).
     
     Returns:
-        (Tuple[float]): Demagnetizating factor Nx, Ny, Nz.
+        (tuple[float]): Demagnetizating factor Nx, Ny, Nz.
     """
     a, b, c = a/(a+b+c), b/(a+b+c), c/(a+b+c)
     def D(u: float) -> float:
