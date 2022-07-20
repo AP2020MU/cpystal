@@ -169,6 +169,7 @@ def compare_powder_Xray_experiment_with_calculation(experimental_data_filename: 
     def LSM(x, y, linear=False): # x: list, y: list
         x = np.array(x)
         y = np.array(y)
+        x,y = x[:min(len(x),len(y))], y[:min(len(x),len(y))]
         if linear: # 線形関数近似
             a = x@y / (x ** 2).sum()
             return a*x, a, 0
