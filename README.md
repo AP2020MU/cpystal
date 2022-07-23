@@ -2,6 +2,11 @@
 
 結晶学的情報や物性測定データ解析を扱うPythonライブラリ．
 
+# Version
+* 0.0.x：α版
+* 0.1.x：β版
+* 1.x〜：実用版
+
 # Contents
 * cpystal
     * core
