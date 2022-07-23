@@ -1284,41 +1284,44 @@ class ExpDataExpander:
         lamyx_err: list[float] = [self.Width*self.Thickness/(self.R*(i**2)) * (edt/self.LTy) for i,edt in zip(self.Current,self.errdTy)]
 
         # symmetrize
-        lamxx_symm: list[float] = [(lamxx[i]+lamxx[N-1-i])/2 for i in range(N//2+1)][::-1]
-        lamxx_symm_err: list[float] = [np.sqrt(lamxx_err[i]**2 + lamxx_err[N-1-i]**2)/2 for i in range(N//2+1)][::-1]
+        lamxx_symm: list[float] = [(lamxx[i]+lamxx[N-1-i])/2 for i in range(N)]
+        lamxx_symm_err: list[float] = [np.sqrt(lamxx_err[i]**2 + lamxx_err[N-1-i]**2)/2 for i in range(N)]
 
-        lamyx_symm: list[float]
         H_: list[float]
-        if self.Field[0] < 0:
-            H_ = self.Field[N//2:]
-            lamyx_symm = [-(lamyx[i]-lamyx[N-1-i])/2 for i in range(N//2+1)][::-1]
-
+        if N % 2 == 1:
+            H_ = [-h for h in self.Field[N//2+1:][::-1]] + self.Field[N//2:]
         else:
-            H_ = self.Field[:N//2+1][::-1]
-            lamyx_symm = [(lamyx[i]-lamyx[N-1-i])/2 for i in range(N//2+1)][::-1]
+            H_ = [-h for h in self.Field[N//2:][::-1]] + self.Field[N//2:]
 
-        lamyx_symm_err: list[float] = [np.sqrt(lamyx_err[i]**2 + lamyx_err[N-1-i]**2)/2 for i in range(N//2+1)][::-1]
+        lamyx_symm: list[float] = [(lamyx[i]-lamyx[N-1-i])/2 for i in range(N)]
+        lamyx_symm_err: list[float] = [np.sqrt(lamyx_err[i]**2 + lamyx_err[N-1-i]**2)/2 for i in range(N)]
         kxx: list[float] = [lx / (lx**2 + ly**2) for lx,ly in zip(lamxx_symm,lamyx_symm)]
         kxy: list[float] = [ly / (lx**2 + ly**2) for lx,ly in zip(lamxx_symm,lamyx_symm)]
         kxx_err: list[float] = [np.sqrt(((x**2-y**2)*x_err)**2 + (2*x*y*y_err)**2) / ((x**2 + y**2)**2) for x,y,x_err,y_err in zip(lamxx_symm,lamyx_symm,lamxx_symm_err,lamyx_symm_err)]
         kxy_err: list[float] = [np.sqrt((2*x*y*x_err)**2 + ((x**2-y**2)*y_err)**2) / ((x**2 + y**2)**2) for x,y,x_err,y_err in zip(lamxx_symm,lamyx_symm,lamxx_symm_err,lamyx_symm_err)]
         return H_, kxx, kxy, kxx_err, kxy_err
     
+    def symmetrize_positive_half(self) -> tuple[list[float], list[float], list[float], list[float], list[float]]:
+        H_, kxx, kxy, kxx_err, kxy_err = self.symmetrize()
+        N: int = len(H_)
+        if H_[0] < 0:
+            return H_[N//2:], kxx[N//2:], kxy[N//2:], kxx_err[N//2:], kxy_err[N//2:]
+        else:
+            return H_[:(N+1)//2][::-1], kxx[:(N+1)//2][::-1], kxy[:(N+1)//2][::-1], kxx_err[:(N+1)//2][::-1], kxy_err[:(N+1)//2][::-1]
+    
     def symmetrize_dT(self) -> tuple[list[float], list[float], list[float], list[float], list[float]]:
         N: int = len(self.Field)
-        dTx_symm: list[float] = [(self.dTx[i]+self.dTx[N-1-i])/2 for i in range(N//2+1)][::-1]
-        dTx_symm_err: list[float] = [np.sqrt(self.errdTx[i]**2 + self.errdTx[N-1-i]**2)/2 for i in range(N//2+1)][::-1]
+        dTx_symm: list[float] = [(self.dTx[i]+self.dTx[N-1-i])/2 for i in range(N)]
+        dTx_symm_err: list[float] = [np.sqrt(self.errdTx[i]**2 + self.errdTx[N-1-i]**2)/2 for i in range(N)]
         
-        dTy_symm: list[float]
         H_: list[float]
-        if self.Field[0] < 0:
-            H_ = self.Field[N//2:]
-            dTy_symm = [-(self.dTy[i]-self.dTy[N-1-i])/2 for i in range(N//2+1)][::-1]
-
+        if N % 2 == 1:
+            H_ = [-h for h in self.Field[N//2+1:][::-1]] + self.Field[N//2:]
         else:
-            H_ = self.Field[:N//2+1][::-1]
-            dTy_symm = [(self.dTy[i]-self.dTy[N-1-i])/2 for i in range(N//2+1)][::-1]
-        dTy_symm_err: list[float] = [np.sqrt(self.errdTy[i]**2 + self.errdTy[N-1-i]**2)/2 for i in range(N//2+1)][::-1]
+            H_ = [-h for h in self.Field[N//2:][::-1]] + self.Field[N//2:]
+
+        dTy_symm: list[float] = [(self.dTy[i]-self.dTy[N-1-i])/2 for i in range(N)]
+        dTy_symm_err: list[float] = [np.sqrt(self.errdTy[i]**2 + self.errdTy[N-1-i]**2)/2 for i in range(N)]
         return H_, dTx_symm, dTy_symm, dTx_symm_err, dTy_symm_err
 
 
@@ -1485,7 +1488,7 @@ class ExpDataExpanderSeebeck:
 
 
 class ReMakeExpFromRaw:
-    def __init__(self, filename: str, filename_Seebeck: str, attr_cor_to_V: list[int] | None = None) -> None:
+    def __init__(self, filename: str, filename_Seebeck: str, cernox_name: str = "X173409", attr_cor_to_V: list[int] | None = None) -> None:
         self.filename: str = filename
         self.TC_TS: list[list[float]] = []
         with open(file=filename_Seebeck, mode="r") as f:
@@ -1494,7 +1497,8 @@ class ReMakeExpFromRaw:
                 self.TC_TS.append([t,s])
         self.TC_TS = sorted(self.TC_TS, key=lambda x:x[0]) # 温度順にソート
 
-        self.RawData: RawDataExpander = RawDataExpander(filename, filename_Seebeck, attr_cor_to_V)
+        self.RawData: RawDataExpander = RawDataExpander(filename, filename_Seebeck)
+        self.RawData.kxxkxy_mode(cernox_name, attr_cor_to_V)
         filename_exp: str = re.sub(r"Raw", r"Exp", self.filename)
         self.ExpData: ExpDataExpander = ExpDataExpander(filename_exp, filename_Seebeck)
 
@@ -1547,21 +1551,23 @@ class ReMakeExpFromRaw:
         self.kxx: list[float] = [self.R*(i**2)/self.Width/self.Thickness / (dt/self.LTx) for i,dt in zip(self.Current,self.dTx)]
         self.errkxx: list[float] = [k * edtx / dtx for k,dtx,edtx in zip(self.kxx,self.dTx,self.errdTx)]
 
+
     def ave_std(self, eidx: int):
+        slc: slice = slice(eidx-59,eidx+1)
         channel: tuple[int, int] = self.channel
-        aveT_PPMS: float = np.average(self.RawData.PPMSTemp[eidx-59:eidx+1])
-        errT_PPMS: float = np.std(self.RawData.PPMSTemp[eidx-59:eidx+1])
-        aveH: float = np.average(self.RawData.Field[eidx-59:eidx+1])
-        errH: float = np.std(self.RawData.Field[eidx-59:eidx+1])
-        aveCurrent: float = np.average(self.RawData.HeaterCurrent[eidx-59:eidx+1])
-        errCurrent: float = np.std(self.RawData.HeaterCurrent[eidx-59:eidx+1])
-        aveT_Cernox: float = np.average(self.RawData.CernoxTemp[eidx-59:eidx+1])
-        errT_Cernox: float = np.std(self.RawData.CernoxTemp[eidx-59:eidx+1])
+        aveT_PPMS: float = np.average(self.RawData.PPMSTemp[slc])
+        errT_PPMS: float = np.std(self.RawData.PPMSTemp[slc])
+        aveH: float = np.average(self.RawData.Field[slc])
+        errH: float = np.std(self.RawData.Field[slc])
+        aveCurrent: float = np.average(self.RawData.HeaterCurrent[slc])
+        errCurrent: float = np.std(self.RawData.HeaterCurrent[slc])
+        aveT_Cernox: float = np.average(self.RawData.CernoxTemp[slc])
+        errT_Cernox: float = np.std(self.RawData.CernoxTemp[slc])
         Vs = [self.RawData.V1, self.RawData.V2, self.RawData.V3, self.RawData.V4, self.RawData.V5, self.RawData.V6]
-        aveVx: float = np.average(Vs[channel[0]][eidx-59:eidx+1])
-        errVx: float = np.std(Vs[channel[0]][eidx-59:eidx+1])
-        aveVy: float = np.average(Vs[channel[1]][eidx-59:eidx+1])
-        errVy: float = np.std(Vs[channel[1]][eidx-59:eidx+1])
+        aveVx: float = np.average(Vs[channel[0]][slc])
+        errVx: float = np.std(Vs[channel[0]][slc])
+        aveVy: float = np.average(Vs[channel[1]][slc])
+        errVy: float = np.std(Vs[channel[1]][slc])
         # print("######")
         # print(aveT_PPMS, errT_PPMS, aveH, errH, aveCurrent, errCurrent, aveT_Cernox, errT_Cernox, aveVx, errVx, aveVy, errVy)
         # print("+++++++")
@@ -1636,15 +1642,11 @@ class ReMakeExpFromRaw:
 class AATTPMD(RawDataExpander, tk.Frame):
     """App. for Analysis of Thermal Transport Property Measurement Data
     """
-    def __init__(self, *args, **kwarg) -> None:
-        RawDataExpander.__init__(self, *args, **kwarg)
+    def __init__(self, filename: str, filename_Seebeck: str, cernox_name: str, attr_cor_to_V: list[int] | None = None) -> None:
+        RawDataExpander.__init__(self, filename, filename_Seebeck)
+        self.kxxkxy_mode(cernox_name, attr_cor_to_V)
         filename_exp: str = re.sub(r"Raw", r"Exp", self.filename)
-        self.ExpData: ExpDataExpander
-        if len(args) == 2:
-            self.ExpData = ExpDataExpander(filename_exp, args[1])
-        else:
-            self.ExpData = ExpDataExpander(filename_exp, kwarg["filename_Seebeck"])
-            
+        self.ExpData: ExpDataExpander = ExpDataExpander(filename_exp, filename_Seebeck)
 
         root = tk.Tk()
         tk.Frame.__init__(self, root)
