@@ -45,7 +45,7 @@
             * SpinOperator: スピン演算子
             * MultiSpinSystemOperator: 多スピン系の演算子
     * color
-        * Color: 色をRGB,HSV,HLS,YIQ,XYZ,L<sup>*</sup>a<sup>*</sup>b<sup>*</sup>表色系で表現
+        * Color: 色をRGB,HSV,HLS,YIQ,XYZ,L*a*b*表色系で表現
         * Gradation: グラデーションを表現
         * rgb_to_hsv: RGB→HSVの変換
         * hsv_to_rgb: HSV→RGBの変換
@@ -78,7 +78,7 @@
         * ScanField: 「磁場スキャン」を指示するシークエンスコマンド
         * ScanTemp: 「温度スキャン」を指示するシークエンスコマンド
         * ScanPower: 「ヒーター出力スキャン」を指示するシークエンスコマンド
-        * sequence_maker: シークエンスを生成してcsvファイルを出力
+        * sequence_maker: シークエンスを生成してcsvファイルを出力　
 
 # Requirements
 * numpy
