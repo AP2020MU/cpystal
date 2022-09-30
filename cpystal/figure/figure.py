@@ -19,12 +19,12 @@ class ImageProcessing:
 
     Methods:
         all_transaction: カレントディレクトリ内の全画像について、画像形式をselfの形式に一括変更したものを新たに生成
+        split: 画像分割
         save: 画像保存
         change_name: (拡張子を除いた)新しいファイル名を設定
         grayscaling: グレースケール化
         transparent: 透過化
         eliminate_color: 特定の色を透明化
-        split: 画像分割
         invert: 画素値反転
         flip: 上下鏡映反転
         mirror: 左右鏡映反転
@@ -74,6 +74,31 @@ class ImageProcessing:
                 else:
                     rgb_im.save(ftitle + self.extension, self.extension[-l_extension+1:].upper(), quality=95)
         print("transaction finished")
+    
+    def split(self, vertical_split: int, horizontal_split: int, flag: bool = False) -> list:
+        """画像分割
+
+        Args:
+            vertical_split (int): 縦の分割数
+            horizontal_split (int): 横の分割数
+            flag (bool): Trueなら保存
+
+        Returns:
+            (list[list[Image]]): 画像行列
+        """
+        height_splitted: int = self.current.height // vertical_split - 1
+        width_splitted: int = self.current.width // horizontal_split - 1
+        im_matrix: list[list] = []
+        for v in range(vertical_split):
+            im_list: list = []
+            for h in range(horizontal_split):
+                im_splitted_vh: Image = self.current.crop((h*width_splitted, v*height_splitted,  h*width_splitted+width_splitted, v*height_splitted+height_splitted))
+                im_list.append(im_splitted_vh)
+                if flag:
+                    im_splitted_vh.save(f"{v}{h}{self.extension}", quality=95)
+            im_matrix.append(im_list)
+        return im_matrix
+    
 
     def save(self, dpi = (300, 300)) -> None:
         """画像保存
@@ -84,11 +109,17 @@ class ImageProcessing:
     
     def change_name(self, new_name: str) -> None:
         """名前変更
+
+        Args:
+            new_name (str): 新しい名前
         """
         self.name_current = new_name
     
     def grayscaling(self, flag: bool = False) -> Image:
         """モノクロ化
+
+        Args:
+            flag (bool): Trueなら保存
         """
         im_gray: Image = self.current.convert('L')
         new_name: str = self.name_current + '_grayed'
@@ -100,6 +131,10 @@ class ImageProcessing:
     def transparent(self, alpha: int, flag: bool = False) -> Image:
         """透過画像化(png形式)
             alpha == 0(100%透過)~255(0%透過(不透過))
+
+        Args:
+            alpha (int): 透過率(0:100%透過, 255:0%透過)
+            flag (bool): Trueなら保存
         """
         if self.extension != '.png':
             self.current.save(self.name_current + '_extensioned' + '.png', 'PNG') # PNG形式で保存
@@ -116,6 +151,7 @@ class ImageProcessing:
 
         Args:
             color (tuple[int, int, int]): (R,G,B)
+            flag (bool): Trueなら保存
         """
         if self.extension != '.png':
             self.current.save(self.name_current + '_extensioned' + '.png', 'PNG') # PNG形式で保存
@@ -134,26 +170,13 @@ class ImageProcessing:
             self.current.save(new_name + self.extension, quality=95)
         return self.current
     
-    def split(self, vertical_split: int, horizontal_split: int) -> Image:
-        """画像分割
-
-        Args:
-            vertical_split (int): 縦の分割数
-            horizontal_split (int): 横の分割数
-        """
-        im_height_splitted: Image = self.current.height//vertical_split-1
-        im_width_splitted: Image = self.current.width//horizontal_split-1
-        for v in range(vertical_split):
-            for h in range(horizontal_split):
-
-                im_splitted_vh: Image = self.current.crop((h*im_width_splitted, v*im_height_splitted,  h*im_width_splitted+im_width_splitted, v*im_height_splitted+im_height_splitted))
-                im_splitted_vh.save(f"{v}{h}{self.extension}", quality=95)
-    
     def invert(self, flag: bool = False) -> Image:
         """画素反転
+
+        Args:
+            flag (bool): Trueなら保存
         """
-        img_invert = self.current.convert('RGB')
-        im_invert: Image = ImageOps.invert(img_invert)
+        im_invert: Image = ImageOps.invert(self.current.convert('RGB'))
         new_name: str = self.name_current + '_invert'
         self.current = im_invert.copy()
         self.change_name(new_name)
@@ -163,6 +186,9 @@ class ImageProcessing:
 
     def flip(self, flag: bool = False) -> Image:
         """上下反転
+
+        Args:
+            flag (bool): Trueなら保存
         """
         im_flip: Image = ImageOps.flip(self.current)
         new_name: str = self.name_current + '_flip'
@@ -174,6 +200,9 @@ class ImageProcessing:
 
     def mirror(self, flag: bool = False) -> Image:
         """左右反転
+
+        Args:
+            flag (bool): Trueなら保存
         """
         im_mirror: Image = ImageOps.mirror(self.current)
         new_name: str = self.name_current + '_mirror'
@@ -188,6 +217,7 @@ class ImageProcessing:
 
         Args:
             angle (float): 角度(°)
+            flag (bool): Trueなら保存
         """
         im_rotate: Image = self.current.rotate(angle, expand=True)
         new_name: str = self.name_current + '_rotate'
@@ -206,6 +236,7 @@ class ImageProcessing:
             right (int): 右側の余白 (pixel)
             bottom (int): 下側の余白 (pixel)
             color (tuple[int, int, int]): 余白の色(R,G,B)
+            flag (bool): Trueなら保存
         """
         mode: str = self.current.mode
         if mode == 'L':
@@ -230,6 +261,7 @@ class ImageProcessing:
             right (int): 右側の余白 (pixel)
             bottom (int): 下側の余白 (pixel)
             color (tuple[int, int, int]): 余白の色(R,G,B)
+            flag (bool): Trueなら保存
         """
         mode: str = self.current.mode
         if mode == 'L':
@@ -246,6 +278,9 @@ class ImageProcessing:
     
     def delete_margin(self, standard_point: tuple[int, int] = (0, 0), offset: int = -50, flag: bool = False) -> Image:
         """余白を削除(基準点と同じ色の画像外縁部に存在する余白を削除)
+
+        Args:
+            flag (bool): Trueなら保存
         """
         img: Image = self.current
         bg: Image = Image.new(img.mode, img.size, img.getpixel(standard_point))
@@ -266,6 +301,7 @@ class ImageProcessing:
 
         Args:
             magnification (float): 拡大倍率
+            flag (bool): Trueなら保存
         """
         im_resize_lanczos: Image = self.current.resize((int(self.current.width/magnification), int(self.current.height/magnification)), Image.LANCZOS)
         new_name: str = self.name_current + '_resized1'
@@ -280,6 +316,7 @@ class ImageProcessing:
 
         Args:
             filename (str): 画像ファイルパス
+            flag (bool): Trueなら保存
         """
         im_standard: Image = Image.open(filename)
         im_resize_lanczos: Image = self.current.resize((im_standard.width, im_standard.height), Image.LANCZOS)
@@ -292,6 +329,9 @@ class ImageProcessing:
     
     def to_A4(self, flag: bool = False) -> Image:
         """A4サイズになるように余白を追加(解像度300dpiの場合)
+
+        Args:
+            flag (bool): Trueなら保存
         """
         if self.current.width < self.current.height:
             self.current.rotate(90, expand=True)
@@ -314,6 +354,7 @@ class ImageProcessing:
         Args:
             left_up (tuple[int, int]): (width, height)
             right_down (tuple[int, int]): (width, height)
+            flag (bool): Trueなら保存
         """
         l, u = left_up
         r, d = right_down
@@ -332,6 +373,7 @@ class ImageProcessing:
         Args:
             crop_width (int): width方向の長さ
             crop_height (int): height方向の長さ
+            flag (bool): Trueなら保存
         """
         im_crop_center: Image = self.current.crop(((self.current.width - crop_width) // 2,
                              (self.current.height - crop_height) // 2,
@@ -346,6 +388,9 @@ class ImageProcessing:
 
     def crop_max_square(self, flag: bool = False) -> Image:
         """切り出し3(画像の中心から短辺の長さの正方形(つまり最大の正方形)を切り出す)
+
+        Args:
+            flag (bool): Trueなら保存
         """
         im_crop_max_square: Image = self.crop_center(min(self.current.size), min(self.current.size))
         new_name: str = self.name_current + '_cropped_max_square'
@@ -357,6 +402,9 @@ class ImageProcessing:
 
     def blur(self, flag: bool = False) -> Image:
         """ぼかし
+
+        Args:
+            flag (bool): Trueなら保存
         """
         im_blurred: Image = self.current.filter(ImageFilter.GaussianBlur(2))
         new_name: str = self.name_current + '_blurred'
@@ -374,6 +422,7 @@ class ImageProcessing:
             font_size (int): フォントサイズ
             font_color (tuple[int, int, int]): 文字色
             position (tuple[int, int]): テキストの位置(width, height)
+            flag (bool): Trueなら保存
         """
         im_str: Image = self.current.copy()
         draw3: ImageDraw = ImageDraw.Draw(im_str)
@@ -425,6 +474,7 @@ class ImageProcessing:
             position (tuple[int, int]): 貼り付け位置 (画像左上が(width, height))
             back (bool): Trueならselfが上側にくる
             color (tuple[int, int, int]): 背景色
+            flag (bool): Trueなら保存
         """
         back_im: Image = self.current.copy()
         main_im: Image = Image.open(filename)
@@ -491,6 +541,7 @@ class ImageProcessing:
         Args:
             im (Image): 合成用の画像
             mask (float): [0.0,1.0]の実数
+            flag (bool): Trueなら保存
         """
         im = im.resize(self.current.size, Image.LANCZOS)
         im_blended: Image = Image.blend(self.current, im, mask)
@@ -509,6 +560,7 @@ class ImageProcessing:
         Args:
             im (Image): 合成用の画像
             mask (Image): マスク画像
+            flag (bool): Trueなら保存
         """
         im = im.resize(self.current.size,Image.LANCZOS) # im2を強制的にselfと同じサイズに変更
         im_composited: Image = Image.composite(self.current, im, mask)
@@ -606,7 +658,7 @@ def get_all_img() -> list:
             im_list.append(input_im)
     return im_list
 
-def rename_ordered(prefix='') -> None:
+def rename_ordered(prefix: str = '') -> None:
     """フォルダ内の全画像を取得して名前の順序を保存したまま連番に書き換える
     """
     current_directory_path: str = os.getcwd()
