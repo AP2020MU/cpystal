@@ -735,8 +735,8 @@ def fit_paramagnetism(material: Crystal, H: list[float], moment: list[float], T:
     popt, pcov = curve_fit(magnetization, np.array(H), moment)
     return popt
 
-def demagnetizating_factor_ellipsoid(a: float, b: float, c: float) -> tuple[float, float, float]:
-    """Calculating demagnetizating factor of ellipsoid 2a x 2b x 2c.
+def demagnetizing_factor_ellipsoid(a: float, b: float, c: float) -> tuple[float, float, float]:
+    """Calculating demagnetizing factor of ellipsoid 2a x 2b x 2c.
 
     Args:
         a (float): Length of an edge (arb. unit).
@@ -744,7 +744,7 @@ def demagnetizating_factor_ellipsoid(a: float, b: float, c: float) -> tuple[floa
         c (float): Length of an edge (arb. unit).
     
     Returns:
-        (tuple[float]): Demagnetizating factor Nx, Ny, Nz.
+        (tuple[float]): Demagnetizing factor Nx, Ny, Nz.
     """
     a, b, c = a/(a+b+c), b/(a+b+c), c/(a+b+c)
     def D(u: float) -> float:
@@ -763,8 +763,8 @@ def demagnetizating_factor_ellipsoid(a: float, b: float, c: float) -> tuple[floa
     return Nx, Ny, Nz
 
 # ### Nx+Ny+Nz=1を満たさない，スケーリングで値が異なるなどの問題点
-# def demagnetizating_factor_rectangular_prism_Nf(a: float, b: float, c: float) -> float:
-#     """Calculating demagnetizating factor of rectangular prism axbxc.
+# def demagnetizing_factor_rectangular_prism_Nf(a: float, b: float, c: float) -> float:
+#     """Calculating demagnetizing factor of rectangular prism axbxc.
 
 #     Thesis:
 #         D.-X. Chen et al., IEEE Transactions on Magnetics 38, 4 (2002).
@@ -775,7 +775,7 @@ def demagnetizating_factor_ellipsoid(a: float, b: float, c: float) -> tuple[floa
 #         c (float): Length of an edge (arb. unit).
     
 #     Returns:
-#         (float): Demagnetizating factor.
+#         (float): Demagnetizing factor.
 #     """
 #     def Ff(u: float, v: float) -> float:
 #         return u * np.log(c**2*(8*u**2+4*v**2+c**2+4*u*np.sqrt(4*u**2+4*v**2+c**2)) / (4*v**2+c**2) / (8*u**2+c**2+4*u*np.sqrt(4*u**2+c**2)))
@@ -784,8 +784,8 @@ def demagnetizating_factor_ellipsoid(a: float, b: float, c: float) -> tuple[floa
 #     Nf: float = 2/np.pi * np.arctan(4*a*b/(c*np.sqrt(4*a**2+4*b**2+c**2))) + (c/(2*np.pi*a*b))*(F1+Ff(a,b)+Ff(b,a))
 #     return Nf
 
-# def demagnetizating_factor_rectangular_prism_Nm(a: float, b: float, c: float) -> float:
-#     """Calculating demagnetizating factor of rectangular prism axbxc.
+# def demagnetizing_factor_rectangular_prism_Nm(a: float, b: float, c: float) -> float:
+#     """Calculating demagnetizing factor of rectangular prism axbxc.
 
 #     Thesis:
 #         D.-X. Chen et al., IEEE Transactions on Magnetics 38, 4 (2002).
@@ -796,7 +796,7 @@ def demagnetizating_factor_ellipsoid(a: float, b: float, c: float) -> tuple[floa
 #         c (float): Length of an edge (arb. unit).
     
 #     Returns:
-#         (float): Demagnetizating factor.
+#         (float): Demagnetizing factor.
 #     """
 #     def Fm(u: float, v: float, w: float) -> float:
 #         return u**2*v * np.log((u**2+w**2)*(u**2+2*v**2+2*v*np.sqrt(u**2+v**2)) / (u**2) / (u**2+2*v**2+w**2+2*v*np.sqrt(u**2+v**2+w**2)))
@@ -807,11 +807,12 @@ def demagnetizating_factor_ellipsoid(a: float, b: float, c: float) -> tuple[floa
 #     Nm: float = 2/np.pi * np.arctan(a*b/(c*np.sqrt(a**2+b**2+c**2))) + 1/(3*np.pi*a*b*c)*(F2+F3) + 1/(2*np.pi*a*b*c) * (Fm(a,b,c)+Fm(b,a,c)-Fm(c,a,b)-Fm(c,b,a))
 #     return Nm
 
-def demagnetizating_factor_rectangular_prism(a: float, b: float, c: float) -> float:
-    """Calculating demagnetizating factor of rectangular prism axbxc.
+def demagnetizing_factor_rectangular_prism(a: float, b: float, c: float) -> float:
+    """Calculating demagnetizing factor of rectangular prism axbxc.
 
     Thesis:
         A. Aharoni et al., Journal of Applied Physics 83, 3432 (1998).
+        (See also: http://www.magpar.net/static/magpar/doc/html/demagcalc.html)
 
     Args:
         a (float): Length of an edge (arb. unit).
@@ -819,9 +820,8 @@ def demagnetizating_factor_rectangular_prism(a: float, b: float, c: float) -> fl
         c (float): Length of an edge (arb. unit).
     
     Returns:
-        (float): Demagnetizating factor.
+        (float): Demagnetizing factor.
     """
-
     abc_root: float = np.sqrt(a**2 + b**2 + c**2)
     ab_root: float = np.sqrt(a**2 + b**2)
     bc_root: float = np.sqrt(b**2 + c**2)
