@@ -10,9 +10,10 @@ from __future__ import annotations
 from collections import defaultdict
 from math import pi, sqrt, cos, radians
 import re
-from typing import Any, List, TypeVar
+from typing import Any, Dict, List, TypeVar
 
 import numpy as np
+import numpy.typing as npt
 import scipy.signal # type: ignore
 
 
@@ -185,7 +186,7 @@ atomic_weight: dict[str, float] = {
 }
 
 
-class SemimutableDict(dict):
+class SemimutableDict(Dict[Any, Any]):
     """Semi-mutable dictionary inherited from `dict`
 
     The only difference from `dict` is that using `[]` is not allowed, but using `update_force` method is allowed to replace the value.
@@ -643,7 +644,7 @@ class Crystal: # 結晶の各物理量を計算
             lines: list[str] = f.readlines()
         for line in lines:
             if line.startswith("_chemical_formula_structural"):
-                name: str = re.sub(r".+\'(.+)\'", "\\1", line).replace(" ", "").rstrip()
+                name: str = re.sub(r".+\'(.+)\'", "\\1", re.sub(r"_chemical_formula_structural", "", line)).replace(" ", "").rstrip()
         res: Crystal = cls(name)
         a: float
         b: float
@@ -676,7 +677,7 @@ class Crystal: # 結晶の各物理量を計算
 
 # 型エイリアス
 LF = List[float]
-LLF = List[List[float]] 
+LLF = List[List[float]]
 class PPMSResistivity:
     """This is a class for acquiring experimental data of Physical Properties Measurement System (PPMS) from '.dat' files.
 
@@ -894,8 +895,8 @@ class MPMS:
         """
         if self.material is None:
             raise TypeError
-        Temp: np.ndarray = np.array(temp)
-        sus_inv: np.ndarray = field / (np.array(moment) / self.material.mol)
+        Temp: npt.NDArray[np.float64] = np.array(temp)
+        sus_inv: npt.NDArray[np.float64] = np.array(field / (np.array(moment) / self.material.mol))
         n: int = len(Temp)
         Temp_sum: float = np.sum(Temp)
         susinv_sum: float = np.sum(sus_inv)

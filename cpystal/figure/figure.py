@@ -3,7 +3,7 @@ from __future__ import annotations
 import glob
 import os
 
-from PIL import Image, ImageOps, ImageDraw, ImageFilter, ImageFont, ImageChops
+from PIL import Image, ImageOps, ImageDraw, ImageFilter, ImageFont, ImageChops # type: ignore
 
 class ImageProcessing:
     """画像処理
@@ -227,7 +227,7 @@ class ImageProcessing:
             im_rotate.save(new_name + self.extension, quality=95)
         return im_rotate
 
-    def add_margin(self, left: int, top: int, right: int, bottom: int, color: tuple[int, int, int] = (255, 255, 255), flag: bool = False) -> Image:
+    def add_margin(self, left: int, top: int, right: int, bottom: int, color: tuple[int, int, int] | int = (255, 255, 255), flag: bool = False) -> Image:
         """余白(left, top, right, bottom)を外側に追加
 
         Args:
@@ -235,7 +235,7 @@ class ImageProcessing:
             top (int): 上側の余白 (pixel)
             right (int): 右側の余白 (pixel)
             bottom (int): 下側の余白 (pixel)
-            color (tuple[int, int, int]): 余白の色(R,G,B)
+            color (tuple[int, int, int] | int): 余白の色(R,G,B)
             flag (bool): Trueなら保存
         """
         mode: str = self.current.mode
@@ -252,7 +252,7 @@ class ImageProcessing:
             im_added.save(new_name + self.extension, quality=95)
         return im_added
 
-    def erode_margin(self, left: int, top: int, right: int, bottom: int, color: tuple[int, int, int] = (255, 255, 255), flag: bool = False) -> Image:
+    def erode_margin(self, left: int, top: int, right: int, bottom: int, color: tuple[int, int, int] | int = (255, 255, 255), flag: bool = False) -> Image:
         """サイズを変えずに元画像に余白を侵食
 
         Args:
@@ -260,7 +260,7 @@ class ImageProcessing:
             top (int): 上側の余白 (pixel)
             right (int): 右側の余白 (pixel)
             bottom (int): 下側の余白 (pixel)
-            color (tuple[int, int, int]): 余白の色(R,G,B)
+            color (tuple[int, int, int] | int): 余白の色(R,G,B)
             flag (bool): Trueなら保存
         """
         mode: str = self.current.mode
@@ -336,11 +336,11 @@ class ImageProcessing:
         if self.current.width < self.current.height:
             self.current.rotate(90, expand=True)
         if self.current.height/self.current.width < 3508/2480:
-            self.resize_img1(2480,self.current.width)
-            self.add_margin_img(0, 0, 0, 3508-self.current.height)
+            self.resize1(2480,self.current.width)
+            self.add_margin(0, 0, 0, 3508-self.current.height)
         else:
-            self.resize_img1(3508,self.current.height)
-            self.add_margin_img(0, 0, 2480-self.current.width, 0)
+            self.resize1(3508,self.current.height)
+            self.add_margin(0, 0, 2480-self.current.width, 0)
         new_name: str = self.name_current + '_A4'
         self.change_name(new_name)
         if flag:
@@ -414,13 +414,13 @@ class ImageProcessing:
             im_blurred.save(new_name + self.extension, quality=95)
         return im_blurred
 
-    def text(self, txt: str, font_size: int, font_color: tuple[int, int, int], position: tuple[int, int], flag: bool = False) -> Image: 
+    def text(self, txt: str, font_size: int, font_color: tuple[int, int, int] | int, position: tuple[int, int], flag: bool = False) -> Image: 
         """文字の埋め込み
 
         Args:
             txt (str): テキスト
             font_size (int): フォントサイズ
-            font_color (tuple[int, int, int]): 文字色
+            font_color (tuple[int, int, int] | int): 文字色
             position (tuple[int, int]): テキストの位置(width, height)
             flag (bool): Trueなら保存
         """
@@ -435,7 +435,7 @@ class ImageProcessing:
             im_str.save(new_name + self.extension, quality=95)
         return im_str
 
-    def combine(self, filename: str, direction: str, color: tuple[int, int, int] = (255, 255, 255), flag: bool = False) -> Image:
+    def combine(self, filename: str, direction: str, color: tuple[int, int, int] | int = (255, 255, 255), flag: bool = False) -> Image:
         """連結(2つの画像を連結)
 
         Note:
@@ -444,7 +444,7 @@ class ImageProcessing:
         Args:
             filename (str): ファイル名
             deirection (str): 連結方向 'horizontal' or 'vertical'
-            color (tuple[int, int, int]): 背景色
+            color (tuple[int, int, int] | int): 背景色
             flag (bool): Trueなら保存
         """ 
         mode: str = self.current.mode
@@ -473,7 +473,7 @@ class ImageProcessing:
             filename (str): ファイル名
             position (tuple[int, int]): 貼り付け位置 (画像左上が(width, height))
             back (bool): Trueならselfが上側にくる
-            color (tuple[int, int, int]): 背景色
+            color (tuple[int, int, int] | int): 背景色
             flag (bool): Trueなら保存
         """
         back_im: Image = self.current.copy()
@@ -488,13 +488,13 @@ class ImageProcessing:
             back_im.save(new_name + self.extension, quality=95)
         return back_im
 
-    def paint_rectangle(self, left_up: tuple[int, int], right_down: tuple[int, int], color: tuple[int, int, int] = (255, 255, 255), flag: bool = False) -> Image:
+    def paint_rectangle(self, left_up: tuple[int, int], right_down: tuple[int, int], color: tuple[int, int, int] | int = (255, 255, 255), flag: bool = False) -> Image:
         """範囲選択してその範囲をcolorに変更
 
         Args:
             left_up (tuple[int, int]): (width, height)
             right_down (tuple[int, int]): (width, height)
-            color (tuple[int, int, int]): 背景色
+            color (tuple[int, int, int] | int): 背景色
             flag (bool): Trueなら保存
         """
         l, u = left_up
@@ -571,13 +571,13 @@ class ImageProcessing:
         return im_composited
 
 
-def combine_img_list(name_list: list[str], direction: str, color: tuple[int, int, int] = (255, 255, 255), flag: bool = False) -> Image:
+def combine_img_list(name_list: list[str], direction: str, color: tuple[int, int, int] | int = (255, 255, 255), flag: bool = False) -> Image:
     """連結(画像名群をリストで渡す)
 
     Args:
         name_list (list[str]): ファイル名のリスト
         deirection (str): 連結方向 'horizontal' or 'vertical'
-        color (tuple[int, int, int]): 背景色
+        color (tuple[int, int, int] | int): 背景色
         flag (bool): Trueなら保存
     """
     im_list: list = []
@@ -593,12 +593,12 @@ def combine_img_list(name_list: list[str], direction: str, color: tuple[int, int
     if direction == 'horizontal':
         dst = Image.new('RGB', (w0*len(name_list), h0), color)
         for i in range(len(im_list)):
-            imi: Image = im_list[i].resize((w0, h0), Image.LANCZOS)
+            imi = im_list[i].resize((w0, h0), Image.LANCZOS)
             dst.paste(imi, (w0*i, 0))
     else:
         dst = Image.new('RGB', (w0, h0*len(name_list)), color)
         for i in range(len(im_list)):
-            imi: Image = im_list[i].resize((w0, h0), Image.LANCZOS)
+            imi = im_list[i].resize((w0, h0), Image.LANCZOS)
             dst.paste(imi, (0, h0*i))
     name, extension = os.path.splitext(im0)
     new_name: str = name + '_multi_combined' + extension
@@ -606,12 +606,12 @@ def combine_img_list(name_list: list[str], direction: str, color: tuple[int, int
         dst.save(new_name, quality=95)
     return dst
 
-def combine_img_matrix(name_matrix: list[list[str]], color: tuple[int, int, int] = (255, 255, 255), flag: bool = False) -> Image:
+def combine_img_matrix(name_matrix: list[list[str]], color: tuple[int, int, int] | int = (255, 255, 255), flag: bool = False) -> Image:
     """連結(画像名群を行列で渡す)
 
     Args:
         name_matrix (list[list[str]]): ファイル名の行列
-        color (tuple[int, int, int]): 背景色
+        color (tuple[int, int, int] | int): 背景色
         flag (bool): Trueなら保存
     """
     n_row: int = len(name_matrix)

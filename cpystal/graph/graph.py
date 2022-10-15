@@ -19,6 +19,7 @@ from math import pi
 import matplotlib.pyplot as plt # type: ignore
 from mpl_toolkits.axisartist.axislines import SubplotZero # type: ignore
 import numpy as np
+import numpy.typing as npt
 
 from ..core import Crystal
 
@@ -434,8 +435,8 @@ def graph_susceptibility_vs_temp_CurieWeiss(material: Crystal, Temp: list[float]
     #             arrowprops = dict(arrowstyle = "-|>", color = "black"))
     ax2.set_xlim(0,310)
 
-    Temp_high: np.ndarray = np.array([t for t in Temp if t>Tc])
-    sus_inv: np.ndarray = Field / (np.array([m for t,m in zip(Temp,Moment) if t>Tc]) / material.mol)
+    Temp_high: npt.NDArray[np.float32] = np.array([t for t in Temp if t>Tc])
+    sus_inv: npt.NDArray[np.float32] = Field / (np.array([m for t,m in zip(Temp,Moment) if t>Tc]) / material.mol)
     n: int = len(Temp_high)
     Temp_high_sum: float = np.sum(Temp_high)
     susinv_sum: float = np.sum(sus_inv)
@@ -515,7 +516,7 @@ def graph_powder_Xray_intensity_vs_angle(filename: str, display_num: int = 10, m
     return fig, ax
 
 
-def ax_transplant(ax: plt.Subplot, fig_new: plt.Figure | None = None, figsize: tuple[float, float | None] = None, ax_new: plt.Subplot | None = None) -> tuple[plt.Figure, plt.Subplot]:
+def ax_transplant(ax: plt.Subplot, fig_new: plt.Figure | None = None, figsize: tuple[float, float] | None = None, ax_new: plt.Subplot | None = None) -> tuple[plt.Figure, plt.Subplot]:
     # 現状は最低限のpropertyしかないので必要な項目が増えたら追加する
     if fig_new is None:
         if figsize is None:

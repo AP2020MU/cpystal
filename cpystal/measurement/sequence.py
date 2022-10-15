@@ -57,7 +57,7 @@ class SequenceCommandBase:
         Additive identity of this operation is `SequenceCommandBase()`.
     """
     def __init__(self) -> None:
-        self.commands: list[tuple] = []
+        self.commands: list[tuple[Any, ...]] = []
         self._formatted_commands: list[str] = []
 
         # basically these are constant:
@@ -537,8 +537,8 @@ def sequence_maker(filename: str, command_list: list[SequenceCommand]) -> Sequen
     return res
     
 
-def main():
-    res = sequence_maker(filename="./a.csv", command_list=
+def main() -> None:
+    res: SequenceCommandBase = sequence_maker(filename="./a.csv", command_list=
         [
             SetPower(target=0.1),
             WaitForTemp(extra_wait=1),

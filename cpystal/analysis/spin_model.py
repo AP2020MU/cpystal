@@ -5,9 +5,10 @@ Classes:
     `MultiSpinSystemOperator`
 """
 from __future__ import annotations
-import numpy as np
 from functools import reduce
 
+import numpy as np
+import numpy.typing as npt
 
 class SpinOperator:
     """Spin operators of spin quantum number S.
@@ -24,37 +25,37 @@ class SpinOperator:
         self.S: float = S
         self.N: int = int(2*S+1)
 
-    def Sz(self) -> np.ndarray:
+    def Sz(self) -> npt.NDArray[np.complex64]:
         """Sz
         """
         return np.diag(np.arange(self.S,-self.S-1,-1))
 
-    def Sp(self) -> np.ndarray:
+    def Sp(self) -> npt.NDArray[np.complex64]:
         """Raising operator: S+
         """
-        res: np.ndarray = np.zeros((self.N, self.N))
+        res: npt.NDArray[np.complex64] = np.zeros((self.N, self.N))
         for m in range(1,self.N):
             # <S,M+1|S+|S,M> = sqrt((S-M)*(S+M+1))
             # m = S-M
             res[m-1][m] = np.sqrt(m*(self.N-m))
         return res
 
-    def Sm(self) -> np.ndarray:
+    def Sm(self) -> npt.NDArray[np.complex64]:
         """Lowering operator: S-
         """
-        res: np.ndarray = np.zeros((self.N, self.N))
+        res: npt.NDArray[np.complex64] = np.zeros((self.N, self.N))
         for m in range(self.N-1):
             # <S,M-1|S-|S,M> = sqrt((S+M)*(S-M+1))
             # m = S-M
             res[m+1][m] = np.sqrt((self.N-1-m)*(m+1))
         return res
     
-    def Sx(self) -> np.ndarray:
+    def Sx(self) ->npt.NDArray[np.complex64]:
         """Sx
         """
         return (self.Sp() + self.Sm()) / 2.0
 
-    def Sy(self) -> np.ndarray:
+    def Sy(self) -> npt.NDArray[np.complex64]:
         return (self.Sp() - self.Sm()) / 2.0j
 
 
@@ -82,37 +83,37 @@ class MultiSpinSystemOperator:
         self.N: list[int] = [int(2*s+1) for s in S]
         self.dim: int = reduce(lambda x,y:x*y, self.N)
 
-    def _tensorproduct(self, i: int, j: int, A: np.ndarray, B: np.ndarray) -> np.ndarray:
+    def _tensorproduct(self, i: int, j: int, A: npt.NDArray[np.complex64], B: npt.NDArray[np.complex64]) -> npt.NDArray[np.complex64]:
         """By taking the tensor product (Kronecker product) of the K operators, 
             it will be calculated that the (self.dim × self.dim) matrix, which represents the operations 
             such that operator A acts on the i-th spin, operator B on the j-th spin, and nothing on the other spins.
         """
-        a: list[np.ndarray] = [np.eye(n) for n in self.N]
+        a: list[npt.NDArray[np.complex64]] = [np.eye(n) for n in self.N]
         a[i] = A
         a[j] = B
         return reduce(np.kron, a)
 
-    def SpSm(self, i: int, j: int) -> np.ndarray:
+    def SpSm(self, i: int, j: int) -> npt.NDArray[np.complex64]:
         """(Si+)(Sj-)
         """
         return self._tensorproduct(i, j, self.spins[i].Sp(), self.spins[j].Sm())
 
-    def SmSp(self, i: int, j: int) -> np.ndarray:
+    def SmSp(self, i: int, j: int) -> npt.NDArray[np.complex64]:
         """(Si-)(Sj+)
         """
         return self._tensorproduct(i, j, self.spins[i].Sm(), self.spins[j].Sp())
 
-    def SzSz(self, i: int, j: int) -> np.ndarray:
+    def SzSz(self, i: int, j: int) -> npt.NDArray[np.complex64]:
         """(Siz)(Sjz)
         """
         return self._tensorproduct(i, j, self.spins[i].Sz(), self.spins[j].Sz())
 
-    def Si_dot_Sj(self, i: int, j: int) -> np.ndarray:
+    def Si_dot_Sj(self, i: int, j: int) -> npt.NDArray[np.complex64]:
         """Si \dot Sj
         """
         return (self.SpSm(i,j)+self.SmSp(i,j)) / 2 + self.SzSz(i,j)
 
-    def Si_cross_Sj(self, i: int, j: int) -> np.ndarray:
+    def Si_cross_Sj(self, i: int, j: int) -> npt.NDArray[np.complex64]:
         """Si x Sj
 
         Note:
@@ -120,14 +121,14 @@ class MultiSpinSystemOperator:
         """
         Si: SpinOperator = self.spins[i]
         Sj: SpinOperator = self.spins[j]
-        sysz: np.ndarray = self._tensorproduct(i, j, Si.Sy(), Sj.Sz())
-        szsy: np.ndarray = self._tensorproduct(i, j, Si.Sz(), Sj.Sy())
+        sysz: npt.NDArray[np.complex64] = self._tensorproduct(i, j, Si.Sy(), Sj.Sz())
+        szsy: npt.NDArray[np.complex64] = self._tensorproduct(i, j, Si.Sz(), Sj.Sy())
 
-        szsx: np.ndarray = self._tensorproduct(i, j, Si.Sz(), Sj.Sx())
-        sxsz: np.ndarray = self._tensorproduct(i, j, Si.Sx(), Sj.Sz())
+        szsx: npt.NDArray[np.complex64] = self._tensorproduct(i, j, Si.Sz(), Sj.Sx())
+        sxsz: npt.NDArray[np.complex64] = self._tensorproduct(i, j, Si.Sx(), Sj.Sz())
 
-        sxsy: np.ndarray = self._tensorproduct(i, j, Si.Sx(), Sj.Sy())
-        sysx: np.ndarray = self._tensorproduct(i, j, Si.Sy(), Sj.Sx())
+        sxsy: npt.NDArray[np.complex64] = self._tensorproduct(i, j, Si.Sx(), Sj.Sy())
+        sysx: npt.NDArray[np.complex64] = self._tensorproduct(i, j, Si.Sy(), Sj.Sx())
         return np.array([sysz-szsy, szsx-sxsz, sxsy-sysx])
 
 def main() -> None:

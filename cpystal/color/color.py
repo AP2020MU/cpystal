@@ -2,10 +2,11 @@
 """
 from __future__ import annotations
 
-from typing import Any, Tuple, Union
+from typing import Any, Iterator, Tuple, Union
 
-import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt # type: ignore
 import numpy as np
+import numpy.typing as npt
 
 Color_type = Union[Tuple[int,int,int], Tuple[float,float,float]]
 class Color:
@@ -57,7 +58,7 @@ class Color:
         self.__color: Color_type = color
         self.__color_system: str = color_system
         self.__white_point: str = white_point
-        self.__value_range: dict[str, list[tuple[int, int], tuple[int, int], tuple[int, int]]] = {
+        self.__value_range: dict[str, list[tuple[float, float]]] = {
             "RGB": [(0.0, 1.0), (0.0, 1.0), (0.0, 1.0)],
             "HSV": [(0.0, 1.0), (0.0, 1.0), (0.0, 1.0)],
             "HLS": [(0.0, 1.0), (0.0, 1.0), (0.0, 1.0)],
@@ -65,7 +66,7 @@ class Color:
             "Adobe RGB": [(0.0, 1.0), (0.0, 1.0), (0.0, 1.0)],
             "YIQ": [(0.0, 1.0), (-0.5959, 0.5959), (-0.5229, 0.5229)],
             "XYZ": [(0.0, 0.951), (0.0, 1.0), (0.0, 1.090)],
-            "L*a*b*": [(0, 100), (-128, 127), (-128, 127)],
+            "L*a*b*": [(0.0, 100.0), (-128.0, 127.0), (-128.0, 127.0)],
         }
 
     def __str__(self) -> str:
@@ -78,7 +79,7 @@ class Color:
         new_color: Color = self.__deepcopy__()
         if new_color.color_system == "RGB":
             r,g,b = new_color.color
-            m: int = max(r,g,b) + min(r,g,b)
+            m: float = max(r,g,b) + min(r,g,b)
             new_color.__color = (m-r, m-g, m-b)
             return new_color
         elif new_color.color_system == "HSV":
@@ -102,26 +103,27 @@ class Color:
             new_color = (-new_color.to_rgb()).rgb_to_xyz()
             return new_color
         elif new_color.color_system == "L*a*b*":
-            new_color = (-new_color.to_rgb()).rgb_to_lab()
+            new_color = (-new_color.to_rgb()).rgb_to_xyz().xyz_to_lab()
             return new_color
         else:
+            raise ValueError
             pass
 
     def __add__(self, other: Color) -> Color:
         a,b,c = self.to_rgb().color
         x,y,z = other.to_rgb().color
-        _, maxr, _, maxg, _, maxb = self.__value_range["RGB"]
+        (_, maxr),( _, maxg), (_, maxb) = self.__value_range["RGB"]
         return self.__class__(
-            color=(min(a+x,maxr), min(b+y, maxg), min(c+z, maxb)),
+            color=(min(a+x, maxr), min(b+y, maxg), min(c+z, maxb)),
             color_system="RGB",
         )
 
     def __sub__(self, other: Color) -> Color:
         a,b,c = self.to_rgb().color
         x,y,z = other.to_rgb().color
-        minr, _, ming, _, minb, _ = self.__value_range["RGB"]
+        (minr, _), (ming, _), (minb, _) = self.__value_range["RGB"]
         return self.__class__(
-            color=(max(a-x,minr), max(b-y, ming), max(c-z, minb)),
+            color=(max(a-x, minr), max(b-y, ming), max(c-z, minb)),
             color_system="RGB",
         )
     
@@ -163,7 +165,7 @@ class Color:
     def __len__(self) -> int:
         return len(self.color)
 
-    def __iter__(self) -> float:
+    def __iter__(self) -> Iterator[float | int]:
         yield from self.color
     
     def __getitem__(self, key: Any) -> float:
@@ -176,14 +178,14 @@ class Color:
         )
     
     def __check_color_value(self) -> None:
-        res: list = list(self.color)
+        res: list[float | int] = list(self.color)
         for i, c in enumerate(self.color):
             minc, maxc = self.__value_range[self.color_system][i]
             if c < minc:
                 res[i] = minc
             if c > maxc:
                 res[i] = maxc
-        self.__color = tuple(res)
+        self.__color = (res[0], res[1], res[2])
 
     def __hls_calc(self, m1: float, m2: float, hue: float) -> float:
         hue = hue % 1.0
@@ -200,7 +202,7 @@ class Color:
         return self.__color
 
     @property
-    def color_system(self) -> Color_type:
+    def color_system(self) -> str:
         return self.__color_system
 
     @property
@@ -244,13 +246,12 @@ class Color:
         """
         if self.color_system != "RGB":
             raise ValueError("'color_system' must be 'RGB'")
-
         r,g,b = self.color
         maxc: float = max(r, g, b)
         minc: float = min(r, g, b)
         v: float = maxc
         if maxc == minc:
-            return (0., 0., v)
+            return self.__class__((0., 0., v), "HSV")
         s: float = (maxc-minc) / maxc
         rc: float = (maxc-r) / (maxc-minc)
         gc: float = (maxc-g) / (maxc-minc)
@@ -290,10 +291,9 @@ class Color:
         """
         if self.color_system != "HSV":
             raise ValueError("'color_system' must be 'HSV'")
-
         h,s,v = self.color
         if s == 0.0:
-            return (v, v, v)
+            return self.__class__((v, v, v), "RGB")
         i: int = int(h*6.0)
         f: float = (h*6.0) - i
         p: float = v * (1.0-s)
@@ -339,13 +339,12 @@ class Color:
         """
         if self.color_system != "RGB":
             raise ValueError("'color_system' must be 'RGB'")
-
         r,g,b = self.color
         maxc: float = max(r, g, b)
         minc: float = min(r, g, b)
         l: float = (minc+maxc) / 2.0
         if minc == maxc:
-            return (0.0, l, 0.0)
+            return self.__class__((0.0, l, 0.0), "HLS")
         s: float
         if l <= 0.5:
             s = (maxc-minc) / (maxc+minc)
@@ -390,11 +389,7 @@ class Color:
         """
         if self.color_system != "HLS":
             raise ValueError("'color_system' must be 'HLS'")
-
         h,l,s = self.color
-        r: float
-        g: float
-        b: float
         if s == 0.0:
             r = g = b = l
         else:
@@ -432,7 +427,6 @@ class Color:
         """
         if self.color_system != "RGB":
             raise ValueError("'color_system' must be 'RGB'")
-    
         r,g,b = self.color
         y: float = 0.299*r + 0.587*g + 0.114*b
         i: float = 0.596*r - 0.274*g - 0.322*b
@@ -464,7 +458,6 @@ class Color:
         """
         if self.color_system != "YIQ":
             raise ValueError("'color_system' must be 'YIQ'")
-
         y,i,q = self.color
         r: float = y + 0.956*i + 0.621*q
         g: float = y - 0.273*i - 0.647*q
@@ -616,7 +609,6 @@ class Color:
         """
         if self.color_system != "RGB":
             raise ValueError("'color_system' must be 'RGB'")
-
         r,g,b = self.color
         x: float = 0.412391*r + 0.357584*g + 0.180481*b
         y: float = 0.212639*r + 0.715169*g + 0.072192*b
@@ -646,7 +638,6 @@ class Color:
         """
         if self.color_system != "XYZ":
             raise ValueError("'color_system' must be 'XYZ'")
-            
         x,y,z = self.color
         r: float = 3.240970*x - 1.537383*y - 0.498611*z
         g: float = -0.969244*x + 1.875968*y + 0.041555*z
@@ -722,7 +713,6 @@ class Color:
         Returns:
             (Color): Color expressed in L*a*b*.
         """
-
         if self.color_system != "XYZ":
             raise ValueError("'color_system' must be 'XYZ'")
 
@@ -731,7 +721,6 @@ class Color:
                 return u ** (1/3)
             else:
                 return ((29/3)**3 * u + 16) / 116
-
         xw,yw,zw = 0.9642, 1.0, 0.8249 # D50 white point
         x,y,z = self._d65_to_d50(self.color) # Bradford transformation
         fx,fy,fz = _f(x/xw), _f(y/yw), _f(z/zw)
@@ -774,7 +763,6 @@ class Color:
                 return u ** 3
             else:
                 return (3/29)**3 * (116*u - 16)
-
         xw,yw,zw = 0.9642, 1.0, 0.8249 # D50 white point
         l,a,b = self.color
         fy: float = (l+16) / 116
@@ -809,6 +797,7 @@ class Color:
         elif self.color_system == "L*a*b*":
             return self.lab_to_xyz().xyz_to_rgb()
         else:
+            raise ValueError
             return
     
     def to_hsv(self) -> Color:
@@ -829,6 +818,7 @@ class Color:
         elif self.color_system == "L*a*b*":
             return self.lab_to_xyz().xyz_to_rgb().rgb_to_hsv()
         else:
+            raise ValueError
             return
     
     def to_hls(self) -> Color:
@@ -849,6 +839,7 @@ class Color:
         elif self.color_system == "L*a*b*":
             return self.lab_to_xyz().xyz_to_rgb().rgb_to_hls()
         else:
+            raise ValueError
             return
 
     def to_yiq(self) -> Color:
@@ -869,6 +860,7 @@ class Color:
         elif self.color_system == "L*a*b*":
             return self.lab_to_xyz().xyz_to_rgb().rgb_to_yiq()
         else:
+            raise ValueError
             return
     
     def to_xyz(self) -> Color:
@@ -889,6 +881,7 @@ class Color:
         elif self.color_system == "L*a*b*":
             return self.lab_to_xyz().xyz_to_rgb().rgb_to_xyz()
         else:
+            raise ValueError
             return
     
     def to_lab(self) -> Color:
@@ -909,9 +902,9 @@ class Color:
         elif self.color_system == "L*a*b*":
             return self.__deepcopy__()
         else:
+            raise ValueError
             return
 
-    
     def color_code(self) -> str:
         """Hexadecimal color code
 
@@ -921,7 +914,6 @@ class Color:
         r,g,b = self.to_rgb()
         return f"#{int(r*255):02x}{int(g*255):02x}{int(b*255):02x}"
 
-    
     def to_rgba(self, alpha: float | None = None) -> tuple[float, float, float, float]:
         """Hexadecimal color code
 
@@ -945,15 +937,14 @@ class Color:
         Returns:
             (Color): Projected color. Note that `color_system` of the returned color is always 'RGB'.
         """
-        u = np.array(self.to_rgb().color)
-        v = np.array(other_color.to_rgb().color)
-        lv = np.linalg.norm(v)
-        if lv == 0.0:
+        u: npt.NDArray[np.float32] = np.array(self.to_rgb().color)
+        v: npt.NDArray[np.float32] = np.array(other_color.to_rgb().color)
+        if np.linalg.norm(v) == 0.0:
             a, b, c = 0.0, 0.0, 0.0
         else:
-            a, b, c = (u @ v) * v / (lv ** 2) # orthographic projection
+            a, b, c = (u @ v) * v / (np.linalg.norm(v) ** 2) # orthographic projection
         return self.__class__(
-            color=(a,b,c),
+            color=(float(a), float(b), float(c)),
             color_system="RGB",
         )
     
@@ -1007,7 +998,7 @@ class Gradation:
                 raise ValueError("'start' and 'middle' and 'end' must have same properties")
         self.start: Color = start
         self.end: Color = end
-        self.middle: Color_type | None = middle
+        self.middle: Color | None = middle
 
     def rgb_to_rgba(self, color_list: list[Color]) -> list[tuple[float,float,float,float]]:
         res: list[tuple[float,float,float,float]] = []
@@ -1041,9 +1032,7 @@ class Gradation:
                 raise ValueError("'start' and 'middle' and 'end' must have same properties")
 
         color_system: str = self.start.color_system
-        u: float
-        v: float
-        w: float
+        u: float; v: float; w: float
         if self.middle is None:
             a,b,c = self.start
             x,y,z = self.end
@@ -1094,12 +1083,13 @@ class Gradation:
                 raise ValueError("'start' and 'middle' and 'end' must have same properties")
 
         color_system: str = self.start.color_system
-
+        dist: float
+        res: list[float]
         if self.middle is None:
             a,b,c = self.start
             x,y,z = self.end
-            res: list[float, float, float] = [0., 0., 0.]
-            dist: float = (abs(a-x) + abs(b-y) + abs(c-z)) * proportion
+            res = [0., 0., 0.]
+            dist = (abs(a-x) + abs(b-y) + abs(c-z)) * proportion
             if dist < abs(self.start[order[0]]-self.end[order[0]]):
                 res[order[0]] = self.start[order[0]] + (self.end[order[0]]-self.start[order[0]]) * proportion
                 res[order[1]] = self.start[order[1]]
@@ -1116,8 +1106,8 @@ class Gradation:
             a,b,c = self.start
             p,q,r = self.middle
             x,y,z = self.end
-            res: list[float, float, float] = [0., 0., 0.]
-            dist: float = (abs(a-p) + abs(b-q) + abs(c-r) + abs(p-x) + abs(q-y) + abs(r-z)) * proportion
+            res = [0., 0., 0.]
+            dist = (abs(a-p) + abs(b-q) + abs(c-r) + abs(p-x) + abs(q-y) + abs(r-z)) * proportion
             if dist < abs(a-p) + abs(b-q) + abs(c-r):
                 if dist < abs(self.start[order[0]]-self.middle[order[0]]):
                     res[order[0]] = self.start[order[0]] + (self.middle[order[0]]-self.start[order[0]]) * proportion
@@ -1145,7 +1135,7 @@ class Gradation:
                     res[order[0]] = self.end[order[0]]
                     res[order[1]] = self.middle[order[1]]
                     res[order[2]] = self.middle[order[2]] + (self.end[order[2]]-self.middle[order[2]]) * proportion
-        return Color(color=tuple(res),
+        return Color(color=(res[0], res[1], res[2]),
             color_system=color_system,
         )
 
@@ -1182,11 +1172,11 @@ class Gradation:
         end: Color = self.end.deepcopy()
         middle: Color | None = self.middle
         if middle is not None:
+            if self.middle is None:
+                raise ValueError
             middle = self.middle.deepcopy()
         color_system: str = start.color_system
-        u: float
-        v: float
-        w: float
+        u: float; v: float; w: float
         if middle is None:
             a,b,c = start
             x,y,z = end
@@ -1221,7 +1211,7 @@ class Gradation:
             color_system=color_system,
         )
 
-    def gradation_linear_list(self, num: int = 50) -> Color:
+    def gradation_linear_list(self, num: int = 50) -> list[Color]:
         """Make a list of color gradation linearly in a color space.
 
         Note:
@@ -1246,9 +1236,7 @@ class Gradation:
         res: list[Color] = []
         if num == 1:
             return [self.start.deepcopy()]
-        u: float
-        v: float
-        w: float
+        u: float; v: float; w: float
         if self.middle is None:
             a,b,c = self.start
             x,y,z = self.end
@@ -1306,7 +1294,7 @@ class Gradation:
                     )
             return res
 
-    def gradation_chart_list(self, num: int = 50, order: tuple[float, float, float] = (0,1,2)) -> Color:
+    def gradation_chart_list(self, num: int = 50, order: tuple[int, int, int] = (0,1,2)) -> list[Color]:
         """Make a list of color gradation like a chart in a color space.
 
         Note:
@@ -1362,15 +1350,15 @@ class Gradation:
         end: Color = self.end.deepcopy()
         middle: Color | None = self.middle
         if middle is not None:
+            if self.middle is None:
+                raise ValueError
             middle = self.middle.deepcopy()
 
         color_system: str = start.color_system
         res: list[Color] = []
         if num == 1:
             return [start.deepcopy()]
-        u: float
-        v: float
-        w: float
+        u: float; v: float; w: float
         if middle is None:
             a,b,c = start
             x,y,z = end
@@ -1624,9 +1612,7 @@ def hls_to_rgb(hls: Color_type, digitization: bool = False, MAX_LS: int = 100) -
         h /= 360
         l /= MAX_LS
         s /= MAX_LS
-    r: float
-    g: float
-    b: float
+    r: float; g: float; b: float
     if s == 0.0:
         r = g = b = l
     else:
@@ -1714,10 +1700,10 @@ def view_gradation(color_list: list[Color]) -> None:
         color_list (list[Color]): list of `Color` instances.
 
     """
-    x: np.ndarray = np.linspace(-np.pi, np.pi)
+    x: npt.NDArray[np.float32] = np.linspace(-np.pi, np.pi)
     for i, c in enumerate(color_list):
         print(i,c.to_rgb().color)
-        y: np.ndarray = i/len(color_list) * np.sin(x)
+        y: npt.NDArray[np.float32] = i/len(color_list) * np.sin(x)
         plt.plot(x, y, color=c.to_rgb().color)
     plt.show()
     return
@@ -1768,15 +1754,15 @@ BLACK_YIQ: Color_type = (0.0, 0.0, 0.0)
 
 
 def main() -> None:
-    C: Color = Color(RED_RGB, RGB)
-    C: Color = Color(RED_HSV, HSV)
-    C: Color = Color(GREEN_HSV, HSV)
-    C: Color = Color(BLUE_YIQ, YIQ)
-    print(C.color_code())
-    print(-(-C.to_rgb()))
+    C1: Color = Color(RED_RGB, RGB)
+    C2: Color = Color(RED_HSV, HSV)
+    C3: Color = Color(GREEN_HSV, HSV)
+    C4: Color = Color(BLUE_YIQ, YIQ)
+    print(C1.color_code())
+    print(-(-C1.to_rgb()))
 
     import numpy as np
-    A = np.array([
+    A: npt.NDArray[np.float32] = np.array([
         [1.047886,  0.022919, -0.050216],
         [0.029582,  0.990484, -0.017079],
         [-0.009252,  0.015073,  0.751678]

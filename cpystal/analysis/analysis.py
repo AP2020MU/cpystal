@@ -17,18 +17,21 @@ from __future__ import annotations
 
 from bisect import bisect_left
 from collections import deque
+import os
 import re
+from typing import Any
 
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk # type: ignore
 import matplotlib.pyplot as plt # type: ignore
 import numpy as np
+import numpy.typing as npt
 import pymatgen # type: ignore
 from pymatgen.io.cif import CifParser # type: ignore
 import pymatgen.analysis.diffraction.xrd # type: ignore
 from scipy.optimize import curve_fit # type: ignore
 from scipy.stats import norm # type: ignore
 from scipy import integrate # type: ignore
-import tkinter as tk # type: ignore
+import tkinter as tk
 
 
 from ..core import Crystal, PhysicalConstant
@@ -113,22 +116,22 @@ def compare_powder_Xray_experiment_with_calculation(experimental_data_filename: 
 
     # 変化が小さい部分からバックグラウンドを求める
     background_points: list[list[float]] = [[x,y] for _,_,x,y in sorted(descending_intensity[len(descending_intensity)//5*3:], key=lambda X:X[2])]
-    def depeak(arr):
-        score = [(arr[0][1]-arr[1][1])*2]
+    def depeak(arr: list[list[float]]) -> list[list[float]]:
+        score: list[float] = [(arr[0][1]-arr[1][1])*2]
         for i in range(1, len(arr)-1):
             xim1,yim1 = arr[i-1]
             xi,yi = arr[i]
             xip1,yip1 = arr[i+1]
             score.append(2*yi-yim1-yip1)
         score.append((arr[-1][1]-arr[-2][1])*2)
-        res = [arr[i] for i in sorted(sorted(range(len(arr)), key=lambda i:score[i])[:len(arr)//3*2])]
+        res: list[list[float]] = [arr[i] for i in sorted(sorted(range(len(arr)), key=lambda i:score[i])[:len(arr)//3*2])]
         return res
     background_points = depeak(background_points)
     background_x: list[float] = [two_theta[0]] + [x for x,y in background_points] + [two_theta[-1]]
     background_y: list[float] = [intensity[0]] + [y for x,y in background_points] + [intensity[-1]]
     
     # background_pointsから内挿
-    def interpolate_bg(x: float):
+    def interpolate_bg(x: float) -> float:
         if x < background_points[0][0]:
             tht1,its1 = two_theta[0], intensity[0]
             tht2,its2 = background_points[0]
@@ -142,6 +145,8 @@ def compare_powder_Xray_experiment_with_calculation(experimental_data_filename: 
             tht2,its2 = background_points[i+1]
             if tht1 <= x <= tht2:
                 return its1 + (its2-its1)/(tht2-tht1)*(x-tht1)
+        else:
+            raise ValueError
     # 3次spline補間は相性が悪い
     #interpolate_bg = interp1d(background_x, background_y, kind="cubic")
     # x = np.arange(10,90)
@@ -169,21 +174,23 @@ def compare_powder_Xray_experiment_with_calculation(experimental_data_filename: 
     ax.xaxis.set_ticks_position('both')
     ax.yaxis.set_ticks_position('both')
 
-    def LSM(x, y, linear=False): # x: list, y: list
-        x = np.array(x)
-        y = np.array(y)
-        x,y = x[:min(len(x),len(y))], y[:min(len(x),len(y))]
+    def LSM(X: list[float], Y: list[float], linear: bool = False) -> tuple[npt.NDArray[np.float64], float, float]:
+        x: npt.NDArray[np.float64] = np.array(X)
+        y: npt.NDArray[np.float64] = np.array(Y)
+        x, y = x[:min(len(x),len(y))], y[:min(len(x),len(y))]
+        a: float
+        b: float
         if linear: # 線形関数近似
             a = x@y / (x ** 2).sum()
-            return a*x, a, 0
+            return a*x, a, 0.0
         else: # 1次関数近似
-            n = len(x)
-            xs = np.sum(x)
-            ys = np.sum(y)
+            n: int = len(x)
+            xs: float = np.sum(x)
+            ys: float = np.sum(y)
             a = ((x@y - xs*ys/n) / (np.sum(x ** 2) - xs**2/n))
             b = (ys - a * xs)/n
             return a*x + b, a, b
-    a: float = LSM([y for x,y in exp_tops],[y for x,y in cal_tops])[1]
+    a: float = LSM([y for x,y in cal_tops[:min(len(cal_tops),len(exp_tops))]], [y for x,y in exp_tops[:min(len(cal_tops),len(exp_tops))]])[1]
     # 実験値を理論値に合わせて定数倍
     # 倍率は上位ピーク強度から最小二乗法
     normalized_intensity: list[float] = [a*x for x in intensity_unbackground]
@@ -219,9 +226,9 @@ def compare_powder_Xray_experiment_with_calculation(experimental_data_filename: 
     plt.show()
     if issave:
         if unbackground:
-            fig.savefig(f"./{material.name}_pXray_unbackground.png", transparent=True)
+            fig.savefig(f"./{os.path.splitext(os.path.basename(experimental_data_filename))[0]}_with_{material.name}_pXray_unbackground.png", transparent=True)
         else:
-            fig.savefig(f"./{material.name}_pXray.png", transparent=True)
+            fig.savefig(f"./{os.path.splitext(os.path.basename(experimental_data_filename))[0]}_with_{material.name}_pXray.png", transparent=True)
     return fig, ax
 
 def compare_powder_Xray_experiment_with_calculation_of_some_materials(experimental_data_filename: str, cif_filename_list: list[str], unbackground: bool = False, issave: bool = False) -> tuple[plt.Figure, plt.Subplot]:
@@ -288,28 +295,28 @@ def compare_powder_Xray_experiment_with_calculation_of_some_materials(experiment
             break
         d_hkl_over_n_alpha: float = Cu_K_alpha/np.sin(np.radians(theta_p))/2
         d_hkl_over_n_beta: float = Cu_K_beta/np.sin(np.radians(theta_p))/2
-        print(f"2θ = {2*theta_p:.3f}, intensity = {int(intensity_p)}")
+        print(f"2θ = {theta_p:.3f}, intensity = {int(intensity_p)}")
         print(f"    Kα: d_hkl/n = {d_hkl_over_n_alpha:.2f}")
         #print(f"    Kβ: d_hkl/n = {d_hkl_over_n_beta}")
 
     # 変化が小さい部分からバックグラウンドを求める
     background_points: list[list[float]] = [[x,y] for _,_,x,y in sorted(descending_intensity[len(descending_intensity)//5*3:], key=lambda X:X[2])]
-    def depeak(arr):
-        score = [(arr[0][1]-arr[1][1])*2]
+    def depeak(arr: list[list[float]]) -> list[list[float]]:
+        score: list[float] = [(arr[0][1]-arr[1][1])*2]
         for i in range(1, len(arr)-1):
             xim1,yim1 = arr[i-1]
             xi,yi = arr[i]
             xip1,yip1 = arr[i+1]
             score.append(2*yi-yim1-yip1)
         score.append((arr[-1][1]-arr[-2][1])*2)
-        res = [arr[i] for i in sorted(sorted(range(len(arr)), key=lambda i:score[i])[:len(arr)//3*2])]
+        res: list[list[float]] = [arr[i] for i in sorted(sorted(range(len(arr)), key=lambda i:score[i])[:len(arr)//3*2])]
         return res
     background_points = depeak(background_points)
     background_x: list[float] = [two_theta[0]] + [x for x,y in background_points] + [two_theta[-1]]
     background_y: list[float] = [intensity[0]] + [y for x,y in background_points] + [intensity[-1]]
     
     # background_pointsから内挿
-    def interpolate_bg(x: float):
+    def interpolate_bg(x: float) -> float:
         if x < background_points[0][0]:
             tht1,its1 = two_theta[0], intensity[0]
             tht2,its2 = background_points[0]
@@ -323,6 +330,8 @@ def compare_powder_Xray_experiment_with_calculation_of_some_materials(experiment
             tht2,its2 = background_points[i+1]
             if tht1 <= x <= tht2:
                 return its1 + (its2-its1)/(tht2-tht1)*(x-tht1)
+        else:
+            raise ValueError
     # 3次spline補間は相性が悪い
     #interpolate_bg = interp1d(background_x, background_y, kind="cubic")
     # x = np.arange(10,90)
@@ -360,28 +369,31 @@ def compare_powder_Xray_experiment_with_calculation_of_some_materials(experiment
             print(f"{x:.3f}, {hkl}, {d_hkl:.3f}")
         print(f"####### {material.name} end #########")
 
-        def LSM(x, y, linear=False): # x: list, y: list
-            x = np.array(x)
-            y = np.array(y)
+        def LSM(X: list[float], Y: list[float], linear: bool = False) -> tuple[npt.NDArray[np.float64], float, float]:
+            x: npt.NDArray[np.float64] = np.array(X)
+            y: npt.NDArray[np.float64] = np.array(Y)
+            x, y = x[:min(len(x),len(y))], y[:min(len(x),len(y))]
+            a: float
+            b: float
             if linear: # 線形関数近似
                 a = x@y / (x ** 2).sum()
-                return a*x, a, 0
+                return a*x, a, 0.0
             else: # 1次関数近似
-                n = len(x)
-                xs = np.sum(x)
-                ys = np.sum(y)
+                n: int = len(x)
+                xs: float = np.sum(x)
+                ys: float = np.sum(y)
                 a = ((x@y - xs*ys/n) / (np.sum(x ** 2) - xs**2/n))
                 b = (ys - a * xs)/n
                 return a*x + b, a, b
         # 理論値を実験値に合わせて定数倍する．倍率は上位ピーク強度から最小二乗法
-        a: float = LSM([y for x,y in cal_tops], [y for x,y in exp_tops])[1]
+        a: float = LSM([y for x,y in cal_tops[:min(len(cal_tops),len(exp_tops))]], [y for x,y in exp_tops[:min(len(cal_tops),len(exp_tops))]])[1]
 
         # 理論計算
-        theor_x = np.arange(0,90,0.001)
-        theor_y = np.zeros_like(theor_x)
+        theor_x: npt.NDArray[np.float64] = np.arange(0,90,0.001)
+        theor_y: npt.NDArray[np.float64] = np.zeros_like(theor_x)
         for tx, ty in zip(diffraction_pattern.x, diffraction_pattern.y):
-            theor_y[bisect_left(theor_x,tx)] = a * ty # 理論値を実験値に合わせて定数倍
-        Gaussian = norm.pdf(np.arange(-1,1,0.001),0,0.05)
+            theor_y[np.searchsorted(theor_x,tx)] = a * ty # 理論値を実験値に合わせて定数倍
+        Gaussian: npt.NDArray[np.float64] = norm.pdf(np.arange(-1,1,0.001),0,0.05)
         Gaussian /= Gaussian[len(Gaussian)//2]
         theor_y = np.convolve(theor_y, Gaussian, mode="same")        
         ax.plot(theor_x, theor_y, linewidth=1.2, label=f"calc. {material.name}", color="red", zorder=0)
@@ -407,9 +419,9 @@ def compare_powder_Xray_experiment_with_calculation_of_some_materials(experiment
     plt.show()
     if issave:
         if unbackground:
-            fig.savefig(f"./pXray_unbackground_{'_'.join([material.name for material in materials_list])}.png", transparent=True)
+            fig.savefig(f"./pXray_unbackground_{os.path.splitext(os.path.basename(experimental_data_filename))[0]}_with_{'_'.join([material.name for material in materials_list])}.png", transparent=True)
         else:
-            fig.savefig(f"./pXray_{'_'.join([material.name for material in materials_list])}.png", transparent=True)
+            fig.savefig(f"./pXray_{os.path.splitext(os.path.basename(experimental_data_filename))[0]}_with_{'_'.join([material.name for material in materials_list])}.png", transparent=True)
     return fig, ax
 
 
@@ -644,8 +656,8 @@ def cal_Debye_specific_heat(T: float, TD: float, num_atom_per_formula_unit: int)
     Returns:
         (float): Debye mol specific heat (JK^-1mol^-1).
     """
-    def fD(t: float):
-        def integrand(x):
+    def fD(t: float) -> float:
+        def integrand(x: float) -> float:
             return 0. if x == 0. else x**4 / np.sinh(x/2.)**2
         return 0. if t == 0. else (3/4) * t**3 * integrate.quad(integrand, 0, 1./t)[0]
     R: float = PhysicalConstant().R # 気体定数 [JK^-1mol^-1]
@@ -925,13 +937,13 @@ class RawDataExpander:
         self.V4: list[list[float]] = []
         self.V5: list[list[float]] = []
         self.V6: list[list[float]] = []
-        self.Q: list[list[float]] = []
+        self.Q: list[float] = []
 
         idx: int = 14
         while True:
             try:
-                s: str = self.full_contents[idx]
-                ind, ti, temp, field, angle, cur, *values = map(float, s.split())
+                row: str = self.full_contents[idx]
+                ind, ti, temp, field, angle, cur, *values = map(float, row.split())
                 v1re, v1im, v2re, v2im, v3re, v3im, v4re, v4im, v5re, v5im, v6re, v6im = values
             except:
                 break
@@ -950,45 +962,35 @@ class RawDataExpander:
             self.V6.append([v6re,v6im])        
 
         self.S_TC: list[float] = [self.Seebeck_at_T(t) for t in self.PPMSTemp]
+        self.dTx: list[float]
+        self.dTy: list[float]
+        self.dVx: list[float]
+        self.dVy: list[float]
     
-    def _set_CernoxTemp(self, cernox_name: str, TR: list[float]) -> None:
+    def _set_CernoxTemp(self, cernox_name: str, TR: list[list[float]]) -> None:
         X173409_logRlogT_table: list[tuple[float, float]] = [(3.29314 - 1.42456*log10t + 0.867728*log10t**2 - 0.324371*log10t**3 + 0.0380185*log10t**4, log10t) for log10t in np.linspace(np.log10(1.5),np.log10(320),100000)]
         X173079_logRlogT_table: list[tuple[float, float]] = [(3.29639174 - 1.34578352*log10t + 0.79354379*log10t**2 - 0.29893059*log10t**3 + 0.03486926*log10t**4, log10t) for log10t in np.linspace(np.log10(1.5),np.log10(320),100000)]
 
-        def binary_search_X173409(target: float):
-            log_target = np.log10(target)
+        def binary_search_value(logRlogT_table: list[tuple[float, float]], target: float) -> float:
+            log_target: float = np.log10(target)
             ok: int = 0
-            ng: int = len(X173409_logRlogT_table)
+            ng: int = len(logRlogT_table)
             while abs(ok-ng)>1:
                 mid = (ng+ok)//2
-                if X173409_logRlogT_table[mid][0] >= log_target:
+                if logRlogT_table[mid][0] >= log_target:
                     ok = mid
                 else:
                     ng = mid
-            if ok >= len(X173409_logRlogT_table)-1:
-                ok = len(X173409_logRlogT_table)-2
-            logT = X173409_logRlogT_table[ok][1] + (X173409_logRlogT_table[ok+1][1]-X173409_logRlogT_table[ok][1]) / (X173409_logRlogT_table[ok+1][0]-X173409_logRlogT_table[ok][0]) * (log_target-X173409_logRlogT_table[ok][0])
-            return 10**logT
-        def binary_search_X173079(target: float):
-            log_target = np.log10(target)
-            ok: int = 0
-            ng: int = len(X173079_logRlogT_table)
-            while abs(ok-ng)>1:
-                mid = (ng+ok)//2
-                if X173079_logRlogT_table[mid][0] >= log_target:
-                    ok = mid
-                else:
-                    ng = mid
-            if ok >= len(X173079_logRlogT_table)-1:
-                ok = len(X173079_logRlogT_table)-2
-            logT = X173079_logRlogT_table[ok][1] + (X173079_logRlogT_table[ok+1][1]-X173079_logRlogT_table[ok][1]) / (X173079_logRlogT_table[ok+1][0]-X173079_logRlogT_table[ok][0]) * (log_target-X173079_logRlogT_table[ok][0])
-            return 10**logT
+            if ok >= len(logRlogT_table)-1:
+                ok = len(logRlogT_table)-2
+            logT: float = logRlogT_table[ok][1] + (logRlogT_table[ok+1][1]-logRlogT_table[ok][1]) / (logRlogT_table[ok+1][0]-logRlogT_table[ok][0]) * (log_target-logRlogT_table[ok][0])
+            return 10**logT        
 
         self.CernoxTemp: list[float]
         if cernox_name == "X173409":
-            self.CernoxTemp = [binary_search_X173409(abs(resis)) for temp, resis in TR]
+            self.CernoxTemp = [binary_search_value(X173409_logRlogT_table, abs(resis)) for temp, resis in TR]
         elif cernox_name == "X173079":
-            self.CernoxTemp = [binary_search_X173079(abs(resis)) for temp, resis in TR]
+            self.CernoxTemp = [binary_search_value(X173079_logRlogT_table, abs(resis)) for temp, resis in TR]
         else:
             raise ValueError("cernox name is invalid.")
 
@@ -1007,8 +1009,8 @@ class RawDataExpander:
             attr_cor_to_V = [i-1 for i in attr_cor_to_V]
         Voltages: list[list[list[float]]] = [self.V1, self.V2, self.V3, self.V4, self.V5, self.V6]
         self._set_CernoxTemp(cernox_name, Voltages[attr_cor_to_V[0]])
-        self.dTx: list[float] = [v/s for (v,_), s in zip(Voltages[attr_cor_to_V[1]], self.S_TC)]
-        self.dTy: list[float] = [v/s for (v,_), s in zip(Voltages[attr_cor_to_V[2]], self.S_TC)]
+        self.dTx = [v/s for (v,_), s in zip(Voltages[attr_cor_to_V[1]], self.S_TC)]
+        self.dTy = [v/s for (v,_), s in zip(Voltages[attr_cor_to_V[2]], self.S_TC)]
 
     def SxxSxy_mode(self, cernox_name: str = "X173409", attr_cor_to_V: list[int] | None = None) -> None:
         """
@@ -1024,11 +1026,11 @@ class RawDataExpander:
             attr_cor_to_V = [i-1 for i in attr_cor_to_V]
         Voltages: list[list[list[float]]] = [self.V1, self.V2, self.V3, self.V4, self.V5, self.V6]
         self._set_CernoxTemp(cernox_name, Voltages[attr_cor_to_V[0]])
-        self.dTx: list[float] = [v/s for (v,_), s in zip(Voltages[attr_cor_to_V[1]], self.S_TC)]
-        self.dVx: list[float] = [v for (v,_) in Voltages[attr_cor_to_V[2]]]
-        self.dVy: list[float] = [v for (v,_) in Voltages[attr_cor_to_V[3]]]
+        self.dTx = [v/s for (v,_), s in zip(Voltages[attr_cor_to_V[1]], self.S_TC)]
+        self.dVx = [v for (v,_) in Voltages[attr_cor_to_V[2]]]
+        self.dVy = [v for (v,_) in Voltages[attr_cor_to_V[3]]]
 
-    def Seebeck_at_T(self, T: float):
+    def Seebeck_at_T(self, T: float) -> float:
         if not (self.TC_TS[0][0] <= T <= self.TC_TS[-1][0]):
             return 0
         S_at_T: float = -1
@@ -1040,7 +1042,7 @@ class RawDataExpander:
             raise RuntimeError
         return S_at_T
 
-    def graph_CenoxTemp_vs_Time(self, title: str = ""):
+    def graph_CenoxTemp_vs_Time(self, title: str = "") -> None:
         plt.rcParams['font.size'] = 14
         plt.rcParams['font.family'] = 'Arial'
         plt.rcParams['xtick.direction'] = 'in'
@@ -1063,7 +1065,7 @@ class RawDataExpander:
         ax.set_title(title)
         plt.show()
 
-    def graph_PPMSTemp_hist(self, time1: float, time2: float, bins: int):
+    def graph_PPMSTemp_hist(self, time1: float, time2: float, bins: int) -> None:
         plt.rcParams['font.size'] = 14
         plt.rcParams['font.family'] = 'Arial'
         plt.rcParams['xtick.direction'] = 'in'
@@ -1228,14 +1230,14 @@ class ExpDataExpander:
 
         idx: int = 14
         while idx < len(self.full_contents):
-            s: str = self.full_contents[idx]
-            if s.startswith("#"):
+            row: str = self.full_contents[idx]
+            if row.startswith("#"):
                 idx += 1
                 continue
-            s = re.sub(r"#.*", "", s)
+            row = re.sub(r"#.*", "", row)
 
             sidx0, eidx0, aveT_PPMS0, errT_PPMS0, aveH0, errH0, aveCurrent0, errCurrent0, aveT_Cernox0, errT_Cernox0, aveVx0, errVx0, aveVy0, errVy0, \
-            sidx1, eidx1, aveT_PPMS1, errT_PPMS1, aveH1, errH1, aveCurrent1, errCurrent1, aveT_Cernox1, errT_Cernox1, aveVx1, errVx1, aveVy1, errVy1, dTx, errdTx, kxx, *errkxx = map(float, s.split())
+            sidx1, eidx1, aveT_PPMS1, errT_PPMS1, aveH1, errH1, aveCurrent1, errCurrent1, aveT_Cernox1, errT_Cernox1, aveVx1, errVx1, aveVy1, errVy1, dTx, errdTx, kxx, *errkxx = map(float, row.split())
             self.Index.append((int(sidx0), int(eidx0), int(sidx1), int(eidx1)))
             self.T_PPMS.append(aveT_PPMS1)
             self.Field.append(aveH1)
@@ -1264,7 +1266,7 @@ class ExpDataExpander:
         self.kxx: list[float] = [self.R*(i**2)/self.Width/self.Thickness / (dt/self.LTx) for i,dt in zip(self.Current,self.dTx)]
         self.errkxx: list[float] = [k * edtx / dtx for k,dtx,edtx in zip(self.kxx,self.dTx,self.errdTx)]
 
-    def Seebeck_at_T(self, T: float):
+    def Seebeck_at_T(self, T: float) -> float:
         if not (self.TC_TS[0][0] <= T <= self.TC_TS[-1][0]):
             return 0
         S_at_T: float = -1
@@ -1385,14 +1387,14 @@ class ExpDataExpanderSeebeck:
 
         idx: int = 14
         while idx < len(self.full_contents):
-            s: str = self.full_contents[idx]
-            if s.startswith("#"):
+            row: str = self.full_contents[idx]
+            if row.startswith("#"):
                 idx += 1
                 continue
-            s = re.sub(r"#.*", "", s)
+            row = re.sub(r"#.*", "", row)
 
             sidx0, eidx0, aveT_PPMS0, errT_PPMS0, aveH0, errH0, aveCurrent0, errCurrent0, aveT_Cernox0, errT_Cernox0, aveVx0, errVx0, aveEx0, errEx0, aveEy0, errEy0, \
-            sidx1, eidx1, aveT_PPMS1, errT_PPMS1, aveH1, errH1, aveCurrent1, errCurrent1, aveT_Cernox1, errT_Cernox1, aveVx1, errVx1, aveEx1, errEx1, aveEy1, errEy1, dTx, errdTx, Sxx, errSxx, Sxy = map(float, s.split())
+            sidx1, eidx1, aveT_PPMS1, errT_PPMS1, aveH1, errH1, aveCurrent1, errCurrent1, aveT_Cernox1, errT_Cernox1, aveVx1, errVx1, aveEx1, errEx1, aveEy1, errEy1, _dTx, _errdTx, _Sxx, _errSxx, _Sxy = map(float, row.split())
             self.Index.append((int(sidx0), int(eidx0), int(sidx1), int(eidx1)))
             self.T_PPMS.append(aveT_PPMS1)
             self.Field.append(aveH1)
@@ -1437,7 +1439,7 @@ class ExpDataExpanderSeebeck:
         self.kxx: list[float] = [self.R*(i**2)/self.Width/self.Thickness / (dt/self.LTx) for i,dt in zip(self.Current,self.dTx)]
         self.errkxx: list[float] = [k * edtx / dtx for k,dtx,edtx in zip(self.kxx,self.dTx,self.errdTx)]
 
-    def Seebeck_at_T(self, T: float):
+    def Seebeck_at_T(self, T: float) -> float:
         if not (self.TC_TS[0][0] <= T <= self.TC_TS[-1][0]):
             return 0
         S_at_T: float = -1
@@ -1449,7 +1451,7 @@ class ExpDataExpanderSeebeck:
             raise RuntimeError
         return S_at_T
 
-    def symmetrize(self) -> tuple[list[float], list[float], list[float], list[float], list[float]]:
+    def symmetrize(self) -> tuple[list[float], list[float], list[float], list[float], list[float], list[float], list[float]]:
         N: int = len(self.Field)
 
         # symmetrize
@@ -1552,7 +1554,7 @@ class ReMakeExpFromRaw:
         self.errkxx: list[float] = [k * edtx / dtx for k,dtx,edtx in zip(self.kxx,self.dTx,self.errdTx)]
 
 
-    def ave_std(self, eidx: int):
+    def ave_std(self, eidx: int) -> tuple[float, ...]:
         slc: slice = slice(eidx-59,eidx+1)
         channel: tuple[int, int] = self.channel
         aveT_PPMS: float = np.average(self.RawData.PPMSTemp[slc])
@@ -1573,7 +1575,7 @@ class ReMakeExpFromRaw:
         # print("+++++++")
         return aveT_PPMS, errT_PPMS, aveH, errH, aveCurrent, errCurrent, aveT_Cernox, errT_Cernox, aveVx, errVx, aveVy, errVy
 
-    def Seebeck_at_T(self, T: float):
+    def Seebeck_at_T(self, T: float) -> float:
         if not (self.TC_TS[0][0] <= T <= self.TC_TS[-1][0]):
             return 0
         S_at_T: float = -1
@@ -1648,17 +1650,17 @@ class AATTPMD(RawDataExpander, tk.Frame):
         filename_exp: str = re.sub(r"Raw", r"Exp", self.filename)
         self.ExpData: ExpDataExpander = ExpDataExpander(filename_exp, filename_Seebeck)
 
-        root = tk.Tk()
+        root: tk.Tk = tk.Tk()
         tk.Frame.__init__(self, root)
 
-        self.master = root
+        self.master: tk.Tk = root
         self.master.title(f"{self.filename}")
         self.master.geometry('1500x900')
 
         #-----------------------------------------------
 
         # matplotlib配置用フレーム
-        mtpltlb_frame = tk.Frame(self.master)
+        mtpltlb_frame: tk.Frame = tk.Frame(self.master)
 
         plt.rcParams['font.size'] = 14
         plt.rcParams['font.family'] = 'Arial'
@@ -1744,18 +1746,18 @@ class AATTPMD(RawDataExpander, tk.Frame):
         self.ln4_e1, = self.ax4.plot([],[], color="orange", linewidth=1)
 
         # figとFrameの対応付け
-        self.fig_canvas = FigureCanvasTkAgg(fig, mtpltlb_frame)
-        self.toolbar = NavigationToolbar2Tk(self.fig_canvas, mtpltlb_frame)
-        self.cid1 = fig.canvas.mpl_connect('button_press_event', self._fig_click)
-        self.cid2 = fig.canvas.mpl_connect('motion_notify_event', self._fig_hover)
+        self.fig_canvas: FigureCanvasTkAgg = FigureCanvasTkAgg(fig, mtpltlb_frame)
+        self.toolbar: NavigationToolbar2Tk = NavigationToolbar2Tk(self.fig_canvas, mtpltlb_frame)
+        self.cid1: Any = fig.canvas.mpl_connect('button_press_event', self._fig_click)
+        self.cid2: Any = fig.canvas.mpl_connect('motion_notify_event', self._fig_hover)
         self.fig_canvas.get_tk_widget().pack(expand=False, side=tk.LEFT)
 
         mtpltlb_frame.pack(side=tk.LEFT)
 
         #-----------------------------------------------
         ### sliderを生成
-        self.sliders = [tk.DoubleVar(), tk.DoubleVar()]
-        slider0 = tk.Scale(self.master,
+        self.sliders: list[tk.DoubleVar] = [tk.DoubleVar(), tk.DoubleVar()]
+        slider0: tk.Scale = tk.Scale(self.master,
                     variable = self.sliders[0],
                     command = self._slider_scroll,
                     orient = tk.HORIZONTAL,
@@ -1769,7 +1771,7 @@ class AATTPMD(RawDataExpander, tk.Frame):
                     )
         slider0.pack()
 
-        slider1 = tk.Scale(self.master,
+        slider1: tk.Scale = tk.Scale(self.master,
                     variable = self.sliders[1],
                     command = self._slider_scroll,
                     orient = tk.HORIZONTAL,
@@ -1787,23 +1789,23 @@ class AATTPMD(RawDataExpander, tk.Frame):
 
         #-----------------------------------------------
         ### slider制御のFrame
-        slider_control_frame = tk.Frame(self.master, borderwidth=3, relief="ridge")
+        slider_control_frame: tk.Frame = tk.Frame(self.master, borderwidth=3, relief="ridge")
         # resetボタン
-        reset_button = tk.Button(slider_control_frame, text="Reset", command=self._reset_click)
+        reset_button: tk.Button = tk.Button(slider_control_frame, text="Reset", command=self._reset_click)
         reset_button.grid(row=0, column=0)
 
         # 相対位置固定チェックボタン
-        self.t_lock = 0
-        self.is_locked = tk.BooleanVar()
+        self.t_lock: float = 0.0
+        self.is_locked: tk.BooleanVar = tk.BooleanVar()
         self.is_locked.set(False)
-        lock_cbutton = tk.Checkbutton(slider_control_frame, variable=self.is_locked, text="Lock", command=self._lock_click)
+        lock_cbutton: tk.Checkbutton = tk.Checkbutton(slider_control_frame, variable=self.is_locked, text="Lock", command=self._lock_click)
         lock_cbutton.grid(row=1, column=0)
 
         # increment関係のFrame
-        increment_frame = tk.Frame(slider_control_frame, borderwidth=3, relief="ridge")
-        increment_button = tk.Button(increment_frame, text="Increment", command=self._increment_click)
+        increment_frame: tk.Frame = tk.Frame(slider_control_frame, borderwidth=3, relief="ridge")
+        increment_button: tk.Button = tk.Button(increment_frame, text="Increment", command=self._increment_click)
         increment_button.grid(row=0, column=0)
-        self.increment = tk.Entry(increment_frame, width=8)
+        self.increment: tk.Entry = tk.Entry(increment_frame, width=8)
         self.increment.grid(row=1, column=0)
         increment_frame.grid(rowspan=2, column=1,row=0,sticky=tk.N+tk.S)
 
@@ -1811,36 +1813,36 @@ class AATTPMD(RawDataExpander, tk.Frame):
 
         #-----------------------------------------------
         ### データ解析のFrame
-        analysis_frame = tk.Frame(self.master, borderwidth=3, relief="ridge")
+        analysis_frame: tk.Frame = tk.Frame(self.master, borderwidth=3, relief="ridge")
 
         # データsave先のfilename
-        lbl_filename = tk.Label(analysis_frame, text="save filename")
+        lbl_filename: tk.Label = tk.Label(analysis_frame, text="save filename")
         lbl_filename.pack()
-        self.filename_to_save = tk.Entry(analysis_frame, width=20)
+        self.filename_to_save: tk.Entry = tk.Entry(analysis_frame, width=20)
         self.filename_to_save.pack()
 
         # 測定番号を元に時間範囲を指定
-        exp_idx_frame = tk.Frame(analysis_frame, borderwidth=3, relief="ridge")
-        lbl_exp_idx = tk.Label(exp_idx_frame, text="Exp index", foreground="black")
+        exp_idx_frame: tk.Frame = tk.Frame(analysis_frame, borderwidth=3, relief="ridge")
+        lbl_exp_idx: tk.Label = tk.Label(exp_idx_frame, text="Exp index", foreground="black")
         lbl_exp_idx.grid(row=0, column=0)
-        self.exp_idx = tk.Entry(exp_idx_frame, width=8)
+        self.exp_idx: tk.Entry = tk.Entry(exp_idx_frame, width=8)
         self.exp_idx.grid(row=1, column=0)
-        lbl_now_idx = tk.Label(exp_idx_frame, text="now index", foreground="black")
+        lbl_now_idx: tk.Label = tk.Label(exp_idx_frame, text="now index", foreground="black")
         lbl_now_idx.grid(row=0, column=1)
-        self.now_idx_value = tk.StringVar()
+        self.now_idx_value: tk.StringVar = tk.StringVar()
         self.now_idx_value.set(f"0")
         self.lbl_now_idx_value = tk.Label(exp_idx_frame, textvariable=self.now_idx_value, relief="sunken", width=15)
         self.lbl_now_idx_value.grid(row=1, column=1)
-        update_button = tk.Button(exp_idx_frame, text="Update", command=self._update_click)
+        update_button: tk.Button = tk.Button(exp_idx_frame, text="Update", command=self._update_click)
         update_button.grid(row=0, column=0)
-        prev_button = tk.Button(exp_idx_frame, text="Prev", command=self._prev_click)
+        prev_button: tk.Button = tk.Button(exp_idx_frame, text="Prev", command=self._prev_click)
         prev_button.grid(row=2, column=0)
-        next_button = tk.Button(exp_idx_frame, text="Next", command=self._next_click)
+        next_button: tk.Button = tk.Button(exp_idx_frame, text="Next", command=self._next_click)
         next_button.grid(row=2, column=1)
-        lbl_kxx = tk.Label(exp_idx_frame, text="kxx (W/Km)")
+        lbl_kxx: tk.Label = tk.Label(exp_idx_frame, text="kxx (W/Km)")
         lbl_kxx.grid(row=3, column=0)
-        self.kxx_value = tk.StringVar()
-        self.lbl_kxx_value = tk.Label(exp_idx_frame, textvariable=self.kxx_value, relief="sunken", width=15)
+        self.kxx_value: tk.StringVar = tk.StringVar()
+        self.lbl_kxx_value: tk.Label = tk.Label(exp_idx_frame, textvariable=self.kxx_value, relief="sunken", width=15)
         self.lbl_kxx_value.grid(row=4, column=0)
         exp_idx_frame.pack(pady=10)
 
@@ -1848,40 +1850,40 @@ class AATTPMD(RawDataExpander, tk.Frame):
         range_frame = tk.Frame(analysis_frame, borderwidth=3, relief="ridge")
         lbl_start = tk.Label(range_frame, text="start (s)", foreground="green")
         lbl_start.grid(row=0, column=0)
-        self.time_start = tk.Entry(range_frame, width=8)
+        self.time_start: tk.Entry = tk.Entry(range_frame, width=8)
         self.time_start.grid(row=1, column=0)
         lbl_end = tk.Label(range_frame, text="end (s)", foreground="red")
         lbl_end.grid(row=0, column=1)
-        self.time_end = tk.Entry(range_frame, width=8)
+        self.time_end: tk.Entry = tk.Entry(range_frame, width=8)
         self.time_end.grid(row=1, column=1)
-        self.start_or_end = 0
-        self.is_select_range_by_click = tk.BooleanVar()
+        self.start_or_end: int = 0
+        self.is_select_range_by_click: tk.BooleanVar = tk.BooleanVar()
         self.is_select_range_by_click.set(True)
         select_range_by_click_cbutton = tk.Checkbutton(range_frame, variable=self.is_select_range_by_click, text="select range by click", command=self._select_range_by_click_click)
         select_range_by_click_cbutton.grid(row=2, columnspan=2)
         range_frame.pack(pady=10)
 
         # データを表示するFrame
-        value_frame = tk.Frame(analysis_frame, borderwidth=3, relief="ridge")
-        lbl_field = tk.Label(value_frame, text="H (Oe)")
+        value_frame: tk.Frame = tk.Frame(analysis_frame, borderwidth=3, relief="ridge")
+        lbl_field: tk.Label = tk.Label(value_frame, text="H (Oe)")
         lbl_field.grid(row=0, column=0)
-        self.field_value = tk.StringVar()
-        self.lbl_field_value = tk.Label(value_frame, textvariable=self.field_value, relief="sunken", width=15)
+        self.field_value: tk.StringVar = tk.StringVar()
+        self.lbl_field_value: tk.Label = tk.Label(value_frame, textvariable=self.field_value, relief="sunken", width=15)
         self.lbl_field_value.grid(row=1, column=0)
         lbl_Cernox_temp = tk.Label(value_frame, text="T_Cernox (K)")
         lbl_Cernox_temp.grid(row=2, column=0)
-        self.Cernox_temp_value = tk.StringVar()
-        self.lbl_Cernox_temp_value = tk.Label(value_frame, textvariable=self.Cernox_temp_value, relief="sunken", width=15)
+        self.Cernox_temp_value: tk.StringVar = tk.StringVar()
+        self.lbl_Cernox_temp_value: tk.Label = tk.Label(value_frame, textvariable=self.Cernox_temp_value, relief="sunken", width=15)
         self.lbl_Cernox_temp_value.grid(row=3, column=0)
-        lbl_dTx = tk.Label(value_frame, text="ΔTx (K)")
+        lbl_dTx: tk.Label = tk.Label(value_frame, text="ΔTx (K)")
         lbl_dTx.grid(row=0, column=1)
-        self.dTx_value = tk.StringVar()
-        self.lbl_dTx_value = tk.Label(value_frame, textvariable=self.dTx_value, relief="sunken", width=15)
+        self.dTx_value: tk.StringVar = tk.StringVar()
+        self.lbl_dTx_value: tk.Label = tk.Label(value_frame, textvariable=self.dTx_value, relief="sunken", width=15)
         self.lbl_dTx_value.grid(row=1, column=1)
-        lbl_dTy = tk.Label(value_frame, text="ΔTy (K)")
+        lbl_dTy: tk.Label = tk.Label(value_frame, text="ΔTy (K)")
         lbl_dTy.grid(row=2, column=1)
-        self.dTy_value = tk.StringVar()
-        self.lbl_dTy_value = tk.Label(value_frame, textvariable=self.dTy_value, relief="sunken", width=15)
+        self.dTy_value: tk.StringVar = tk.StringVar()
+        self.lbl_dTy_value: tk.Label = tk.Label(value_frame, textvariable=self.dTy_value, relief="sunken", width=15)
         self.lbl_dTy_value.grid(row=3, column=1)
         value_frame.pack(pady=10)
 
@@ -1964,7 +1966,7 @@ class AATTPMD(RawDataExpander, tk.Frame):
         self.ln3_e1.set_data([t4,t4], self.ax3.get_ylim())
         self.ln4_e1.set_data([t4,t4], self.ax4.get_ylim())
 
-    def _reset_click(self, event=None) -> None:
+    def _reset_click(self, event: Any | None = None) -> None:
         """'Reset'を押したときにsliderの値をを初期値にリセット
         """
         t1: float = 0
@@ -2047,7 +2049,7 @@ class AATTPMD(RawDataExpander, tk.Frame):
         """
         self.is_select_range_by_click.set(self.is_select_range_by_click.get()^False)
 
-    def _calc_click(self, event=None) -> None:
+    def _calc_click(self, event: Any | None = None) -> None:
         """'Calc'ボタンをクリックしたときに'start time'から'end time'の各物理量の平均値と標準偏差を計算
         """
         t_start: float = float(self.time_start.get())
@@ -2109,7 +2111,7 @@ class AATTPMD(RawDataExpander, tk.Frame):
         except:
             print("failed: save data")
 
-    def _slider_scroll(self, event=None) -> None:
+    def _slider_scroll(self, event: Any | None = None) -> None:
         """sliderを変化させたときにx座標の描画範囲を変更
         """
         t1: float = self.sliders[0].get()
@@ -2123,7 +2125,7 @@ class AATTPMD(RawDataExpander, tk.Frame):
         self._update_ylim(t1,t2)
         self.fig_canvas.draw()
 
-    def _fig_hover(self, event) -> None:
+    def _fig_hover(self, event: Any) -> None:
         """figure領域をマウスオーバーしたときにそのx座標に対応する縦線を描画
         """
         x: float = event.xdata
@@ -2133,7 +2135,7 @@ class AATTPMD(RawDataExpander, tk.Frame):
         self.ln4_hover.set_data([x,x], self.ax4.get_ylim())
         self.fig_canvas.draw()
 
-    def _fig_click(self, event) -> None:
+    def _fig_click(self, event: Any) -> None:
         """figure領域をclickしたときにそのx座標に対応する縦線を描画
         """
         x: float = event.xdata
