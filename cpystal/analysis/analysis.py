@@ -793,7 +793,7 @@ class RawDataExpander:
                 self.TC_TS.append([t,s])
         self.TC_TS = sorted(self.TC_TS, key=lambda x:x[0]) # 温度順にソート
         
-        
+
         self.StartTime: str = re.sub(r".+?:", r"", self.full_contents[0]).strip()
         self.LTx: float = float(re.sub(r".+:", r"", self.full_contents[2]))
         self.LTy: float = float(re.sub(r".+:", r"", self.full_contents[3]))
@@ -813,7 +813,8 @@ class RawDataExpander:
         self.V4: list[list[float]] = []
         self.V5: list[list[float]] = []
         self.V6: list[list[float]] = []
-        self.Q: list[float] = []
+        self.Q: list[list[float]] = []
+        self.R: float = 1000.
 
         idx: int = 14
         while True:
@@ -837,36 +838,51 @@ class RawDataExpander:
             self.V5.append([v5re,v5im])
             self.V6.append([v6re,v6im])        
 
-        self.S_TC: list[float] = [self.Seebeck_at_T(t) for t in self.PPMSTemp]
-        self.dTx: list[float]
-        self.dTy: list[float]
-        self.dVx: list[float]
-        self.dVy: list[float]
+        self.S_TC: list[float] = []
+        for i,t in enumerate(self.PPMSTemp):
+            if self.Seebeck_at_T(t) == 0:
+                self.S_TC.append(self.Seebeck_at_T((self.PPMSTemp[i-1]+self.PPMSTemp[i+1])/2))
+            else:
+                self.S_TC.append(self.Seebeck_at_T(t))
     
-    def _set_CernoxTemp(self, cernox_name: str, TR: list[list[float]]) -> None:
+    def _set_CernoxTemp(self, cernox_name: str, TR: list[float]) -> None:
         X173409_logRlogT_table: list[tuple[float, float]] = [(3.29314 - 1.42456*log10t + 0.867728*log10t**2 - 0.324371*log10t**3 + 0.0380185*log10t**4, log10t) for log10t in np.linspace(np.log10(1.5),np.log10(320),100000)]
         X173079_logRlogT_table: list[tuple[float, float]] = [(3.29639174 - 1.34578352*log10t + 0.79354379*log10t**2 - 0.29893059*log10t**3 + 0.03486926*log10t**4, log10t) for log10t in np.linspace(np.log10(1.5),np.log10(320),100000)]
 
-        def binary_search_value(logRlogT_table: list[tuple[float, float]], target: float) -> float:
-            log_target: float = np.log10(target)
+        def binary_search_X173409(target: float) -> float:
+            log_target = np.log10(target)
             ok: int = 0
-            ng: int = len(logRlogT_table)
+            ng: int = len(X173409_logRlogT_table)
             while abs(ok-ng)>1:
                 mid = (ng+ok)//2
-                if logRlogT_table[mid][0] >= log_target:
+                if X173409_logRlogT_table[mid][0] >= log_target:
                     ok = mid
                 else:
                     ng = mid
-            if ok >= len(logRlogT_table)-1:
-                ok = len(logRlogT_table)-2
-            logT: float = logRlogT_table[ok][1] + (logRlogT_table[ok+1][1]-logRlogT_table[ok][1]) / (logRlogT_table[ok+1][0]-logRlogT_table[ok][0]) * (log_target-logRlogT_table[ok][0])
-            return 10**logT        
+            if ok >= len(X173409_logRlogT_table)-1:
+                ok = len(X173409_logRlogT_table)-2
+            logT = X173409_logRlogT_table[ok][1] + (X173409_logRlogT_table[ok+1][1]-X173409_logRlogT_table[ok][1]) / (X173409_logRlogT_table[ok+1][0]-X173409_logRlogT_table[ok][0]) * (log_target-X173409_logRlogT_table[ok][0])
+            return 10**logT
+        def binary_search_X173079(target: float) -> float:
+            log_target = np.log10(target)
+            ok: int = 0
+            ng: int = len(X173079_logRlogT_table)
+            while abs(ok-ng)>1:
+                mid = (ng+ok)//2
+                if X173079_logRlogT_table[mid][0] >= log_target:
+                    ok = mid
+                else:
+                    ng = mid
+            if ok >= len(X173079_logRlogT_table)-1:
+                ok = len(X173079_logRlogT_table)-2
+            logT = X173079_logRlogT_table[ok][1] + (X173079_logRlogT_table[ok+1][1]-X173079_logRlogT_table[ok][1]) / (X173079_logRlogT_table[ok+1][0]-X173079_logRlogT_table[ok][0]) * (log_target-X173079_logRlogT_table[ok][0])
+            return 10**logT
 
         self.CernoxTemp: list[float]
         if cernox_name == "X173409":
-            self.CernoxTemp = [binary_search_value(X173409_logRlogT_table, abs(resis)) for temp, resis in TR]
+            self.CernoxTemp = [binary_search_X173409(abs(resis)) for temp, resis in TR]
         elif cernox_name == "X173079":
-            self.CernoxTemp = [binary_search_value(X173079_logRlogT_table, abs(resis)) for temp, resis in TR]
+            self.CernoxTemp = [binary_search_X173079(abs(resis)) for temp, resis in TR]
         else:
             raise ValueError("cernox name is invalid.")
 
@@ -885,8 +901,8 @@ class RawDataExpander:
             attr_cor_to_V = [i-1 for i in attr_cor_to_V]
         Voltages: list[list[list[float]]] = [self.V1, self.V2, self.V3, self.V4, self.V5, self.V6]
         self._set_CernoxTemp(cernox_name, Voltages[attr_cor_to_V[0]])
-        self.dTx = [v/s for (v,_), s in zip(Voltages[attr_cor_to_V[1]], self.S_TC)]
-        self.dTy = [v/s for (v,_), s in zip(Voltages[attr_cor_to_V[2]], self.S_TC)]
+        self.dTx: list[float] = [v/s for (v,_), s in zip(Voltages[attr_cor_to_V[1]], self.S_TC)]
+        self.dTy: list[float] = [v/s for (v,_), s in zip(Voltages[attr_cor_to_V[2]], self.S_TC)]
 
     def SxxSxy_mode(self, cernox_name: str = "X173409", attr_cor_to_V: list[int] | None = None) -> None:
         """
@@ -902,9 +918,9 @@ class RawDataExpander:
             attr_cor_to_V = [i-1 for i in attr_cor_to_V]
         Voltages: list[list[list[float]]] = [self.V1, self.V2, self.V3, self.V4, self.V5, self.V6]
         self._set_CernoxTemp(cernox_name, Voltages[attr_cor_to_V[0]])
-        self.dTx = [v/s for (v,_), s in zip(Voltages[attr_cor_to_V[1]], self.S_TC)]
-        self.dVx = [v for (v,_) in Voltages[attr_cor_to_V[2]]]
-        self.dVy = [v for (v,_) in Voltages[attr_cor_to_V[3]]]
+        self.dTx: list[float] = [v/s for (v,_), s in zip(Voltages[attr_cor_to_V[1]], self.S_TC)]
+        self.dVx: list[float] = [v for (v,_) in Voltages[attr_cor_to_V[2]]]
+        self.dVy: list[float] = [v for (v,_) in Voltages[attr_cor_to_V[3]]]
 
     def Seebeck_at_T(self, T: float) -> float:
         if not (self.TC_TS[0][0] <= T <= self.TC_TS[-1][0]):
@@ -1329,39 +1345,42 @@ class ExpDataExpanderSeebeck:
 
     def symmetrize(self) -> tuple[list[float], list[float], list[float], list[float], list[float], list[float], list[float]]:
         N: int = len(self.Field)
+        kxx_symm: list[float] = [(self.kxx[i]+self.kxx[N-1-i])/2 for i in range(N)]
+        kxx_symm_err: list[float] = [np.sqrt(self.errkxx[i]**2 + self.errkxx[N-1-i]**2)/2 for i in range(N)]
 
-        # symmetrize
-        kxx_symm: list[float] = [(self.kxx[i]+self.kxx[N-1-i])/2 for i in range(N//2+1)][::-1]
-        kxx_symm_err: list[float] = [np.sqrt(self.errkxx[i]**2 + self.errkxx[N-1-i]**2)/2 for i in range(N//2+1)][::-1]
-
-        Sxx_symm: list[float] = [(self.Sxx[i]+self.Sxx[N-1-i])/2 for i in range(N//2+1)][::-1]
-        Sxx_symm_err: list[float] = [np.sqrt(self.errSxx[i]**2 + self.errSxx[N-1-i]**2)/2 for i in range(N//2+1)][::-1]
+        Sxx_symm: list[float] = [(self.Sxx[i]+self.Sxx[N-1-i])/2 for i in range(N)]
+        Sxx_symm_err: list[float] = [np.sqrt(self.errSxx[i]**2 + self.errSxx[N-1-i]**2)/2 for i in range(N)]
 
         Sxy_no_symm: list[float] = [ey/dtx/self.LVy*self.LTx * 1e6 for ey,dtx in zip(self.Ey,self.dTx)] # (uV/K)
         Sxy_no_symm_err: list[float] = [abs(sxy) * ((eey/ey)**2 + (edtx/dtx)**2)**0.5 for sxy,ey,eey,dtx,edtx in zip(Sxy_no_symm, self.Ex, self.errEx, self.dTx, self.errdTx)]
         H_: list[float]
-        if self.Field[0] < 0:
-            H_ = self.Field[N//2:]
-            Sxy_symm = [-(Sxy_no_symm[i]-Sxy_no_symm[N-1-i])/2 for i in range(N//2+1)][::-1]
-
+        if N % 2 == 1:
+            H_ = [-h for h in self.Field[N//2+1:][::-1]] + self.Field[N//2:]
         else:
-            H_ = self.Field[:N//2+1][::-1]
-            Sxy_symm = [(Sxy_no_symm[i]-Sxy_no_symm[N-1-i])/2 for i in range(N//2+1)][::-1]
-
-        Sxy_symm_err: list[float] = [np.sqrt(Sxy_no_symm_err[i]**2 + Sxy_no_symm_err[N-1-i]**2)/2 for i in range(N//2+1)][::-1]
+            H_ = [-h for h in self.Field[N//2:][::-1]] + self.Field[N//2:]
+        Sxy_symm = [(Sxy_no_symm[i]-Sxy_no_symm[N-1-i])/2 for i in range(N)]
+        Sxy_symm_err: list[float] = [np.sqrt(Sxy_no_symm_err[i]**2 + Sxy_no_symm_err[N-1-i]**2)/2 for i in range(N)]
 
         return H_, kxx_symm, kxx_symm_err, Sxx_symm, Sxx_symm_err, Sxy_symm, Sxy_symm_err
     
+    def symmetrize_positive_half(self) -> tuple[list[float], list[float], list[float], list[float], list[float], list[float], list[float]]:
+        H_, kxx, kxx_err, Sxx, Sxx_err, Sxy, Sxy_err = self.symmetrize()
+        N: int = len(H_)
+        if H_[0] < 0:
+            return H_[N//2:], kxx[N//2:], kxx_err[N//2:], Sxx[N//2:], Sxx_err[N//2:], Sxy[N//2:], Sxy_err[N//2:]
+        else:
+            return H_[:(N+1)//2][::-1], kxx[:(N+1)//2][::-1], kxx_err[:(N+1)//2][::-1], Sxx[:(N+1)//2][::-1], Sxx_err[:(N+1)//2][::-1], Sxy[:(N+1)//2][::-1], Sxy_err[:(N+1)//2][::-1]
+    
     def symmetrize_dT(self) -> tuple[list[float], list[float], list[float]]:
         N: int = len(self.Field)
-        dTx_symm: list[float] = [(self.dTx[i]+self.dTx[N-1-i])/2 for i in range(N//2+1)][::-1]
-        dTx_symm_err: list[float] = [np.sqrt(self.errdTx[i]**2 + self.errdTx[N-1-i]**2)/2 for i in range(N//2+1)][::-1]
+        dTx_symm: list[float] = [(self.dTx[i]+self.dTx[N-1-i])/2 for i in range(N)]
+        dTx_symm_err: list[float] = [np.sqrt(self.errdTx[i]**2 + self.errdTx[N-1-i]**2)/2 for i in range(N)]
 
         H_: list[float]
-        if self.Field[0] < 0:
-            H_ = self.Field[N//2:]
+        if N % 2 == 1:
+            H_ = [-h for h in self.Field[N//2+1:][::-1]] + self.Field[N//2:]
         else:
-            H_ = self.Field[:N//2+1][::-1]
+            H_ = [-h for h in self.Field[N//2:][::-1]] + self.Field[N//2:]
         return H_, dTx_symm, dTx_symm_err
 
 
@@ -1407,8 +1426,8 @@ class ReMakeExpFromRaw:
         self.R: float = 1000.0
         self.channel: tuple[int, int] = (1, 2)
         for sidx0, eidx0, sidx1, eidx1 in self.Index:
-            tp0, etp0, h0, eh0, cur0, ecur0, tc0, etc0, vx0, evx0, vy0, evy0 = self.ave_std(eidx0)
-            tp1, etp1, h1, eh1, cur1, ecur1, tc1, etc1, vx1, evx1, vy1, evy1 = self.ave_std(eidx1)
+            tp0, etp0, h0, eh0, cur0, ecur0, tc0, etc0, vx0, evx0, vy0, evy0 = self.ave_std(eidx0-59, eidx0)
+            tp1, etp1, h1, eh1, cur1, ecur1, tc1, etc1, vx1, evx1, vy1, evy1 = self.ave_std(eidx1-59, eidx1)
             self.T_PPMS.append(tp1)
             self.Field.append(h1)
             self.Current.append(cur1)
@@ -1430,8 +1449,8 @@ class ReMakeExpFromRaw:
         self.errkxx: list[float] = [k * edtx / dtx for k,dtx,edtx in zip(self.kxx,self.dTx,self.errdTx)]
 
 
-    def ave_std(self, eidx: int) -> tuple[float, ...]:
-        slc: slice = slice(eidx-59,eidx+1)
+    def ave_std(self, sidx: int, eidx: int) -> tuple[float, ...]:
+        slc: slice = slice(sidx, eidx+1)
         channel: tuple[int, int] = self.channel
         aveT_PPMS: float = np.average(self.RawData.PPMSTemp[slc])
         errT_PPMS: float = np.std(self.RawData.PPMSTemp[slc])
@@ -1471,42 +1490,46 @@ class ReMakeExpFromRaw:
         lamyx_err: list[float] = [self.Width*self.Thickness/(self.R*(i**2)) * (edt/self.LTy) for i,edt in zip(self.Current,self.errdTy)]
 
         # symmetrize
-        lamxx_symm: list[float] = [(lamxx[i]+lamxx[N-1-i])/2 for i in range(N//2+1)][::-1]
-        lamxx_symm_err: list[float] = [np.sqrt(lamxx_err[i]**2 + lamxx_err[N-1-i]**2)/2 for i in range(N//2+1)][::-1]
+        lamxx_symm: list[float] = [(lamxx[i]+lamxx[N-1-i])/2 for i in range(N)]
+        lamxx_symm_err: list[float] = [np.sqrt(lamxx_err[i]**2 + lamxx_err[N-1-i]**2)/2 for i in range(N)]
 
-        lamyx_symm: list[float]
         H_: list[float]
-        if self.Field[0] < 0:
-            H_ = self.Field[N//2:]
-            lamyx_symm = [-(lamyx[i]-lamyx[N-1-i])/2 for i in range(N//2+1)][::-1]
-
+        if N % 2 == 1:
+            H_ = [-h for h in self.Field[N//2+1:][::-1]] + self.Field[N//2:]
         else:
-            H_ = self.Field[:N//2+1][::-1]
-            lamyx_symm = [(lamyx[i]-lamyx[N-1-i])/2 for i in range(N//2+1)][::-1]
+            H_ = [-h for h in self.Field[N//2:][::-1]] + self.Field[N//2:]
 
-        lamyx_symm_err: list[float] = [np.sqrt(lamyx_err[i]**2 + lamyx_err[N-1-i]**2)/2 for i in range(N//2+1)][::-1]
+        lamyx_symm: list[float] = [(lamyx[i]-lamyx[N-1-i])/2 for i in range(N)]
+        lamyx_symm_err: list[float] = [np.sqrt(lamyx_err[i]**2 + lamyx_err[N-1-i]**2)/2 for i in range(N)]
         kxx: list[float] = [lx / (lx**2 + ly**2) for lx,ly in zip(lamxx_symm,lamyx_symm)]
         kxy: list[float] = [ly / (lx**2 + ly**2) for lx,ly in zip(lamxx_symm,lamyx_symm)]
         kxx_err: list[float] = [np.sqrt(((x**2-y**2)*x_err)**2 + (2*x*y*y_err)**2) / ((x**2 + y**2)**2) for x,y,x_err,y_err in zip(lamxx_symm,lamyx_symm,lamxx_symm_err,lamyx_symm_err)]
         kxy_err: list[float] = [np.sqrt((2*x*y*x_err)**2 + ((x**2-y**2)*y_err)**2) / ((x**2 + y**2)**2) for x,y,x_err,y_err in zip(lamxx_symm,lamyx_symm,lamxx_symm_err,lamyx_symm_err)]
         return H_, kxx, kxy, kxx_err, kxy_err
     
+    def symmetrize_positive_half(self) -> tuple[list[float], list[float], list[float], list[float], list[float]]:
+        H_, kxx, kxy, kxx_err, kxy_err = self.symmetrize()
+        N: int = len(H_)
+        if H_[0] < 0:
+            return H_[N//2:], kxx[N//2:], kxy[N//2:], kxx_err[N//2:], kxy_err[N//2:]
+        else:
+            return H_[:(N+1)//2][::-1], kxx[:(N+1)//2][::-1], kxy[:(N+1)//2][::-1], kxx_err[:(N+1)//2][::-1], kxy_err[:(N+1)//2][::-1]
+    
     def symmetrize_dT(self) -> tuple[list[float], list[float], list[float], list[float], list[float]]:
         N: int = len(self.Field)
-        dTx_symm: list[float] = [(self.dTx[i]+self.dTx[N-1-i])/2 for i in range(N//2+1)][::-1]
-        dTx_symm_err: list[float] = [np.sqrt(self.errdTx[i]**2 + self.errdTx[N-1-i]**2)/2 for i in range(N//2+1)][::-1]
+        dTx_symm: list[float] = [(self.dTx[i]+self.dTx[N-1-i])/2 for i in range(N)]
+        dTx_symm_err: list[float] = [np.sqrt(self.errdTx[i]**2 + self.errdTx[N-1-i]**2)/2 for i in range(N)]
         
-        dTy_symm: list[float]
         H_: list[float]
-        if self.Field[0] < 0:
-            H_ = self.Field[N//2:]
-            dTy_symm = [-(self.dTy[i]-self.dTy[N-1-i])/2 for i in range(N//2+1)][::-1]
-
+        if N % 2 == 1:
+            H_ = [-h for h in self.Field[N//2+1:][::-1]] + self.Field[N//2:]
         else:
-            H_ = self.Field[:N//2+1][::-1]
-            dTy_symm = [(self.dTy[i]-self.dTy[N-1-i])/2 for i in range(N//2+1)][::-1]
-        dTy_symm_err: list[float] = [np.sqrt(self.errdTy[i]**2 + self.errdTy[N-1-i]**2)/2 for i in range(N//2+1)][::-1]
+            H_ = [-h for h in self.Field[N//2:][::-1]] + self.Field[N//2:]
+
+        dTy_symm: list[float] = [(self.dTy[i]-self.dTy[N-1-i])/2 for i in range(N)]
+        dTy_symm_err: list[float] = [np.sqrt(self.errdTy[i]**2 + self.errdTy[N-1-i]**2)/2 for i in range(N)]
         return H_, dTx_symm, dTy_symm, dTx_symm_err, dTy_symm_err
+
 
     def make_new_exp_data_file(self) -> None:
         filename_new: str = re.sub(r"Raw", r"NewExp", self.filename)
@@ -1517,6 +1540,155 @@ class ReMakeExpFromRaw:
                 f.write("\t".join([f"{v:.9e}" for v in line]) + "\n")
 
 
+            
+class ReMakeExpFromRawSeebeck:
+    def __init__(self, filename: str, filename_Seebeck: str, cernox_name: str = "X173409", attr_cor_to_V: list[int] | None = None) -> None:
+        self.filename: str = filename
+        self.TC_TS: list[list[float]] = []
+        with open(file=filename_Seebeck, mode="r") as f:
+            for line in f.readlines()[1:]:
+                s,t = map(float, line.split())
+                self.TC_TS.append([t,s])
+        self.TC_TS = sorted(self.TC_TS, key=lambda x:x[0]) # 温度順にソート
+
+        self.RawData: RawDataExpander = RawDataExpander(filename, filename_Seebeck, attr_cor_to_V)
+        self.RawData.SxxSxy_mode(cernox_name, attr_cor_to_V)
+        filename_exp: str = re.sub(r"Raw", r"Exp", self.filename)
+        self.ExpData: ExpDataExpander = ExpDataExpander(filename_exp, filename_Seebeck)
+
+        self.StartTime: str = self.RawData.StartTime
+        self.LTx: float = self.RawData.LTx
+        self.LTy: float = self.RawData.LTy
+        self.LVx: float = self.RawData.LVx
+        self.LVy: float = self.RawData.LVy
+        self.Width: float = self.RawData.Width
+        self.Thickness: float = self.RawData.Thickness
+
+        self.Index: list[tuple[int, int, int, int]] = self.ExpData.Index
+
+        self.T_PPMS: list[float] = []
+        self.Field: list[float] = []
+        self.Current: list[float] = []
+        self.T_Cernox: list[float] = []
+        self.dVx: list[float] = []
+        self.dVy: list[float] = []
+        self.dTx: list[float] = []
+        self.dTy: list[float] = []
+        self.dTx0: list[float] = []
+        self.dTy0: list[float] = []
+        self.dTx1: list[float] = []
+        self.dTy1: list[float] = []
+        self.errdTx: list[float] = []
+        self.errdTy: list[float] = []
+        self.R: float = 1000.0
+        self.channel: tuple[int, int] = (1, 2)
+        for sidx0, eidx0, sidx1, eidx1 in self.Index:
+            tp0, etp0, h0, eh0, cur0, ecur0, tc0, etc0, vx0, evx0, vy0, evy0 = self.ave_std(eidx0-59, eidx0)
+            tp1, etp1, h1, eh1, cur1, ecur1, tc1, etc1, vx1, evx1, vy1, evy1 = self.ave_std(eidx1-59, eidx1)
+            self.T_PPMS.append(tp1)
+            self.Field.append(h1)
+            self.Current.append(cur1)
+            self.T_Cernox.append(tc1)
+            self.dVx.append(vx1-vx0)
+            self.dVy.append(vy1-vy0)
+            self.dTx.append((vx1-vx0) / self.Seebeck_at_T(tp1))
+            self.dTy.append((vy1-vy0) / self.Seebeck_at_T(tp1))
+
+            self.dTx0.append((vx0) / self.Seebeck_at_T(tp0))
+            self.dTy0.append((vy0) / self.Seebeck_at_T(tp0))
+            self.dTx1.append((vx1) / self.Seebeck_at_T(tp1))
+            self.dTy1.append((vy1) / self.Seebeck_at_T(tp1))
+
+            self.errdTx.append((evx0**2+evx1**2)**0.5 / self.Seebeck_at_T(tp1))
+            self.errdTy.append((evy0**2+evy1**2)**0.5 / self.Seebeck_at_T(tp1))
+        
+        self.kxx: list[float] = [self.R*(i**2)/self.Width/self.Thickness / (dt/self.LTx) for i,dt in zip(self.Current,self.dTx)]
+        self.errkxx: list[float] = [k * edtx / dtx for k,dtx,edtx in zip(self.kxx,self.dTx,self.errdTx)]
+
+
+    def ave_std(self, sidx: int, eidx: int) -> tuple[float, ...]:
+        slc: slice = slice(sidx, eidx+1)
+        channel: tuple[int, int] = self.channel
+        aveT_PPMS: float = np.average(self.RawData.PPMSTemp[slc])
+        errT_PPMS: float = np.std(self.RawData.PPMSTemp[slc])
+        aveH: float = np.average(self.RawData.Field[slc])
+        errH: float = np.std(self.RawData.Field[slc])
+        aveCurrent: float = np.average(self.RawData.HeaterCurrent[slc])
+        errCurrent: float = np.std(self.RawData.HeaterCurrent[slc])
+        aveT_Cernox: float = np.average(self.RawData.CernoxTemp[slc])
+        errT_Cernox: float = np.std(self.RawData.CernoxTemp[slc])
+        Vs = [self.RawData.V1, self.RawData.V2, self.RawData.V3, self.RawData.V4, self.RawData.V5, self.RawData.V6]
+        aveVx: float = np.average(Vs[channel[0]][slc])
+        errVx: float = np.std(Vs[channel[0]][slc])
+        aveVy: float = np.average(Vs[channel[1]][slc])
+        errVy: float = np.std(Vs[channel[1]][slc])
+        # print("######")
+        # print(aveT_PPMS, errT_PPMS, aveH, errH, aveCurrent, errCurrent, aveT_Cernox, errT_Cernox, aveVx, errVx, aveVy, errVy)
+        # print("+++++++")
+        return aveT_PPMS, errT_PPMS, aveH, errH, aveCurrent, errCurrent, aveT_Cernox, errT_Cernox, aveVx, errVx, aveVy, errVy
+
+    def Seebeck_at_T(self, T: float):
+        if not (self.TC_TS[0][0] <= T <= self.TC_TS[-1][0]):
+            return 0
+        S_at_T: float = -1
+        for i in range(len(self.TC_TS)-1):
+            if self.TC_TS[i][0] <= T <= self.TC_TS[i+1][0]:
+                S_at_T = self.TC_TS[i][1] + (self.TC_TS[i+1][1]-self.TC_TS[i][1]) / (self.TC_TS[i+1][0]-self.TC_TS[i][0]) * (T-self.TC_TS[i][0])
+                break
+        if S_at_T == -1:
+            raise RuntimeError
+        return S_at_T
+
+    def symmetrize(self) -> tuple[list[float], list[float], list[float], list[float], list[float], list[float], list[float]]:
+        N: int = len(self.Field)
+        kxx_symm: list[float] = [(self.kxx[i]+self.kxx[N-1-i])/2 for i in range(N)]
+        kxx_symm_err: list[float] = [np.sqrt(self.errkxx[i]**2 + self.errkxx[N-1-i]**2)/2 for i in range(N)]
+
+        Sxx_symm: list[float] = [(self.Sxx[i]+self.Sxx[N-1-i])/2 for i in range(N)]
+        Sxx_symm_err: list[float] = [np.sqrt(self.errSxx[i]**2 + self.errSxx[N-1-i]**2)/2 for i in range(N)]
+
+        Sxy_no_symm: list[float] = [ey/dtx/self.LVy*self.LTx * 1e6 for ey,dtx in zip(self.Ey,self.dTx)] # (uV/K)
+        Sxy_no_symm_err: list[float] = [abs(sxy) * ((eey/ey)**2 + (edtx/dtx)**2)**0.5 for sxy,ey,eey,dtx,edtx in zip(Sxy_no_symm, self.Ex, self.errEx, self.dTx, self.errdTx)]
+        H_: list[float]
+        if N % 2 == 1:
+            H_ = [-h for h in self.Field[N//2+1:][::-1]] + self.Field[N//2:]
+        else:
+            H_ = [-h for h in self.Field[N//2:][::-1]] + self.Field[N//2:]
+        Sxy_symm = [(Sxy_no_symm[i]-Sxy_no_symm[N-1-i])/2 for i in range(N)]
+        Sxy_symm_err: list[float] = [np.sqrt(Sxy_no_symm_err[i]**2 + Sxy_no_symm_err[N-1-i]**2)/2 for i in range(N)]
+
+        return H_, kxx_symm, kxx_symm_err, Sxx_symm, Sxx_symm_err, Sxy_symm, Sxy_symm_err
+    
+    def symmetrize_positive_half(self) -> tuple[list[float], list[float], list[float], list[float], list[float], list[float], list[float]]:
+        H_, kxx, kxx_err, Sxx, Sxx_err, Sxy, Sxy_err = self.symmetrize()
+        N: int = len(H_)
+        if H_[0] < 0:
+            return H_[N//2:], kxx[N//2:], kxx_err[N//2:], Sxx[N//2:], Sxx_err[N//2:], Sxy[N//2:], Sxy_err[N//2:]
+        else:
+            return H_[:(N+1)//2][::-1], kxx[:(N+1)//2][::-1], kxx_err[:(N+1)//2][::-1], Sxx[:(N+1)//2][::-1], Sxx_err[:(N+1)//2][::-1], Sxy[:(N+1)//2][::-1], Sxy_err[:(N+1)//2][::-1]
+    
+    def symmetrize_dT(self) -> tuple[list[float], list[float], list[float]]:
+        N: int = len(self.Field)
+        dTx_symm: list[float] = [(self.dTx[i]+self.dTx[N-1-i])/2 for i in range(N)]
+        dTx_symm_err: list[float] = [np.sqrt(self.errdTx[i]**2 + self.errdTx[N-1-i]**2)/2 for i in range(N)]
+
+        H_: list[float]
+        if N % 2 == 1:
+            H_ = [-h for h in self.Field[N//2+1:][::-1]] + self.Field[N//2:]
+        else:
+            H_ = [-h for h in self.Field[N//2:][::-1]] + self.Field[N//2:]
+        return H_, dTx_symm, dTx_symm_err
+
+    def make_new_exp_data_file(self) -> None:
+        filename_new: str = re.sub(r"Raw", r"NewExp", self.filename)
+        with open(filename_new, mode="w") as f:
+            f.write("".join(self.ExpData.full_contents[0:14]))
+            for i, (sidx0, eidx0, sidx1, eidx1) in enumerate(self.Index):
+                line = (sidx0, eidx0) + self.ave_std(eidx0) + (sidx1, eidx1) + self.ave_std(eidx1) + (self.dTx[i], self.errdTx[i], self.kxx[i], self.errkxx[i])
+                f.write("\t".join([f"{v:.9e}" for v in line]) + "\n")
+
+
+
 class AATTPMD(RawDataExpander, tk.Frame):
     """App. for Analysis of Thermal Transport Property Measurement Data
     """
@@ -1525,6 +1697,7 @@ class AATTPMD(RawDataExpander, tk.Frame):
         self.kxxkxy_mode(cernox_name, attr_cor_to_V)
         filename_exp: str = re.sub(r"Raw", r"Exp", self.filename)
         self.ExpData: ExpDataExpander = ExpDataExpander(filename_exp, filename_Seebeck)
+        self.channel: tuple[int, int] = (1, 2)
 
         root: tk.Tk = tk.Tk()
         tk.Frame.__init__(self, root)
@@ -1771,6 +1944,15 @@ class AATTPMD(RawDataExpander, tk.Frame):
         save_button = tk.Button(analysis_frame, text="Save", command=self._save_click)
         save_button.pack()
 
+        # 計算したデータを所定の形式で出力させるボタン
+        self.print_mode: int = 0
+        self.t0: float | None = None
+        self.t1: float | None = None
+        self.data0: list[float] | None = None
+        self.data1: list[float] | None = None
+        print_button = tk.Button(analysis_frame, text="Print", command=self._print_click)
+        print_button.pack()
+
         analysis_frame.pack(pady=20)
 
         #-----------------------------------------------
@@ -1987,6 +2169,12 @@ class AATTPMD(RawDataExpander, tk.Frame):
         except:
             print("failed: save data")
 
+    def _print_click(self) -> None:
+        """'Print'ボタンをクリックしたときに'start time'から'end time'の各物理量の平均値と
+            標準偏差を所定の形式で出力
+        """
+        self.print_mode = 1
+
     def _slider_scroll(self, event: Any | None = None) -> None:
         """sliderを変化させたときにx座標の描画範囲を変更
         """
@@ -2015,6 +2203,43 @@ class AATTPMD(RawDataExpander, tk.Frame):
         """figure領域をclickしたときにそのx座標に対応する縦線を描画
         """
         x: float = event.xdata
+        if self.print_mode == 1:
+            if self.t0 is None and self.is_select_range_by_click.get() and self.start_or_end == 0:
+                self.t0 = x
+            if self.t1 is None and self.is_select_range_by_click.get() and self.start_or_end == 1:
+                self.t1 = x
+            if self.t0 is not None and self.t1 is not None:
+                idx: list[int] = [i for i,t in enumerate(self.Time) if self.t0 <= t <= self.t1]
+                sidx: int = idx[0]
+                eidx: int = idx[-1]
+
+                self.data0 = [sidx, eidx] + list(self.ave_std(sidx, eidx))
+                self.t0 = None
+                self.t1 = None
+                self.print_mode = 2
+        elif self.print_mode == 2:
+            if self.t0 is None and self.is_select_range_by_click.get() and self.start_or_end == 0:
+                self.t0 = x
+            if self.t1 is None and self.is_select_range_by_click.get() and self.start_or_end == 1:
+                self.t1 = x
+            if self.t0 is not None and self.t1 is not None:
+                idx: list[int] = [i for i,t in enumerate(self.Time) if self.t0 <= t <= self.t1]
+                sidx: int = idx[0]
+                eidx: int = idx[-1]
+
+                self.data1 = [sidx, eidx] + list(self.ave_std(sidx, eidx))
+                self.t0 = None
+                self.t1 = None
+                self.print_mode = 0
+                sidx0, eidx0, tp0, etp0, h0, eh0, cur0, ecur0, tc0, etc0, vx0, evx0, vy0, evy0 = self.data0
+                sidx1, eidx1, tp1, etp1, h1, eh1, cur1, ecur1, tc1, etc1, vx1, evx1, vy1, evy1 = self.data1
+                dtx: float = (vx1-vx0) / self.Seebeck_at_T(tp1)
+                errdtx: float = (evx0**2+evx1**2)**0.5 / self.Seebeck_at_T(tp1)
+                kxx: float = self.R*(cur1**2)/self.Width/self.Thickness / (dtx / self.LTx)
+                errkxx: float = kxx * errdtx / dtx
+                print("Start Index0	End Index0	ave T_PPMS0 (K)	err T_PPMS0 (K)	ave H0 (Oe)	err H0 (Oe)	ave Current0 (mA)	err Current0 (mA)	ave T_Cernox0 (K)	err T_Cernox0 (K)	ave Vx0 (V)	err Vx0 (V)	ave Vy0 (V)	err Vy0 (V)	Start Index1	End Index1	ave T_PPMS1 (K)	err T_PPMS1 (K)	ave H1 (Oe)	err H1 (Oe)	ave Current1 (mA)	err Current1 (mA)	ave T_Cernox1 (K)	err T_Cernox1 (K)	ave Vx1 (V)	err Vx1 (V)	ave Vy1 (V)	err Vy1 (V)	dTx (K)	err dTx (K)	kxx (W/Km)	err kxx (W/Km)")
+                print("\t".join(map(str, self.data0+self.data1+[dtx, errdtx, kxx, errkxx])))
+
         if self.is_select_range_by_click.get():
             if self.start_or_end == 0:
                 self._update_start_time(x)
@@ -2022,7 +2247,24 @@ class AATTPMD(RawDataExpander, tk.Frame):
             else:
                 self._update_end_time(x)
                 self.fig_canvas.draw()
-        
+    
+    def ave_std(self, sidx: int, eidx: int) -> tuple[float, ...]:
+        channel: tuple[int, int] = self.channel
+        aveT_PPMS: float = np.average(self.PPMSTemp[sidx:eidx+1])
+        errT_PPMS: float = np.std(self.PPMSTemp[sidx:eidx+1])
+        aveH: float = np.average(self.Field[sidx:eidx+1])
+        errH: float = np.std(self.Field[sidx:eidx+1])
+        aveCurrent: float = np.average(self.HeaterCurrent[sidx:eidx+1])
+        errCurrent: float = np.std(self.HeaterCurrent[sidx:eidx+1])
+        aveT_Cernox: float = np.average(self.CernoxTemp[sidx:eidx+1])
+        errT_Cernox: float = np.std(self.CernoxTemp[sidx:eidx+1])
+        Vs = [self.V1, self.V2, self.V3, self.V4, self.V5, self.V6]
+        aveVx: float = np.average(Vs[channel[0]][sidx:eidx+1])
+        errVx: float = np.std(Vs[channel[0]][sidx:eidx+1])
+        aveVy: float = np.average(Vs[channel[1]][sidx:eidx+1])
+        errVy: float = np.std(Vs[channel[1]][sidx:eidx+1])
+        return aveT_PPMS, errT_PPMS, aveH, errH, aveCurrent, errCurrent, aveT_Cernox, errT_Cernox, aveVx, errVx, aveVy, errVy
+
     def excute(self, save_filename: str | None = None, Tx_gain: float = 1) -> None:
         """アプリを実行
         """
