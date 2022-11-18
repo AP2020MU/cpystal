@@ -43,11 +43,15 @@ plt.rcParams['xtick.direction'] = 'in'
 plt.rcParams['ytick.direction'] = 'in'
 plt.rcParams["legend.framealpha"] = 0
 
-def _cal_theoretical_XRD_pattern(cif_filename: str, primitive: bool, display_num: int) -> tuple[list[list[float]], npt.NDArray, npt.NDArray]:
+def _cal_theoretical_XRD_pattern(cif_filename: str, primitive: bool, display_num: int, atomic_form_factor_based_on_ITC: bool = True) -> tuple[list[list[float]], npt.NDArray, npt.NDArray]:
     parser: pymatgen.io.cif.CifParser = CifParser(cif_filename)
     structure: pymatgen.core.structure.Structure = parser.get_structures(primitive=primitive)[0]
     analyzer: pymatgen.analysis.diffraction.xrd.XRDCalculator = pymatgen.analysis.diffraction.xrd.XRDCalculator(wavelength='CuKa')
-    diffraction_pattern: pymatgen.analysis.diffraction.core.DiffractionPattern = analyzer.get_pattern(structure)
+    diffraction_pattern: pymatgen.analysis.diffraction.core.DiffractionPattern
+    if atomic_form_factor_based_on_ITC:
+        diffraction_pattern = analyzer.get_pattern_AP2020MU(structure)
+    else:
+        diffraction_pattern = analyzer.get_pattern(structure)
     tops: list[list[float]] = [[x,y] for _,_,x,y in sorted(zip(diffraction_pattern.d_hkls, diffraction_pattern.hkls, diffraction_pattern.x, diffraction_pattern.y), key=lambda z:z[3], reverse=True)[:display_num]]
     peak_info: list[float, tuple[int, int, int], float, float] = sorted(zip(diffraction_pattern.d_hkls, diffraction_pattern.hkls, diffraction_pattern.x, diffraction_pattern.y), key=lambda z:z[3], reverse=True)
     for i, (d_hkl, hkl, x, y) in enumerate(peak_info[:display_num]):
@@ -225,7 +229,8 @@ def compare_powder_Xray_experiment_with_calculation(
         unbackground: bool = False, 
         issave: bool = False, 
         primitive: bool = False,
-        comparison: bool = True) -> tuple[plt.Figure, plt.Subplot]:
+        comparison: bool = True,
+        atomic_form_factor_based_on_ITC: bool = True) -> tuple[plt.Figure, plt.Subplot]:
     """Compare experimental intensity data of powder X-ray diffraction with theoretical intensity distribution.
 
     Notes:
@@ -266,7 +271,7 @@ def compare_powder_Xray_experiment_with_calculation(
     if unbackground:
         intensity = _remove_background(two_theta, intensity, descending_intensity)
 
-    theor_x, theor_y, peak_info = _cal_theoretical_XRD_pattern(cif_filename, primitive, display_num)
+    theor_x, theor_y, peak_info = _cal_theoretical_XRD_pattern(cif_filename, primitive, display_num, atomic_form_factor_based_on_ITC=atomic_form_factor_based_on_ITC)
 
     if comparison:
         _print_comparison_between_exp_and_cal(descending_intensity, peak_info, display_num)
@@ -286,9 +291,9 @@ def compare_powder_Xray_experiment_with_calculation(
     # ax.set_ylabel("intensity [a.u.]")
     ax.set_ylabel("intensity [cps]")
     if material is not None:
-        ax.set_title(f"{material.graphname} powder X-ray diffraction")
+        ax.set_title(f"powder XRD result compared with {material.graphname} calculation")
     else:
-        ax.set_title(f"powder X-ray diffraction")
+        ax.set_title(f"powder XRD result")
     ax.legend()
     ax.set_xticks(range(0,100,10))
     ax.set_xlim(0,90)
@@ -308,7 +313,8 @@ def compare_powder_Xray_experiment_with_calculation_of_some_materials(
         unbackground: bool = False, 
         issave: bool = False,
         primitive: bool = False,
-        comparison: bool = True) -> tuple[plt.Figure, plt.Subplot]:
+        comparison: bool = True,
+        atomic_form_factor_based_on_ITC: bool = True) -> tuple[plt.Figure, plt.Subplot]:
     """Compare experimental intensity data of powder X-ray diffraction with theoretical intensity distribution of some materials.
 
     Notes:
@@ -359,18 +365,18 @@ def compare_powder_Xray_experiment_with_calculation_of_some_materials(
         material: Crystal = Crystal.from_cif(cif_filename)
         materials_list.append(material)
         # ここから粉末X線回折の理論計算
-        theor_x, theor_y, peak_info = _cal_theoretical_XRD_pattern(cif_filename, primitive, display_num)
+        theor_x, theor_y, peak_info = _cal_theoretical_XRD_pattern(cif_filename, primitive, display_num, atomic_form_factor_based_on_ITC=atomic_form_factor_based_on_ITC)
 
         if comparison:
             print(f"####### {material.name} start #########")
             _print_comparison_between_exp_and_cal(descending_intensity, peak_info, display_num)
             print(f"####### {material.name} end #########")
 
-        for _, _, x, _ in sorted(peak_info, key=lambda z:z[3], reverse=True)[:display_num]:
-            ax.plot([x,x], [-8*max(intensity)/100, -5*max(intensity)/100], color="green", linewidth=1, zorder=1)
-        ax.plot([x,x], [-8*max(intensity)/100, -5*max(intensity)/100], color="green", linewidth=1, label="Bragg peak", zorder=1)
-        ax.plot(two_theta, intensity, label="obs.", color="blue", marker="o", markersize=1.5, linewidth=0.5, zorder=2)
-        ax.plot(theor_x, theor_y * max(intensity) / 100, linewidth=1.2, label="calc.", color="red", zorder=0)
+        # for _, _, x, _ in sorted(peak_info, key=lambda z:z[3], reverse=True)[:display_num]:
+        #     ax.plot([x,x], [-8*max(intensity)/100, -5*max(intensity)/100], color="green", linewidth=1, zorder=1)
+        # ax.plot([x,x], [-8*max(intensity)/100, -5*max(intensity)/100], color="green", linewidth=1,  zorder=1)
+        ax.plot(two_theta, intensity, color="blue", marker="o", markersize=1.5, linewidth=0.5, zorder=2)
+        ax.plot(theor_x, theor_y * max(intensity) / 100, linewidth=1.2, label=rf"calc. {material.graphname}", color="red", zorder=3)
 
         ax.set_ylabel("intensity [a.u.]")
         ax.legend()
