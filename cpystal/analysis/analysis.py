@@ -1384,7 +1384,7 @@ class ExpDataExpanderSeebeck:
         return H_, dTx_symm, dTx_symm_err
 
 
-class ReMakeExpFromRaw:
+class RemakeExpFromRaw:
     def __init__(self, filename: str, filename_Seebeck: str, cernox_name: str = "X173409", attr_cor_to_V: list[int] | None = None) -> None:
         self.filename: str = filename
         self.TC_TS: list[list[float]] = []
@@ -1541,7 +1541,7 @@ class ReMakeExpFromRaw:
 
 
             
-class ReMakeExpFromRawSeebeck:
+class RemakeExpFromRawSeebeck:
     def __init__(self, filename: str, filename_Seebeck: str, cernox_name: str = "X173409", attr_cor_to_V: list[int] | None = None) -> None:
         self.filename: str = filename
         self.TC_TS: list[list[float]] = []
