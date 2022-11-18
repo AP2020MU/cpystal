@@ -14,8 +14,9 @@ from __future__ import annotations
 from collections import defaultdict, deque
 from fractions import Fraction
 from functools import reduce
+from itertools import combinations
 from math import gcd
-from typing import Any, Iterable, List, overload, Tuple, TypeVar, Union
+from typing import Any, Iterable, List, overload, Tuple, TypeVar
 import re
 
 import numpy as np
@@ -335,12 +336,12 @@ class MatrixREF:
     Attributes:
         p (int): Square of the generator of simple extension Q(√p).
         mat (list[list[REF]]): 2-dimension matrix of `REF` instance.
-        shape (Tuple[int, int]): Shape of `MatrixREF.mat`. First element is the number of row, second is the number of column.
+        shape (tuple[int, int]): Shape of `MatrixREF.mat`. First element is the number of row, second is the number of column.
     """
     def __init__(self: MatrixREFchild, p: int, mat: Matrix | None = None): # p:int, mat:list[list[int/Fraction]]
         self.p: int = p
         self.mat: list[list[REF]] = []
-        self.shape: Tuple[int, int]
+        self.shape: tuple[int, int]
         if mat is None:
             self.shape = (0, 0)         
         else:
@@ -370,19 +371,22 @@ class MatrixREF:
     def __len__(self: MatrixREFchild) -> int:
         return len(self.mat)
     
-    def __eq__(self: MatrixREFchild, other: Fraction) -> list[list[bool]]: # type: ignore
-        m: int
-        n: int
+    def __eq__(self: MatrixREFchild, other: int | Fraction | MatrixREFchild) -> list[list[bool]]: # type: ignore
         m, n = self.shape
         smat: list[list[REF]] 
         omat: list[list[REF]]
         res: list[list[bool]]
-        if type(other) is int or type(other) is Fraction:
-            other_: REF = REF(self.p, other)
+        other_: REF
+        if type(other) is int:
+            other_ = REF(self.p, Fraction(other))
             smat = self.mat
             res = [[smat[i][j]==other_ for j in range(n)] for i in range(m)]
             return res # list[list[bool]]
-
+        elif type(other) is Fraction:
+            other_ = REF(self.p, other)
+            smat = self.mat
+            res = [[smat[i][j]==other_ for j in range(n)] for i in range(m)]
+            return res # list[list[bool]]
         elif isinstance(other, MatrixREF):
             if self.p == other.p:
                 smat = self.mat
@@ -399,8 +403,6 @@ class MatrixREF:
             return True
         if self.shape != other.shape:
             return True
-        m: int
-        n: int
         m, n = self.shape
         for i in range(m):
             for j in range(n):
@@ -409,8 +411,6 @@ class MatrixREF:
         return False
 
     def __neg__(self: MatrixREFchild) -> MatrixREFchild:
-        m: int
-        n: int
         m, n = self.shape
         res: list[list[REF]] = [[REF(self.p)]*n for _ in range(m)]
         for i in range(m):
@@ -479,10 +479,8 @@ class MatrixREF:
         ret.shape = self.shape
         return ret
 
-    def identity(self: MatrixREFchild, shape: Tuple[int, int] | None = None) -> MatrixREFchild:
+    def identity(self: MatrixREFchild, shape: tuple[int, int] | None = None) -> MatrixREFchild:
         # m×n単位行列
-        m: int
-        n: int
         if shape is None:
             m, n = self.shape
         else:
@@ -496,12 +494,10 @@ class MatrixREF:
         ret.mat = res
         return ret
     
-    def sum(self: MatrixREFchild, axis: int | None = None) -> Union[REF, list[REF]]:
-        m: int
-        n: int
+    def sum(self: MatrixREFchild, axis: int | None = None) -> REF | list[REF]:
         m, n = self.shape
         smat = self.mat
-        res: Union[REF, list[REF]]
+        res: REF | list[REF]
         if axis is None:
             res = REF(self.p)
             for i in range(m):
@@ -566,30 +562,51 @@ class SymmetryOperation(MatrixREF):
 
     This class is inherited from `MatrixREF`.
 
+    Args:
+        p (int): Square of the generator of simple extension Q(√p).
+        mat (list[list[REF]]): 2-dimension matrix of `REF` instance.
+        name (str): Name of the symmetry operation.
+        time_reversal (bool): True if the symmetry operation contains time-reversal operation.
+
     Attributes:
         p (int): Square of the generator of simple extension Q(√p).
         mat (list[list[REF]]): 2-dimension matrix of `REF` instance.
-        shape (Tuple[int, int]): Shape of `MatrixREF.mat`. First element is the number of row, second is the number of column.
-        mirrority (bool): True if the symmetry operation changes right-handed system to left-handed system or vice versa.
+        shape (tuple[int, int]): Shape of `MatrixREF.mat`. First element is the number of row, second is the number of column.
+        name (str): Name of the symmetry operation.
+        time_reversal (bool): True if the symmetry operation contains time-reversal operation.
+        determinant (int): Determinant of the symmetry operation. This value should be +1 or -1 due to orthogonal transformation.
     """
-    def __init__(self, p: int, mat: Matrix, name: str = ""):
+    def __init__(self, p: int, mat: Matrix, name: str = "", time_reversal: bool = False):
         super().__init__(p, mat=mat)
         self.name: str = name
+        self.time_reversal: bool = time_reversal
     
     @property
     def determinant(self) -> int:
         return int(np.sign(np.linalg.det(self.to_ndarray())))
 
     def __neg__(self: SymmetryOperationchild) -> SymmetryOperationchild:
-        m: int
-        n: int
         m, n = self.shape
         res: list[list[REF]] = [[REF(self.p)]*n for _ in range(m)]
         for i in range(m):
             for j in range(n):
                 res[i][j] = -self.mat[i][j]
-        ret: SymmetryOperationchild = self.__class__(self.p, mat=res)
-        ret.name = "-" + self.name
+        ret: SymmetryOperationchild = self.__class__(
+            self.p, 
+            mat=res, 
+            name="-" + self.name,
+            time_reversal=self.time_reversal
+        )
+        return ret
+    
+    def __matmul__(self: SymmetryOperationchild, other: SymmetryOperationchild) -> SymmetryOperationchild:
+        res: MatrixREF = super().__matmul__(other)
+        ret: SymmetryOperationchild = self.__class__(
+            self.p, 
+            mat=res.mat, 
+            name=f"{self.name} {other.name}",
+            time_reversal=self.time_reversal ^ other.time_reversal
+        )
         return ret
 
 def spacegroup_to_pointgroup(name: str) -> str:
@@ -616,9 +633,89 @@ def spacegroup_to_pointgroup(name: str) -> str:
     name = re.sub(r"_\d|_\{\d\}", "", name)
     name = re.sub(r"([^-])1", "\\1", name)
     name = re.sub(r"[a-en]", "m", name)
-    if name == "-4m2":
-        name = "-42m"
     return name
+
+def decompose_jahn_symbol(symbol: str) -> tuple[int, str, bool, bool]:
+    axiality: bool = "e" in symbol
+    time_reversality: bool = "a" in symbol
+    symbol = re.sub(r"a|e|\^", "", symbol) # aとeを消去
+    symbol = re.sub(r"V([^\d]|$)", r"V1\1", symbol) # 'V' -> 'V1'
+    symbol = re.sub(r"\[(.*)\]\*", r"(\1)", symbol) # []* -> ()
+    symbol = re.sub(r"\{(.*)\}\*", r"<\1>", symbol) # {}* -> <>
+    
+    def symbol_to_expression(symbol: str, i: int, base: list[str], expr_list: list[str], n_char: int) -> tuple[str, int, list[str], list[str], int]:
+        def regenerate_base_expr_list(base: list[str], expr_list: list[str], symmetry_type: int) -> tuple[list[str], list[str]]:
+            if len(base) == 1:
+                return base, expr_list
+            new_base: list[str] = ["".join(base)]
+            new_expr_list: list[str] = []
+            divided_expr_list: list[str] = [[expr for expr in expr_list if b in expr] for b in base]
+            # baseの統合
+            for i in range(len(base)):
+                left_bases: str = "".join(base[:i])
+                right_bases: str = "".join(base[i+1:]) if i+1 < len(base) else ""
+                for expr in divided_expr_list[i]:
+                    # '=' の前半のindexをnew_baseに合わせて拡張
+                    new_expr: str = re.sub(r"^(.*)=", left_bases+r"\1"+right_bases+"=", expr)
+                    # '=' の後半のindexをnew_baseに合わせて拡張
+                    new_expr = re.sub(r"(=-|=)(.*)$", r"\1"+left_bases+r"\2"+right_bases, new_expr)
+                    # 時間反転操作がある場合は後ろにずらす
+                    if "'" in new_expr:
+                        new_expr = re.sub(r"'", "", new_expr) + "'"
+                    new_expr_list.append(new_expr)
+            for i, j in combinations(range(len(base)), 2): # 全てのbaseの置換に対して対称性ごとに処理
+                ji: str = "".join([base[j] if n == i else (base[i] if n == j else b) for n,b in enumerate(base)])
+                # 対称性に応じてbase間の関係を追加
+                if symmetry_type == 0:
+                    # 単純統合
+                    pass
+                elif symmetry_type == 1:
+                    # 対称
+                    new_expr_list.append(f"{new_base[0]}={ji}")
+                elif symmetry_type == 2:
+                    # 反対称
+                    new_expr_list.append(f"{new_base[0]}=-{ji}")
+                elif symmetry_type == 3:
+                    # 時間反転で対称
+                    new_expr_list.append(f"{new_base[0]}={ji}'")
+                elif symmetry_type == 4:
+                    # 時間反転で反対称
+                    new_expr_list.append(f"{new_base[0]}=-{ji}'")
+                else:
+                    pass
+            return new_base, new_expr_list
+
+        characters: str = "ijklmnopqrstuvwxyzabcdefgh"
+        left_parentheses: str = "[{(<"
+        right_parentheses: str = "]})>"
+
+        if i == -1: # 最終的な結果
+            i += 1
+            symbol, i, base, expr_list, n_char = symbol_to_expression(symbol, i, base, expr_list, n_char)
+            base, expr_list = regenerate_base_expr_list(base, expr_list, symmetry_type=0)
+            return symbol, i, base, expr_list, n_char
+        while i < len(symbol):
+            if symbol[i] in left_parentheses:
+                symmetry_type: int = 1 + left_parentheses.index(symbol[i])
+                i += 1
+                symbol, i, new_base, new_expr_list, n_char = symbol_to_expression(symbol, i, [], [], n_char)
+                new_base, new_expr_list = regenerate_base_expr_list(new_base, new_expr_list, symmetry_type=symmetry_type)
+                base = base + new_base
+                expr_list = expr_list + new_expr_list
+            elif symbol[i] in right_parentheses:
+                i += 1
+                return symbol_to_expression(symbol, i, base, expr_list, n_char)
+            elif symbol[i] == "V":
+                base = base + [characters[n_char+b] for b in range(int(symbol[i+1]))]
+                n_char += int(symbol[i+1])
+                i += 2
+                return symbol, i, base, expr_list, n_char
+            else:
+                raise ValueError
+        return symbol, i, base, expr_list, n_char
+    _, _, _, expr_list, rank = symbol_to_expression(symbol, -1, [], [], 0)
+
+    return rank, ",".join(expr_list), axiality, time_reversality
 
 Relation = List[Tuple[REF, int]]
 Relations = List[List[Tuple[REF, int]]]
@@ -628,15 +725,18 @@ Relations_ternary = List[List[Tuple[REF, Tuple[int, ...]]]]
 class PhysicalPropertyTensorAnalyzer:
     """Analyze non-zero elements of physical property tensors based on the symmetry of crystallographic point group.
 
-    All symmetry operations of crystallographic point groups can be represented as a 3×3 matrix on a simple rational extension field: 'M_{3×3}(Q(√3))' in an appropriate orthogonal basis.
-    Therefore, it is possible to determine which elements are equivalent or zero by straightforward exact calculation.
+    There is software on the browser that performs similar or better than this class.
+    'MTENSOR": https://www.cryst.ehu.es/cgi-bin/cryst/programs/mtensor.pl
+    If you want to double-check the result of this class, use 'MTENSOR'.
+
+    Note:
+        All symmetry operations of crystallographic point groups can be represented as a 3×3 matrix on a simple rational extension field: 'M_{3×3}(Q(√3))' in an appropriate orthogonal basis.
+        Therefore, it is possible to determine which elements are equivalent or zero by straightforward exact calculation.
 
     Attributes:
         point_group_name (str): Target point group name written in Schönflies notation.
-        unitary_matrice (list[MatrixREF]): list of the symmetry operations of the crystallographic point group represented as a matrix in an appropriate orthogonal basis.
+        unitary_matrices (list[MatrixREF]): list of the symmetry operations of the crystallographic point group represented as a matrix in an appropriate orthogonal basis.
 
-    Todo:
-        To implement the converter from spacegroup name to point group name.
     """
     # 適切に定めた直交座標系を基底にとったときの対称操作の行列表示
     # 基本並進ベクトルたちが直交系をなすならそれを使う
@@ -726,6 +826,10 @@ class PhysicalPropertyTensorAnalyzer:
                                         [0,-1,0],
                                         [0,0,-1]], name="inversion")
 
+    time_reversal = SymmetryOperation(3, [[1,0,0],
+                                            [0,1,0],
+                                            [0,0,1]], name="time-reversal", time_reversal=True)
+
     # 国際表記 -> Schönflies表記
     international_to_schoenflies_notation: dict[str, str] = {
         # 立方晶(cubic system)
@@ -747,6 +851,7 @@ class PhysicalPropertyTensorAnalyzer:
         # 直方晶(orthorhombic system)
         "mmm": "D2h",
         "mm2": "C2v",
+        "2mm": "C2v", # 表記揺れ
         "222": "D2",
         # 六方晶(hexagonal system)
         "6/mmm": "D6h",
@@ -772,17 +877,43 @@ class PhysicalPropertyTensorAnalyzer:
         "1": "C1"
     }
 
+    point_groups: list[str] = [
+        "1", "-1",
+        "2", "m", "2/m",
+        "3", "-3", "32", "3m", "-3m",
+        "6", "-6", "6/m", "622", "6mm", "-62m", "6/mmm",
+        "222", "mmm", "mm2",
+        "4", "-4", "4/m", "422", "4mm", "-42m", "4/mmm",
+        "23", "m-3", "432", "-43m", "m-3m",
+    ]
+
     enantiomorphous_point_groups: list[str] = [
         "1", "2", "222", "4", "422", "3", "32", "6", "622", "23", "432"
+    ]
+
+    chiral_point_groups: list[str] = [
+        "1", "2", "222", "4", "422", "3", "32", "6", "622", "23", "432"
+    ]
+
+    polar_point_groups: list[str] = [
+        "1", "m", "2", "mm2", "4", "4mm", "3", "3m", "6", "6mm",
+    ]
+
+    centrosymmetric_point_groups: list[str] = [
+        "-1", "2/m", "mmm", "4/m", "4/mmm", "-3", "-3m", "6/m", "6/mmm", "m-3", "m-3m",
+    ]
+
+    noncentrosymmetric_point_groups: list[str] = [
+        "1", "2", "m", "222", "mm2", "4", "-4", "422", "4mm", "-42m", "3", "3m", "32", "6", "-6", "622", "6mm", "-62m", "23", "432", "-43m",
     ]
 
 
     # 参照元 https://www.cryst.ehu.es/cryst/get_point_genpos.html (三方晶やC3_001の行列は改変)
     # 各結晶点群の生成元(適切に定めた直交座標系を基底にとっていることに注意)
     # 三方晶では
-    # (default):   [111]方向をz軸，c軸とz軸とy軸がx=0上になるようにとる
+    # (default):   [001]方向をz軸，2回回転がある場合はa軸が回転軸，鏡映がある場合はa軸に垂直に鏡映面
     # _rombohedral: [111]方向をxyzでの(1,1,1)方向，c軸とz軸と[111]がx=y上になるようにとる
-    PointGroup_generators: dict[str, list[SymmetryOperation]] = {
+    pointgroup_generators: dict[str, list[SymmetryOperation]] = {
         # 立方晶
         "Oh": [C2_001, C2_010, C3_111, C2_110, inversion],
         "Td": [C2_001, C2_010, C3_111, m_1n10],
@@ -832,7 +963,7 @@ class PhysicalPropertyTensorAnalyzer:
     def __init__(self, point_group_name: str) -> None:
         self.point_group_name: str = point_group_name
         pgname_in_schoenflies_notation: str = self.international_to_schoenflies_notation[self.point_group_name]
-        self.unitary_matrice: list[SymmetryOperation] = self.PointGroup_generators[pgname_in_schoenflies_notation]
+        self.unitary_matrices: list[SymmetryOperation] = self.pointgroup_generators[pgname_in_schoenflies_notation]
 
     @classmethod
     def _Gauss_Elimination_REF(cls, A: MatrixREF) -> MatrixREF: # 掃き出し法による行簡約化
@@ -845,9 +976,11 @@ class PhysicalPropertyTensorAnalyzer:
             if k == m:
                 break
             flag: bool = True
-            for i in range(k,m):
-                if B[i][k] != zero:
+            i: int = m-1
+            for idx in range(k,m):
+                if B[idx][k] != zero:
                     flag = False
+                    i = idx
                     break
             if flag: # k列は簡約済み
                 continue
@@ -866,20 +999,24 @@ class PhysicalPropertyTensorAnalyzer:
         return B
 
     @classmethod
-    def _ternary(cls, n: int, fill: int) -> Tuple[int, ...]: # fill: 桁数
+    def _ternary(cls, n: int, fill: int, is_0indexed: bool = True) -> tuple[int, ...]: # fill: 桁数
         res: list[int] = [] # res[i] := nの3進展開の"下から"i桁目
         r: int
         while n:
             n, r = divmod(n,3)
             res.append(r)
-        return tuple(res + [0]*max(0,fill-len(res))) # Tuple[int, ...]
+        if is_0indexed: # 0-indexed
+            return tuple(res + [0]*max(0,fill-len(res)))
+        else: # 1-indexed
+            res = [i+1 for i in res]
+            return tuple(res + [1]*max(0,fill-len(res)))
     
     @classmethod
-    def _ternary2int(cls, ternary_ijk: Tuple[int, ...]) -> int:
+    def _ternary2int(cls, ternary_ijk: tuple[int, ...]) -> int:
         return sum([n * 3**i for i,n in enumerate(ternary_ijk)])
     
     @classmethod
-    def _relations_from_symmetry_operation(cls, rank: int, R: SymmetryOperation, axiality: bool) -> Relations:
+    def _relations_from_symmetry_operation(cls, rank: int, R: SymmetryOperation, axiality: bool, time_reversality: bool = False) -> Relations:
         # N階のテンソルに直交変換Rを施したときの，要素間の関係式(つまりテンソルに関わる物理量は全て共変と仮定)
         # relations[i]: \sum_{j} relations[i][j][0]*A_{relations[i][j][1]} = 0 という関係式を表す
         # rank=2: A_{ij}  = R_{il}R{jm} A_{lm}
@@ -896,18 +1033,14 @@ class PhysicalPropertyTensorAnalyzer:
                 for a, b in zip(cls._ternary(ijk,rank), cls._ternary(lmn,rank)):
                     val *= R[a][b]
                 if val != zero: # 非ゼロの項のみ記録
+                    sign: REF = REF(3, Fraction(-1,1)) # -1
+                    # 軸性テンソルにimproper xor 磁気的テンソルに時間反転 -> 符号は-1倍
+                    if (axiality and R.determinant == -1) ^ (time_reversality and R.time_reversal):
+                        sign = -sign
                     if ijk == lmn:
-                        if axiality and R.determinant == -1: # 軸性テンソルに右手左手変換
-                            val_ijk += val
-                        else:
-                            val_ijk -= val
+                        val_ijk += sign * val
                     else:
-                        if axiality and R.determinant == -1:
-                            # 軸性テンソルに対する右手系-左手系変換(鏡映・反転)では符号反転
-                            now.append((val, lmn))
-                        else:
-                            # 極性テンソルに対する任意の変換，軸性テンソルに対する回転
-                            now.append((-val, lmn))
+                        now.append((sign * val, lmn))
             if val_ijk != zero:
                 now.append((val_ijk, ijk))
             if now:
@@ -920,9 +1053,10 @@ class PhysicalPropertyTensorAnalyzer:
         # "ijk = -jik = kij" のように，添字で物理的な制約に基づくテンソルの対称性を導入する
         # 複数の条件がある場合はカンマで区切る
         # マイナス符号も使える
+        # 時間反転操作で等価になる場合"'"(prime)で表示できるが，この関数では無視する
         n_elem: int = 3**rank
-        expressions: list[list[str]] = [s.split("=") for s in re.sub(r"[\u3000 \t]", "", expr).split(",")]
-        expressions_data: list[Tuple[list[str], str, defaultdict[str,list[int]], str, defaultdict[str,list[int]]]] = []
+        expressions: list[list[str]] = [s.split("=") for s in re.sub(r"[\u3000 \t]", "", expr).split(",") if not "'" in s]
+        expressions_data: list[tuple[list[str], int, defaultdict[str,list[int]], int, defaultdict[str,list[int]]]] = []
         relations: Relations = []
         for expression in expressions:
             for i in range(1,len(expression)):
@@ -947,8 +1081,8 @@ class PhysicalPropertyTensorAnalyzer:
                 expressions_data.append((characters, sign0, d0, sign1, d1)) # この関係式で出現する文字全体の集合も持っておく
         for ijk in range(n_elem):
             for lmn in range(ijk,n_elem):
-                ijk_ternary: Tuple[int, ...] = cls._ternary(ijk, rank)
-                lmn_ternary: Tuple[int, ...] = cls._ternary(lmn, rank)
+                ijk_ternary: tuple[int, ...] = cls._ternary(ijk, rank)
+                lmn_ternary: tuple[int, ...] = cls._ternary(lmn, rank)
                 for characters, s0, d0, s1, d1 in expressions_data:
                     flag: bool = True
                     for c in characters: # 表現の文字ごとに見る
@@ -977,7 +1111,7 @@ class PhysicalPropertyTensorAnalyzer:
         return [cls._relation_to_ternary(relation, rank) for relation in relations]
     
     @classmethod
-    def _extract_relation(cls, relations: Relations, rank: int, ternary_ijk: tuple[int, ...]) -> list[Relation_ternary]:
+    def _extract_relation(cls, relations: Relations, rank: int, ternary_ijk: tuple[int, ...]) -> Relations:
         # ternary_ijkが入っている関係式を抽出
         res: Relations = []
         for relation in relations:
@@ -987,6 +1121,8 @@ class PhysicalPropertyTensorAnalyzer:
     
     @classmethod
     def _formulize_relations(cls, relations: Relations, rank: int) -> list[str]:
+        """ToDo: is_0indexed に対応
+        """
         # 関係式を数学的に表示
         res: list[str] = []
         for relation in relations:
@@ -1002,6 +1138,7 @@ class PhysicalPropertyTensorAnalyzer:
             if i <= j and all([k == direction for k in klm]):
                 # 3階: k=direction について ijk を行列表示
                 # 4階: k=direction について ijkk を行列表示
+                # n階: k=direction について ijk...k を行列表示
                 res[i][j] = "o"
         return "\n".join([" ".join(r) for r in res])
 
@@ -1010,14 +1147,14 @@ class PhysicalPropertyTensorAnalyzer:
         # 同じ項をまとめる
         renewed_relations: Relations = []
         for relation in relations:
-            dic: defaultdict[Tuple[int, ...], REF] = defaultdict(lambda: REF(3))
+            dic: defaultdict[int, REF] = defaultdict(lambda: REF(3))
             for val, ijk in relation:
                 dic[ijk] += val
             renewed_relations.append([(v,k) for k,v in dic.items() if v != REF(3)])
         return renewed_relations
 
     @classmethod
-    def _delete_zero_term(cls, relations: Relations, nonzero: set[int]) -> Tuple[Relations, set[int], bool]:
+    def _delete_zero_term(cls, relations: Relations, nonzero: set[int]) -> tuple[Relations, set[int], bool]:
         # 0の要素を削除
         flag: bool = False # 更新が起こったかどうか
         relations = cls._summarize_same_term(relations) # 同じ項をまとめる
@@ -1040,7 +1177,7 @@ class PhysicalPropertyTensorAnalyzer:
         return renewed, nonzero, flag
 
     @classmethod
-    def _untangle_relations(cls, rank: int, relations: Relations, nonzero: set[int]) -> Tuple[Relations, set[int], bool]:
+    def _untangle_relations(cls, rank: int, relations: Relations, nonzero: set[int]) -> tuple[Relations, set[int], bool]:
         # 係数行列簡約化で関係式を簡約化
         flag: bool = False
         zero: REF = REF(3)
@@ -1072,8 +1209,6 @@ class PhysicalPropertyTensorAnalyzer:
             # 簡約化して行の非ゼロ要素が1つだけならそれに対応するテンソル要素の値は0
             # それ以外の行は前よりも簡単になった関係式になっている
             zero_elements: list[int] = []
-            m: int
-            n: int
             m, n = AA.shape
             for i in range(m):
                 idxs: list[int] = []
@@ -1088,10 +1223,10 @@ class PhysicalPropertyTensorAnalyzer:
                 if z in nonzero:
                     flag = True
                     nonzero.discard(z)
-        return renewed, nonzero, flag # Tuple[list[list[Tuple[REF,int]]], set[int], bool]
+        return renewed, nonzero, flag # tuple[list[list[tuple[REF,int]]], set[int], bool]
 
     @classmethod
-    def _remove_duplicate(cls, relations: Relations, nonzero: set[int]) -> Tuple[Relations, set[int], bool]:
+    def _remove_duplicate(cls, relations: Relations, nonzero: set[int]) -> tuple[Relations, set[int], bool]:
         # 複数の等価な式を一本化
         flag: bool = False
         renewed: Relations = []
@@ -1116,7 +1251,7 @@ class PhysicalPropertyTensorAnalyzer:
                 renewed.append(relations[idx1])
             else:
                 flag = True
-        return renewed, nonzero, flag # Tuple[list[list[Tuple[REF,int]]], set[int], bool]
+        return renewed, nonzero, flag # tuple[list[list[tuple[REF,int]]], set[int], bool]
 
     @classmethod
     def _simplify_coefficient(cls, R: list[REF]) -> list[REF]: # O(len(A))
@@ -1150,7 +1285,7 @@ class PhysicalPropertyTensorAnalyzer:
 
     @classmethod
     def _simplify_relations_value(cls, relations: Relations) -> Relations:
-        # relation: list[Tuple[REF,int]] (in relations)の比を保ったままREFの有理部と無理部の係数を整数に簡約化
+        # relation: list[tuple[REF,int]] (in relations)の比を保ったままREFの有理部と無理部の係数を整数に簡約化
         res: Relations = []
         for relation in relations:
             if len(relation) == 0:
@@ -1161,13 +1296,10 @@ class PhysicalPropertyTensorAnalyzer:
                 vals.append(val)
                 ijks.append(ijk)
             res.append(list(zip(cls._simplify_coefficient(vals), ijks))) # REFの有理部と無理部の簡約化
-        return res # list[list[Tuple[REF, int]]]
+        return res # list[list[tuple[REF, int]]]
 
     @classmethod
     def _extract_independent(cls, rank: int, relations: Relations, nonzero: set[int]) -> tuple[set[int], Relations]:
-        """
-        欠陥があるかも
-        """
         def printer_indep_dep(dep):
             print([cls._ternary(dep, rank)])
         if len(relations) == 0:
@@ -1235,7 +1367,7 @@ class PhysicalPropertyTensorAnalyzer:
         return indep, dep_represented_by_indep
 
     @classmethod
-    def _represent_dep_by_indep(cls, rank: int, relation: Relation) -> str:
+    def _represent_dep_by_indep(cls, rank: int, relation: Relation, is_0indexed: bool = True) -> str:
         # 独立成分のみで従属成分を表示
         r: REF
         ijk0: int
@@ -1245,48 +1377,45 @@ class PhysicalPropertyTensorAnalyzer:
             v: REF = -val/r
             if v.b == 0:
                 if v.a == 1:
-                    res.append(str(cls._ternary(ijk, rank)))
+                    res.append(str(cls._ternary(ijk, rank, is_0indexed=is_0indexed)))
                 elif v.a == -1:
-                    res.append(f"-{cls._ternary(ijk, rank)}")
+                    res.append(f"-{cls._ternary(ijk, rank, is_0indexed=is_0indexed)}")
                 else:
-                    res.append(str(v.a)+str(cls._ternary(ijk, rank)))
+                    res.append(str(v.a)+str(cls._ternary(ijk, rank, is_0indexed=is_0indexed)))
             elif v.a == 0:
                 if v.b.denominator == 1:
                     if v.b == 1:
-                        res.append(f"√{v.p}"+str(cls._ternary(ijk, rank)))
+                        res.append(f"√{v.p}"+str(cls._ternary(ijk, rank, is_0indexed=is_0indexed)))
                     else:
-                        res.append(f"{v.b}√{v.p}"+str(cls._ternary(ijk, rank)))
+                        res.append(f"{v.b}√{v.p}"+str(cls._ternary(ijk, rank, is_0indexed=is_0indexed)))
                 else:
                     if v.b.numerator == 1:
-                        res.append(f"√{v.p}/{v.b.denominator}"+str(cls._ternary(ijk, rank)))
+                        res.append(f"√{v.p}/{v.b.denominator}"+str(cls._ternary(ijk, rank, is_0indexed=is_0indexed)))
                     else:
-                        res.append(f"{v.b.numerator}√{v.p}/{v.b.denominator}"+str(cls._ternary(ijk, rank)))
+                        res.append(f"{v.b.numerator}√{v.p}/{v.b.denominator}"+str(cls._ternary(ijk, rank, is_0indexed=is_0indexed)))
             else:    
-                res.append(f"({v.a}+{v.b}√{v.p})"+str(cls._ternary(ijk, rank)))
-        return f"{cls._ternary(ijk0, rank)} = " + " + ".join(res)
+                res.append(f"({v.a}+{v.b}√{v.p})"+str(cls._ternary(ijk, rank, is_0indexed=is_0indexed)))
+        return f"{cls._ternary(ijk0, rank, is_0indexed=is_0indexed)} = " + " + ".join(res)
 
 
     @classmethod
     def _contract_relations_along_with_direction(cls, relations: Relations, rank: int, magnetic_field_direction: int) -> Relations:
-        ### ここで別の層の項との関係性を消失しているので書き換えた方がいいかも ###
         new_relations: Relations = []
-        for direct in range(3):
-            if direct == magnetic_field_direction:
-                continue
-            for relation in relations:
-                # relation 中の全ての項が magnetic_field_direction 方向のもののみ抽出
-                flag: bool = True
-                new_relation: Relation = []
-                for val, ijk in relation:
-                    i, j, *klm = cls._ternary(ijk, rank)
-                    ### ここで別の層の項との関係性を消失しているので書き換えた方がいいかも ###
-                    if not all([k == magnetic_field_direction for k in klm]):
-                        flag = False
-                        break
-                    else:
-                        new_relation.append((val, cls._ternary2int((i,j))))
-                if flag:
-                    new_relations.append(new_relation)
+        for relation in relations:
+            flag: bool = True
+            new_relation: Relation = []
+            for val, ijk in relation:
+                i, j, *klm = cls._ternary(ijk, rank)
+                if len(klm) > 0 and not all([k == klm[0] for k in klm]): # 一軸磁場のみ考慮
+                    flag = False
+                    break
+                else:
+                    if len(klm) == 0: # 磁場依存しない(B^0に比例する)項を求めていることに注意
+                        new_relation.append((val, cls._ternary2int((i,j,magnetic_field_direction))))
+                    else: # 縮約してできる3階のテンソルの中で，別方向の一軸磁場での要素同士が関係を持つ可能性があるので，それは残す
+                        new_relation.append((val, cls._ternary2int((i,j,klm[0]))))
+            if flag:
+                new_relations.append(new_relation)
         return new_relations
 
     @classmethod
@@ -1295,18 +1424,19 @@ class PhysicalPropertyTensorAnalyzer:
         res: set[int] = set()
         for ijk in nonzero:
             i, j, *klm = cls._ternary(ijk, rank)
-            if all([k == direction for k in klm]):
-                res.add(cls._ternary2int((i,j)))
+            if all([k == direction for k in klm]): # direction方向の一軸磁場に対する応答に対応する要素
+                res.add(cls._ternary2int((i,j,direction)))
         return res
 
     @classmethod
-    def _contract_along_with_direction(cls, relations: Relations, rank: int, nonzero: set[int], magnetic_field_direction: int) -> tuple[Relations, set[int]]:
-        # rank 階のテンソルの磁場に対応する部分の足を縮約して，ある磁場方向の2階のテンソルに直す
+    def _contract_along_with_direction(cls, relations: Relations, rank: int, nonzero: set[int], magnetic_field_direction: int) -> tuple[Relations, set[int], set[int], set[int]]:
+        # rank 階のテンソルの磁場に対応する部分の足を縮約して，一軸磁場の2階のテンソルに直す
         n_nonzero: int = len(nonzero)
         vertex: list[int] = [ijk for ijk in sorted(nonzero)]
         ijk2idx: dict[int, int] = {ijk:i for i,ijk in enumerate(vertex)}
         G: list[dict[int, REF]] = [dict() for _ in range(n_nonzero)] # 絶対値が一致する項同士に辺を張ったグラフ
         pair_relations: Relations = sorted([relation for relation in relations if len(relation) == 2], key=lambda x:len(x))
+        more_than_two_relations: Relations = sorted([relation for relation in relations if len(relation) > 2], key=lambda x:len(x))
         for relation in pair_relations:
             val0,ijk0 = relation[0]
             val1,ijk1 = relation[1]
@@ -1319,11 +1449,25 @@ class PhysicalPropertyTensorAnalyzer:
         def check_direction(ijk: int) -> bool:
             return all([i == magnetic_field_direction for i in cls._ternary(ijk, rank)[2:]])
 
+        def check_uniaxiality(ijk: int) -> bool:
+            ternary_ijk: tuple[int, ...] = cls._ternary(ijk, rank)
+            if len(ternary_ijk) <= 2:
+                return True
+            else:
+                return all([i == ternary_ijk[2] for i in ternary_ijk[2:]])
+
+        def printer(relations: Relations) -> None:
+            # デバッグ用
+            print(*cls._formulize_relations(relations, rank), sep="\n")
+
         def printer_nonzero(nonzero: set[int], rank: int) -> None:
             # デバッグ用
             print(*sorted([cls._ternary(i,rank) for i in nonzero]), sep="\n")
+        # printer(relations)
+        # printer_nonzero(nonzero,rank)
         
-        searched_vertex: list[int] = [ijk for ijk in vertex if check_direction(ijk)] # 足の磁場部分が求めたい磁場方向のみになっている添字
+        # 足の磁場部分が求めたい方向の一軸磁場になっている添字
+        searched_vertex: list[int] = sorted([ijk for ijk in vertex if check_direction(ijk)], key=lambda x:cls._ternary(x,rank))
         searched_idx: list[int] = [ijk2idx[ijk] for ijk in searched_vertex] # 番号を振っておく
         zeros: set[int] = set() # 結果的に0になる項の添字(閉路上の辺重みの積が-1になる場合)
         connections: list[dict[int, REF]] = [dict() for _ in range(n_nonzero)] # UnionFindでいうところの，辺の根への付け替え
@@ -1332,8 +1476,8 @@ class PhysicalPropertyTensorAnalyzer:
         for start in searched_idx:
             if start in used: # もし既に訪れていたら，どれかの従属成分であることがわかる
                 continue
-            indep.add(start)
-            visited: list[int | None] = [None] * n_nonzero
+            indep.add(vertex[start])
+            visited: list[REF | None] = [None] * n_nonzero
             visited[start] = REF(3, Fraction(1,1))
             que = deque([start])
             all_zero_flag: bool = False
@@ -1341,8 +1485,8 @@ class PhysicalPropertyTensorAnalyzer:
                 idx: int = que.popleft()
                 used.add(idx)
                 for nex in G[idx]:
-                    val_edge: int = G[idx][nex]
-                    val_nex: int = val_edge * visited[idx]
+                    val_edge: REF = G[idx][nex]
+                    val_nex: REF = val_edge * visited[idx]
                     if visited[nex] is None: # 未訪問の場合は更新
                         que.append(nex)
                         visited[nex] = val_nex
@@ -1354,8 +1498,8 @@ class PhysicalPropertyTensorAnalyzer:
                             # print(cls._ternary(vertex[nex],rank))
                             # print(visited[nex], val_nex)
                             all_zero_flag = True
-
-                    if check_direction(vertex[nex]) and not nex in connections[start]: # 子孫(nex)を根(start)に繋ぐ
+                    # 方向が別でも一軸性があればOK
+                    if check_uniaxiality(vertex[nex]) and not nex in connections[start]: # 子孫(nex)を根(start)に繋ぐ
                         connections[start][nex] = val_nex
             if all_zero_flag:
                 for idx in range(n_nonzero):
@@ -1367,18 +1511,21 @@ class PhysicalPropertyTensorAnalyzer:
         for start in searched_idx:
             if len(connections[start]) > 0:
                 for nex in connections[start]:
-                    dep.add(nex)
+                    dep.add(vertex[nex])
                     new_relations.append(
                         [
                             (REF(3, Fraction(1,1)), vertex[start]),
                             (-connections[start][nex], vertex[nex]),
                         ]
                     )
-        printer_nonzero(indep)
-        printer_nonzero(dep)
+        new_relations = new_relations + more_than_two_relations
+        # print("indep")
+        # printer_nonzero(indep,rank)
+        # print("dep")
+        # printer_nonzero(dep,rank)
         for ijk in nonzero:
             if not (ijk in zeros or ijk in dep):
-                indep.add(ijk) # この段階では縮約してないので，異なる磁場成分に対する関係がこの関数の先でindepを表示するときに出てきてしまう
+                indep.add(ijk)
         for z in zeros:
             nonzero.discard(z)
         
@@ -1386,8 +1533,7 @@ class PhysicalPropertyTensorAnalyzer:
         # print("nonzero",)
         # printer_nonzero(nonzero, 4)
 
-        #### ここで別の層の項との関係性を消失しているので書き換えた方がいいかも ####
-        #### 情報を落としすぎているので，磁場の足1個は残してもいいかも ####
+        # 磁場の足1個は残してある
         contracted_relations: Relations = cls._contract_relations_along_with_direction(relations, rank, magnetic_field_direction)
         contracted_nonzero: set[int] = cls._contract_nonzero_along_with_direction(nonzero, rank, magnetic_field_direction)
         # print("c_nonzero")
@@ -1395,20 +1541,8 @@ class PhysicalPropertyTensorAnalyzer:
         contracted_indep: set[int] = cls._contract_nonzero_along_with_direction(indep, rank, magnetic_field_direction)
         contracted_dep: set[int] = cls._contract_nonzero_along_with_direction(dep, rank, magnetic_field_direction)
         return contracted_relations, contracted_nonzero, contracted_indep, contracted_dep
-    
-    @classmethod
-    def _pad_relations_by_all_pattern(cls, relations: Relations) -> Relations:
-        # 関係式を全パターン線型結合をとることで非等価な式を水増し
-        res: Relations = []
-        for i in range(len(relations)):
-            for j in range(i, len(relations)):
-                if i == j:
-                    continue
-                res.append(relations[i] + relations[j])
-                res.append(relations[i] + [(-val, ijk) for val,ijk in relations[j]])
-        return cls._summarize_same_term(res)
 
-    def get_elements_info(self, rank: int, axiality: bool, expr: str | None = None) -> None: # N階の極性テンソルがR∈self.unitary_matriceの対称操作で不変となるときの非ゼロになりうる要素の添字を計算
+    def get_elements_info(self, rank: int, axiality: bool, expr: str | None = None) -> None: # N階の極性テンソルがR∈self.unitary_matricesの対称操作で不変となるときの非ゼロになりうる要素の添字を計算
         """Determine which elements of a tensor are equivalent or zero by straightforward exact calculation based on Neumann's principle.
 
         Note:
@@ -1420,7 +1554,7 @@ class PhysicalPropertyTensorAnalyzer:
             expr (str | None): String representing a relation between elements that is already known. Some relations shall be separated by comma.
 
         Returns: 
-            (list[Tuple[int, ...]]): Indice(0-indexed) of non-zero elements of the tensor.
+            (list[tuple[int, ...]]): Indices(0-indexed) of non-zero elements of the tensor.
 
         Examples:
             >>> point_group_name = spacegroup_to_pointgroup("Fd-3m") # Pyrochlore
@@ -1437,7 +1571,7 @@ class PhysicalPropertyTensorAnalyzer:
             relations.extend(self._relations_from_expression(rank, expr))
         # print(self._relations_to_ternary(relations, rank))
 
-        for R in self.unitary_matrice: # (結晶点群に属する)直交変換を元にテンソル要素間の関係式を構築
+        for R in self.unitary_matrices: # (結晶点群に属する)直交変換を元にテンソル要素間の関係式を構築
             relations.extend(self._relations_from_symmetry_operation(rank, R, axiality))
 
         # print("aaa",self._relations_to_ternary(relations, rank))
@@ -1465,7 +1599,79 @@ class PhysicalPropertyTensorAnalyzer:
         
         print()
         print(f"number of nonzero elements: {len(nonzero)}")
-        res0: list[Tuple[int, ...]] = sorted([self._ternary(ijk, rank) for ijk in nonzero])
+        res0: list[tuple[int, ...]] = sorted([self._ternary(ijk, rank) for ijk in nonzero])
+        print(f"nonzero elements: {res0}")
+        print()
+        # print(self._nonzero_matrix(nonzero,0,rank))
+        # print(self._nonzero_matrix(nonzero,1,rank))
+        # print(self._nonzero_matrix(nonzero,2,rank))
+        print(f"number of independent elements: {len(res1)}")
+        print(f"--independent elements--")
+        print(*res1, sep="\n")
+        print(f"------------------------")
+        print()
+        print(f"--dependent elements represented by indp.--")
+        print(*res2, sep="\n")
+        print(f"-------------------------------------------")
+        return
+    
+    def get_elements_info_from_jahn_symbol(self, jahn_symbol: str) -> None: # N階の極性テンソルがR∈self.unitary_matricesの対称操作で不変となるときの非ゼロになりうる要素の添字を計算
+        """Determine which elements of a tensor are equivalent or zero by straightforward exact calculation based on Neumann's principle.
+
+        Note:
+            All analysis results are output to stdout.
+
+        Args:
+            jahn_symbol (str): String designating the sort of tensor according to its transformation properties.
+
+        Returns: 
+            (list[tuple[int, ...]]): Indices(0-indexed) of non-zero elements of the tensor.
+
+        Examples:
+            >>> point_group_name = spacegroup_to_pointgroup("Fd-3m") # Pyrochlore
+            >>> assert point_group_name == "m-3m"
+            >>> PPTA = PhysicalPropertyTensorAnalyzer(point_group_name)
+            >>> PPTA.get_elements_info(rank=4, axiality=False, expr="ijkl=ijlk=jikl=klij") # elastic modulus tensor (4-tensor): 4階の弾性率テンソル
+            >>> PPTA.get_elements_info(rank=3, axiality=False, expr="ijk=ikj") # Optical Parametric Oscillator: 光パラメトリック発振
+
+        """
+        rank, expr, axiality, time_reversality = decompose_jahn_symbol(jahn_symbol)
+        n_elem: int = 3**rank
+        nonzero: set[int] = set(range(n_elem))
+        relations: Relations = []
+        # 添字で直接表現したテンソル要素間の対称性を元に関係式を構築
+        relations.extend(self._relations_from_expression(rank, expr))
+        # print(self._relations_to_ternary(relations, rank))
+
+        for R in self.unitary_matrices: # (結晶点群に属する)直交変換を元にテンソル要素間の関係式を構築
+            relations.extend(self._relations_from_symmetry_operation(rank, R, axiality))
+
+        # print("aaa",self._relations_to_ternary(relations, rank))
+
+        def printer(relations: Relations) -> None:
+            # デバッグ用
+            print(*self._formulize_relations(relations, rank), sep="\n")
+        
+        flag: bool = True
+        while flag:
+            flag1: bool = True
+            flag2: bool = True
+            flag3: bool = True
+            while flag1:
+                relations, nonzero, flag1 = self._delete_zero_term(relations,nonzero) # 無効な式を削除
+            relations, nonzero, flag2 = self._untangle_relations(rank,relations,nonzero) # 行簡約化で関係式を簡単化
+            relations, nonzero, flag3 = self._remove_duplicate(relations,nonzero) # 重複した等価な式たちを一本化
+            flag = flag1 or flag2 or flag3
+            relations = self._simplify_relations_value(relations) # 関係式の係数を簡単な比に変換
+
+        # 独立成分と従属成分を分離
+        indep, dep_represented_by_indep = self._extract_independent(rank, relations, nonzero)
+        res1: list[tuple[int, ...]] = sorted([self._ternary(ijk, rank) for ijk in indep])
+        res2: list[str] = [self._represent_dep_by_indep(rank, relation) for relation in dep_represented_by_indep]
+        
+        print()
+        print(f"number of nonzero elements: {len(nonzero)}")
+        res0: list[tuple[int, ...]] = sorted([self._ternary(ijk, rank) for ijk in nonzero])
         print(f"nonzero elements: {res0}")
         print()
         # print(self._nonzero_matrix(nonzero,0,rank))
@@ -1481,26 +1687,30 @@ class PhysicalPropertyTensorAnalyzer:
         print(f"-------------------------------------------")
         return
 
-    def get_info_transport_tensor_under_magnetic_field(self, magnetic_field_dependence_dimension: int = 0, fast: bool = True) -> None: # 指定された点群上の2階の輸送テンソルの非ゼロになりうる要素の添字を計算
+
+    def get_info_transport_tensor_under_magnetic_field(self, magnetic_field_dependence_dimension: int = 0, is_0indexed: bool = False) -> None: # 指定された点群上の2階の輸送テンソルの非ゼロになりうる要素の添字を計算
         """Determine which elements of a transport tensor are equivalent or zero by straightforward exact calculation based on Neumann's principle.
 
         Note:
             All analysis results are output to stdout.
         
         Args:
-            magnetic_field_dependence_dimension (int): 0 or 1 or 2 or 3 are allowed.
+            magnetic_field_dependence_dimension (int): 0 or 1 or 2 or 3 or 4 are allowed.
                 0: constant components in magnetic field.
                 1: linear components in magnetic field.
                 2: quadratic components in magnetic field.
                 3: cubic components in magnetic field.
                 4: quartic components in magnetic field.
-            fast (bool): If True, only indice of nonzero components are printed (dependency is not calculated). Defaults to True.
+            is_0indexed (bool): True if the indices of tensor elements in the results are written in 0-indexed form. Defaults to False.
 
         Examples:
             >>> point_group_name = spacegroup_to_pointgroup("Fd-3m") # Diamond
             >>> assert point_group_name == "m-3m"
             >>> PPTA = PhysicalPropertyTensorAnalyzer(point_group_name)
             >>> PPTA.get_info_transport_tensor_under_magnetic_field(1) # odd terms of a transport tensor
+
+        ToDo:
+            implement Jahn's symbol analyzer to determine automatically 'rank', 'expr' and 'axiality'.
         """
         rank: int
         expr: str
@@ -1548,7 +1758,7 @@ class PhysicalPropertyTensorAnalyzer:
         if expr is not None: # 添字で直接表現したテンソル要素間の対称性を元に関係式を構築
             relations.extend(self._relations_from_expression(rank, expr))
 
-        for R in self.unitary_matrice: # (結晶点群に属する)直交変換を元にテンソル要素間の関係式を構築
+        for R in self.unitary_matrices: # (結晶点群に属する)直交変換を元にテンソル要素間の関係式を構築
             # print(R.name)
             # print(self._untangle_relations(rank,self._relations_from_expression(rank, expr)+self._relations_from_symmetry_operation(rank, R, axiality),set(range(27))))
             # print(*self._formulize_relations(self._extract_relation(self._relations_from_symmetry_operation(rank, R, axiality), rank, (0,1,1)), rank), sep="\n")
@@ -1571,19 +1781,25 @@ class PhysicalPropertyTensorAnalyzer:
         printer(relations)
         # printer_nonzero(nonzero, rank)
 
-        # このバージョンで問題がなければいずれ fast は削除
-        for direction in range(3):
-            contracted_relations, contracted_nonzero, indep, dep = self._contract_along_with_direction(relations, rank, nonzero, direction)
+        for direction0 in range(3):
+            contracted_relations, contracted_nonzero, contracted_indep, contracted_dep = self._contract_along_with_direction(relations, rank, nonzero, direction0)
             contracted_relations, _, _ = self._remove_duplicate(contracted_relations, contracted_nonzero)
 
-            res0: list[tuple[int, ...]] = sorted([self._ternary(ijk, 2) for ijk in (contracted_nonzero)])
-            res1: list[tuple[int, ...]] = sorted([self._ternary(ijk, 2) for ijk in indep])
-            res2: list[str] = [self._represent_dep_by_indep(2, relation) for relation in contracted_relations]
-            # 末尾がkのもののみ取り出す
-            print(f"###### magnetic field direction: B_{direction} ######")
+            result_rank: int = 3 # 足はijkで表示
+            res0: list[tuple[int, ...]] = sorted([self._ternary(ijk, result_rank, is_0indexed=is_0indexed) for ijk in contracted_nonzero])
+            res1: list[tuple[int, ...]] = sorted([self._ternary(ijk, result_rank, is_0indexed=is_0indexed) for ijk in contracted_indep])
+            res2: list[str] = [self._represent_dep_by_indep(result_rank, relation, is_0indexed=is_0indexed) for relation in contracted_relations]
+            
+            direction1: int
+            if not is_0indexed:
+                direction1 = direction0 + 1 # 1-indexed
+            else:
+                direction1 = direction0 # 0-indexed
+            print(f"###### magnetic field direction: B_{direction1} ######")
+            print(fr"tensor element: $\rho_{{ij}} = \lambda_{{ij{direction1}}} B_{direction1}^{magnetic_field_dependence_dimension}$")
             print(f"number of nonzero elements: {len(res0)}")
-            print(f"nonzero elements: {res0}")
-            print(self._nonzero_matrix(nonzero,direction,rank))
+            print(fr"nonzero elements of $\lambda$: {res0}")
+            print(self._nonzero_matrix(nonzero,direction0,rank))
             print(f"number of independent elements: {len(res1)}")
             print(f"--independent elements--")
             print(*res1, sep="\n")
@@ -1593,46 +1809,6 @@ class PhysicalPropertyTensorAnalyzer:
             print()
 
 
-        # if fast:
-        #     for direction in range(3):
-        #         contracted_relations: Relations = self._contract_relations_along_with_direction(relations, rank, direction)
-        #         contracted_nonzero: set[int] = self._contract_nonzero_along_with_direction(nonzero, rank, direction)
-        #         print(f"###### magnetic field direction: B_{direction} ######")
-        #         print(f"number of nonzero elements: {len(contracted_nonzero)}")
-        #         res0: list[Tuple[int, ...]] = sorted([self._ternary(ijk, 2) for ijk in contracted_nonzero])
-        #         print(f"nonzero elements: {res0}")
-        #         print()
-        #         print(self._nonzero_matrix(nonzero,direction,rank))
-        # else:
-        #     # _contract_relations_along_with_direction において 
-        #     # ijk = -pqr, pqr = abc, abc = lmn みたいなときに元を辿れずに依存性を少なく見積もることがある
-        #     # 関係式を _pad_relations_by_all_pattern で水増しする(完全ではないので要実装)
-        #     # lenが2の同じrelationにある同士に辺(重みは+1or-1)を貼ったグラフを作って，知りたい非indepの方向要素(末尾がk..kk)からBFSして
-        #     # indepかつ(末尾がk..kk)にたどり着いたら，通ってきた辺重みの積を重みにした辺でmerge
-        #     relations = self._pad_relations_by_all_pattern(relations)
-        #     relations = self._simplify_relations_value(relations)
-        #     relations = self._pad_relations_by_all_pattern(relations)
-        #     print("### padding relations: done")
-        #     for direction in range(3):
-        #         contracted_relations: Relations = self._contract_relations_along_with_direction(relations, rank, direction)
-        #         contracted_nonzero: set[int] = self._contract_nonzero_along_with_direction(nonzero, rank, direction)
-        #         contracted_relations, _, _ = self._remove_duplicate(contracted_relations, contracted_nonzero)
-        #         indep, dep_represented_by_indep = self._extract_independent(2, contracted_relations, contracted_nonzero)
-        #         res0: list[tuple[int, ...]] = sorted([self._ternary(ijk, 2) for ijk in (contracted_nonzero)])
-        #         res1: list[tuple[int, ...]] = sorted([self._ternary(ijk, 2) for ijk in indep])
-        #         res2: list[str] = [self._represent_dep_by_indep(2, relation) for relation in dep_represented_by_indep]
-        #         # 末尾がkのもののみ取り出す
-        #         print(f"###### magnetic field direction: B_{direction} ######")
-        #         print(f"number of nonzero elements: {len(res0)}")
-        #         print(f"nonzero elements: {res0}")
-        #         print(self._nonzero_matrix(nonzero,direction,rank))
-        #         print(f"number of independent elements: {len(res1)}")
-        #         print(f"--independent elements--")
-        #         print(*res1, sep="\n")
-        #         print(f"--dependent elements represented by indp.--")
-        #         print(*res2, sep="\n")
-        #         print("###################################################")
-        #         print()
         return 
 
 
