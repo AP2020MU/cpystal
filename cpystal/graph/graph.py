@@ -15,22 +15,22 @@ from __future__ import annotations # class定義中に自己classを型ヒント
 
 from collections import deque
 from math import pi
-from typing import Deque, Dict, List, Optional, Tuple
 
 import matplotlib.pyplot as plt # type: ignore
-from mpl_toolkits.axisartist.axislines import SubplotZero
+from mpl_toolkits.axisartist.axislines import SubplotZero # type: ignore
 import numpy as np
+import numpy.typing as npt
 
 from ..core import Crystal
 
-def graph_moment_vs_temp(material: Crystal, Temp: List[float], Moment: List[float], field_val: float, SI: bool = False, per: Optional[str] = None) -> Tuple[plt.Figure, plt.Subplot]: # 磁場固定
+def graph_moment_vs_temp(material: Crystal, Temp: list[float], Moment: list[float], field_val: float, SI: bool = False, per: str | None = None) -> tuple[plt.Figure, plt.Subplot]: # 磁場固定
     # 縦軸：磁気モーメント，横軸：温度 のグラフを作成
     # Moment: 磁気モーメント [emu]
     # Temp: 温度 [K]
     # field_val: 磁場 [Oe]
-    moment_vs_temp: List[List[float]] = [[m,t] for m,t in zip(Moment,Temp)]
-    X: List[float] = [t for m,t in moment_vs_temp]
-    Y: List[float] = [m for m,t in moment_vs_temp]
+    moment_vs_temp: list[list[float]] = [[m,t] for m,t in zip(Moment,Temp)]
+    X: list[float] = [t for m,t in moment_vs_temp]
+    Y: list[float] = [m for m,t in moment_vs_temp]
     if SI:
         if per == "mol":
             if material.mol is None:
@@ -84,14 +84,14 @@ def graph_moment_vs_temp(material: Crystal, Temp: List[float], Moment: List[floa
     return fig, ax
 
 
-def graph_moment_vs_field(material: Crystal, Field: List[float], Moment: List[float], temp_val: float, SI: bool = False, per: Optional[str] = None) -> Tuple[plt.Figure, plt.Subplot]: # 温度固定
+def graph_moment_vs_field(material: Crystal, Field: list[float], Moment: list[float], temp_val: float, SI: bool = False, per: str | None = None) -> tuple[plt.Figure, plt.Subplot]: # 温度固定
     # 縦軸：磁気モーメント，横軸：磁場 のグラフを作成
     # Moment: 磁気モーメント [emu]
     # Field: 磁場 [Oe]
     # temp_val: 温度 [K]
-    moment_vs_field: List[List[float]] = [[m,f] for m,f in zip(Moment,Field)]
-    X: List[float] = [f for m,f in moment_vs_field]
-    Y: List[float] = [m for m,f in moment_vs_field]
+    moment_vs_field: list[list[float]] = [[m,f] for m,f in zip(Moment,Field)]
+    X: list[float] = [f for m,f in moment_vs_field]
+    Y: list[float] = [m for m,f in moment_vs_field]
     if SI:
         if per == "mol":
             if material.mol is None:
@@ -146,14 +146,14 @@ def graph_moment_vs_field(material: Crystal, Field: List[float], Moment: List[fl
     return fig, ax
 
 
-def graph_magnetization_vs_temp(material: Crystal, Temp: List[float], Moment: List[float], field_val: float, SI: bool = False, per: Optional[str] = None) -> Tuple[plt.Figure, plt.Subplot]:
+def graph_magnetization_vs_temp(material: Crystal, Temp: list[float], Moment: list[float], field_val: float, SI: bool = False, per: str | None = None) -> tuple[plt.Figure, plt.Subplot]:
     # データはcgs固定．
     # SI: グラフ描画をSIにするかどうか
     # per: molあたり，重さあたりにするかどうか
     # 縦軸：磁化，横軸：温度 のグラフを作成
-    magnetization_vs_temp: List[List[float]] = [[material.cal_magnetization(m=m,SI=SI,per=per),t] for m,t in zip(Moment,Temp)] # 磁場固定
-    X: List[float] = [t for m,t in magnetization_vs_temp]
-    Y: List[float] = [m for m,t in magnetization_vs_temp]
+    magnetization_vs_temp: list[list[float]] = [[material.cal_magnetization(m=m,SI=SI,per=per),t] for m,t in zip(Moment,Temp)] # 磁場固定
+    X: list[float] = [t for m,t in magnetization_vs_temp]
+    Y: list[float] = [m for m,t in magnetization_vs_temp]
     
     plt.rcParams['font.size'] = 14
     plt.rcParams['font.family'] = 'Arial'
@@ -186,11 +186,11 @@ def graph_magnetization_vs_temp(material: Crystal, Temp: List[float], Moment: Li
     return fig, ax
 
 
-def graph_magnetization_vs_field(material: Crystal, Field: List[float], Moment: List[float], temp_val: float, SI: bool = False, per: Optional[str] = None) -> Tuple[plt.Figure, plt.Subplot]: # データはcgs固定．グラフ描画をSIにするかどうか，1molあたりにするかどうか
+def graph_magnetization_vs_field(material: Crystal, Field: list[float], Moment: list[float], temp_val: float, SI: bool = False, per: str | None = None) -> tuple[plt.Figure, plt.Subplot]: # データはcgs固定．グラフ描画をSIにするかどうか，1molあたりにするかどうか
     # 縦軸：磁化，横軸：磁場 のグラフを作成
-    magnetization_vs_field: List[List[float]] = [[material.cal_magnetization(m=m,SI=SI,per=per),f] for m,f in zip(Moment,Field)] # 温度固定
-    X: List[float] = [f for m,f in magnetization_vs_field]
-    Y: List[float] = [m for m,f in magnetization_vs_field]
+    magnetization_vs_field: list[list[float]] = [[material.cal_magnetization(m=m,SI=SI,per=per),f] for m,f in zip(Moment,Field)] # 温度固定
+    X: list[float] = [f for m,f in magnetization_vs_field]
+    Y: list[float] = [m for m,f in magnetization_vs_field]
     
     plt.rcParams['font.size'] = 14
     plt.rcParams['font.family'] = 'Arial'
@@ -223,16 +223,16 @@ def graph_magnetization_vs_field(material: Crystal, Field: List[float], Moment: 
     return fig, ax
 
 
-def graph_Bohr_vs_field(material: Crystal, Field: List[float], Moment: List[float], temp_val: float, per_formula_unit: bool = True) -> Tuple[plt.Figure, plt.Subplot]:
-    Bohr_vs_field: List[List[float]]
+def graph_Bohr_vs_field(material: Crystal, Field: list[float], Moment: list[float], temp_val: float, per_formula_unit: bool = True) -> tuple[plt.Figure, plt.Subplot]:
+    Bohr_vs_field: list[list[float]]
     if per_formula_unit:
         # 縦軸：有効ボーア磁子数/式単位，横軸：磁場 のグラフを作成
         Bohr_vs_field = [[material.cal_Bohr_per_formula_unit(m=m),f] for m,f in zip(Moment,Field)] # 温度固定
     else:
         # 縦軸：有効ボーア磁子数/磁性イオン，横軸：磁場 のグラフを作成
         Bohr_vs_field = [[material.cal_Bohr_per_ion(m=m),f] for m,f in zip(Moment,Field)] # 温度固定
-    X: List[float] = [f for b,f in Bohr_vs_field]
-    Y: List[float] = [b for b,f in Bohr_vs_field]
+    X: list[float] = [f for b,f in Bohr_vs_field]
+    Y: list[float] = [b for b,f in Bohr_vs_field]
     
     plt.rcParams['font.size'] = 14
     plt.rcParams['font.family'] = 'Arial'
@@ -258,16 +258,16 @@ def graph_Bohr_vs_field(material: Crystal, Field: List[float], Moment: List[floa
     return fig, ax
 
 
-def graph_Bohr_vs_temp(material: Crystal, Temp: List[float], Moment: List[float], field_val: float, per_formula_unit: bool = True) -> Tuple[plt.Figure, plt.Subplot]:
-    Bohr_vs_temp: List[List[float]]
+def graph_Bohr_vs_temp(material: Crystal, Temp: list[float], Moment: list[float], field_val: float, per_formula_unit: bool = True) -> tuple[plt.Figure, plt.Subplot]:
+    Bohr_vs_temp: list[list[float]]
     if per_formula_unit:
         # 縦軸：有効ボーア磁子数/式単位，横軸：磁場 のグラフを作成
         Bohr_vs_temp = [[material.cal_Bohr_per_formula_unit(m=m),t] for m,t in zip(Moment,Temp)] # 温度固定
     else:
         # 縦軸：有効ボーア磁子数/磁性イオン，横軸：磁場 のグラフを作成
         Bohr_vs_temp = [[material.cal_Bohr_per_ion(m=m),t] for m,t in zip(Moment,Temp)] # 温度固定
-    X: List[float] = [t for b,t in Bohr_vs_temp]
-    Y: List[float] = [b for b,t in Bohr_vs_temp]
+    X: list[float] = [t for b,t in Bohr_vs_temp]
+    Y: list[float] = [b for b,t in Bohr_vs_temp]
     
     plt.rcParams['font.size'] = 14
     plt.rcParams['font.family'] = 'Arial'
@@ -293,14 +293,14 @@ def graph_Bohr_vs_temp(material: Crystal, Temp: List[float], Moment: List[float]
     return fig, ax
 
 
-def _graph_susceptibility_vs_temp(material: Crystal, Temp: List[float], Moment: List[float], Field: float, SI: bool = False, per: Optional[str] = None) -> Tuple[plt.Figure, plt.Subplot]: # データはcgs固定．グラフ描画をSIにするかどうか，1molあたりにするかどうか
+def _graph_susceptibility_vs_temp(material: Crystal, Temp: list[float], Moment: list[float], Field: float, SI: bool = False, per: str | None = None) -> tuple[plt.Figure, plt.Subplot]: # データはcgs固定．グラフ描画をSIにするかどうか，1molあたりにするかどうか
     # 縦軸：磁化率，横軸：温度 のグラフを作成
-    # Moment: List[moment] moment: 磁気モーメント [emu]
-    # Temp: List[temperature] temperature: 温度 [K]
+    # Moment: list[moment] moment: 磁気モーメント [emu]
+    # Temp: list[temperature] temperature: 温度 [K]
     # Field: 磁場 [Oe]
-    susceptibility_temp: List[List[float]] = [[material.cal_magnetization(m=m,SI=SI,per=per)/Field,t] for m,t in zip(Moment,Temp)] # 磁場固定
-    X: List[float] = [t for s,t in susceptibility_temp]
-    Y: List[float] = [s for s,t in susceptibility_temp]
+    susceptibility_temp: list[list[float]] = [[material.cal_magnetization(m=m,SI=SI,per=per)/Field,t] for m,t in zip(Moment,Temp)] # 磁場固定
+    X: list[float] = [t for s,t in susceptibility_temp]
+    Y: list[float] = [s for s,t in susceptibility_temp]
     if SI:
         if per == "mol":
             if material.formula_weight is None or material.w is None:
@@ -356,16 +356,16 @@ def _graph_susceptibility_vs_temp(material: Crystal, Temp: List[float], Moment: 
     plt.show()
     return fig, ax
 
-def graph_susceptibility_vs_temp(material: Crystal, Temp: List[float], Moment: List[float], Field: float) -> Tuple[plt.Figure, plt.Subplot]: # データはcgs固定．グラフ描画をSIにするかどうか，1molあたりにするかどうか
+def graph_susceptibility_vs_temp(material: Crystal, Temp: list[float], Moment: list[float], Field: float) -> tuple[plt.Figure, plt.Subplot]: # データはcgs固定．グラフ描画をSIにするかどうか，1molあたりにするかどうか
     # 縦軸：磁化率，横軸：温度 のグラフを作成
-    # Moment: List[moment] moment: 磁気モーメント [emu]
-    # Temp: List[temperature] temperature: 温度 [K]
+    # Moment: list[moment] moment: 磁気モーメント [emu]
+    # Temp: list[temperature] temperature: 温度 [K]
     # Field: 磁場 [Oe]
     if material.formula_weight is None or material.w is None:
         raise TypeError
-    susceptibility_temp: List[List[float]] = [[m * (material.formula_weight / material.w) / Field, t] for m,t in zip(Moment,Temp)] # 磁場固定
-    X: List[float] = [t for s,t in susceptibility_temp]
-    Y1: List[float] = [s for s,t in susceptibility_temp] # [emu/mol.Oe]
+    susceptibility_temp: list[list[float]] = [[m * (material.formula_weight / material.w) / Field, t] for m,t in zip(Moment,Temp)] # 磁場固定
+    X: list[float] = [t for s,t in susceptibility_temp]
+    Y1: list[float] = [s for s,t in susceptibility_temp] # [emu/mol.Oe]
     idx = sorted(range(len(X)),key=lambda x:X[x])
     X = [X[i] for i in idx]
     Y1 = [Y1[i] for i in idx]
@@ -392,16 +392,16 @@ def graph_susceptibility_vs_temp(material: Crystal, Temp: List[float], Moment: L
     return fig, ax
 
 
-def graph_susceptibility_vs_temp_CurieWeiss(material: Crystal, Temp: List[float], Moment: List[float], Field: float, Tc: float) -> Tuple[plt.Figure, plt.Subplot]: # データはcgs固定．グラフ描画をSIにするかどうか，1molあたりにするかどうか
+def graph_susceptibility_vs_temp_CurieWeiss(material: Crystal, Temp: list[float], Moment: list[float], Field: float, Tc: float) -> tuple[plt.Figure, plt.Subplot]: # データはcgs固定．グラフ描画をSIにするかどうか，1molあたりにするかどうか
     # 縦軸：磁化率，横軸：温度 のグラフを作成
-    # Moment: List[moment] moment: 磁気モーメント [emu]
-    # Temp: List[temperature] temperature: 温度 [K]
+    # Moment: list[moment] moment: 磁気モーメント [emu]
+    # Temp: list[temperature] temperature: 温度 [K]
     # Field: 磁場 [Oe]
     if material.formula_weight is None or material.w is None:
         raise TypeError
-    susceptibility_temp: List[List[float]] = [[m * (material.formula_weight / material.w) / Field, t] for m,t in zip(Moment,Temp)] # 磁場固定
-    X: List[float] = [t for s,t in susceptibility_temp]
-    Y1: List[float] = [s for s,t in susceptibility_temp] # [emu/mol.Oe]
+    susceptibility_temp: list[list[float]] = [[m * (material.formula_weight / material.w) / Field, t] for m,t in zip(Moment,Temp)] # 磁場固定
+    X: list[float] = [t for s,t in susceptibility_temp]
+    Y1: list[float] = [s for s,t in susceptibility_temp] # [emu/mol.Oe]
     Y2 = [1/s for s in Y1] # # [(emu/mol.Oe)^-1]
     idx = sorted(range(len(X)),key=lambda x:X[x])
     X = [X[i] for i in idx]
@@ -435,8 +435,8 @@ def graph_susceptibility_vs_temp_CurieWeiss(material: Crystal, Temp: List[float]
     #             arrowprops = dict(arrowstyle = "-|>", color = "black"))
     ax2.set_xlim(0,310)
 
-    Temp_high: np.ndarray = np.array([t for t in Temp if t>Tc])
-    sus_inv: np.ndarray = Field / (np.array([m for t,m in zip(Temp,Moment) if t>Tc]) / material.mol)
+    Temp_high: npt.NDArray[np.float32] = np.array([t for t in Temp if t>Tc])
+    sus_inv: npt.NDArray[np.float32] = Field / (np.array([m for t,m in zip(Temp,Moment) if t>Tc]) / material.mol)
     n: int = len(Temp_high)
     Temp_high_sum: float = np.sum(Temp_high)
     susinv_sum: float = np.sum(sus_inv)
@@ -452,21 +452,21 @@ def graph_susceptibility_vs_temp_CurieWeiss(material: Crystal, Temp: List[float]
     return fig, ax
     
 
-def graph_powder_Xray_intensity_vs_angle(filename: str, display_num: int = 10, material: Optional[Crystal] = None) -> Tuple[plt.Figure, plt.Subplot]:
+def graph_powder_Xray_intensity_vs_angle(filename: str, display_num: int = 10, material: Crystal | None = None) -> tuple[plt.Figure, plt.Subplot]:
     with open(filename, encoding="shift_jis") as f:
-        data: List[List[float]] = [list(map(float, s.strip().split())) for s in f.readlines()[3:]]
+        data: list[list[float]] = [list(map(float, s.strip().split())) for s in f.readlines()[3:]]
         N: int = len(data)
-        two_theta: List[float] = [d[0] for d in data] # データは2θ
-        theta: List[float] = [d[0]/2 for d in data] # データは2θ
-        intensity: List[float] = [d[1] for d in data]
-        neg: List[float] = [i for i in intensity if i<=0]
+        two_theta: list[float] = [d[0] for d in data] # データは2θ
+        theta: list[float] = [d[0]/2 for d in data] # データは2θ
+        intensity: list[float] = [d[1] for d in data]
+        neg: list[float] = [i for i in intensity if i<=0]
         assert len(neg)==0 # 負のintensityをもつ壊れたデータがないことを確認
         
         neighbor_num: int = 20 # peak(極大値の中でも急激に増加するもの)判定で参照する近傍のデータ点数
         
         half: int = neighbor_num//2 # 中間点
-        que: Deque[float] = deque([])
-        peak: List[Tuple[float, int, float, float]] = []
+        que: deque[float] = deque([])
+        peak: list[tuple[float, int, float, float]] = []
         now: float = 0.0
         for i in range(N):
             que.append(intensity[i])
@@ -516,7 +516,7 @@ def graph_powder_Xray_intensity_vs_angle(filename: str, display_num: int = 10, m
     return fig, ax
 
 
-def ax_transplant(ax: plt.Subplot, fig_new: Optional[plt.Figure] = None, figsize: Optional[Tuple[float, float]] = None, ax_new: Optional[plt.Subplot] = None) -> Tuple[plt.Figure, plt.Subplot]:
+def ax_transplant(ax: plt.Subplot, fig_new: plt.Figure | None = None, figsize: tuple[float, float] | None = None, ax_new: plt.Subplot | None = None) -> tuple[plt.Figure, plt.Subplot]:
     # 現状は最低限のpropertyしかないので必要な項目が増えたら追加する
     if fig_new is None:
         if figsize is None:
@@ -541,8 +541,8 @@ def ax_transplant(ax: plt.Subplot, fig_new: Optional[plt.Figure] = None, figsize
     # scatter
     for pathcollection in ax.collections:
         xy = list(pathcollection._offsets)
-        x: List[float] = [i for i,j in xy]
-        y: List[float] = [j for i,j in xy]
+        x: list[float] = [i for i,j in xy]
+        y: list[float] = [j for i,j in xy]
         ax_new.scatter(x, y, label=pathcollection._label)
 
     # text
@@ -550,7 +550,7 @@ def ax_transplant(ax: plt.Subplot, fig_new: Optional[plt.Figure] = None, figsize
         ax_new.text(t._x, t._y, t._text)
 
     # legend
-    dict_loc_real: Dict[int, str] =  {1:"upper right", 2:"upper left", 3:"lower left", 4:"lower right"}
+    dict_loc_real: dict[int, str] =  {1:"upper right", 2:"upper left", 3:"lower left", 4:"lower right"}
     if ax._axes.legend_ is not None:
         if not ax._axes.legend_._loc_used_default:
             if ax._axes.legend_._bbox_to_anchor is not None:
@@ -566,16 +566,16 @@ def ax_transplant(ax: plt.Subplot, fig_new: Optional[plt.Figure] = None, figsize
     return fig_new, ax_new
 
 
-def graph_furnace_temperature_profile(sequence: List[List[float]]) -> Tuple[plt.Figure, plt.Subplot]:
+def graph_furnace_temperature_profile(sequence: list[list[float]]) -> tuple[plt.Figure, plt.Subplot]:
     """Graph the furnace temperature profile from the sequence.
 
     Args:
-        sequence (List[List[float]]):
-            List of [time_length (hour): float, target_temperature (Celsius degree): float].
+        sequence (list[list[float]]):
+            list of [time_length (hour): float, target_temperature (Celsius degree): float].
             `sequence[0]` should be [0, {room_temperature}].
 
     Returns:
-        (Tuple[plt.Figure, plt.Subplot]): `plt.Figure` object and `plt.axes._subplots.AxesZeroSubplot` object.
+        (tuple[plt.Figure, plt.Subplot]): `plt.Figure` object and `plt.axes._subplots.AxesZeroSubplot` object.
     """
     plt.rcParams['font.size'] = 14
     plt.rcParams['font.family'] = 'Arial'
@@ -591,16 +591,16 @@ def graph_furnace_temperature_profile(sequence: List[List[float]]) -> Tuple[plt.
         ax.axis[direction].set_axisline_style("-|>")
         ax.axis[direction].line.set_facecolor("black")
 
-    Time: List[float] = [ti for ti,te in sequence]
-    Temp: List[float] = [te for ti,te in sequence]
-    Time_acc: List[float] = [0]
-    Time_acc_log: List[float] = [0]
+    Time: list[float] = [ti for ti,te in sequence]
+    Temp: list[float] = [te for ti,te in sequence]
+    Time_acc: list[float] = [0]
+    Time_acc_log: list[float] = [0]
     for i in range(1,len(Time)):
         Time_acc.append(Time_acc[i-1]+Time[i])
         Time_acc_log.append(Time_acc_log[i-1]+np.log(1+Time[i]))
     t_end: float = max(Time_acc_log)
     room_temp: float = min(Temp)
-    Temp_high: List[float] = [t for t in Temp if t > room_temp]
+    Temp_high: list[float] = [t for t in Temp if t > room_temp]
     min_temp: float
     if len(set(Temp_high)) != 1:
         min_temp = max(Temp_high) - (max(Temp_high)-min(Temp_high))*2.5
@@ -623,18 +623,18 @@ def graph_furnace_temperature_profile(sequence: List[List[float]]) -> Tuple[plt.
     return fig, ax
 
 
-def graph_2zone_temperature_profile(sequence: List[List[float]]) -> Tuple[plt.Figure, plt.Subplot]:
+def graph_2zone_temperature_profile(sequence: list[list[float]]) -> tuple[plt.Figure, plt.Subplot]:
     """Graph the 2-zones furnace temperature profile from the sequence.
 
     Args:
-        sequence (List[List[float]]): 
-            List of [time_length (hour): float, 
+        sequence (list[list[float]]): 
+            list of [time_length (hour): float, 
                     target_temperature_material (Celsius degree): float, 
                     target_temperature_growth (Celsius degree): float].
             `sequence[0]` should be [0, {room_temperature}, {room_temperature}].
 
     Returns:
-        (Tuple[plt.Figure, plt.Subplot]): `plt.Figure` object and `plt.axes._subplots.AxesZeroSubplot` object.
+        (tuple[plt.Figure, plt.Subplot]): `plt.Figure` object and `plt.axes._subplots.AxesZeroSubplot` object.
     """
     plt.rcParams['font.size'] = 14
     plt.rcParams['font.family'] = 'Arial'
@@ -650,17 +650,17 @@ def graph_2zone_temperature_profile(sequence: List[List[float]]) -> Tuple[plt.Fi
         ax.axis[direction].set_axisline_style("-|>")
         ax.axis[direction].line.set_facecolor("black")
 
-    Time: List[float] = [ti for ti, te1, te2 in sequence]
-    Temp_material: List[float] = [te1 for ti, te1, te2 in sequence]
-    Temp_growth: List[float] = [te2 for ti, te1, te2 in sequence]
-    Time_acc: List[float] = [0]
-    Time_acc_log: List[float] = [0]
+    Time: list[float] = [ti for ti, te1, te2 in sequence]
+    Temp_material: list[float] = [te1 for ti, te1, te2 in sequence]
+    Temp_growth: list[float] = [te2 for ti, te1, te2 in sequence]
+    Time_acc: list[float] = [0]
+    Time_acc_log: list[float] = [0]
     for i in range(1,len(Time)):
         Time_acc.append(Time_acc[i-1]+Time[i])
         Time_acc_log.append(Time_acc_log[i-1]+np.log(1+Time[i]))
     t_end: float = max(Time_acc_log)
     room_temp: float = min(Temp_material)
-    Temp_high: List[float] = [t for t in Temp_material+Temp_growth if t > room_temp]
+    Temp_high: list[float] = [t for t in Temp_material+Temp_growth if t > room_temp]
     min_temp: float
     if len(set(Temp_high)) != 1:
         min_temp = max(Temp_high) - (max(Temp_high)-min(Temp_high))*2.5

@@ -9,5 +9,5 @@ from .analysis import cal_thermal_conductivity as cal_thermal_conductivity
 from .analysis import brillouin as brillouin
 from .analysis import paramagnetization_curie as paramagnetization_curie
 from .analysis import fit_paramagnetism as fit_paramagnetism
-from .analysis import demagnetizating_factor_ellipsoid as demagnetizating_factor_ellipsoid
-from .analysis import demagnetizating_factor_rectangular_prism as demagnetizating_factor_rectangular_prism
+from .analysis import demagnetizing_factor_ellipsoid as demagnetizing_factor_ellipsoid
+from .analysis import demagnetizing_factor_rectangular_prism as demagnetizing_factor_rectangular_prism

@@ -1,7 +1,8 @@
 """`sequence`: for making sequences to control PPMS.
 """
+from __future__ import annotations
 import csv
-from typing import Any, Dict, Iterable, List, Tuple, TypeVar, Optional, Union
+from typing import Any, Sequence, TypeVar
 
 import numpy as np
 
@@ -11,8 +12,8 @@ class SequenceCommandBase:
     """Base class of 'SequenceCommand'.
 
     Attributes:
-        commands (List[Tuple[Any]]): Commands of the sequence. The first element of the tuple indicates command type in integers (details below).
-        command_number (Dict[str, int]):
+        commands (list[tuple[Any]]): Commands of the sequence. The first element of the tuple indicates command type in integers (details below).
+        command_number (dict[str, int]):
             Dictionary of 'command name' to 'command number':
                 `"Measure": 0,
                 "WaitForField": 1,
@@ -20,16 +21,16 @@ class SequenceCommandBase:
                 "SetField": 3,
                 "SetTemp": 4,
                 "SetPower": 5`
-        field_approach_method_number (Dict[str, int]):
+        field_approach_method_number (dict[str, int]):
             Dictionary of 'field approach method' to the number:
                 `"Linear": 0,
                 "No overshoot": 1,
                 "Oscillate": 2`
-        magnet_mode_number (Dict[str, int]):
+        magnet_mode_number (dict[str, int]):
             Dictionary of 'magnet mode' to the number:
                 `"Persistent": 0,
                 "Driven": 1`
-        temp_approach_method_number (Dict[str, int]):
+        temp_approach_method_number (dict[str, int]):
             Dictionary of 'temperature approach method' to the number:
                 `"Fast settle": 0,
                 "No overshoot": 1`
@@ -56,11 +57,11 @@ class SequenceCommandBase:
         Additive identity of this operation is `SequenceCommandBase()`.
     """
     def __init__(self) -> None:
-        self.commands: List[Tuple[Any]] = []
-        self._formatted_commands: List[str] = []
+        self.commands: list[tuple[Any, ...]] = []
+        self._formatted_commands: list[str] = []
 
         # basically these are constant:
-        self.command_number: Dict[str, int] = {
+        self.command_number: dict[str, int] = {
             "Measure": 0,
             "WaitForField": 1,
             "WaitForTemp": 2,
@@ -68,16 +69,16 @@ class SequenceCommandBase:
             "SetTemp": 4,
             "SetPower": 5,
         }
-        self.field_approach_method_number: Dict[str, int] = {
+        self.field_approach_method_number: dict[str, int] = {
             "Linear": 0,
             "No overshoot": 1,
             "Oscillate": 2,
         }
-        self.magnet_mode_number: Dict[str, int] = {
+        self.magnet_mode_number: dict[str, int] = {
             "Persistent": 0,
             "Driven": 1,
         }
-        self.temp_approach_method_number: Dict[str, int] = {
+        self.temp_approach_method_number: dict[str, int] = {
             "Fast settle": 0,
             "No overshoot": 1,
         }
@@ -88,8 +89,8 @@ class SequenceCommandBase:
         res = res + f"\nRequired time: {self.calc_required_time():.5g} min (assuming initial (T,H) = (300K,0T) and necessary time for one measure = 6 min)"
         return res
 
-    def __add__(self, other: SequenceCommand) -> SequenceCommand:
-        res: SequenceCommand = SequenceCommandBase()
+    def __add__(self, other: SequenceCommand) -> SequenceCommandBase:
+        res: SequenceCommandBase = SequenceCommandBase()
         res.commands = self.commands + other.commands
         res._formatted_commands = self._formatted_commands + other._formatted_commands
         return res
@@ -255,7 +256,7 @@ class ScanField(SequenceCommandBase):
             ["Linear", "No overshoot", "Oscillate"] can be used.
         magnet_mode (str): Mode of magnet in PPMS. Defaults to "Persistent".
             ["Persistent", "Driven"] can be used.
-        substructure (Optional[SequenceCommand]): Commands to be executed while scanning for magnetic field. Defaults to None.
+        substructure (SequenceCommand | None): Commands to be executed while scanning for magnetic field. Defaults to None.
     """
     def __init__(self,
             start: float,
@@ -264,7 +265,7 @@ class ScanField(SequenceCommandBase):
             rate: float = 100,
             approach_method: str = "Linear",
             magnet_mode: str = "Persistent",
-            substructure: Optional[SequenceCommand] = None
+            substructure: SequenceCommand | None = None
         ) -> None:
         super().__init__()
         com_num: int = self.command_number["SetField"]
@@ -288,21 +289,21 @@ class ScanField(SequenceCommandBase):
 
     @classmethod
     def from_field_list(cls,
-            value_list: Iterable[float],
+            value_list: Sequence[float],
             rate: float = 100,
             approach_method: str = "Linear",
             magnet_mode: str = "Persistent",
-            substructure: Optional[SequenceCommand] = None
-        ) -> None:
+            substructure: SequenceCommand | None = None
+        ) -> ScanField:
         """
         Args:
-            value_list (Iterable[float]): List of magnetic field (Oe).
+            value_list (Sequence[float]): list of magnetic field (Oe).
             rate (float): Speed of changing magnetic field (Oe/s). Defaults to 100.
             approach_method (str): Approach method of magnetic field to the target. Defaults to "Linear".
                 ["Linear", "No overshoot", "Oscillate"] can be used.
             magnet_mode (str): Mode of magnet in PPMS. Defaults to "Persistent".
                 ["Persistent", "Driven"] can be used.
-            substructure (Optional[SequenceCommand]): Commands to be executed while scanning for magnetic field. Defaults to None.
+            substructure (SequenceCommand | None): Commands to be executed while scanning for magnetic field. Defaults to None.
         
         Returns:
             (ScanField): Instance of 'ScanField'.
@@ -341,7 +342,7 @@ class ScanTemp(SequenceCommandBase):
         rate (float): Speed of changing temperature (K/min). Defaults to 5. Make sure that 0 <= rate <= 20.
         approach_method (str): Approach method of temperature to the target. Defaults to "Fast settle".
             ["Fast settle", "No overshoot"] can be used.
-        substructure (Optional[SequenceCommand]): Commands to be executed while scanning for temperature. Defaults to None.
+        substructure (SequenceCommand | None): Commands to be executed while scanning for temperature. Defaults to None.
     """
     def __init__(self,
             start: float,
@@ -349,7 +350,7 @@ class ScanTemp(SequenceCommandBase):
             increment: float,
             rate: float = 5,
             approach_method: str = "Fast settle",
-            substructure: Optional[SequenceCommand] = None
+            substructure: SequenceCommand | None = None
         ) -> None:
         if not (0 <= rate <= 20):
             raise ValueError("'rate' must be in [0, 20]")
@@ -374,18 +375,18 @@ class ScanTemp(SequenceCommandBase):
 
     @classmethod
     def from_temp_list(cls,
-            value_list: Iterable[float],
+            value_list: Sequence[float],
             rate: float = 5,
             approach_method: str = "Fast settle",
-            substructure: Optional[SequenceCommand] = None
-        ) -> None:
+            substructure: SequenceCommand | None = None
+        ) -> ScanTemp:
         """
         Args:
-            value_list (Iterable[float]): List of temperature (K).
+            value_list (Sequence[float]): list of temperature (K).
             rate (float): Speed of changing temperature (K/min). Defaults to 5. Make sure that 0 <= rate <= 20.
             approach_method (str): Approach method of temperature to the target. Defaults to "Fast settle".
                 ["Fast settle", "No overshoot"] can be used.
-            substructure (Optional[SequenceCommand]): Commands to be executed while scanning for temperature. Defaults to None.
+            substructure (SequenceCommand | None): Commands to be executed while scanning for temperature. Defaults to None.
         
         Returns:
             (ScanTemp): Instance of 'ScanTemp'.
@@ -419,13 +420,13 @@ class ScanPower(SequenceCommandBase):
         start (float): Initial power value (mW).
         end (float): Final power value (mW).
         increment (float): Increment power value by a step (mW).
-        substructure (Optional[SequenceCommand]): Commands to be executed while scanning for power. Defaults to None.
+        substructure (SequenceCommand | None): Commands to be executed while scanning for power. Defaults to None.
     """
     def __init__(self,
             start: float,
             end: float,
             increment: float,
-            substructure: Optional[SequenceCommand] = None
+            substructure: SequenceCommand | None = None
         ) -> None:
         super().__init__()
         com_num: int = self.command_number["SetPower"]
@@ -444,13 +445,13 @@ class ScanPower(SequenceCommandBase):
 
     @classmethod
     def from_power_list(cls,
-            value_list: Iterable[float],
-            substructure: Optional[SequenceCommand] = None
-        ) -> None:
+            value_list: Sequence[float],
+            substructure: SequenceCommand | None = None
+        ) -> ScanPower:
         """
         Args:
-            value_list (Iterable[float]): List of power (mW).
-            substructure (Optional[SequenceCommand]): Commands to be executed while scanning for power. Defaults to None.
+            value_list (Sequence[float]): list of power (mW).
+            substructure (SequenceCommand | None): Commands to be executed while scanning for power. Defaults to None.
         
         Returns:
             (ScanPower): Instance of 'ScanPower'.
@@ -471,13 +472,13 @@ class ScanPower(SequenceCommandBase):
             self._formatted_commands = self._formatted_commands + ["\t" + s for s in substructure._formatted_commands]
         return self
 
-def sequence_maker(filename: str, command_list: List[SequenceCommand]) -> SequenceCommandBase:
+def sequence_maker(filename: str, command_list: list[SequenceCommand]) -> SequenceCommandBase:
     """Make a sequence for controlling PPMS.
 
     Args:
         filename (str): File name.
-        command_list (List[SequenceCommand]):
-            List of instances of `SequenceCommand`.
+        command_list (list[SequenceCommand]):
+            list of instances of `SequenceCommand`.
             If you want to add some commands while `ScanField`, `ScanTemp` and `ScanPower`,
             you will use the argument `substructure` of those classes (the details are as follows).
 
@@ -536,8 +537,8 @@ def sequence_maker(filename: str, command_list: List[SequenceCommand]) -> Sequen
     return res
     
 
-def main():
-    res = sequence_maker(filename="./a.csv", command_list=
+def main() -> None:
+    res: SequenceCommandBase = sequence_maker(filename="./a.csv", command_list=
         [
             SetPower(target=0.1),
             WaitForTemp(extra_wait=1),

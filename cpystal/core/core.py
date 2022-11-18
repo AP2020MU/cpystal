@@ -10,21 +10,22 @@ from __future__ import annotations
 from collections import defaultdict
 from math import pi, sqrt, cos, radians
 import re
-from typing import Any, DefaultDict, Dict, List, Optional, Tuple, TypeVar, Union
+from typing import Any, Dict, List, TypeVar
 
 import numpy as np
+import numpy.typing as npt
 import scipy.signal # type: ignore
 
 
 # データ処理用
-def str_to_float(s: str) -> Optional[float]:
+def str_to_float(s: str) -> float | None:
     """Convert str number to float object.
 
     Args:
         s (str): str-type number.
     
     Returns:
-        (Optional[int]): None if s is empty-string, float otherwise
+        (int | None): None if s is empty-string, float otherwise
     """
     if s == '':
         return None
@@ -32,7 +33,7 @@ def str_to_float(s: str) -> Optional[float]:
         return float(s)
 
 # データ平滑化
-def smoothing(data: List[float], mode: Any = None) -> List[float]:
+def smoothing(data: list[float], mode: Any = None) -> list[float]:
     """Data smoothing function.
 
     Args:
@@ -60,10 +61,10 @@ def smoothing(data: List[float], mode: Any = None) -> List[float]:
 #       ・以下のdictの13元素でコメントアウトされている区間[a,b]は地球上での変動範囲を表す
 #           ・その13元素の原子量はすべて有効数字4桁の数値を用いた
 #       ・(安定同位体が存在しない元素は基本的に None とし，コメントアウトで放射性同位体の質量数の一例を示した)
-#           ・Dict[str, Optional[float]] にするとmypyのチェック回避が面倒なので削除した
+#           ・Dict[str, float | None] にするとmypyのチェック回避が面倒なので削除した
 #           ・ただし，安定同位体が存在しない元素のうちBi,Th,Pa,Uは地球上で固有の同位体比を示すため，原子量が定義されている
 #       ・環境中の変動とは別に測定誤差も考慮する必要があるが，以下では記載していない
-atomic_weight: Dict[str, float] = {
+atomic_weight: dict[str, float] = {
     "H": 1.008, # [1.00784, 1.00811]
     "He": 4.002602,
     "Li": 6.941, # [6.938, 6.997]
@@ -224,7 +225,7 @@ class Crystal: # 結晶の各物理量を計算
     Attributes:
         name (str): The chemical formula of the crystal.
         graphname (str): TeX-formed `name`.
-        date (Optional[str]): The date the sample was synthesized. If there is a numbering system, it will be included here.
+        date (str | None): The date the sample was synthesized. If there is a numbering system, it will be included here.
         spacegroup_name (str): Space group name in International (Hermann-Mauguin) notation of the crytal.
         NA (float): Avogadro constant 6.02214076 * 10**(23) [mol^-1].
         muB (float): Bohr magneton 9.27401 * 10**(-21) [emu].
@@ -248,50 +249,50 @@ class Crystal: # 結晶の各物理量を計算
         graphs (SemimutableDict[str, Any]): Semimutable dictionary of experimental data plotted as `matplotlib.axes._subplots.AxesSubplot` object.
 
     """
-    attributes: Tuple[str, ...] = ("name", "graphname", "date", "spacegroup_name", "NA", "muB", "kB",
+    attributes: tuple[str, ...] = ("name", "graphname", "date", "spacegroup_name", "NA", "muB", "kB",
                 "a", "b", "c", "alpha", "beta", "gamma", "V", "Z",
                 "formula_weight", "w", "num_magnetic_ion", "density", "mol",
                 "numbered_name", "components", "unit", "graphs",)
 
-    def __init__(self, name: str, date: Optional[str] = None, auto_formula_weight: bool = True) -> None:
+    def __init__(self, name: str, date: str | None = None, auto_formula_weight: bool = True) -> None:
         """All attributes are initialized in `__init__` method.
 
         Args:
             name (str): The chemical formula of the crystal.
-            date (Optional[str]): The date the sample was synthesized. If there is a numbering system, it will be included here.
+            date (str | None): The date the sample was synthesized. If there is a numbering system, it will be included here.
             auto_formula_weight (bool): If this argument is `True`, `formula_weight` is calculated automatically from `name`.
         """
 
         self.name: str = name # 化合物名
         self.graphname: str = "$\mathrm{" + re.sub(r"(\d+\.*\d*)", "_{\\1}", name) + "}$" # グラフで表示する名前
-        self.date: Optional[str] = date # 合成した日付(必要ならナンバリングもここに含める)
-        self.spacegroup_name: Optional[str] = None  # 空間群名(国際表記)
+        self.date: str | None = date # 合成した日付(必要ならナンバリングもここに含める)
+        self.spacegroup_name: str  # 空間群名(国際表記)
         
         self.NA: float = 6.02214076e+23 # Avogadro定数 [mol^-1]
         self.muB: float = 9.27401e-21 # Bohr磁子 [emu]
         self.kB: float = 1.380649e-23 # Boltzmann定数 [J/K]
         
         # 格子定数
-        self.a: Optional[float] = None              # 格子定数 [Å]
-        self.b: Optional[float] = None              # 格子定数 [Å]
-        self.c: Optional[float] = None              # 格子定数 [Å]
-        self.alpha: Optional[float] = None          # 基本並進ベクトル間の角度 [°]
-        self.beta: Optional[float] = None           # 基本並進ベクトル間の角度 [°]
-        self.gamma: Optional[float] = None          # 基本並進ベクトル間の角度 [°]
-        self.V: Optional[float] = None              # 単位胞の体積 [cm^3]
-        self.Z: Optional[int] = None                # 単位胞に含まれる式単位の数 (無次元)
+        self.a: float              # 格子定数 [Å]
+        self.b: float              # 格子定数 [Å]
+        self.c: float              # 格子定数 [Å]
+        self.alpha: float          # 基本並進ベクトル間の角度 [°]
+        self.beta: float           # 基本並進ベクトル間の角度 [°]
+        self.gamma: float          # 基本並進ベクトル間の角度 [°]
+        self.V: float              # 単位胞の体積 [cm^3]
+        self.Z: int                # 単位胞に含まれる式単位の数 (無次元)
 
-        self.formula_weight: Optional[float] = None # モル質量(式単位あたり) [g/mol]
-        self.w: Optional[float] = None              # 試料の質量 [g]
-        self.num_magnetic_ion: Optional[int] = None # 式単位中の磁性イオンの数 (無次元)
-        self.density: Optional[float] = None        # 密度 [g/cm^3]
-        self.mol: Optional[float] = None            # 物質量 [mol]
+        self.formula_weight: float # モル質量(式単位あたり) [g/mol]
+        self.w: float              # 試料の質量 [g]
+        self.num_magnetic_ion: int # 式単位中の磁性イオンの数 (無次元)
+        self.density: float        # 密度 [g/cm^3]
+        self.mol: float            # 物質量 [mol]
 
         self.numbered_name: str = re.sub(r"([A-Z][a-z]?|\))(?=[^0-9a-z]+)", r"\g<1>1", name+"$")[:-1] # '1'を追加して元素数を明示したname ("$"は番兵)
-        self.components: DefaultDict[str, float] = defaultdict(float)   # 式単位中に各元素がいくつあるか
+        self.components: defaultdict[str, float] = defaultdict(float)   # 式単位中に各元素がいくつあるか
 
         # 各インスタンス変数の単位
-        self.unit: Dict[str, str] = {
+        self.unit: dict[str, str] = {
             "NA": "mol^-1", "muB": "emu", "kB": "J/K",
             "a": "Å", "b": "Å", "c": "Å", "alpha": "°", "beta": "°", "gamma": "°",
             "V": "cm^3", "Z": "", "formula_weight": "g/mol", "w": "g", 
@@ -301,9 +302,9 @@ class Crystal: # 結晶の各物理量を計算
         self.graphs: SemimutableDict = SemimutableDict()
 
         # 化学式を"形態素"ごとに分割したリスト
-        divided_name: List[str] = re.split(r",+", re.sub(r"([A-Z][a-z]*|(\d|\.)+|[()])", ",\\1,", self.numbered_name).strip(","))
+        divided_name: list[str] = re.split(r",+", re.sub(r"([A-Z][a-z]*|(\d|\.)+|[()])", ",\\1,", self.numbered_name).strip(","))
         now: float = 1.0 # 倍率
-        num_stack: List[float] = [1.0] # 後ろから見て，現在有効な数の積を格納するstack
+        num_stack: list[float] = [1.0] # 後ろから見て，現在有効な数の積を格納するstack
         for s in reversed(divided_name): # 化学式を後ろからみる
             if re.match(r"\d+\.*\d*", s): # 小数表示を許した数値
                 now *= float(s)
@@ -345,11 +346,11 @@ class Crystal: # 結晶の各物理量を計算
             raise TypeError(f"unsupported operand type(s) for +:{self.__class__.__name__} and {type(other).__name__}")
         return self.__class__(self.name + other.name)
 
-    def __mul__(self: Crystalchild, other: Union[int, float]) -> Crystalchild:
+    def __mul__(self: Crystalchild, other: int | float) -> Crystalchild:
         if type(other) is not int:
             raise TypeError(f"unsupported operand type(s) for *:{self.__class__.__name__} and {type(other).__name__}")
         # 化学式をother倍する
-        divided_name: List[str] = re.split(r",+", re.sub(r"([A-Z][a-z]*|(\d|\.)+|[()])", ",\\1,", self.numbered_name).strip(","))
+        divided_name: list[str] = re.split(r",+", re.sub(r"([A-Z][a-z]*|(\d|\.)+|[()])", ",\\1,", self.numbered_name).strip(","))
         parentheses_depth: int = 0 # かっこの中にある数字は飛ばす
         for i, s in enumerate(divided_name):
             if s == "(":
@@ -365,7 +366,7 @@ class Crystal: # 結晶の各物理量を計算
     def num_atom_per_formula_unit(self) -> int:
         """Return the number of atom in a formula unit.
         """
-        return sum(self.components.values())
+        return sum(map(int, self.components.values()))
 
     @property
     def fu_per_unit_cell(self) -> int:
@@ -373,7 +374,7 @@ class Crystal: # 結晶の各物理量を計算
         """
         return self.Z
 
-    def set_lattice_constant(self: Crystalchild, a: float, b: float, c: float, alpha: float, beta: float, gamma: float, Z: Optional[int] = None) -> None:
+    def set_lattice_constant(self: Crystalchild, a: float, b: float, c: float, alpha: float, beta: float, gamma: float, Z: int | None = None) -> None:
         """Setting lattice constants of the crystal.
 
         Args:
@@ -383,7 +384,7 @@ class Crystal: # 結晶の各物理量を計算
             alpha (float): Lattice constant.
             beta (float): Lattice constant.
             gamma (float): Lattice constant.
-            Z (Optional[int]): Number of formula unit in a unit cell.
+            Z (int | None): Number of formula unit in a unit cell.
         """
         # a,b,c: 格子定数 [Å]
         # alpha,beta,gamma: 基本並進ベクトル間の角度 [°]
@@ -489,14 +490,14 @@ class Crystal: # 結晶の各物理量を計算
         self.w = self.formula_weight * self.mol
         return self.w
 
-    def cal_magnetization(self: Crystalchild, m: float, w: Optional[float] = None, SI: bool = False, per: Optional[str] = None) -> float:
+    def cal_magnetization(self: Crystalchild, m: float, w: float | None = None, SI: bool = False, per: str | None = None) -> float:
         """Calculating magnetization from measured value of magnetic moment.
 
         Args:
             m (float): Magnetic moment (unit: [emu]).
-            w (Optional[float]): The weight of the sample (unit: [g]).
+            w (float | None): The weight of the sample (unit: [g]).
             SI (bool): If True, magnetization is calculated in SI (MKSA) system.
-            per (Optional[str]): If per == "mol", magnetization per mol is calculated. If per == "weight", magnetization per weight is calculated. 
+            per (str | None): If per == "mol", magnetization per mol is calculated. If per == "weight", magnetization per weight is calculated. 
         
         Returns:
             (float): Magnetization (unit: [G], [G/mol], [G/g], [A/m], [A/m/mol] or [A/m/kg]).
@@ -523,12 +524,12 @@ class Crystal: # 結晶の各物理量を計算
                 M *= 1/w
         return M
 
-    def cal_Bohr_per_formula_unit(self: Crystalchild, m: float, w: Optional[float] = None) -> float:
+    def cal_Bohr_per_formula_unit(self: Crystalchild, m: float, w: float | None = None) -> float:
         """Calculating magnetization in units of Bohr magneton per formula unit.
 
         Args:
             m (float): Magnetic moment (unit: [emu]).
-            w (Optional[float]): The weight of the sample (unit: [g]).
+            w (float | None): The weight of the sample (unit: [g]).
         
         Returns:
             (float): Magnetization in units of Bohr magneton per formula unit.
@@ -541,13 +542,13 @@ class Crystal: # 結晶の各物理量を計算
         mu: float = (m / self.muB) / (w / self.formula_weight * self.NA)
         return mu
 
-    def cal_Bohr_per_ion(self: Crystalchild, m: float, w: Optional[float] = None, num_magnetic_ion: Optional[int] = None) -> float:
+    def cal_Bohr_per_ion(self: Crystalchild, m: float, w: float | None = None, num_magnetic_ion: int | None = None) -> float:
         """Calculating magnetization in units of Bohr magneton per magnetic ion.
 
         Args:
             m (float): Magnetic moment (unit: [emu]).
-            w (Optional[float]): The weight of the sample (unit: [g]).
-            num_magnetic_ion (Optional[float]): Number of magnetic ions in a formula unit.
+            w (float | None): The weight of the sample (unit: [g]).
+            num_magnetic_ion (float | None): Number of magnetic ions in a formula unit.
         
         Returns:
             (float): Magnetization in units of Bohr magneton per magnetic ion.
@@ -562,14 +563,14 @@ class Crystal: # 結晶の各物理量を計算
         mu: float = (m / self.muB) / (w / self.formula_weight * self.NA) / num_magnetic_ion
         return mu
 
-    def cal_ingredients(self: Crystalchild) -> List[Tuple[str, float]]:
+    def cal_ingredients(self: Crystalchild) -> list[tuple[str, float]]:
         """Calculating the weight of each element in the sample.
 
         Returns:
-            (list[tuple[str, float]]): List of tuple (element name, element weight ratio to the total).
+            (list[tuple[str, float]]): list of tuple (element name, element weight ratio to the total).
         """
         # selfに含まれる各元素の重量をそれぞれ求める
-        res: List[Tuple[str, float]] = []
+        res: list[tuple[str, float]] = []
         if self.formula_weight is None:
             raise TypeError(f"the attribute 'formula_weight' is 'NoneType'")
         for element, n in self.components.items():
@@ -637,13 +638,13 @@ class Crystal: # 結晶の各物理量を計算
             cif_filename (str): Input file name (if necessary, add file path to the head).
 
         Returns:
-            (Crystal): `Crystal` instance made from the cif file `cif_filename`.
+            (Crystalchild): `Crystal` instance made from the cif file `cif_filename`.
         """
         with open(cif_filename) as f:
-            lines: List[str] = f.readlines()
+            lines: list[str] = f.readlines()
         for line in lines:
             if line.startswith("_chemical_formula_structural"):
-                name: str = re.sub(r".+\'(.+)\'", "\\1", line).replace(" ", "").rstrip()
+                name: str = re.sub(r".+\'(.+)\'", "\\1", re.sub(r"_chemical_formula_structural", "", line)).replace(" ", "").rstrip()
         res: Crystal = cls(name)
         a: float
         b: float
@@ -676,22 +677,22 @@ class Crystal: # 結晶の各物理量を計算
 
 # 型エイリアス
 LF = List[float]
-LLF = List[List[float]] 
+LLF = List[List[float]]
 class PPMSResistivity:
     """This is a class for acquiring experimental data of Physical Properties Measurement System (PPMS) from '.dat' files.
 
     Attributes:
         filename (str): Input file name (if necessary, add file path to the head). The suffix of `filename` may be ".dat".
-        material (Optional[Crystal]): `Crystal` instance of the measurement object.
-        Temp (List[float]): Temperature (K) data.
-        Field (List[float]): Magnetic field (Oe) data.
-        Time (List[float]): Time stamp (sec) data.
-        B1Resistivity (List[float]): Bridge 1 Resistivity (Ohm) data.
-        B2Resistivity (List[float]): Bridge 2 Resistivity (Ohm) data.
-        B1R_sd (List[float]): Standard deviation of Bridge 1 Resistivity (Ohm) data.
-        B2R_sd (List[float]): Standard deviation of Bridge 2 Resistivity (Ohm) data.
-        B1Current (List[float]): Bridge 1 Current (μA) data.
-        B2Current (List[float]): Bridge 2 Current (μA) data.
+        material (Crystal | None): `Crystal` instance of the measurement object.
+        Temp (list[float]): Temperature (K) data.
+        Field (list[float]): Magnetic field (Oe) data.
+        Time (list[float]): Time stamp (sec) data.
+        B1Resistivity (list[float]): Bridge 1 Resistivity (Ohm) data.
+        B2Resistivity (list[float]): Bridge 2 Resistivity (Ohm) data.
+        B1R_sd (list[float]): Standard deviation of Bridge 1 Resistivity (Ohm) data.
+        B2R_sd (list[float]): Standard deviation of Bridge 2 Resistivity (Ohm) data.
+        B1Current (list[float]): Bridge 1 Current (μA) data.
+        B2Current (list[float]): Bridge 2 Current (μA) data.
 
         (optional: when used `PPMS_Resistivity.set_S_l`)
         Sxx (float): Area of the sample perpendicular to the current (μm^2).
@@ -705,7 +706,7 @@ class PPMSResistivity:
         a: int = int(x/k)
         return min([(a-1)*k, a*k, (a+1)*k], key=lambda y:abs(x-y))
 
-    def _LSM(self, x: LF, y: LF, linear: bool = False) -> Tuple[LF, float, float]: # 最小二乗法
+    def _LSM(self, x: LF, y: LF, linear: bool = False) -> tuple[LF, float, float]: # 最小二乗法
         X: Any = np.array(x)
         Y: Any = np.array(y)
         if linear: # 線形関数近似
@@ -719,19 +720,19 @@ class PPMSResistivity:
             b = (Moment_sum - a * xs)/n
             return list(a*X + b), a, b
     
-    def __init__(self, filename: str, material: Optional[Crystal] = None):
+    def __init__(self, filename: str, material: Crystal):
         """Initializer of `PPMS_Resistivity`.
 
         Args:
             filename (str): Input file name (if necessary, add file path to the head). The suffix of `filename` may be ".dat".
-            material (Optional[Crystal]): `Crystal` instance of the measurement object.
+            material (Crystal | None): `Crystal` instance of the measurement object.
         """
         self.filename: str = filename
-        self.material: Optional[Crystal] = material
+        self.material: Crystal | None = material
 
         with open(filename, encoding="shift_jis", mode="r") as current_file:
-            label: List[str] = []
-            data: List[List[Any]] = []
+            label: list[str] = []
+            data: list[list[Any]] = []
             flag: int = 0
             for l in current_file.readlines():
                 if flag == 0 and l == "[Data]\n":
@@ -745,7 +746,7 @@ class PPMSResistivity:
 
         N: int = len(data)
 
-        dict_label: Dict[str, int] = {v:k for k,v in enumerate(label)}
+        dict_label: dict[str, int] = {v:k for k,v in enumerate(label)}
         self.Temp: LF =          [data[i][dict_label["Temperature (K)"]] for i in range(N)]
         self.Field: LF =         [data[i][dict_label["Magnetic Field (Oe)"]] for i in range(N)]
         self.Time: LF =          [data[i][dict_label["Time Stamp (sec)"]] for i in range(N)]
@@ -763,26 +764,26 @@ class PPMSResistivity:
         self.lxx: float = lxx
         self.lyx: float = lyx
     
-    def symmetrize(self, delta_H: float, up_data: LLF, down_data: LLF) -> Tuple[LF, LF, LF, LF, LF]:
+    def symmetrize(self, delta_H: float, up_data: LLF, down_data: LLF) -> tuple[LF, LF, LF, LF, LF]:
         """Symmetrization and antisymmetrization are performed based on the data of the field-increasing and field-decreasing processes.
 
         Args:
             delta_H (float): Difference of the magnetic field between each step.
-            up_data (List[List[float]]): List of [field (float), Rxx (float), Rxx_sd (float), Ryx (float), Ryx_sd (float)] which represents field-increasing data.
-            down_data (List[List[float]]): List of [field (float), Rxx (float), Rxx_sd (float), Ryx (float), Ryx_sd (float)] which represents field-decreasing data.
+            up_data (list[list[float]]): list of [field (float), Rxx (float), Rxx_sd (float), Ryx (float), Ryx_sd (float)] which represents field-increasing data.
+            down_data (list[list[float]]): list of [field (float), Rxx (float), Rxx_sd (float), Ryx (float), Ryx_sd (float)] which represents field-decreasing data.
 
         Returns:
-            (Tuple[List[float], List[float], List[float]], List[float], List[float]): 
+            (tuple[list[float], list[float], list[float]], list[float], list[float]): 
                 The first element of return value is 'effective_field' that is the list of field value whose reverse field value exists in data.
                 The second and third element of return value is the list of Rxx and Rxx_sd.
                 The fourth and fifth element of return value is the list of Ryx and Ryx_sd.
         """
         
-        # (up/down)_data := List[List[field: float, Rxx: float, Rxx_sd: float, Ryx: float, Ryx_sd: float]]
+        # (up/down)_data := list[list[field: float, Rxx: float, Rxx_sd: float, Ryx: float, Ryx_sd: float]]
         # 磁場を1往復させたときのデータから，Rxx・Ryxをそれぞれ対称化・反対称化
 
-        up_idx:   Dict[float, int] = {self.__near_abs(h, delta_H):i for i, (h, *_) in enumerate(up_data)}
-        down_idx: Dict[float, int] = {self.__near_abs(-h, delta_H):i for i, (h, *_) in enumerate(down_data)}
+        up_idx:   dict[float, int] = {self.__near_abs(h, delta_H):i for i, (h, *_) in enumerate(up_data)}
+        down_idx: dict[float, int] = {self.__near_abs(-h, delta_H):i for i, (h, *_) in enumerate(down_data)}
         
         effective_field: LF = []
         Rxx: LF = []
@@ -811,27 +812,27 @@ class MPMS:
     
     Attributes:
         filename (str): Input file name (if necessary, add file path to the head). The suffix of `filename` may be ".dat".
-        material (Optional[Crystal]): `Crystal` instance of the measurement object.
+        material (Crystal | None): `Crystal` instance of the measurement object.
         N (int): Length of data.
-        Temp (List[float]): Temperature (K) data.
-        Field (List[float]): Magnetic field (Oe) data.
-        Time (List[float]): Time stamp (sec) data.
-        LongMoment (List[float]): Longitudinal moment (emu) data.
-        Regfit (List[float]): Regression fit of longitudinal moment data.
+        Temp (list[float]): Temperature (K) data.
+        Field (list[float]): Magnetic field (Oe) data.
+        Time (list[float]): Time stamp (sec) data.
+        LongMoment (list[float]): Longitudinal moment (emu) data.
+        Regfit (list[float]): Regression fit of longitudinal moment data.
     """
-    def __init__(self, filename: str, material: Optional[Crystal] = None):
+    def __init__(self, filename: str, material: Crystal):
         """Initializer of `MPMS`.
 
         Args:
             filename (str): Input file name (if necessary, add file path to the head). The suffix of `filename` may be ".dat".
-            material (Optional[Crystal]): `Crystal` instance of the measurement object.
+            material (Crystal): `Crystal` instance of the measurement object.
         """
         self.filename: str = filename
-        self.material: Optional[Crystal] = material
+        self.material: Crystal = material
 
         with open(filename, encoding="shift_jis", mode="r") as current_file:
-            label: List[str] = []
-            data: List[List[Any]] = []
+            label: list[str] = []
+            data: list[list[Any]] = []
             flag: int = 0
             for l in current_file.readlines():
                 if flag == 0 and l.startswith("[Data]"):
@@ -845,16 +846,16 @@ class MPMS:
 
         N: int = len(data)
 
-        dict_label: Dict[str, int] = {v:k for k,v in enumerate(label)}
+        dict_label: dict[str, int] = {v:k for k,v in enumerate(label)}
         self.N: int = N
-        self.Temp: List[float] =          [data[i][dict_label["Temperature (K)"]] for i in range(N)]
-        self.Field: List[float] =         [data[i][dict_label["Field (Oe)"]] for i in range(N)]
-        self.Time: List[float] =          [data[i][dict_label["Time"]] for i in range(N)]
-        self.LongMoment: List[float] =    [data[i][dict_label["Long Moment (emu)"]] for i in range(N)]
-        self.RegFit: List[float] =        [data[i][dict_label["Long Reg Fit"]] for i in range(N)]
+        self.Temp: list[float] =          [data[i][dict_label["Temperature (K)"]] for i in range(N)]
+        self.Field: list[float] =         [data[i][dict_label["Field (Oe)"]] for i in range(N)]
+        self.Time: list[float] =          [data[i][dict_label["Time"]] for i in range(N)]
+        self.LongMoment: list[float] =    [data[i][dict_label["Long Moment (emu)"]] for i in range(N)]
+        self.RegFit: list[float] =        [data[i][dict_label["Long Reg Fit"]] for i in range(N)]
 
     def __str__(self) -> str:
-        res: List[str] = []
+        res: list[str] = []
         res.append("----------------------------")
         res.append("idx, Temp, Field, LongMoment")
         for i in range(self.N):
@@ -879,23 +880,23 @@ class MPMS:
         else:
             raise KeyError("key must be 'int' or 'slice'")
 
-    def cal_Curie_Weiss_temp(self, temp: List[float], moment: List[float], field: float) -> Tuple[float, float]:
+    def cal_Curie_Weiss_temp(self, temp: list[float], moment: list[float], field: float) -> tuple[float, float]:
         """Calculating Curie-Weiss temperature and Curie constant.
 
         Note:
             χ = M/H = C / (T-θc), where θc is Curie-Weiss temperature and C is Curie constant
 
         Args:
-            temp (List[float]): List of temperature (K). Elements must be above Curie (or Neel) temperature.
-            moment (List[float]): List of magnetic moment (emu).
+            temp (list[float]): list of temperature (K). Elements must be above Curie (or Neel) temperature.
+            moment (list[float]): list of magnetic moment (emu).
 
         Returns:
-            (Tuple[float, float]): Curie-Weiss temperature (K) and Curie constant (emu.K/mol.Oe).
+            (tuple[float, float]): Curie-Weiss temperature (K) and Curie constant (emu.K/mol.Oe).
         """
         if self.material is None:
             raise TypeError
-        Temp: np.ndarray = np.array(temp)
-        sus_inv: np.ndarray = field / (np.array(moment) / self.material.mol)
+        Temp: npt.NDArray[np.float64] = np.array(temp)
+        sus_inv: npt.NDArray[np.float64] = np.array(field / (np.array(moment) / self.material.mol))
         n: int = len(Temp)
         Temp_sum: float = np.sum(Temp)
         susinv_sum: float = np.sum(sus_inv)
@@ -905,17 +906,17 @@ class MPMS:
         Curie_constant: float = 1/a
         return theta_Curie_Weiss, Curie_constant
 
-    def Bpfu(self) -> List[float]:
+    def Bpfu(self) -> list[float]:
         """Moment list in 'μB/f.u.'.
         """
         return [self.material.cal_Bohr_per_formula_unit(m) for m in self.LongMoment]
 
-    def Field_T(self) -> List[float]:
+    def Field_T(self) -> list[float]:
         """Field list in 'Testa'.
         """
         return [f/10000 for f in self.Field]
 
-    def Susceptibility(self, H: float, magnification: float = 1.0) -> List[float]:
+    def Susceptibility(self, H: float, magnification: float = 1.0) -> list[float]:
         """χ=M/H list in 'emu/mol.Oe'.
 
         Args:
@@ -924,7 +925,7 @@ class MPMS:
         """
         return [magnification * m * (self.material.formula_weight / self.material.w) / H for m in self.LongMoment]
     
-    def inv_Susceptibility(self, H: float, magnification: float = 1.0) -> List[float]:
+    def inv_Susceptibility(self, H: float, magnification: float = 1.0) -> list[float]:
         """1/χ=H/M list in '(emu/mol.Oe)^{-1}'.
 
         Args:
@@ -932,6 +933,9 @@ class MPMS:
             magnification (float): Amplification magnification. Defaults to 1.0.
         """
         return [magnification * 1/x for x in self.Susceptibility(H)]
+
+
+Energychild = TypeVar('Energychild', bound='Energy')
 
 class Energy:
     """from energy to other physical quantity or vice versa.
@@ -957,7 +961,7 @@ class Energy:
 
         # 数値の単位は [unit/meV]
         # eV, hν, hck, kBT, muBH
-        self.mapping: Dict[str, float] = {
+        self.mapping: dict[str, float] = {
             "meV": 1.,
             "THz":  (1e-3*self.e) / (self.h*1e12),
             "cm^-1": (1e-3*self.e) / (1e2*self.h*self.c),
@@ -970,25 +974,25 @@ class Energy:
     def __str__(self) -> str:
         return f"{self.quantity} {self.unit}"
 
-    def __add__(self, other: Any) -> Energy:
+    def __add__(self: Energychild, other: Any) -> Energychild:
         new_quantity: float = self.quantity + other.quantity * self.mapping[self.unit] / self.mapping[other.unit]
         return self.__class__(new_quantity, self.unit)
     
-    def __iadd__(self, other: Any) -> Energy:
+    def __iadd__(self: Energychild, other: Any) -> Energychild:
         self.quantity += other.quantity * self.mapping[self.unit] / self.mapping[other.unit]
         return self
     
-    def __mul__(self, other: Any) -> Energy:
+    def __mul__(self: Energychild, other: Any) -> Energychild:
         return self.__class__(self.quantity * other, self.unit)
     
-    def __rmul__(self, other: Any) -> Energy:
+    def __rmul__(self: Energychild, other: Any) -> Energychild:
         return self.__class__(self.quantity * other, self.unit)
     
-    def __imul__(self, other: Any) -> Energy:
+    def __imul__(self: Energychild, other: Any) -> Energychild:
         self.quantity *= other
         return self
 
-    def to(self, new_unit: str) -> Energy:
+    def to(self: Energychild, new_unit: str) -> Energychild:
         """Translate the physical quantity as other units.
 
         Args:
@@ -1005,19 +1009,19 @@ class Energy:
             raise ValueError("the argument 'new_unit' is invalid.")
 
 
-def ingredient_flake_dp(A: List[int], W: int) -> None: # A: 適当に整数化したフレークの重さ, W: 目標重量
+def ingredient_flake_dp(A: list[int], W: int) -> None: # A: 適当に整数化したフレークの重さ, W: 目標重量
     """Choose optimal flakes whose total weight meets the target value.
 
     Note:
         The result will be output to stdout.
 
     Args:
-        A (List[int]): List of weight of flakes, properly integerized.
+        A (list[int]): list of weight of flakes, properly integerized.
         W (int): Target weight value.
     """
     N: int = len(A)
     K: int = W+20 # 余裕を持って求めておく
-    dp: List[List[int]] = [[0]*K for i in range(N+1)]
+    dp: list[list[int]] = [[0]*K for i in range(N+1)]
     dp[0][0] = 1
     for i in range(1,N+1):
         for j in range(K):
@@ -1029,7 +1033,7 @@ def ingredient_flake_dp(A: List[int], W: int) -> None: # A: 適当に整数化�
     #print([i for i in range(K) if dp[N][i]])
     for k in range(-10,11): # 目標値のまわり±10を見る
         now: int = W+k
-        ans: List[int] = []
+        ans: list[int] = []
         if dp[N][now]:
             for i in range(N)[::-1]:
                 if now-A[i]>=0 and dp[i][now-A[i]]:
@@ -1044,21 +1048,21 @@ class PhysicalConstant:
 
     Attributes:
         pi: 3.14159265358979
-        exp: 2.
+        exp: 2.718281828459045
         NA: 6.02214076e+23 mol^-1
         kB: 1.380649e-23 J/K
         c: 299792458 m/s
         h: 6.62607015e-34 Js
         hbar: 1.0545718176461565e-34 Js
-        e: 1.6021766340000001e-19 C
+        e: 1.602176634e-19 C
         Patm: 101325 Pa
         Celsius: 273.15 K
         gn: 9.80665 ms^-2
         mu0: 1.2566370614359173e-06 NA^-2
         epsilon0: 8.854187817620389e-12 CV^-1m^-1
         me: 9.1093837015e-31 kg
-        muB: 9.274010078362165e-24 J/T
-        muB_emu: 9.274010078299999e-21 emu
+        muB: 9.2740100783e-24 J/T
+        muB_emu: 9.2740100783e-21 emu
         sigma: 5.670374419184428e-08 Wm-2K-4
         G: 6.6743e-11 Nm^2kg^-2
         alpha: 0.007297352565305217 
@@ -1098,7 +1102,7 @@ class PhysicalConstant:
         self._R: float = self._NA * self._kB # 気体定数 [JK^-1mol^-1]
         self._Lorenz: float = self._pi**2 / 3 * (self._kB/self._e)**2 # Lorenz定数 [WΩ/K^2]
 
-        self._unit: Dict[str, str] = {
+        self._unit: dict[str, str] = {
             "NA": "mol^-1",
             "kB": "J/K",
             "c": "m/s",
@@ -1198,10 +1202,10 @@ class PhysicalConstant:
     def R(self) -> float: return self._R
 
     @property
-    def unit(self) -> float: return self._unit
+    def unit(self) -> dict[str, str]: return self._unit
 
     def __str__(self) -> str:
-        res: List[str] = []
+        res: list[str] = []
         for k, v in self.__dict__.items():
             if k[1:] in self._unit:
                 res.append(f"{k[1:]}: {v} {self._unit[k[1:]]}")
