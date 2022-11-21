@@ -636,6 +636,30 @@ def spacegroup_to_pointgroup(name: str) -> str:
     return name
 
 def decompose_jahn_symbol(symbol: str) -> tuple[int, str, bool, bool]:
+    """Extract information of a tensor represented by the given Jahn's symbol.
+
+    Args:
+        symbol (str): Jahn's symbol.\n
+        [Rules of Jahn's symbol notation]:\n
+        * 'e' represents axial tensor.
+        * 'a' represents magnetic tensor.
+        * Numbers after 'V' represent rank of partial tensor.
+        * Symbols in '[]' are symmetric tensor.
+        * Symbols in '{}' are asymmetric tensor.
+        * Symbols in '[]*' are symmetric tensor by time reversal operation.
+        * Symbols in '{}*' are asymmetric tensor by time reversal operation.
+
+    Returns:
+        (tuple[int, str, bool, bool]): 'rank', 'expression', 'axiality' and 'time_reversality' respectively.
+            rank: Rank of the tensor.
+            expression: Relationship among elements of the tensor represented by formula of indices.
+            axiality: Axiality of the tensor. If it is polar tensor, this value will `False`.
+            time_reversality: time reversality of the tensor. If it is magnetic tensor, this value will `True`.
+    
+    Examples:
+        >>> decompose_jahn_symbol("ae[V^2]V")
+        >>> (3, 'ijk=jik', True, True)
+    """
     axiality: bool = "e" in symbol
     time_reversality: bool = "a" in symbol
     symbol = re.sub(r"a|e|\^", "", symbol) # aとeを消去
@@ -781,9 +805,6 @@ class PhysicalPropertyTensorAnalyzer:
                                     [0,0,-1],
                                     [-1,0,0]], name="C3_n1n11")
 
-    C3_001 = SymmetryOperation(3, [[0,-1,0],
-                                    [1,-1,0],
-                                    [0,0,1]], name="C3_001")
     C3_001 = SymmetryOperation(3,  [[REF(3,Fraction(-1,2)),REF(3,b=Fraction(1,2)),0],
                                     [REF(3,b=Fraction(-1,2)),REF(3,Fraction(-1,2)),0],
                                     [0,0,1]], name="C3_001")
@@ -967,6 +988,14 @@ class PhysicalPropertyTensorAnalyzer:
 
     @classmethod
     def _Gauss_Elimination_REF(cls, A: MatrixREF) -> MatrixREF: # 掃き出し法による行簡約化
+        """Gaussian elimination (row reduction).
+
+        Args:
+            A (MatrixREF): Matrix of `REF`.
+
+        Returns:
+            MatrixREF: Matrix of `REF`.
+        """
         B: MatrixREF = A.deepcopy()
         m: int
         n: int
@@ -1000,6 +1029,24 @@ class PhysicalPropertyTensorAnalyzer:
 
     @classmethod
     def _ternary(cls, n: int, fill: int, is_0indexed: bool = True) -> tuple[int, ...]: # fill: 桁数
+        """Transform a given integer in ternary notation.
+
+        Note:
+            Note that the order of the numbers in the return value is reversed from the usual.
+            For example, 11 = 102_(3), but this method returns (2, 0, 1).
+            
+        Args:
+            n (int): Integer.
+            fill (int): Number of digits.
+            is_0indexed (bool, optional): If `False`, the result is expressed in 1-indexed. Defaults to True.
+                examples:
+                    >>> _ternary(11, 4, True) # (2,0,1,0)
+                    >>> _ternary(5, 3, True) # (2,1,0)
+                    >>> _ternary(5, 3, False) # (3,2,1)
+
+        Returns:
+            tuple[int, ...]: Integer in ternary notation.
+        """
         res: list[int] = [] # res[i] := nの3進展開の"下から"i桁目
         r: int
         while n:
@@ -1013,15 +1060,39 @@ class PhysicalPropertyTensorAnalyzer:
     
     @classmethod
     def _ternary2int(cls, ternary_ijk: tuple[int, ...]) -> int:
+        """Reverse method of `_ternary`.
+
+        Args:
+            ternary_ijk (tuple[int, ...]): Integer expressed in ternary notation.
+
+        Returns:
+            int: Restored integer.
+        """
         return sum([n * 3**i for i,n in enumerate(ternary_ijk)])
     
     @classmethod
     def _relations_from_symmetry_operation(cls, rank: int, R: SymmetryOperation, axiality: bool, time_reversality: bool = False) -> Relations:
-        # N階のテンソルに直交変換Rを施したときの，要素間の関係式(つまりテンソルに関わる物理量は全て共変と仮定)
-        # relations[i]: \sum_{j} relations[i][j][0]*A_{relations[i][j][1]} = 0 という関係式を表す
-        # rank=2: A_{ij}  = R_{il}R{jm} A_{lm}
-        # rank=3 and axial: A_{ijk} = det(R)R_{il}R{jm}R_{kn} A_{lmn} 
-        # などを元に計算
+        """Generate relations between each element of the tensor from symmetry operations.
+
+        Note:
+            The calculation is based on Neumann's principle.
+            For example,
+            rank=2, not axial: A_{ij} = R_{il} R{jm} A_{lm},
+            rank=3, axial   : A_{ijk} = det(R) R_{il} R{jm} R_{kn} A_{lmn}.
+
+        Args:
+            rank (int): Rank of the tensor.
+            R (SymmetryOperation): Symmetry operation.
+            axiality (bool): Axiality of the tensor. True if the tensor is an axial tensor.
+            time_reversality (bool, optional): Time-reversality of the tensor. \
+                True if the sign is reversed by a time reversal operation. Defaults to False.
+
+        Returns:
+            Relations: Relations between elements of the tensor.
+                i-th element of the return value `relations` represents the following formula:
+                    \sum_{j} relations[i][j][0] * A_{relations[i][j][1]} = 0,
+                where A is the physical property tensor and the indices of A shall be written in ternary notation.
+        """
         n_elem: int = 3**rank
         zero: REF = REF(3) # 有理拡大体の零元
         relations: Relations = []
@@ -1049,12 +1120,27 @@ class PhysicalPropertyTensorAnalyzer:
 
     @classmethod
     def _relations_from_expression(cls, rank: int, expr: str) -> Relations:
-        # 対称性から同値になるテンソル要素たちの関係式を生成
-        # "ijk = -jik = kij" のように，添字で物理的な制約に基づくテンソルの対称性を導入する
-        # 複数の条件がある場合はカンマで区切る
-        # マイナス符号も使える
-        # 時間反転操作で等価になる場合"'"(prime)で表示できるが，この関数では無視する
+        """Generate relations between elements of the tensor from physical constraints.
+
+        Note:
+            You can use primed expressions (related time-reversal operation),
+            but this method ignores those. For example, `"ij = -ji'"`.
+
+        Args:
+            rank (int): Rank of the tensor.
+            expr (str): Expression of relations among indices based on physical constraints.
+                If there is more than one expression, separate them with a comma.
+                For example, `"ijk = -ikj"`, `"ijkl = ijlk, ijkl = jikl, ijkl = klij"`.
+
+        Raises:
+            ValueError: Lengths of components in the expression are different.
+                For example, `"ijk = ikjl"`.
+
+        Returns:
+            Relations: Relations between elements of the tensor.
+        """
         n_elem: int = 3**rank
+        # 時間反転操作で等価になる場合"'"(prime)で表示できるが，この関数では無視する
         expressions: list[list[str]] = [s.split("=") for s in re.sub(r"[\u3000 \t]", "", expr).split(",") if not "'" in s]
         expressions_data: list[tuple[list[str], int, defaultdict[str,list[int]], int, defaultdict[str,list[int]]]] = []
         relations: Relations = []
@@ -1102,16 +1188,44 @@ class PhysicalPropertyTensorAnalyzer:
 
     @classmethod
     def _relation_to_ternary(cls, relation: Relation, rank: int) -> Relation_ternary:
+        """Rewrite a `Relation`(list[tuple[REF, int]]) type variable in ternary notation.
+
+        Args:
+            relation (Relation): Relation between each element of the tensor.
+            rank (int): Rank of the tensor.
+
+        Returns:
+            Relation_ternary: Relation in ternary notation.
+        """
         # relationの添字を3進数に変換(printでの出力用)
         return [(val, cls._ternary(ijk,rank)) for val,ijk in relation]
     
     @classmethod
     def _relations_to_ternary(cls, relations: Relations, rank: int) -> list[Relation_ternary]:
-        # relationの添字を3進数に変換(printでの出力用)
+        """Rewrite a `Relations`(list[list[tuple[REF, int]]]) type variable in ternary notation.
+
+        Args:
+            relations (Relations): Relations between elements of the tensor.
+            rank (int): Rank of the tensor.
+
+        Returns:
+            list[Relation_ternary]: Relations in ternary notation.
+        """
+        # relationsの添字を3進数に変換(printでの出力用)
         return [cls._relation_to_ternary(relation, rank) for relation in relations]
     
     @classmethod
     def _extract_relation(cls, relations: Relations, rank: int, ternary_ijk: tuple[int, ...]) -> Relations:
+        """Extract the relations which contain a particular index from a `Relations` type variable.
+
+        Args:
+            relations (Relations): Relations between elements of the tensor.
+            rank (int): Rank of the tensor.
+            ternary_ijk (tuple[int, ...]): Index in ternary notation.
+
+        Returns:
+            Relations: Relations which contain a particular index.
+        """
         # ternary_ijkが入っている関係式を抽出
         res: Relations = []
         for relation in relations:
@@ -1132,6 +1246,16 @@ class PhysicalPropertyTensorAnalyzer:
 
     @classmethod
     def _nonzero_matrix(cls, nonzero: set[int], direction: int, rank: int) -> str:
+        """Display nonzero elements of a magnetic-dependent 2-rank tensor as matrix.
+
+        Args:
+            nonzero (set[int]): Set of indices of nonzero elements.
+            direction (int): Direction of magnetic field.
+            rank (int): Rank of the tensor. (2 + magnetic field order)
+
+        Returns:
+            str: 2D matrix of which nonzero elements are "o" and zero elements are empty.
+        """
         res: list[list[str]] = [[" " if i>j else "." for j in range(3)] for i in range(3)]
         for ijk in nonzero:
             i, j, *klm = cls._ternary(ijk, rank)
@@ -1144,6 +1268,14 @@ class PhysicalPropertyTensorAnalyzer:
 
     @classmethod
     def _summarize_same_term(cls, relations: Relations) -> Relations:
+        """Summarize the same term in each `Relation`.
+
+        Args:
+            relations (Relations): Relations between elements of the tensor.
+
+        Returns:
+            Relations: Summarized relations.
+        """
         # 同じ項をまとめる
         renewed_relations: Relations = []
         for relation in relations:
@@ -1155,6 +1287,15 @@ class PhysicalPropertyTensorAnalyzer:
 
     @classmethod
     def _delete_zero_term(cls, relations: Relations, nonzero: set[int]) -> tuple[Relations, set[int], bool]:
+        """Delete zero terms in each `Relation`.
+
+        Args:
+            relations (Relations): Relations between elements of the tensor.
+            nonzero (set[int]): Set of nonzero indices.
+
+        Returns:
+            tuple[Relations, set[int], bool]: Updated relations, set of nonzero indices and update-flag.
+        """
         # 0の要素を削除
         flag: bool = False # 更新が起こったかどうか
         relations = cls._summarize_same_term(relations) # 同じ項をまとめる
@@ -1178,6 +1319,17 @@ class PhysicalPropertyTensorAnalyzer:
 
     @classmethod
     def _untangle_relations(cls, rank: int, relations: Relations, nonzero: set[int]) -> tuple[Relations, set[int], bool]:
+        """Simplify the relations by regarding relations 
+        as simultaneous equations of indices and performing row reduction.
+
+        Args:
+            rank (int): Rank of the tensor.
+            relations (Relations): Relations between elements of the tensor.
+            nonzero (set[int]): Set of nonzero indices.
+
+        Returns:
+            tuple[Relations, set[int], bool]: Updated relations, set of nonzero indices and update-flag.
+        """
         # 係数行列簡約化で関係式を簡約化
         flag: bool = False
         zero: REF = REF(3)
@@ -1227,6 +1379,15 @@ class PhysicalPropertyTensorAnalyzer:
 
     @classmethod
     def _remove_duplicate(cls, relations: Relations, nonzero: set[int]) -> tuple[Relations, set[int], bool]:
+        """Remove duplicate relations.
+
+        Args:
+            relations (Relations): Relations between elements of the tensor.
+            nonzero (set[int]): Set of nonzero indices.
+
+        Returns:
+            tuple[Relations, set[int], bool]: Updated relations, set of nonzero indices and update-flag.
+        """
         # 複数の等価な式を一本化
         flag: bool = False
         renewed: Relations = []
@@ -1254,7 +1415,16 @@ class PhysicalPropertyTensorAnalyzer:
         return renewed, nonzero, flag # tuple[list[list[tuple[REF,int]]], set[int], bool]
 
     @classmethod
-    def _simplify_coefficient(cls, R: list[REF]) -> list[REF]: # O(len(A))
+    def _simplify_coefficient(cls, ref_list: list[REF]) -> list[REF]: # O(len(A))
+        """Simplify the coefficient of the rational and irrational parts of `REF` 
+        to integers while preserving the ratios of the elements of `ref_list`.
+
+        Args:
+            ref_list (list[REF]): List of `REF`.
+
+        Returns:
+            list[REF]: Simplified list of `REF`.
+        """
         # Rの要素たちの比を保ったままREFの有理部と無理部の係数を整数に簡約化
         def lcm(a: int, b: int) -> int:
             return a * b // gcd(a, b) # int 
@@ -1262,7 +1432,7 @@ class PhysicalPropertyTensorAnalyzer:
         G: list[int] = []
         z: Fraction = Fraction()
         flag: bool = False # 有理部の係数が全て0ならFalse
-        for r in R:
+        for r in ref_list:
             a: Fraction
             b: Fraction
             a, b = r.a, r.b
@@ -1278,13 +1448,21 @@ class PhysicalPropertyTensorAnalyzer:
         f: Fraction = Fraction(l, g)
         res: list[REF]
         if flag:
-            res = [r*f for r in R]
+            res = [r*f for r in ref_list]
         else: # 有理部と無理部の入れ替え
-            res = [r.swap()*f for r in R]
+            res = [r.swap()*f for r in ref_list]
         return res # list[REF]
 
     @classmethod
     def _simplify_relations_value(cls, relations: Relations) -> Relations:
+        """Simplify each relation in `relations` while preserving the ratios of the elements.
+
+        Args:
+            relations (Relations): Relations between elements of the tensor.
+
+        Returns:
+            Relations: Simplified relations.
+        """
         # relation: list[tuple[REF,int]] (in relations)の比を保ったままREFの有理部と無理部の係数を整数に簡約化
         res: Relations = []
         for relation in relations:
@@ -1300,6 +1478,17 @@ class PhysicalPropertyTensorAnalyzer:
 
     @classmethod
     def _extract_independent(cls, rank: int, relations: Relations, nonzero: set[int]) -> tuple[set[int], Relations]:
+        """Extract independent elements.
+
+        Args:
+            rank (int): Rank of the tensor.
+            relations (Relations): Relations between elements of the tensor.
+            nonzero (set[int]): Set of nonzero indices.
+
+        Returns:
+            tuple[set[int], Relations]: Set of indices of independent elements 
+                and relations where dependent elements are represented by independent elements.
+        """
         def printer_indep_dep(dep):
             print([cls._ternary(dep, rank)])
         if len(relations) == 0:
@@ -1368,6 +1557,16 @@ class PhysicalPropertyTensorAnalyzer:
 
     @classmethod
     def _represent_dep_by_indep(cls, rank: int, relation: Relation, is_0indexed: bool = True) -> str:
+        """Represent dependent elements by independent elements.
+
+        Args:
+            rank (int): Rank of the tensor.
+            relation (Relation): Relations between elements of the tensor.
+            is_0indexed (bool, optional): If `False`, the result is expressed in 1-indexed.. Defaults to True.
+
+        Returns:
+            str: Formula where dependent elements are represented by independent elements.
+        """
         # 独立成分のみで従属成分を表示
         r: REF
         ijk0: int
@@ -1400,6 +1599,24 @@ class PhysicalPropertyTensorAnalyzer:
 
     @classmethod
     def _contract_relations_along_with_direction(cls, relations: Relations, rank: int, magnetic_field_direction: int) -> Relations:
+        """Contract relations along with the direction of magnetic field.
+
+        Note:
+            It is assumed that the tensor A_{ijk...} is written as follows:
+                A_{ijk...} = a_{ij} * H_{k} * H_{l} * H_{m} ...,
+            where a_{ij} is an actual physical tensor and A_{ijk...} is a tensor introduced for computational convenience.
+
+            This method contracts the indices of magnetic field along with one direction, like
+                A_{ijkkk...} = a_{ij} * H_{k}^n.
+
+        Args:
+            relations (Relations): Relations between elements of the tensor.
+            rank (int): Rank of the tensor.
+            magnetic_field_direction (int): Direction of magnetic field.
+
+        Returns:
+            Relations: Contracted relations.
+        """
         new_relations: Relations = []
         for relation in relations:
             flag: bool = True
@@ -1420,6 +1637,24 @@ class PhysicalPropertyTensorAnalyzer:
 
     @classmethod
     def _contract_nonzero_along_with_direction(cls, nonzero: set[int], rank: int, direction: int) -> set[int]:
+        """Contract nonzero elements along with the direction of magnetic field.
+
+        Note:
+            It is assumed that the tensor A_{ijk...} is written as follows:
+                A_{ijk...} = a_{ij} * H_{k} * H_{l} * H_{m} ...,
+            where a_{ij} is an actual physical tensor and A_{ijk...} is a tensor introduced for computational convenience.
+
+            This method contracts the indices of magnetic field along with one direction, like
+                A_{ijkkk...} = a_{ij} * H_{k}^n.
+        
+        Args:
+            nonzero (set[int]): Set of indices.
+            rank (int): Rank of the tensor.
+            direction (int): Direction of magnetic field.
+
+        Returns:
+            set[int]: Contracted set of indices.
+        """
         # 指定した印加磁場方向の輸送テンソルの非ゼロ要素
         res: set[int] = set()
         for ijk in nonzero:
@@ -1430,6 +1665,26 @@ class PhysicalPropertyTensorAnalyzer:
 
     @classmethod
     def _contract_along_with_direction(cls, relations: Relations, rank: int, nonzero: set[int], magnetic_field_direction: int) -> tuple[Relations, set[int], set[int], set[int]]:
+        """Contract relations and nonzero elements along with the direction of magnetic field.
+
+        Note:
+            It is assumed that the tensor A_{ijk...} is written as follows:
+                A_{ijk...} = a_{ij} * H_{k} * H_{l} * H_{m} ...,
+            where a_{ij} is an actual physical tensor and A_{ijk...} is a tensor introduced for computational convenience.
+
+            This method contracts the indices of magnetic field along with one direction, like
+                A_{ijkkk...} = a_{ij} * H_{k}^n.
+        
+        Args:
+            relations (Relations): Relations between elements of the tensor.
+            rank (int): Rank of the tensor.
+            nonzero (set[int]): Set of nonzero indices.
+            magnetic_field_direction (int): Direction of magnetic field.
+
+        Returns:
+            tuple[Relations, set[int], set[int], set[int]]: Contracted relations, nonzero, 
+                set of independent indices and set of dependent indices.
+        """ 
         # rank 階のテンソルの磁場に対応する部分の足を縮約して，一軸磁場の2階のテンソルに直す
         n_nonzero: int = len(nonzero)
         vertex: list[int] = [ijk for ijk in sorted(nonzero)]
@@ -1562,7 +1817,6 @@ class PhysicalPropertyTensorAnalyzer:
             >>> PPTA = PhysicalPropertyTensorAnalyzer(point_group_name)
             >>> PPTA.get_elements_info(rank=4, axiality=False, expr="ijkl=ijlk=jikl=klij") # elastic modulus tensor (4-tensor): 4階の弾性率テンソル
             >>> PPTA.get_elements_info(rank=3, axiality=False, expr="ijk=ikj") # Optical Parametric Oscillator: 光パラメトリック発振
-
         """
         n_elem: int = 3**rank
         nonzero: set[int] = set(range(n_elem))
@@ -1615,7 +1869,7 @@ class PhysicalPropertyTensorAnalyzer:
         print(f"-------------------------------------------")
         return
     
-    def get_elements_info_from_jahn_symbol(self, jahn_symbol: str) -> None: # N階の極性テンソルがR∈self.unitary_matricesの対称操作で不変となるときの非ゼロになりうる要素の添字を計算
+    def get_elements_info_from_jahn_symbol(self, jahn_symbol: str) -> None:
         """Determine which elements of a tensor are equivalent or zero by straightforward exact calculation based on Neumann's principle.
 
         Note:
@@ -1628,12 +1882,10 @@ class PhysicalPropertyTensorAnalyzer:
             (list[tuple[int, ...]]): Indices(0-indexed) of non-zero elements of the tensor.
 
         Examples:
-            >>> point_group_name = spacegroup_to_pointgroup("Fd-3m") # Pyrochlore
-            >>> assert point_group_name == "m-3m"
+            >>> point_group_name = spacegroup_to_pointgroup("P-3c1") # Pyrochlore
+            >>> assert point_group_name == "-3m"
             >>> PPTA = PhysicalPropertyTensorAnalyzer(point_group_name)
-            >>> PPTA.get_elements_info(rank=4, axiality=False, expr="ijkl=ijlk=jikl=klij") # elastic modulus tensor (4-tensor): 4階の弾性率テンソル
-            >>> PPTA.get_elements_info(rank=3, axiality=False, expr="ijk=ikj") # Optical Parametric Oscillator: 光パラメトリック発振
-
+            >>> PPTA.get_elements_info_from_jahn_symbol("ae[V^2]V") # asymmetric part of thermal conductivity propotion to magnetic field linearly 
         """
         rank, expr, axiality, time_reversality = decompose_jahn_symbol(jahn_symbol)
         n_elem: int = 3**rank
@@ -1695,12 +1947,12 @@ class PhysicalPropertyTensorAnalyzer:
             All analysis results are output to stdout.
         
         Args:
-            magnetic_field_dependence_dimension (int): 0 or 1 or 2 or 3 or 4 are allowed.
+            magnetic_field_dependence_dimension (int): Nonnegative integers are allowed.
                 0: constant components in magnetic field.
                 1: linear components in magnetic field.
                 2: quadratic components in magnetic field.
                 3: cubic components in magnetic field.
-                4: quartic components in magnetic field.
+                etc.
             is_0indexed (bool): True if the indices of tensor elements in the results are written in 0-indexed form. Defaults to False.
 
         Examples:
@@ -1708,10 +1960,8 @@ class PhysicalPropertyTensorAnalyzer:
             >>> assert point_group_name == "m-3m"
             >>> PPTA = PhysicalPropertyTensorAnalyzer(point_group_name)
             >>> PPTA.get_info_transport_tensor_under_magnetic_field(1) # odd terms of a transport tensor
-
-        ToDo:
-            implement Jahn's symbol analyzer to determine automatically 'rank', 'expr' and 'axiality'.
         """
+        characters: str = "ijklmnopqrstuvwxyzabcdefgh"
         rank: int
         expr: str
         axiality: bool
@@ -1730,17 +1980,15 @@ class PhysicalPropertyTensorAnalyzer:
             rank = 4
             expr = "ijkl=jikl"
             axiality = False
-        elif magnetic_field_dependence_dimension == 3:
-            # 磁場に対してOdd
-            rank = 5
-            expr = "ijklm=-jiklm"
-            axiality = True
-        elif magnetic_field_dependence_dimension == 4:
-            # 磁場に対してEven
-            rank = 6
-            expr = "ijklmn=jiklmn"
-            axiality = False
         else:
+            # 一般の場合
+            rank = 2 + magnetic_field_dependence_dimension
+            ij: str = characters[:2]
+            ji: str = characters[1] + characters[0]
+            klmn: str = characters[2:rank]
+            sign: str = '-' if rank % 2 else ''
+            expr = f"{ij+klmn}={sign}{ji+klmn}"
+            axiality = (rank % 2 == 1)
             raise ValueError()
         
         def printer(relations: Relations) -> None:
