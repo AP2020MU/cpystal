@@ -30,7 +30,7 @@ from pymatgen.io.cif import CifParser # type: ignore
 import pymatgen.analysis.diffraction.xrd # type: ignore
 from scipy.optimize import curve_fit # type: ignore
 from scipy.stats import norm # type: ignore
-from scipy import integrate # type: ignore
+from scipy import integrate, optimize # type: ignore
 import tkinter as tk
 
 
@@ -1157,6 +1157,7 @@ class ExpDataExpander:
         self.R: float = 1000.
         self.kxx: list[float] = [self.R*(i**2)/self.Width/self.Thickness / (dt/self.LTx) for i,dt in zip(self.Current,self.dTx)]
         self.errkxx: list[float] = [k * edtx / dtx for k,dtx,edtx in zip(self.kxx,self.dTx,self.errdTx)]
+        self.Q: list[float] = [self.R*(i**2)/1000 for i in self.Current] # mW
 
     def Seebeck_at_T(self, T: float) -> float:
         if not (self.TC_TS[0][0] <= T <= self.TC_TS[-1][0]):
@@ -1794,6 +1795,8 @@ class AATTPMD(RawDataExpander, tk.Frame):
         self.ln3_e1, = self.ax3.plot([],[], color="orange", linewidth=1)
         self.ln4_e1, = self.ax4.plot([],[], color="orange", linewidth=1)
 
+        self.expfit_dTx, = self.ax3.plot([],[], color="cyan", linewidth=2, zorder=1000)
+
         # figとFrameの対応付け
         self.fig_canvas: FigureCanvasTkAgg = FigureCanvasTkAgg(fig, mtpltlb_frame)
         self.toolbar: NavigationToolbar2Tk = NavigationToolbar2Tk(self.fig_canvas, mtpltlb_frame)
@@ -1896,19 +1899,19 @@ class AATTPMD(RawDataExpander, tk.Frame):
         exp_idx_frame.pack(pady=10)
 
         # データとして使う時間範囲の設定をするためのFrame
-        range_frame = tk.Frame(analysis_frame, borderwidth=3, relief="ridge")
-        lbl_start = tk.Label(range_frame, text="start (s)", foreground="green")
+        range_frame: tk.Frame = tk.Frame(analysis_frame, borderwidth=3, relief="ridge")
+        lbl_start: tk.Label = tk.Label(range_frame, text="start (s)", foreground="green")
         lbl_start.grid(row=0, column=0)
         self.time_start: tk.Entry = tk.Entry(range_frame, width=8)
         self.time_start.grid(row=1, column=0)
-        lbl_end = tk.Label(range_frame, text="end (s)", foreground="red")
+        lbl_end: tk.Label = tk.Label(range_frame, text="end (s)", foreground="red")
         lbl_end.grid(row=0, column=1)
         self.time_end: tk.Entry = tk.Entry(range_frame, width=8)
         self.time_end.grid(row=1, column=1)
         self.start_or_end: int = 0
         self.is_select_range_by_click: tk.BooleanVar = tk.BooleanVar()
         self.is_select_range_by_click.set(True)
-        select_range_by_click_cbutton = tk.Checkbutton(range_frame, variable=self.is_select_range_by_click, text="select range by click", command=self._select_range_by_click_click)
+        select_range_by_click_cbutton: tk.Checkbutton = tk.Checkbutton(range_frame, variable=self.is_select_range_by_click, text="select range by click", command=self._select_range_by_click_click)
         select_range_by_click_cbutton.grid(row=2, columnspan=2)
         range_frame.pack(pady=10)
 
@@ -1937,24 +1940,58 @@ class AATTPMD(RawDataExpander, tk.Frame):
         value_frame.pack(pady=10)
 
         # 指定した時間範囲のデータを計算させるボタン
-        calc_button = tk.Button(analysis_frame, text="Calc", command=self._calc_click)
+        calc_button: tk.Button = tk.Button(analysis_frame, text="Calc", command=self._calc_click)
         calc_button.pack()
 
         # 計算したデータをsaveさせるボタン
-        save_button = tk.Button(analysis_frame, text="Save", command=self._save_click)
+        save_button: tk.Button = tk.Button(analysis_frame, text="Save", command=self._save_click)
         save_button.pack()
 
-        # 計算したデータを所定の形式で出力させるボタン
+        # 選択した範囲から計算したExp形式のデータを標準出力させるFrame
+        print_frame: tk.Frame = tk.Frame(analysis_frame, borderwidth=3, relief="ridge")
         self.print_mode: int = 0
         self.t0: float | None = None
         self.t1: float | None = None
         self.data0: list[float] | None = None
         self.data1: list[float] | None = None
-        print_button = tk.Button(analysis_frame, text="Print", command=self._print_click)
-        print_button.pack()
+
+        print_button: tk.Button = tk.Button(print_frame, text="Print", command=self._print_click)
+        print_button.grid(row=0, column=0)
+        lbl_sidx0: tk.Label = tk.Label(print_frame, text="t_s0")
+        lbl_sidx0.grid(row=0, column=1)
+        lbl_eidx0: tk.Label = tk.Label(print_frame, text="t_e0")
+        lbl_eidx0.grid(row=0, column=2)
+        lbl_sidx1: tk.Label = tk.Label(print_frame, text="t_s1")
+        lbl_sidx1.grid(row=0, column=3)
+        lbl_eidx1: tk.Label = tk.Label(print_frame, text="t_e1")
+        lbl_eidx1.grid(row=0, column=4)
+        self.t_s0: tk.StringVar = tk.StringVar()
+        self.lbl_t_s0_value: tk.Label = tk.Label(print_frame, textvariable=self.t_s0, relief="sunken", width=6)
+        self.lbl_t_s0_value.grid(row=1, column=1)
+        self.t_e0: tk.StringVar = tk.StringVar()
+        self.lbl_t_e0_value: tk.Label = tk.Label(print_frame, textvariable=self.t_e0, relief="sunken", width=6)
+        self.lbl_t_e0_value.grid(row=1, column=2)
+        self.t_s1: tk.StringVar = tk.StringVar()
+        self.lbl_t_s1_value: tk.Label = tk.Label(print_frame, textvariable=self.t_s1, relief="sunken", width=6)
+        self.lbl_t_s1_value.grid(row=1, column=3)
+        self.t_e1: tk.StringVar = tk.StringVar()
+        self.lbl_t_e1_value: tk.Label = tk.Label(print_frame, textvariable=self.t_e1, relief="sunken", width=6)
+        self.lbl_t_e1_value.grid(row=1, column=4)
+        print_frame.pack()
+
+        # 指定されている範囲を f(t) := A exp(-t/τ) でフィッティングするFrame
+        expfit_frame: tk.Frame = tk.Frame(analysis_frame, borderwidth=3, relief="ridge")
+        expfit_button: tk.Button = tk.Button(expfit_frame, text="ExpFit", command=self._expfit_click)
+        expfit_button.grid(row=0, column=0)
+        lbl_relaxation_time: tk.Label = tk.Label(expfit_frame, text="τ ln(100) (s)")
+        lbl_relaxation_time.grid(row=0, column=1)
+        self.relaxation_time: tk.StringVar = tk.StringVar()
+        self.lbl_relaxation_time_value: tk.Label = tk.Label(expfit_frame, textvariable=self.relaxation_time, relief="sunken", width=15)
+        self.lbl_relaxation_time_value.grid(row=1, column=1)
+        expfit_frame.pack()
+
 
         analysis_frame.pack(pady=20)
-
         #-----------------------------------------------
     
     def _update_xlim(self, t1: float, t2: float) -> None:
@@ -1966,22 +2003,22 @@ class AATTPMD(RawDataExpander, tk.Frame):
     def _update_ylim(self, t1: float, t2: float) -> None:
         lineax1 = self.ax1.lines[0]
         yax1 = lineax1._yorig[bisect_left(lineax1._xorig,t1):bisect_left(lineax1._xorig,t2)]
-        yax1m,yax1M = min(yax1), max(yax1)
-        self.ax1.set_ylim(yax1m-(yax1M-yax1m)*0.05,yax1M+(yax1M-yax1m)*0.05)
+        yax1m, yax1M = min(yax1), max(yax1)
+        self.ax1.set_ylim(yax1m-(yax1M-yax1m)*0.05, yax1M+(yax1M-yax1m)*0.05)
         lineax2 = self.ax2.lines[0]
         yax2 = lineax2._yorig[bisect_left(lineax2._xorig,t1):bisect_left(lineax2._xorig,t2)]
         lineax2_2 = self.ax2.lines[1]
         yax2_2 = lineax2_2._yorig[bisect_left(lineax2_2._xorig,t1):bisect_left(lineax2_2._xorig,t2)]
-        yax2m,yax2M = min(min(yax2),min(yax2_2)), max(max(yax2),max(yax2_2))
-        self.ax2.set_ylim(yax2m-(yax2M-yax2m)*0.05,yax2M+(yax2M-yax2m)*0.05)
+        yax2m, yax2M = min(min(yax2),min(yax2_2)), max(max(yax2),max(yax2_2))
+        self.ax2.set_ylim(yax2m-(yax2M-yax2m)*0.05, yax2M+(yax2M-yax2m)*0.05)
         lineax3 = self.ax3.lines[0]
         yax3 = lineax3._yorig[bisect_left(lineax3._xorig,t1):bisect_left(lineax3._xorig,t2)]
-        yax3m,yax3M = min(yax3), max(yax3)
-        self.ax3.set_ylim(yax3m-(yax3M-yax3m)*0.05,yax3M+(yax3M-yax3m)*0.05)
+        yax3m, yax3M = min(yax3), max(yax3)
+        self.ax3.set_ylim(yax3m-(yax3M-yax3m)*0.05, yax3M+(yax3M-yax3m)*0.05)
         lineax4 = self.ax4.lines[0]
         yax4 = lineax4._yorig[bisect_left(lineax4._xorig,t1):bisect_left(lineax4._xorig,t2)]
-        yax4m,yax4M = min(yax4), max(yax4)
-        self.ax4.set_ylim(yax4m-(yax4M-yax4m)*0.05,yax4M+(yax4M-yax4m)*0.05)
+        yax4m, yax4M = min(yax4), max(yax4)
+        self.ax4.set_ylim(yax4m-(yax4M-yax4m)*0.05, yax4M+(yax4M-yax4m)*0.05)
 
     def _update_start_time(self, x_start: float) -> None:
         self.time_start.delete(0, tk.END)
@@ -2174,6 +2211,35 @@ class AATTPMD(RawDataExpander, tk.Frame):
             標準偏差を所定の形式で出力
         """
         self.print_mode = 1
+        self.t_s0.set("")
+        self.t_e0.set("")
+        self.t_s1.set("")
+        self.t_e1.set("")
+
+    def _expfit_click(self) -> None:
+        """'ExpFit'ボタンをクリックしたときに'start time'から'end time'のdTxを
+            f(t) := A exp(-(t-t_start)/τ) + B
+            でフィッティングしたときの緩和時間τの計算
+        """
+        try:
+            t_start: float = float(self.time_start.get())
+            t_end: float = float(self.time_end.get())
+            idx: list[int] = [i for i,t in enumerate(self.Time) if t_start <= t <= t_end]
+
+            
+            X: npt.NDArray = np.array([self.Time[i] for i in idx])
+            Y: npt.NDArray = np.array([self.dTx[i] for i in idx])
+            def f(t: float, A: float, B: float, tau: float) -> float:
+                return A * np.exp(-(t-t_start)/tau) + B
+
+            param: tuple[float, float, float] = optimize.curve_fit(f, X, Y)[0] # 返り値はtuple(np.ndarray(#パラメータの値),np.ndarray(#パラメータの標準偏差))
+            A, B, tau = param
+            tau_1percent: float = -tau * np.log(0.01) # 収束先からの偏差が1％になるまでの時間
+            self.relaxation_time.set(f"{tau_1percent:.2f}")
+            self.expfit_dTx.set_data(X, f(X, *param))
+            print(f"parameters: A:{A:.3f} (K), B:{B:.3f} (K), tau:{tau:.3f}, <1%: {tau_1percent:.3f}")
+        except:
+            print("failed: fit data")
 
     def _slider_scroll(self, event: Any | None = None) -> None:
         """sliderを変化させたときにx座標の描画範囲を変更
@@ -2206,8 +2272,10 @@ class AATTPMD(RawDataExpander, tk.Frame):
         if self.print_mode == 1:
             if self.t0 is None and self.is_select_range_by_click.get() and self.start_or_end == 0:
                 self.t0 = x
+                self.t_s0.set(f"{x:.1f}")
             if self.t1 is None and self.is_select_range_by_click.get() and self.start_or_end == 1:
                 self.t1 = x
+                self.t_e0.set(f"{x:.1f}")
             if self.t0 is not None and self.t1 is not None:
                 idx: list[int] = [i for i,t in enumerate(self.Time) if self.t0 <= t <= self.t1]
                 sidx: int = idx[0]
@@ -2220,8 +2288,10 @@ class AATTPMD(RawDataExpander, tk.Frame):
         elif self.print_mode == 2:
             if self.t0 is None and self.is_select_range_by_click.get() and self.start_or_end == 0:
                 self.t0 = x
+                self.t_s1.set(f"{x:.1f}")
             if self.t1 is None and self.is_select_range_by_click.get() and self.start_or_end == 1:
                 self.t1 = x
+                self.t_e1.set(f"{x:.1f}")
             if self.t0 is not None and self.t1 is not None:
                 idx: list[int] = [i for i,t in enumerate(self.Time) if self.t0 <= t <= self.t1]
                 sidx: int = idx[0]
@@ -2258,7 +2328,7 @@ class AATTPMD(RawDataExpander, tk.Frame):
         errCurrent: float = np.std(self.HeaterCurrent[sidx:eidx+1])
         aveT_Cernox: float = np.average(self.CernoxTemp[sidx:eidx+1])
         errT_Cernox: float = np.std(self.CernoxTemp[sidx:eidx+1])
-        Vs = [self.V1, self.V2, self.V3, self.V4, self.V5, self.V6]
+        Vs: list[list[list[float]]] = [self.V1, self.V2, self.V3, self.V4, self.V5, self.V6]
         aveVx: float = np.average(Vs[channel[0]][sidx:eidx+1])
         errVx: float = np.std(Vs[channel[0]][sidx:eidx+1])
         aveVy: float = np.average(Vs[channel[1]][sidx:eidx+1])
