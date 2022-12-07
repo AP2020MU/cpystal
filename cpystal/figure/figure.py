@@ -311,14 +311,18 @@ class ImageProcessing:
             im_resize_lanczos.save(new_name + self.extension, quality=95)
         return im_resize_lanczos
     
-    def resize2(self, filename: str, flag: bool = False) -> Image:
+    def resize2(self, filename_or_image: str | Image.Image, flag: bool = False) -> Image:
         """拡大・縮小によるサイズ変更2(大きさを画像nameと同じサイズに変更)
 
         Args:
-            filename (str): 画像ファイルパス
+            filename_or_image (str | Image): 画像ファイルパスまたはImageクラスのインスタンス
             flag (bool): Trueなら保存
         """
-        im_standard: Image = Image.open(filename)
+        im_standard: Image
+        if isinstance(filename_or_image, str):
+            im_standard = Image.open(filename_or_image)
+        else:
+            im_standard = filename_or_image
         im_resize_lanczos: Image = self.current.resize((im_standard.width, im_standard.height), Image.LANCZOS)
         new_name: str = self.name_current + '_resized2'
         self.current = im_resize_lanczos.copy()
@@ -435,14 +439,14 @@ class ImageProcessing:
             im_str.save(new_name + self.extension, quality=95)
         return im_str
 
-    def combine(self, filename: str, direction: str, color: tuple[int, int, int] | int = (255, 255, 255), flag: bool = False) -> Image:
+    def combine(self, filename_or_image: str | Image.Image, direction: str, color: tuple[int, int, int] | int = (255, 255, 255), flag: bool = False) -> Image:
         """連結(2つの画像を連結)
 
         Note:
             サイズが不一致なら余白はcolorで塗られる
 
         Args:
-            filename (str): ファイル名
+            filename_or_image (str | Image): 画像ファイルパスまたはImageクラスのインスタンス
             deirection (str): 連結方向 'horizontal' or 'vertical'
             color (tuple[int, int, int] | int): 背景色
             flag (bool): Trueなら保存
@@ -450,7 +454,13 @@ class ImageProcessing:
         mode: str = self.current.mode
         if mode == 'L':
             color = 255
-        im: Image = Image.open(filename)
+        im: Image
+        if isinstance(filename_or_image, str):
+            im = Image.open(filename_or_image)
+            filename = filename_or_image
+        else:
+            im = filename_or_image
+            filename = "noname"
         if direction == 'horizontal':
             dst = Image.new('RGB', (self.current.width + im.width, max(self.current.height, im.height)), color)
             dst.paste(self.current, (0, 0))
@@ -459,25 +469,31 @@ class ImageProcessing:
             dst = Image.new('RGB', (max(self.current.width,im.width), self.current.height + im.height), color)
             dst.paste(self.current, (0, 0))
             dst.paste(im, (0, self.current.height))
-        new_name: str = self.name_current + filename + '_combined'
+        new_name: str = self.name_current + os.path.splitext(os.path.basename(filename))[0] + '_combined'
         self.current = dst.copy()
         self.change_name(new_name)
         if flag:
             dst.save(new_name + self.extension, quality=95)
         return dst
 
-    def paste(self, filename: str, position: tuple[int, int], back: bool = True, flag: bool = False) -> Image:
+    def paste(self, filename_or_image: str | Image.Image, position: tuple[int, int], back: bool = True, flag: bool = False) -> Image:
         """貼り付け
 
         Args:
-            filename (str): ファイル名
+            filename_or_image (str | Image): 画像ファイルパスまたはImageクラスのインスタンス
             position (tuple[int, int]): 貼り付け位置 (画像左上が(width, height))
             back (bool): Trueならselfが上側にくる
             color (tuple[int, int, int] | int): 背景色
             flag (bool): Trueなら保存
         """
         back_im: Image = self.current.copy()
-        main_im: Image = Image.open(filename)
+        main_im: Image
+        if isinstance(filename_or_image, str):
+            main_im = Image.open(filename_or_image)
+            filename = filename_or_image
+        else:
+            main_im = filename_or_image
+            filename = "noname"
         if not back:
             back_im, main_im = main_im,back_im
         back_im.paste(main_im, position)
@@ -569,6 +585,32 @@ class ImageProcessing:
         if flag:
             im_composited.save(new_name + self.extension, quality=95)
         return im_composited
+    
+    def monochromatizate(self, color: tuple[int, int, int] | int = (255, 255, 255), flag: bool = False) -> Image:
+        """単色化
+        
+        Args:
+            color (tuple[int, int, int] | int): 背景色
+            flag (bool): Trueなら保存
+        """
+        mode: str = self.current.mode
+        if mode == 'L':
+            for h in range(self.current.height):
+                for w in range(self.current.width):
+                    self.current.putpixel((w,h), color)
+        elif mode == 'RGB':
+            for h in range(self.current.height):
+                for w in range(self.current.width):
+                    self.current.putpixel((w,h), color)
+        elif mode == 'RGBA':
+            for h in range(self.current.height):
+                for w in range(self.current.width):
+                    self.current.putpixel((w,h), color)
+        new_name: str = self.name_current + '_monochromatizated'
+        self.change_name(new_name)
+        if flag:
+            self.current.save(new_name + self.extension, quality=95)
+        return self.current
 
 
 def combine_img_list(name_list: list[str], direction: str, color: tuple[int, int, int] | int = (255, 255, 255), flag: bool = False) -> Image:
