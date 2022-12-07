@@ -17,6 +17,8 @@ from __future__ import annotations
 
 from bisect import bisect_left
 from collections import deque
+import datetime
+import glob
 import os
 import re
 from typing import Any
@@ -794,7 +796,7 @@ class RawDataExpander:
         self.TC_TS = sorted(self.TC_TS, key=lambda x:x[0]) # 温度順にソート
         
 
-        self.StartTime: str = re.sub(r".+?:", r"", self.full_contents[0]).strip()
+        self.StartTime: str = re.sub(r"[^\d]+?:", r"", self.full_contents[0]).strip()
         self.LTx: float = float(re.sub(r".+:", r"", self.full_contents[2]))
         self.LTy: float = float(re.sub(r".+:", r"", self.full_contents[3]))
         self.LVx: float = float(re.sub(r".+:", r"", self.full_contents[4]))
@@ -900,6 +902,8 @@ class RawDataExpander:
         else:
             attr_cor_to_V = [i-1 for i in attr_cor_to_V]
         Voltages: list[list[list[float]]] = [self.V1, self.V2, self.V3, self.V4, self.V5, self.V6]
+        self.cernox_name: str = cernox_name
+        self.attr_cor_to_V: list[int] = attr_cor_to_V
         self._set_CernoxTemp(cernox_name, Voltages[attr_cor_to_V[0]])
         self.dTx: list[float] = [v/s for (v,_), s in zip(Voltages[attr_cor_to_V[1]], self.S_TC)]
         self.dTy: list[float] = [v/s for (v,_), s in zip(Voltages[attr_cor_to_V[2]], self.S_TC)]
@@ -909,7 +913,7 @@ class RawDataExpander:
         
         Args:
             cernox_name (str): Cernox name. ("X173409" or "X173079")
-            attr_cor_to_V (list[int] | None): Correspondence between attributes [Cernox_Temp, dTx, dVx, dVy] and 1-indexed voltage number. Defaults to [1,2,3].
+            attr_cor_to_V (list[int] | None): Correspondence between attributes [Cernox_Temp, dTx, dVx, dVy] and 1-indexed voltage number. Defaults to [1,2,3,4].
 
         """
         if attr_cor_to_V is None:
@@ -917,6 +921,8 @@ class RawDataExpander:
         else:
             attr_cor_to_V = [i-1 for i in attr_cor_to_V]
         Voltages: list[list[list[float]]] = [self.V1, self.V2, self.V3, self.V4, self.V5, self.V6]
+        self.cernox_name: str = cernox_name
+        self.attr_cor_to_V: list[int] = attr_cor_to_V
         self._set_CernoxTemp(cernox_name, Voltages[attr_cor_to_V[0]])
         self.dTx: list[float] = [v/s for (v,_), s in zip(Voltages[attr_cor_to_V[1]], self.S_TC)]
         self.dVx: list[float] = [v for (v,_) in Voltages[attr_cor_to_V[2]]]
@@ -1247,28 +1253,21 @@ class ExpDataExpanderSeebeck:
         self.Current: list[float] = []
         self.T_Cernox: list[float] = []
         self.dVx: list[float] = []
-        self.dVy: list[float] = []
         self.dTx: list[float] = []
-
         self.dTx0: list[float] = []
         self.dTx1: list[float] = []
-
         self.errdTx: list[float] = []
-
         self.errdTx0: list[float] = []
         self.errdTx1: list[float] = []
 
         self.Ex: list[float] = []
         self.Ey: list[float] = []
-
         self.Ex0: list[float] = []
         self.Ey0: list[float] = []
         self.Ex1: list[float] = []
         self.Ey1: list[float] = []
-
         self.errEx: list[float] = []
         self.errEy: list[float] = []
-
         self.errEx0: list[float] = []
         self.errEy0: list[float] = []
         self.errEx1: list[float] = []
@@ -1425,7 +1424,6 @@ class RemakeExpFromRaw:
         self.errdTx: list[float] = []
         self.errdTy: list[float] = []
         self.R: float = 1000.0
-        self.channel: tuple[int, int] = (1, 2)
         for sidx0, eidx0, sidx1, eidx1 in self.Index:
             tp0, etp0, h0, eh0, cur0, ecur0, tc0, etc0, vx0, evx0, vy0, evy0 = self.ave_std(eidx0-59, eidx0)
             tp1, etp1, h1, eh1, cur1, ecur1, tc1, etc1, vx1, evx1, vy1, evy1 = self.ave_std(eidx1-59, eidx1)
@@ -1452,7 +1450,7 @@ class RemakeExpFromRaw:
 
     def ave_std(self, sidx: int, eidx: int) -> tuple[float, ...]:
         slc: slice = slice(sidx, eidx+1)
-        channel: tuple[int, int] = self.channel
+        attr_cor_to_V: list[int] = self.RawData.attr_cor_to_V
         aveT_PPMS: float = np.average(self.RawData.PPMSTemp[slc])
         errT_PPMS: float = np.std(self.RawData.PPMSTemp[slc])
         aveH: float = np.average(self.RawData.Field[slc])
@@ -1462,10 +1460,10 @@ class RemakeExpFromRaw:
         aveT_Cernox: float = np.average(self.RawData.CernoxTemp[slc])
         errT_Cernox: float = np.std(self.RawData.CernoxTemp[slc])
         Vs = [self.RawData.V1, self.RawData.V2, self.RawData.V3, self.RawData.V4, self.RawData.V5, self.RawData.V6]
-        aveVx: float = np.average(Vs[channel[0]][slc])
-        errVx: float = np.std(Vs[channel[0]][slc])
-        aveVy: float = np.average(Vs[channel[1]][slc])
-        errVy: float = np.std(Vs[channel[1]][slc])
+        aveVx: float = np.average(Vs[attr_cor_to_V[1]][slc])
+        errVx: float = np.std(Vs[attr_cor_to_V[1]][slc])
+        aveVy: float = np.average(Vs[attr_cor_to_V[2]][slc])
+        errVy: float = np.std(Vs[attr_cor_to_V[2]][slc])
         # print("######")
         # print(aveT_PPMS, errT_PPMS, aveH, errH, aveCurrent, errCurrent, aveT_Cernox, errT_Cernox, aveVx, errVx, aveVy, errVy)
         # print("+++++++")
@@ -1537,7 +1535,7 @@ class RemakeExpFromRaw:
         with open(filename_new, mode="w") as f:
             f.write("".join(self.ExpData.full_contents[0:14]))
             for i, (sidx0, eidx0, sidx1, eidx1) in enumerate(self.Index):
-                line = (sidx0, eidx0) + self.ave_std(eidx0) + (sidx1, eidx1) + self.ave_std(eidx1) + (self.dTx[i], self.errdTx[i], self.kxx[i], self.errkxx[i])
+                line = (sidx0, eidx0) + self.ave_std(sidx0, eidx0) + (sidx1, eidx1) + self.ave_std(sidx1, eidx1) + (self.dTx[i], self.errdTx[i], self.kxx[i], self.errkxx[i])
                 f.write("\t".join([f"{v:.9e}" for v in line]) + "\n")
 
 
@@ -1572,36 +1570,68 @@ class RemakeExpFromRawSeebeck:
         self.Current: list[float] = []
         self.T_Cernox: list[float] = []
         self.dVx: list[float] = []
-        self.dVy: list[float] = []
         self.dTx: list[float] = []
-        self.dTy: list[float] = []
         self.dTx0: list[float] = []
-        self.dTy0: list[float] = []
         self.dTx1: list[float] = []
-        self.dTy1: list[float] = []
         self.errdTx: list[float] = []
-        self.errdTy: list[float] = []
+        self.errdTx0: list[float] = []
+        self.errdTx1: list[float] = []
+        self.Ex: list[float] = []
+        self.Ey: list[float] = []
+        self.Ex0: list[float] = []
+        self.Ey0: list[float] = []
+        self.Ex1: list[float] = []
+        self.Ey1: list[float] = []
+        self.errEx: list[float] = []
+        self.errEy: list[float] = []
+        self.errEx0: list[float] = []
+        self.errEy0: list[float] = []
+        self.errEx1: list[float] = []
+        self.errEy1: list[float] = []
+        self.Sxx: list[float] = []
+        self.errSxx: list[float] = []
+        
         self.R: float = 1000.0
-        self.channel: tuple[int, int] = (1, 2)
         for sidx0, eidx0, sidx1, eidx1 in self.Index:
-            tp0, etp0, h0, eh0, cur0, ecur0, tc0, etc0, vx0, evx0, vy0, evy0 = self.ave_std(eidx0-59, eidx0)
-            tp1, etp1, h1, eh1, cur1, ecur1, tc1, etc1, vx1, evx1, vy1, evy1 = self.ave_std(eidx1-59, eidx1)
+            tp0, etp0, h0, eh0, cur0, ecur0, tc0, etc0, vx0, evx0, ex0, eex0, ey0, eey0 = self.ave_std(eidx0-59, eidx0)
+            tp1, etp1, h1, eh1, cur1, ecur1, tc1, etc1, vx1, evx1, ex1, eex1, ey1, eey1 = self.ave_std(eidx1-59, eidx1)
             self.T_PPMS.append(tp1)
             self.Field.append(h1)
             self.Current.append(cur1)
             self.T_Cernox.append(tc1)
+
             self.dVx.append(vx1-vx0)
-            self.dVy.append(vy1-vy0)
-            self.dTx.append((vx1-vx0) / self.Seebeck_at_T(tp1))
-            self.dTy.append((vy1-vy0) / self.Seebeck_at_T(tp1))
-
+            dTx: float = (vx1-vx0) / self.Seebeck_at_T(tp1)
+            edTx: float = (evx0**2+evx1**2)**0.5 / self.Seebeck_at_T(tp1)
+            self.dTx.append(dTx)
+            self.errdTx.append(edTx)
             self.dTx0.append((vx0) / self.Seebeck_at_T(tp0))
-            self.dTy0.append((vy0) / self.Seebeck_at_T(tp0))
             self.dTx1.append((vx1) / self.Seebeck_at_T(tp1))
-            self.dTy1.append((vy1) / self.Seebeck_at_T(tp1))
+            self.errdTx0.append((evx0) / self.Seebeck_at_T(tp0))
+            self.errdTx1.append((evx1) / self.Seebeck_at_T(tp1))
 
-            self.errdTx.append((evx0**2+evx1**2)**0.5 / self.Seebeck_at_T(tp1))
-            self.errdTy.append((evy0**2+evy1**2)**0.5 / self.Seebeck_at_T(tp1))
+            ex: float = ex1-ex0
+            ey: float = ey1-ey0
+            eex: float = (eex0**2+eex1**2)**0.5
+            eey: float = (eey0**2+eey1**2)**0.5
+            self.Ex.append(ex)
+            self.Ey.append(ey)
+            self.errEx.append(eex)
+            self.errEy.append(eey)
+            self.Ex0.append(ex0)
+            self.Ex1.append(ex1)
+            self.Ey0.append(ey0)
+            self.Ey1.append(ey1)
+            self.errEx0.append(eex0)
+            self.errEx1.append(eex1)
+            self.errEy0.append(eey0)
+            self.errEy1.append(eey1)
+            
+            # self.Sxx.append(Sxx)
+            # self.errSxx.append(eSxx)
+            Sxx: float = ex / dTx / self.Lvx * self.LTx * 1e6 # (uv/K)
+            self.Sxx.append(Sxx)
+            self.errSxx.append(abs(Sxx) * ((eex/ex)**2 + (edTx/dTx)**2)**0.5)
         
         self.kxx: list[float] = [self.R*(i**2)/self.Width/self.Thickness / (dt/self.LTx) for i,dt in zip(self.Current,self.dTx)]
         self.errkxx: list[float] = [k * edtx / dtx for k,dtx,edtx in zip(self.kxx,self.dTx,self.errdTx)]
@@ -1609,7 +1639,7 @@ class RemakeExpFromRawSeebeck:
 
     def ave_std(self, sidx: int, eidx: int) -> tuple[float, ...]:
         slc: slice = slice(sidx, eidx+1)
-        channel: tuple[int, int] = self.channel
+        attr_cor_to_V: list[int] = self.RawData.attr_cor_to_V
         aveT_PPMS: float = np.average(self.RawData.PPMSTemp[slc])
         errT_PPMS: float = np.std(self.RawData.PPMSTemp[slc])
         aveH: float = np.average(self.RawData.Field[slc])
@@ -1619,14 +1649,13 @@ class RemakeExpFromRawSeebeck:
         aveT_Cernox: float = np.average(self.RawData.CernoxTemp[slc])
         errT_Cernox: float = np.std(self.RawData.CernoxTemp[slc])
         Vs = [self.RawData.V1, self.RawData.V2, self.RawData.V3, self.RawData.V4, self.RawData.V5, self.RawData.V6]
-        aveVx: float = np.average(Vs[channel[0]][slc])
-        errVx: float = np.std(Vs[channel[0]][slc])
-        aveVy: float = np.average(Vs[channel[1]][slc])
-        errVy: float = np.std(Vs[channel[1]][slc])
-        # print("######")
-        # print(aveT_PPMS, errT_PPMS, aveH, errH, aveCurrent, errCurrent, aveT_Cernox, errT_Cernox, aveVx, errVx, aveVy, errVy)
-        # print("+++++++")
-        return aveT_PPMS, errT_PPMS, aveH, errH, aveCurrent, errCurrent, aveT_Cernox, errT_Cernox, aveVx, errVx, aveVy, errVy
+        aveVx: float = np.average(Vs[attr_cor_to_V[1]][slc])
+        errVx: float = np.std(Vs[attr_cor_to_V[1]][slc])
+        aveEx: float = np.average(Vs[attr_cor_to_V[2]][slc])
+        errEx: float = np.std(Vs[attr_cor_to_V[2]][slc])
+        aveEy: float = np.average(Vs[attr_cor_to_V[3]][slc])
+        errEy: float = np.std(Vs[attr_cor_to_V[3]][slc])
+        return aveT_PPMS, errT_PPMS, aveH, errH, aveCurrent, errCurrent, aveT_Cernox, errT_Cernox, aveVx, errVx, aveEx, errEx, aveEy, errEy
 
     def Seebeck_at_T(self, T: float):
         if not (self.TC_TS[0][0] <= T <= self.TC_TS[-1][0]):
@@ -1685,7 +1714,7 @@ class RemakeExpFromRawSeebeck:
         with open(filename_new, mode="w") as f:
             f.write("".join(self.ExpData.full_contents[0:14]))
             for i, (sidx0, eidx0, sidx1, eidx1) in enumerate(self.Index):
-                line = (sidx0, eidx0) + self.ave_std(eidx0) + (sidx1, eidx1) + self.ave_std(eidx1) + (self.dTx[i], self.errdTx[i], self.kxx[i], self.errkxx[i])
+                line = (sidx0, eidx0) + self.ave_std(sidx0, eidx0) + (sidx1, eidx1) + self.ave_std(sidx1, eidx1) + (self.dTx[i], self.errdTx[i], self.kxx[i], self.errkxx[i], self.Sxx[i], self.errSxx[i],)
                 f.write("\t".join([f"{v:.9e}" for v in line]) + "\n")
 
 
@@ -1698,7 +1727,6 @@ class AATTPMD(RawDataExpander, tk.Frame):
         self.kxxkxy_mode(cernox_name, attr_cor_to_V)
         filename_exp: str = re.sub(r"Raw", r"Exp", self.filename)
         self.ExpData: ExpDataExpander = ExpDataExpander(filename_exp, filename_Seebeck)
-        self.channel: tuple[int, int] = (1, 2)
 
         root: tk.Tk = tk.Tk()
         tk.Frame.__init__(self, root)
@@ -1729,7 +1757,7 @@ class AATTPMD(RawDataExpander, tk.Frame):
         self.ax1.yaxis.set_ticks_position('both')
         self.ax1.plot(self.Time, self.Field, marker='o', color="blue", markersize=2)
         self.ax1.set_xlabel(xlabel=r"Time (sec)")
-        self.ax1.set_ylabel(ylabel=r"Magnetic Field (Oe)")
+        self.ax1.set_ylabel(ylabel=r"$H$ (Oe)")
         self.ax1.xaxis.set_ticklabels([]) # 目盛を削除
         self.ax1.set_title(self.filename)
 
@@ -1739,7 +1767,7 @@ class AATTPMD(RawDataExpander, tk.Frame):
         self.ax2.plot(self.Time, self.CernoxTemp, marker='o', color="blue", markersize=2)
         self.ax2.plot(self.Time, self.PPMSTemp, marker='o', color="red", markersize=2)
         self.ax2.set_xlabel(xlabel=r"Time (sec)")
-        self.ax2.set_ylabel(ylabel="Temperature (K)\n(Cernox:blue, PPMS:red)")
+        self.ax2.set_ylabel(ylabel=r"$T$ (K)"+"\n Cernox:blue\n PPMS:red)")
 
         self.ax3: plt.Subplot = fig.add_subplot(222)
         self.ax3.xaxis.set_ticks_position('both')
@@ -1908,6 +1936,12 @@ class AATTPMD(RawDataExpander, tk.Frame):
         lbl_end.grid(row=0, column=1)
         self.time_end: tk.Entry = tk.Entry(range_frame, width=8)
         self.time_end.grid(row=1, column=1)
+        lbl_dt: tk.Label = tk.Label(range_frame, text="end-start (s)", foreground="black")
+        lbl_dt.grid(row=0, column=2)
+        self.time_dt_value: tk.StringVar = tk.StringVar()
+        self.lbl_time_dt_value: tk.Label = tk.Label(range_frame, textvariable=self.time_dt_value, relief="sunken", width=8)
+        self.lbl_time_dt_value.grid(row=1, column=2)
+
         self.start_or_end: int = 0
         self.is_select_range_by_click: tk.BooleanVar = tk.BooleanVar()
         self.is_select_range_by_click.set(True)
@@ -2028,6 +2062,8 @@ class AATTPMD(RawDataExpander, tk.Frame):
         self.ln2_start.set_data([x_start,x_start], self.ax2.get_ylim())
         self.ln3_start.set_data([x_start,x_start], self.ax3.get_ylim())
         self.ln4_start.set_data([x_start,x_start], self.ax4.get_ylim())
+        if self.time_start.get() and self.time_end.get():
+            self.time_dt_value.set(str(float(self.time_end.get())-float(self.time_start.get())))
 
     def _update_end_time(self, x_end: float) -> None:
         self.time_end.delete(0, tk.END)
@@ -2037,6 +2073,8 @@ class AATTPMD(RawDataExpander, tk.Frame):
         self.ln2_end.set_data([x_end,x_end], self.ax2.get_ylim())
         self.ln3_end.set_data([x_end,x_end], self.ax3.get_ylim())
         self.ln4_end.set_data([x_end,x_end], self.ax4.get_ylim())
+        if self.time_start.get() and self.time_end.get():
+            self.time_dt_value.set(str(float(self.time_end.get())-float(self.time_start.get())))
 
     def _update_exp_line(self, t1: float, t2: float, t3: float, t4: float) -> None:
         """バックグラウンド測定開始・終了時間とQ>0での測定開始・終了時間の描画
@@ -2319,7 +2357,7 @@ class AATTPMD(RawDataExpander, tk.Frame):
                 self.fig_canvas.draw()
     
     def ave_std(self, sidx: int, eidx: int) -> tuple[float, ...]:
-        channel: tuple[int, int] = self.channel
+        attr_cor_to_V: list[int] = self.attr_cor_to_V
         aveT_PPMS: float = np.average(self.PPMSTemp[sidx:eidx+1])
         errT_PPMS: float = np.std(self.PPMSTemp[sidx:eidx+1])
         aveH: float = np.average(self.Field[sidx:eidx+1])
@@ -2329,10 +2367,10 @@ class AATTPMD(RawDataExpander, tk.Frame):
         aveT_Cernox: float = np.average(self.CernoxTemp[sidx:eidx+1])
         errT_Cernox: float = np.std(self.CernoxTemp[sidx:eidx+1])
         Vs: list[list[list[float]]] = [self.V1, self.V2, self.V3, self.V4, self.V5, self.V6]
-        aveVx: float = np.average(Vs[channel[0]][sidx:eidx+1])
-        errVx: float = np.std(Vs[channel[0]][sidx:eidx+1])
-        aveVy: float = np.average(Vs[channel[1]][sidx:eidx+1])
-        errVy: float = np.std(Vs[channel[1]][sidx:eidx+1])
+        aveVx: float = np.average(Vs[attr_cor_to_V[1]][sidx:eidx+1])
+        errVx: float = np.std(Vs[attr_cor_to_V[1]][sidx:eidx+1])
+        aveVy: float = np.average(Vs[attr_cor_to_V[2]][sidx:eidx+1])
+        errVy: float = np.std(Vs[attr_cor_to_V[2]][sidx:eidx+1])
         return aveT_PPMS, errT_PPMS, aveH, errH, aveCurrent, errCurrent, aveT_Cernox, errT_Cernox, aveVx, errVx, aveVy, errVy
 
     def excute(self, save_filename: str | None = None, Tx_gain: float = 1) -> None:
