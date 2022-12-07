@@ -732,7 +732,54 @@ def demagnetizing_factor_rectangular_prism(a: float, b: float, c: float) -> floa
     return Dz
 
 
+def cal_dTx(
+        Q: float,
+        lx: float,
+        w: float,
+        t: float,
+        kxx: float,
+    ) -> float:
+    """Calculating temperature difference due to heat current.
 
+    Note:
+        dTx = (Q/wt) * (lx/kxx)
+
+    Args:
+        Q (float): Heater power (mW).
+        lx (float): Length between thermocouples (um).
+        w (float): Width of the sample (um).
+        t (float): Thickness of the sample (um).
+        kxx (float): Thermal conductivity (W/Km).
+
+    Returns:
+        (float): dTx (K).
+    """
+    return Q / (w*t) * lx / kxx * 1000.0
+
+
+def cal_kxx(
+        Q: float,
+        lx: float,
+        w: float,
+        t: float,
+        dTx: float,
+    ) -> float:
+    """Calculating temperature difference due to heat current.
+
+    Note:
+        dTx = (Q/wt) * (lx/kxx)
+
+    Args:
+        Q (float): Heater power (mW).
+        lx (float): Length between thermocouples (um).
+        w (float): Width of the sample (um).
+        t (float): Thickness of the sample (um).
+        dTx (float): dTx (K).
+
+    Returns:
+        (float): Thermal conductivity (W/Km).
+    """
+    return Q / (w*t) * lx / dTx * 1000.0
 
 
 class RawDataExpander:
@@ -785,6 +832,8 @@ class RawDataExpander:
             '''
         """
         self.filename: str = filename
+        self._operated_filename: str = filename
+        self.filename_Seebeck: str = filename_Seebeck
         with open(file=filename, mode="r") as f:
             self.full_contents: list[str] = f.readlines()
 
@@ -795,8 +844,9 @@ class RawDataExpander:
                 self.TC_TS.append([t,s])
         self.TC_TS = sorted(self.TC_TS, key=lambda x:x[0]) # 温度順にソート
         
+        self.header_length: int = 14
 
-        self.StartTime: str = re.sub(r"[^\d]+?:", r"", self.full_contents[0]).strip()
+        self.StartTime: datetime.datetime = datetime.datetime.strptime(re.sub(r"[^\d]+?:", r"", self.full_contents[0]).strip(), '%Y/%m/%d %H:%M:%S')
         self.LTx: float = float(re.sub(r".+:", r"", self.full_contents[2]))
         self.LTy: float = float(re.sub(r".+:", r"", self.full_contents[3]))
         self.LVx: float = float(re.sub(r".+:", r"", self.full_contents[4]))
@@ -818,7 +868,7 @@ class RawDataExpander:
         self.Q: list[list[float]] = []
         self.R: float = 1000.
 
-        idx: int = 14
+        idx: int = self.header_length
         while True:
             try:
                 row: str = self.full_contents[idx]
@@ -832,7 +882,7 @@ class RawDataExpander:
             self.Field.append(field)
             self.Angle.append(angle)
             self.HeaterCurrent.append(cur)
-            self.Q.append(cur**2) # 1 kΩ
+            self.Q.append(self.R*cur**2/1000.)
             self.V1.append([v1re,v1im])
             self.V2.append([v2re,v2im])
             self.V3.append([v3re,v3im])
@@ -846,6 +896,58 @@ class RawDataExpander:
                 self.S_TC.append(self.Seebeck_at_T((self.PPMSTemp[i-1]+self.PPMSTemp[i+1])/2))
             else:
                 self.S_TC.append(self.Seebeck_at_T(t))
+    
+    def check_same_condition(self, other: RawDataExpander) -> bool:
+        return self.LTx == other.LTx and self.LTy == other.LTy and self.LVx == other.LVx and \
+            self.LVy == other.LVy and self.Width == other.Width and self.Thickness == other.Thickness and \
+                self.cernox_name == other.cernox_name and self.attr_cor_to_V == other.attr_cor_to_V
+    
+    def __add__(self, other: RawDataExpander) -> RawDataExpander:
+        new: RawDataExpander = self.__class__(self.filename, self.filename_Seebeck)
+        new.kxxkxy_mode(self.cernox_name, self.attr_cor_to_V)
+        if self.check_same_condition(other):
+            if self.StartTime < other.StartTime:
+                new._operated_filename = self.filename + other.filename
+                new.Time = self.Time + [t + (other.StartTime-self.StartTime).total_seconds() for t in other.Time]
+                new.PPMSTemp = self.PPMSTemp + other.PPMSTemp
+                new.Field = self.Field + other.Field
+                new.Angle = self.Angle + other.Angle
+                new.HeaterCurrent = self.HeaterCurrent + other.HeaterCurrent
+                new.CernoxTemp = self.CernoxTemp + other.CernoxTemp
+                new.V1 = self.V1 + other.V1
+                new.V2 = self.V2 + other.V2
+                new.V3 = self.V3 + other.V3
+                new.V4 = self.V4 + other.V4
+                new.V5 = self.V5 + other.V5
+                new.V6 = self.V6 + other.V6
+                new.Q = self.Q + other.Q
+                new.S_TC = self.S_TC + other.S_TC
+                new.dTx = self.dTx + other.dTx
+                new.dTy = self.dTy + other.dTy
+            else:
+                new._operated_filename = other.filename + self.filename
+                new.Time = other.Time + [t + (self.StartTime-other.StartTime).total_seconds() for t in self.Time]
+                new.PPMSTemp = other.PPMSTemp + self.PPMSTemp
+                new.Field = other.Field + self.Field
+                new.Angle = other.Angle + self.Angle
+                new.HeaterCurrent = other.HeaterCurrent + self.HeaterCurrent
+                new.CernoxTemp = other.CernoxTemp + self.CernoxTemp
+                new.V1 = other.V1 + self.V1
+                new.V2 = other.V2 + self.V2
+                new.V3 = other.V3 + self.V3
+                new.V4 = other.V4 + self.V4
+                new.V5 = other.V5 + self.V5
+                new.V6 = other.V6 + self.V6
+                new.Q = other.Q + self.Q
+                new.S_TC = other.S_TC + self.S_TC
+                new.dTx = other.dTx + self.dTx
+                new.dTy = other.dTy + self.dTy
+        else:
+            print(self.LTx, other.LTx, self.LTy, other.LTy, self.LVx, other.LVx, \
+            self.LVy, other.LVy, self.Width, other.Width, self.Thickness, other.Thickness, \
+                self.cernox_name, other.cernox_name, self.attr_cor_to_V, other.attr_cor_to_V)
+            raise ValueError()
+        return new
     
     def _set_CernoxTemp(self, cernox_name: str, TR: list[float]) -> None:
         X173409_logRlogT_table: list[tuple[float, float]] = [(3.29314 - 1.42456*log10t + 0.867728*log10t**2 - 0.324371*log10t**3 + 0.0380185*log10t**4, log10t) for log10t in np.linspace(np.log10(1.5),np.log10(320),100000)]
@@ -893,14 +995,12 @@ class RawDataExpander:
         
         Args:
             cernox_name (str): Cernox name. ("X173409" or "X173079")
-            attr_cor_to_V (list[int] | None): Correspondence between attributes [Cernox_Temp, dTx, dTy] and 1-indexed voltage number. Defaults to [1,2,3].
+            attr_cor_to_V (list[int] | None): Correspondence between attributes [Cernox_Temp, dTx, dTy] and 0-indexed voltage number. Defaults to [0,1,2].
 
         """
 
         if attr_cor_to_V is None:
             attr_cor_to_V = list(range(3))
-        else:
-            attr_cor_to_V = [i-1 for i in attr_cor_to_V]
         Voltages: list[list[list[float]]] = [self.V1, self.V2, self.V3, self.V4, self.V5, self.V6]
         self.cernox_name: str = cernox_name
         self.attr_cor_to_V: list[int] = attr_cor_to_V
@@ -1085,6 +1185,8 @@ class RawDataExpander:
 class ExpDataExpander:
     def __init__(self, filename: str, filename_Seebeck: str) -> None:
         self.filename: str = filename
+        self._operated_filename: str = filename
+        self.filename_Seebeck: str = filename_Seebeck
         with open(file=filename, mode="r") as f:
             self.full_contents: list[str] = f.readlines()
 
@@ -1094,8 +1196,14 @@ class ExpDataExpander:
                 s,t = map(float, line.split())
                 self.TC_TS.append([t,s])
         self.TC_TS = sorted(self.TC_TS, key=lambda x:x[0]) # 温度順にソート
+        
+        self.header_length: int = 14
 
-        self.StartTime: str = re.sub(r".+?:", r"", self.full_contents[0]).strip()
+        filename_raw: str = re.sub(r"Exp", r"Raw", self.filename)
+        with open(file=filename_raw, mode="r") as f:
+            self.len_Index: int = len(f.readlines()) - self.header_length
+
+        self.StartTime: datetime.datetime = datetime.datetime.strptime(re.sub(r"[^\d]+?:", r"", self.full_contents[0]).strip(), '%Y/%m/%d %H:%M:%S')
         self.LTx: float = float(re.sub(r".+:", r"", self.full_contents[2]))
         self.LTy: float = float(re.sub(r".+:", r"", self.full_contents[3]))
         self.LVx: float = float(re.sub(r".+:", r"", self.full_contents[4]))
@@ -1126,7 +1234,7 @@ class ExpDataExpander:
         self.errdTx1: list[float] = []
         self.errdTy1: list[float] = []
 
-        idx: int = 14
+        idx: int = self.header_length
         while idx < len(self.full_contents):
             row: str = self.full_contents[idx]
             if row.startswith("#"):
@@ -1164,6 +1272,70 @@ class ExpDataExpander:
         self.kxx: list[float] = [self.R*(i**2)/self.Width/self.Thickness / (dt/self.LTx) for i,dt in zip(self.Current,self.dTx)]
         self.errkxx: list[float] = [k * edtx / dtx for k,dtx,edtx in zip(self.kxx,self.dTx,self.errdTx)]
         self.Q: list[float] = [self.R*(i**2)/1000 for i in self.Current] # mW
+    
+    def check_same_condition(self, other: ExpDataExpander) -> bool:
+        return self.LTx == other.LTx and self.LTy == other.LTy and self.LVx == other.LVx and \
+            self.LVy == other.LVy and self.Width == other.Width and self.Thickness == other.Thickness
+    
+    def __add__(self, other: ExpDataExpander) -> ExpDataExpander:
+        new: ExpDataExpander = self.__class__(self.filename, self.filename_Seebeck)
+        if self.check_same_condition(other):
+            if self.StartTime < other.StartTime:
+                new._operated_filename = self.filename + other.filename
+                new.StartTime = self.StartTime
+                new.len_Index = self.len_Index + other.len_Index
+                new.Index = self.Index + [(s0+self.len_Index, e0+self.len_Index, s1+self.len_Index, e1+self.len_Index) for (s0,e0,s1,e1) in other.Index]
+                new.T_PPMS = self.T_PPMS + other.T_PPMS
+                new.Field = self.Field + other.Field
+                new.Current = self.Current + other.Current
+                new.T_Cernox = self.T_Cernox + other.T_Cernox
+                new.dVx = self.dVx + other.dVx
+                new.dVy = self.dVy + other.dVy
+                new.dTx = self.dTx + other.dTx
+                new.dTy = self.dTy + other.dTy
+                new.dTx0 = self.dTx0 + other.dTx0
+                new.dTy0 = self.dTy0 + other.dTy0
+                new.dTx1 = self.dTx1 + other.dTx1
+                new.dTy1 = self.dTy1 + other.dTy1
+                new.errdTx = self.errdTx + other.errdTx
+                new.errdTy = self.errdTy + other.errdTy
+                new.errdTx0 = self.errdTx0 + other.errdTx0
+                new.errdTy0 = self.errdTy0 + other.errdTy0
+                new.errdTx1 = self.errdTx1 + other.errdTx1
+                new.errdTy1 = self.errdTy1 + other.errdTy1
+                new.kxx = self.kxx + other.kxx
+                new.errkxx = self.errkxx + other.errkxx
+                new.Q = self.Q + other.Q
+
+            else:
+                new._operated_filename = other.filename + self.filename
+                new.StartTime = other.StartTime
+                new.len_Index = other.len_Index + self.len_Index
+                new.Index = other.Index + [(s0+other.len_Index, e0+other.len_Index, s1+other.len_Index, e1+other.len_Index) for (s0,e0,s1,e1) in self.Index]
+                new.T_PPMS = other.T_PPMS + self.T_PPMS
+                new.Field = other.Field + self.Field
+                new.Current = other.Current + self.Current
+                new.T_Cernox = other.T_Cernox + self.T_Cernox
+                new.dVx = other.dVx + self.dVx
+                new.dVy = other.dVy + self.dVy
+                new.dTx = other.dTx + self.dTx
+                new.dTy = other.dTy + self.dTy
+                new.dTx0 = other.dTx0 + self.dTx0
+                new.dTy0 = other.dTy0 + self.dTy0
+                new.dTx1 = other.dTx1 + self.dTx1
+                new.dTy1 = other.dTy1 + self.dTy1
+                new.errdTx = other.errdTx + self.errdTx
+                new.errdTy = other.errdTy + self.errdTy
+                new.errdTx0 = other.errdTx0 + self.errdTx0
+                new.errdTy0 = other.errdTy0 + self.errdTy0
+                new.errdTx1 = other.errdTx1 + self.errdTx1
+                new.errdTy1 = other.errdTy1 + self.errdTy1
+                new.kxx = other.kxx + self.kxx
+                new.errkxx = other.errkxx + self.errkxx
+                new.Q = other.Q + self.Q
+        else:
+            raise ValueError()
+        return new
 
     def Seebeck_at_T(self, T: float) -> float:
         if not (self.TC_TS[0][0] <= T <= self.TC_TS[-1][0]):
@@ -1239,7 +1411,9 @@ class ExpDataExpanderSeebeck:
                 self.TC_TS.append([t,s])
         self.TC_TS = sorted(self.TC_TS, key=lambda x:x[0]) # 温度順にソート
 
-        self.StartTime: str = re.sub(r".+?:", r"", self.full_contents[0]).strip()
+        self.header_length: int = 14
+
+        self.StartTime: datetime.datetime = datetime.datetime.strptime(re.sub(r"[^\d]+?:", r"", self.full_contents[0]).strip(), '%Y/%m/%d %H:%M:%S')
         self.LTx: float = float(re.sub(r".+:", r"", self.full_contents[2]))
         self.LTy: float = float(re.sub(r".+:", r"", self.full_contents[3]))
         self.LVx: float = float(re.sub(r".+:", r"", self.full_contents[4]))
@@ -1277,7 +1451,7 @@ class ExpDataExpanderSeebeck:
         self.errSxx: list[float] = []
 
 
-        idx: int = 14
+        idx: int = self.header_length
         while idx < len(self.full_contents):
             row: str = self.full_contents[idx]
             if row.startswith("#"):
@@ -1399,7 +1573,7 @@ class RemakeExpFromRaw:
         filename_exp: str = re.sub(r"Raw", r"Exp", self.filename)
         self.ExpData: ExpDataExpander = ExpDataExpander(filename_exp, filename_Seebeck)
 
-        self.StartTime: str = self.RawData.StartTime
+        self.StartTime: datetime.datetime = self.RawData.StartTime
         self.LTx: float = self.RawData.LTx
         self.LTy: float = self.RawData.LTy
         self.LVx: float = self.RawData.LVx
@@ -1533,7 +1707,7 @@ class RemakeExpFromRaw:
     def make_new_exp_data_file(self) -> None:
         filename_new: str = re.sub(r"Raw", r"NewExp", self.filename)
         with open(filename_new, mode="w") as f:
-            f.write("".join(self.ExpData.full_contents[0:14]))
+            f.write("".join(self.ExpData.full_contents[:self.RawData.header_length]))
             for i, (sidx0, eidx0, sidx1, eidx1) in enumerate(self.Index):
                 line = (sidx0, eidx0) + self.ave_std(sidx0, eidx0) + (sidx1, eidx1) + self.ave_std(sidx1, eidx1) + (self.dTx[i], self.errdTx[i], self.kxx[i], self.errkxx[i])
                 f.write("\t".join([f"{v:.9e}" for v in line]) + "\n")
@@ -1555,7 +1729,7 @@ class RemakeExpFromRawSeebeck:
         filename_exp: str = re.sub(r"Raw", r"Exp", self.filename)
         self.ExpData: ExpDataExpander = ExpDataExpander(filename_exp, filename_Seebeck)
 
-        self.StartTime: str = self.RawData.StartTime
+        self.StartTime: datetime.datetime = self.RawData.StartTime
         self.LTx: float = self.RawData.LTx
         self.LTy: float = self.RawData.LTy
         self.LVx: float = self.RawData.LVx
@@ -1712,7 +1886,7 @@ class RemakeExpFromRawSeebeck:
     def make_new_exp_data_file(self) -> None:
         filename_new: str = re.sub(r"Raw", r"NewExp", self.filename)
         with open(filename_new, mode="w") as f:
-            f.write("".join(self.ExpData.full_contents[0:14]))
+            f.write("".join(self.ExpData.full_contents[:self.RawData.header_length]))
             for i, (sidx0, eidx0, sidx1, eidx1) in enumerate(self.Index):
                 line = (sidx0, eidx0) + self.ave_std(sidx0, eidx0) + (sidx1, eidx1) + self.ave_std(sidx1, eidx1) + (self.dTx[i], self.errdTx[i], self.kxx[i], self.errkxx[i], self.Sxx[i], self.errSxx[i],)
                 f.write("\t".join([f"{v:.9e}" for v in line]) + "\n")
@@ -1889,6 +2063,22 @@ class AATTPMD(RawDataExpander, tk.Frame):
         self.increment.grid(row=1, column=0)
         increment_frame.grid(rowspan=2, column=1,row=0,sticky=tk.N+tk.S)
 
+        # スライダーの値を直接入力
+        def slider_left_changer(var: str, idx: str, mode: str) -> None:
+            self.sliders[0].set(self.slider_left_value.get())
+            self._slider_scroll()
+        def slider_right_changer(var: str, idx: str, mode: str) -> None:
+            self.sliders[1].set(self.slider_right_value.get())
+            self._slider_scroll()
+        self.slider_left_value: tk.DoubleVar = tk.DoubleVar()
+        self.slider_left_value.trace_add(mode="write", callback=slider_left_changer)
+        self.slider_left: tk.Entry = tk.Entry(slider_control_frame, width=8, textvariable=self.slider_left_value)
+        self.slider_left.grid(row=0, column=2)
+        self.slider_right_value: tk.DoubleVar = tk.DoubleVar()
+        self.slider_right_value.trace_add(mode="write", callback=slider_right_changer)
+        self.slider_right: tk.Entry = tk.Entry(slider_control_frame, width=8, textvariable=self.slider_right_value)
+        self.slider_right.grid(row=1, column=2)
+
         slider_control_frame.pack()
 
         #-----------------------------------------------
@@ -2063,7 +2253,7 @@ class AATTPMD(RawDataExpander, tk.Frame):
         self.ln3_start.set_data([x_start,x_start], self.ax3.get_ylim())
         self.ln4_start.set_data([x_start,x_start], self.ax4.get_ylim())
         if self.time_start.get() and self.time_end.get():
-            self.time_dt_value.set(str(float(self.time_end.get())-float(self.time_start.get())))
+            self.time_dt_value.set(f"{float(self.time_end.get())-float(self.time_start.get()):.1f}")
 
     def _update_end_time(self, x_end: float) -> None:
         self.time_end.delete(0, tk.END)
@@ -2074,7 +2264,7 @@ class AATTPMD(RawDataExpander, tk.Frame):
         self.ln3_end.set_data([x_end,x_end], self.ax3.get_ylim())
         self.ln4_end.set_data([x_end,x_end], self.ax4.get_ylim())
         if self.time_start.get() and self.time_end.get():
-            self.time_dt_value.set(str(float(self.time_end.get())-float(self.time_start.get())))
+            self.time_dt_value.set(f"{float(self.time_end.get())-float(self.time_start.get()):.1f}")
 
     def _update_exp_line(self, t1: float, t2: float, t3: float, t4: float) -> None:
         """バックグラウンド測定開始・終了時間とQ>0での測定開始・終了時間の描画
@@ -2357,20 +2547,21 @@ class AATTPMD(RawDataExpander, tk.Frame):
                 self.fig_canvas.draw()
     
     def ave_std(self, sidx: int, eidx: int) -> tuple[float, ...]:
+        slc: slice = slice(sidx, eidx+1)
         attr_cor_to_V: list[int] = self.attr_cor_to_V
-        aveT_PPMS: float = np.average(self.PPMSTemp[sidx:eidx+1])
-        errT_PPMS: float = np.std(self.PPMSTemp[sidx:eidx+1])
-        aveH: float = np.average(self.Field[sidx:eidx+1])
-        errH: float = np.std(self.Field[sidx:eidx+1])
-        aveCurrent: float = np.average(self.HeaterCurrent[sidx:eidx+1])
-        errCurrent: float = np.std(self.HeaterCurrent[sidx:eidx+1])
-        aveT_Cernox: float = np.average(self.CernoxTemp[sidx:eidx+1])
-        errT_Cernox: float = np.std(self.CernoxTemp[sidx:eidx+1])
+        aveT_PPMS: float = np.average(self.PPMSTemp[slc])
+        errT_PPMS: float = np.std(self.PPMSTemp[slc])
+        aveH: float = np.average(self.Field[slc])
+        errH: float = np.std(self.Field[slc])
+        aveCurrent: float = np.average(self.HeaterCurrent[slc])
+        errCurrent: float = np.std(self.HeaterCurrent[slc])
+        aveT_Cernox: float = np.average(self.CernoxTemp[slc])
+        errT_Cernox: float = np.std(self.CernoxTemp[slc])
         Vs: list[list[list[float]]] = [self.V1, self.V2, self.V3, self.V4, self.V5, self.V6]
-        aveVx: float = np.average(Vs[attr_cor_to_V[1]][sidx:eidx+1])
-        errVx: float = np.std(Vs[attr_cor_to_V[1]][sidx:eidx+1])
-        aveVy: float = np.average(Vs[attr_cor_to_V[2]][sidx:eidx+1])
-        errVy: float = np.std(Vs[attr_cor_to_V[2]][sidx:eidx+1])
+        aveVx: float = np.average(Vs[attr_cor_to_V[1]][slc])
+        errVx: float = np.std(Vs[attr_cor_to_V[1]][slc])
+        aveVy: float = np.average(Vs[attr_cor_to_V[2]][slc])
+        errVy: float = np.std(Vs[attr_cor_to_V[2]][slc])
         return aveT_PPMS, errT_PPMS, aveH, errH, aveCurrent, errCurrent, aveT_Cernox, errT_Cernox, aveVx, errVx, aveVy, errVy
 
     def excute(self, save_filename: str | None = None, Tx_gain: float = 1) -> None:
@@ -2383,6 +2574,785 @@ class AATTPMD(RawDataExpander, tk.Frame):
     
     def delete(self) -> None:
         self.master.destroy()
+
+
+class HistoryOfTTM(tk.Frame):
+    """History of Thermal Transport Measurement
+    """
+    def __init__(self, filename_Seebeck: str, cernox_name: str, foldername: str | None = None, attr_cor_to_V: list[int] | None = None) -> None:
+        if foldername is None:
+            foldername = os.getcwd()
+        filenames: list[str] = []
+        for filename in glob.glob(foldername+"/*"):
+            if "Raw" in filename:
+                filenames.append(filename)
+        filenames = sorted(filenames)
+        
+        self.start_time_list: list[float] = []
+        RDE: RawDataExpander = RawDataExpander(filenames[0], filename_Seebeck)
+        RDE.kxxkxy_mode(cernox_name, attr_cor_to_V)
+        EDE: ExpDataExpander = ExpDataExpander(re.sub(r"Raw", r"Exp", filenames[0]), filename_Seebeck)
+        for filename in filenames[1:]:
+            R: RawDataExpander = RawDataExpander(filename, filename_Seebeck)
+            R.kxxkxy_mode(cernox_name, attr_cor_to_V)
+            E: ExpDataExpander = ExpDataExpander(re.sub(r"Raw", r"Exp", filename), filename_Seebeck)
+            RDE = RDE + R
+            EDE = EDE + E
+            self.start_time_list.append((R.StartTime-RDE.StartTime).total_seconds())
+        self.RawData: RawDataExpander = RDE
+        self.ExpData: ExpDataExpander = EDE
+
+        root: tk.Tk = tk.Tk()
+        tk.Frame.__init__(self, root)
+
+        self.master: tk.Tk = root
+        self.master.title(foldername.split('/')[-1])
+        self.master.geometry('1500x900')
+
+        #-----------------------------------------------
+
+        # matplotlib配置用フレーム
+        mtpltlb_frame: tk.Frame = tk.Frame(self.master)
+
+        plt.rcParams['font.size'] = 14
+        plt.rcParams['font.family'] = 'Arial'
+        plt.rcParams['xtick.direction'] = 'in'
+        plt.rcParams['ytick.direction'] = 'in'
+        plt.rcParams["legend.framealpha"] = 0
+        plt.rcParams['legend.fontsize'] = 8
+
+        figsize: tuple[int, int] = (11,10)
+        fig: plt.Figure = plt.figure(figsize=figsize)
+        plt.subplots_adjust(wspace=0.2, hspace=0, bottom=0.20, top=0.95)
+        
+        # 磁場
+        self.ax1: plt.Subplot = fig.add_subplot(411)
+        self.ax1.xaxis.set_ticks_position('both')
+        self.ax1.yaxis.set_ticks_position('both')
+        H_threshold: float = 1e5
+        H: list[float] = [h if -H_threshold < h < H_threshold else H_threshold for h in self.RawData.Field]
+        self.ax1.plot(self.RawData.Time, H, marker='o', color="blue", markersize=2)
+        self.ax1.set_xlabel(xlabel=r"Time (sec)")
+        self.ax1.set_ylabel(ylabel=r"$H$ (Oe)")
+        self.ax1.xaxis.set_ticklabels([]) # 目盛を削除
+        self.ax1.set_title(foldername.split("/")[-1])
+        # 温度
+        self.ax2: plt.Subplot = fig.add_subplot(412)
+        self.ax2.xaxis.set_ticks_position('both')
+        self.ax2.yaxis.set_ticks_position('both')
+        T_threshold: float = 500
+        T_cernox: list[float] = [t if 0 < t < T_threshold else T_threshold for t in self.RawData.CernoxTemp]
+        T_ppms: list[float] = [t if 0 < t < T_threshold else T_threshold for t in self.RawData.PPMSTemp]
+        self.ax2.plot(self.RawData.Time, T_cernox, marker='o', color="blue", markersize=2)
+        self.ax2.plot(self.RawData.Time, T_ppms, marker='o', color="red", markersize=2)
+        self.ax2.set_xlabel(xlabel=r"Time (sec)")
+        self.ax2.set_ylabel(ylabel=r"$T$ (K)"+"\n Cernox:blue\n PPMS:red")
+        self.ax2.xaxis.set_ticklabels([]) # 目盛を削除
+        # dTx
+        self.ax3: plt.Subplot = fig.add_subplot(413)
+        self.ax3.xaxis.set_ticks_position('both')
+        self.ax3.yaxis.set_ticks_position('both')
+        self.ax3.plot(self.RawData.Time, self.RawData.dTx, marker='o', color="blue", markersize=2)
+        self.ax3.set_xlabel(xlabel=r"Time (sec)")
+        self.ax3.set_ylabel(ylabel=r"$\Delta T_{x}$ (K)")
+        self.ax3.xaxis.set_ticklabels([]) # 目盛を削除
+        # dTy
+        self.ax4: plt.Subplot = fig.add_subplot(414)
+        self.ax4.xaxis.set_ticks_position('both')
+        self.ax4.yaxis.set_ticks_position('both')
+        self.ax4.plot(self.RawData.Time, self.RawData.dTy, marker='o', color="blue", markersize=2)
+        self.ax4.set_xlabel(xlabel=r"Time (sec)")
+        self.ax4.set_ylabel(ylabel=r"$\Delta T_{y}$ (K)")
+        self.adjust_tickslabel(0, max(self.RawData.Time))
+
+        # マウスのhoverで描画する縦線
+        self.ln1_hover, = self.ax1.plot([],[], color="black", linewidth=1)
+        self.ln2_hover, = self.ax2.plot([],[], color="black", linewidth=1)
+        self.ln3_hover, = self.ax3.plot([],[], color="black", linewidth=1)
+        self.ln4_hover, = self.ax4.plot([],[], color="black", linewidth=1)
+        
+        # マウスのclickで描画する縦線
+        self.ln1_start, = self.ax1.plot([],[], color="green", linewidth=1)
+        self.ln2_start, = self.ax2.plot([],[], color="green", linewidth=1)
+        self.ln3_start, = self.ax3.plot([],[], color="green", linewidth=1)
+        self.ln4_start, = self.ax4.plot([],[], color="green", linewidth=1)
+
+        # マウスのclickで描画する縦線
+        self.ln1_end, = self.ax1.plot([],[], color="red", linewidth=1)
+        self.ln2_end, = self.ax2.plot([],[], color="red", linewidth=1)
+        self.ln3_end, = self.ax3.plot([],[], color="red", linewidth=1)
+        self.ln4_end, = self.ax4.plot([],[], color="red", linewidth=1)
+
+        # 指定されたsidx0, eidx0, sidx1, eidx1に対応する縦線
+        self.ln1_s0, = self.ax1.plot([],[], color="blue", linewidth=1)
+        self.ln2_s0, = self.ax2.plot([],[], color="blue", linewidth=1)
+        self.ln3_s0, = self.ax3.plot([],[], color="blue", linewidth=1)
+        self.ln4_s0, = self.ax4.plot([],[], color="blue", linewidth=1)
+
+        self.ln1_e0, = self.ax1.plot([],[], color="orange", linewidth=1)
+        self.ln2_e0, = self.ax2.plot([],[], color="orange", linewidth=1)
+        self.ln3_e0, = self.ax3.plot([],[], color="orange", linewidth=1)
+        self.ln4_e0, = self.ax4.plot([],[], color="orange", linewidth=1)
+
+        self.ln1_s1, = self.ax1.plot([],[], color="blue", linewidth=1)
+        self.ln2_s1, = self.ax2.plot([],[], color="blue", linewidth=1)
+        self.ln3_s1, = self.ax3.plot([],[], color="blue", linewidth=1)
+        self.ln4_s1, = self.ax4.plot([],[], color="blue", linewidth=1)
+
+        self.ln1_e1, = self.ax1.plot([],[], color="orange", linewidth=1)
+        self.ln2_e1, = self.ax2.plot([],[], color="orange", linewidth=1)
+        self.ln3_e1, = self.ax3.plot([],[], color="orange", linewidth=1)
+        self.ln4_e1, = self.ax4.plot([],[], color="orange", linewidth=1)
+
+        # 指数関数fitting用
+        self.expfit_dTx, = self.ax3.plot([],[], color="cyan", linewidth=2, zorder=1000)
+
+        # Rawファイルごとに区切る線
+        ylim1: tuple[float, float] = self.ax1.get_ylim()
+        ylim2: tuple[float, float] = self.ax2.get_ylim()
+        ylim3: tuple[float, float] = self.ax3.get_ylim()
+        ylim4: tuple[float, float] = self.ax4.get_ylim()
+        for s in self.start_time_list:
+            self.ax1.plot([s,s], ylim1, color="black", linewidth=1)
+            self.ax2.plot([s,s], ylim2, color="black", linewidth=1)
+            self.ax3.plot([s,s], ylim3, color="black", linewidth=1)
+            self.ax4.plot([s,s], ylim4, color="black", linewidth=1)
+        self.ax1.set_ylim(ylim1)
+        self.ax2.set_ylim(ylim2)
+        self.ax3.set_ylim(ylim3)
+        self.ax4.set_ylim(ylim4)
+
+        # figとFrameの対応付け
+        self.fig_canvas: FigureCanvasTkAgg = FigureCanvasTkAgg(fig, mtpltlb_frame)
+        self.toolbar: NavigationToolbar2Tk = NavigationToolbar2Tk(self.fig_canvas, mtpltlb_frame)
+        self.cid1: Any = fig.canvas.mpl_connect('button_press_event', self._fig_click)
+        self.cid2: Any = fig.canvas.mpl_connect('motion_notify_event', self._fig_hover)
+        self.fig_canvas.get_tk_widget().pack(expand=False, side=tk.LEFT)
+
+        mtpltlb_frame.pack(side=tk.LEFT)
+
+        #-----------------------------------------------
+        ### sliderを生成
+        self.sliders: list[tk.DoubleVar] = [tk.DoubleVar(), tk.DoubleVar()]
+        slider0: tk.Scale = tk.Scale(self.master,
+                    variable = self.sliders[0],
+                    command = self._slider_scroll,
+                    orient = tk.HORIZONTAL,
+                    length = 300,
+                    width = 20,
+                    sliderlength = 10,
+                    from_ = 0,
+                    to = max(self.RawData.Time)+1,
+                    resolution = 1,
+                    tickinterval = 0
+                    )
+        slider0.pack()
+
+        slider1: tk.Scale = tk.Scale(self.master,
+                    variable = self.sliders[1],
+                    command = self._slider_scroll,
+                    orient = tk.HORIZONTAL,
+                    length = 300,
+                    width = 20,
+                    sliderlength = 10,
+                    from_ = 0,
+                    to = max(self.RawData.Time)+1,
+                    resolution = 1,
+                    tickinterval = 0
+                    )
+        slider1.pack()
+        self.sliders[0].set(0)
+        self.sliders[1].set(max(self.RawData.Time)+1)
+
+        #-----------------------------------------------
+        ### slider制御のFrame
+        slider_control_frame: tk.Frame = tk.Frame(self.master, borderwidth=3, relief="ridge")
+        # resetボタン
+        reset_button: tk.Button = tk.Button(slider_control_frame, text="Reset", command=self._reset_click)
+        reset_button.grid(row=0, column=0)
+
+        # 相対位置固定チェックボタン
+        self.t_lock: float = 0.0
+        self.is_locked: tk.BooleanVar = tk.BooleanVar()
+        self.is_locked.set(False)
+        lock_cbutton: tk.Checkbutton = tk.Checkbutton(slider_control_frame, variable=self.is_locked, text="Lock", command=self._lock_click)
+        lock_cbutton.grid(row=1, column=0)
+
+        # increment関係のFrame
+        increment_frame: tk.Frame = tk.Frame(slider_control_frame, borderwidth=3, relief="ridge")
+        increment_button: tk.Button = tk.Button(increment_frame, text="Increment", command=self._increment_click)
+        increment_button.grid(row=0, column=0)
+        self.increment: tk.Entry = tk.Entry(increment_frame, width=8)
+        self.increment.grid(row=1, column=0)
+        increment_frame.grid(rowspan=2, column=1, row=0, sticky=tk.N+tk.S)
+
+        # スライダーの値を直接入力
+        def slider_left_changer(var: str, idx: str, mode: str) -> None:
+            self.sliders[0].set(self.slider_left_value.get())
+            self._slider_scroll()
+        def slider_right_changer(var: str, idx: str, mode: str) -> None:
+            self.sliders[1].set(self.slider_right_value.get())
+            self._slider_scroll()
+        self.slider_left_value: tk.DoubleVar = tk.DoubleVar()
+        self.slider_left_value.trace_add(mode="write", callback=slider_left_changer)
+        self.slider_left: tk.Entry = tk.Entry(slider_control_frame, width=8, textvariable=self.slider_left_value)
+        self.slider_left.grid(row=0, column=2)
+        self.slider_right_value: tk.DoubleVar = tk.DoubleVar()
+        self.slider_right_value.trace_add(mode="write", callback=slider_right_changer)
+        self.slider_right: tk.Entry = tk.Entry(slider_control_frame, width=8, textvariable=self.slider_right_value)
+        self.slider_right.grid(row=1, column=2)
+
+        slider_control_frame.pack()
+
+
+        #-----------------------------------------------
+        ### データ解析のFrame
+        analysis_frame: tk.Frame = tk.Frame(self.master, borderwidth=3, relief="ridge")
+
+        # # データsave先のfilename
+        # lbl_filename: tk.Label = tk.Label(analysis_frame, text="save filename")
+        # lbl_filename.pack()
+        # self.filename_to_save: tk.Entry = tk.Entry(analysis_frame, width=20)
+        # self.filename_to_save.pack()
+
+        # 測定番号を元に時間範囲を指定するFrame
+        exp_idx_frame: tk.Frame = tk.Frame(analysis_frame, borderwidth=3, relief="ridge")
+        lbl_exp_idx: tk.Label = tk.Label(exp_idx_frame, text="Exp index", foreground="black")
+        lbl_exp_idx.grid(row=0, column=0)
+        self.exp_idx: tk.Entry = tk.Entry(exp_idx_frame, width=8)
+        self.exp_idx.grid(row=1, column=0)
+        lbl_now_idx: tk.Label = tk.Label(exp_idx_frame, text="now index", foreground="black")
+        lbl_now_idx.grid(row=0, column=1)
+        self.now_idx_value: tk.StringVar = tk.StringVar()
+        self.now_idx_value.set(f"0")
+        self.lbl_now_idx_value = tk.Label(exp_idx_frame, textvariable=self.now_idx_value, relief="sunken", width=8)
+        self.lbl_now_idx_value.grid(row=1, column=1)
+        update_button: tk.Button = tk.Button(exp_idx_frame, text="Update", command=self._update_click)
+        update_button.grid(row=0, column=0)
+        prev_button: tk.Button = tk.Button(exp_idx_frame, text="Prev", command=self._prev_click)
+        prev_button.grid(row=2, column=0)
+        next_button: tk.Button = tk.Button(exp_idx_frame, text="Next", command=self._next_click)
+        next_button.grid(row=2, column=1)
+        lbl_kxx: tk.Label = tk.Label(exp_idx_frame, text="kxx (W/Km)")
+        lbl_kxx.grid(row=3, column=0)
+        self.kxx_value: tk.StringVar = tk.StringVar()
+        self.lbl_kxx_value: tk.Label = tk.Label(exp_idx_frame, textvariable=self.kxx_value, relief="sunken", width=8)
+        self.lbl_kxx_value.grid(row=4, column=0)
+        exp_idx_frame.pack(pady=10)
+
+        # データとして使う時間範囲の設定をするためのFrame
+        range_frame: tk.Frame = tk.Frame(analysis_frame, borderwidth=3, relief="ridge")
+        lbl_start: tk.Label = tk.Label(range_frame, text="start (s)", foreground="green")
+        lbl_start.grid(row=0, column=0)
+        self.time_start: tk.Entry = tk.Entry(range_frame, width=8)
+        self.time_start.grid(row=1, column=0)
+        lbl_end: tk.Label = tk.Label(range_frame, text="end (s)", foreground="red")
+        lbl_end.grid(row=0, column=1)
+        self.time_end: tk.Entry = tk.Entry(range_frame, width=8)
+        self.time_end.grid(row=1, column=1)
+        lbl_dt: tk.Label = tk.Label(range_frame, text="end-start (s)", foreground="black")
+        lbl_dt.grid(row=0, column=2)
+        self.time_dt_value: tk.StringVar = tk.StringVar()
+        self.lbl_time_dt_value: tk.Label = tk.Label(range_frame, textvariable=self.time_dt_value, relief="sunken", width=8)
+        self.lbl_time_dt_value.grid(row=1, column=2)
+
+        self.start_or_end: int = 0
+        self.is_select_range_by_click: tk.BooleanVar = tk.BooleanVar()
+        self.is_select_range_by_click.set(True)
+        select_range_by_click_cbutton: tk.Checkbutton = tk.Checkbutton(range_frame, variable=self.is_select_range_by_click, text="select range by click", command=self._select_range_by_click_click)
+        select_range_by_click_cbutton.grid(row=2, columnspan=2)
+        range_frame.pack(pady=10)
+
+        # データを表示するFrame
+        value_frame: tk.Frame = tk.Frame(analysis_frame, borderwidth=3, relief="ridge")
+        lbl_field: tk.Label = tk.Label(value_frame, text="H (Oe)")
+        lbl_field.grid(row=0, column=0)
+        self.field_value: tk.StringVar = tk.StringVar()
+        self.lbl_field_value: tk.Label = tk.Label(value_frame, textvariable=self.field_value, relief="sunken", width=15)
+        self.lbl_field_value.grid(row=1, column=0)
+        lbl_Cernox_temp = tk.Label(value_frame, text="T_Cernox (K)")
+        lbl_Cernox_temp.grid(row=2, column=0)
+        self.Cernox_temp_value: tk.StringVar = tk.StringVar()
+        self.lbl_Cernox_temp_value: tk.Label = tk.Label(value_frame, textvariable=self.Cernox_temp_value, relief="sunken", width=15)
+        self.lbl_Cernox_temp_value.grid(row=3, column=0)
+        lbl_dTx: tk.Label = tk.Label(value_frame, text="ΔTx (K)")
+        lbl_dTx.grid(row=0, column=1)
+        self.dTx_value: tk.StringVar = tk.StringVar()
+        self.lbl_dTx_value: tk.Label = tk.Label(value_frame, textvariable=self.dTx_value, relief="sunken", width=15)
+        self.lbl_dTx_value.grid(row=1, column=1)
+        lbl_dTy: tk.Label = tk.Label(value_frame, text="ΔTy (K)")
+        lbl_dTy.grid(row=2, column=1)
+        self.dTy_value: tk.StringVar = tk.StringVar()
+        self.lbl_dTy_value: tk.Label = tk.Label(value_frame, textvariable=self.dTy_value, relief="sunken", width=15)
+        self.lbl_dTy_value.grid(row=3, column=1)
+        value_frame.pack(pady=10)
+
+        # 指定した時間範囲のデータを計算させるボタン
+        calc_button: tk.Button = tk.Button(analysis_frame, text="Calc", command=self._calc_click)
+        calc_button.pack()
+
+        # # 計算したデータをsaveさせるボタン
+        # save_button: tk.Button = tk.Button(analysis_frame, text="Save", command=self._save_click)
+        # save_button.pack()
+
+        # 選択した範囲から計算したExp形式のデータを標準出力させるFrame
+        print_frame: tk.Frame = tk.Frame(analysis_frame, borderwidth=3, relief="ridge")
+        self.print_mode: int = 0
+        self.t0: float | None = None
+        self.t1: float | None = None
+        self.data0: list[float] | None = None
+        self.data1: list[float] | None = None
+        print_button: tk.Button = tk.Button(print_frame, text="Print", command=self._print_click)
+        print_button.grid(row=0, column=0)
+        lbl_sidx0: tk.Label = tk.Label(print_frame, text="t_s0")
+        lbl_sidx0.grid(row=0, column=1)
+        lbl_eidx0: tk.Label = tk.Label(print_frame, text="t_e0")
+        lbl_eidx0.grid(row=0, column=2)
+        lbl_sidx1: tk.Label = tk.Label(print_frame, text="t_s1")
+        lbl_sidx1.grid(row=0, column=3)
+        lbl_eidx1: tk.Label = tk.Label(print_frame, text="t_e1")
+        lbl_eidx1.grid(row=0, column=4)
+        self.t_s0: tk.StringVar = tk.StringVar()
+        self.lbl_t_s0_value: tk.Label = tk.Label(print_frame, textvariable=self.t_s0, relief="sunken", width=6)
+        self.lbl_t_s0_value.grid(row=1, column=1)
+        self.t_e0: tk.StringVar = tk.StringVar()
+        self.lbl_t_e0_value: tk.Label = tk.Label(print_frame, textvariable=self.t_e0, relief="sunken", width=6)
+        self.lbl_t_e0_value.grid(row=1, column=2)
+        self.t_s1: tk.StringVar = tk.StringVar()
+        self.lbl_t_s1_value: tk.Label = tk.Label(print_frame, textvariable=self.t_s1, relief="sunken", width=6)
+        self.lbl_t_s1_value.grid(row=1, column=3)
+        self.t_e1: tk.StringVar = tk.StringVar()
+        self.lbl_t_e1_value: tk.Label = tk.Label(print_frame, textvariable=self.t_e1, relief="sunken", width=6)
+        self.lbl_t_e1_value.grid(row=1, column=4)
+        print_frame.pack()
+
+        # 指定されている範囲を f(t) := A exp(-t/τ) でフィッティングするFrame
+        expfit_frame: tk.Frame = tk.Frame(analysis_frame, borderwidth=3, relief="ridge")
+        expfit_button: tk.Button = tk.Button(expfit_frame, text="ExpFit", command=self._expfit_click)
+        expfit_button.grid(row=0, column=0)
+        lbl_relaxation_time: tk.Label = tk.Label(expfit_frame, text="τ ln(100) (s)")
+        lbl_relaxation_time.grid(row=0, column=1)
+        self.relaxation_time: tk.StringVar = tk.StringVar()
+        self.lbl_relaxation_time_value: tk.Label = tk.Label(expfit_frame, textvariable=self.relaxation_time, relief="sunken", width=15)
+        self.lbl_relaxation_time_value.grid(row=1, column=1)
+        expfit_frame.pack()
+
+        analysis_frame.pack(pady=20)
+        #-----------------------------------------------
+    
+    def _update_xlim(self, t1: float, t2: float) -> None:
+        if t1 > t2:
+            return
+        self.ax1.set_xlim(t1,t2)
+        self.ax2.set_xlim(t1,t2)
+        self.ax3.set_xlim(t1,t2)
+        self.ax4.set_xlim(t1,t2)
+
+    def _update_ylim(self, t1: float, t2: float) -> None:
+        if t1 > t2:
+            return
+        try:
+            lineax1 = self.ax1.lines[0]
+            yax1 = lineax1._yorig[bisect_left(lineax1._xorig,t1):bisect_left(lineax1._xorig,t2)]
+            yax1m, yax1M = min(yax1), max(yax1)
+            if yax1m == yax1M:
+                pass
+            else:
+                self.ax1.set_ylim(yax1m-(yax1M-yax1m)*0.05, yax1M+(yax1M-yax1m)*0.05)
+        except:
+            print("error in _update_ylim: ax1")
+        try:
+            lineax2 = self.ax2.lines[0]
+            yax2 = lineax2._yorig[bisect_left(lineax2._xorig,t1):bisect_left(lineax2._xorig,t2)]
+            lineax2_2 = self.ax2.lines[1]
+            yax2_2 = lineax2_2._yorig[bisect_left(lineax2_2._xorig,t1):bisect_left(lineax2_2._xorig,t2)]
+            yax2m, yax2M = min(min(yax2),min(yax2_2)), max(max(yax2),max(yax2_2))
+            self.ax2.set_ylim(yax2m-(yax2M-yax2m)*0.05, yax2M+(yax2M-yax2m)*0.05)
+        except:
+            print("error in _update_ylim: ax2")
+        try:
+            lineax3 = self.ax3.lines[0]
+            yax3 = lineax3._yorig[bisect_left(lineax3._xorig,t1):bisect_left(lineax3._xorig,t2)]
+            yax3m, yax3M = min(yax3), max(yax3)
+            self.ax3.set_ylim(yax3m-(yax3M-yax3m)*0.05, yax3M+(yax3M-yax3m)*0.05)
+        except:
+            print("error in _update_ylim: ax3")
+        try:
+            lineax4 = self.ax4.lines[0]
+            yax4 = lineax4._yorig[bisect_left(lineax4._xorig,t1):bisect_left(lineax4._xorig,t2)]
+            yax4m, yax4M = min(yax4), max(yax4)
+            self.ax4.set_ylim(yax4m-(yax4M-yax4m)*0.05, yax4M+(yax4M-yax4m)*0.05)
+        except:
+            print("error in _update_ylim: ax4")
+
+    def _update_start_time(self, x_start: float) -> None:
+        self.time_start.delete(0, tk.END)
+        self.time_start.insert(tk.END, f"{x_start:.1f}")
+        self.start_or_end = 1
+        self.ln1_start.set_data([x_start,x_start], self.ax1.get_ylim())
+        self.ln2_start.set_data([x_start,x_start], self.ax2.get_ylim())
+        self.ln3_start.set_data([x_start,x_start], self.ax3.get_ylim())
+        self.ln4_start.set_data([x_start,x_start], self.ax4.get_ylim())
+        if self.time_start.get() and self.time_end.get():
+            self.time_dt_value.set(f"{float(self.time_end.get())-float(self.time_start.get()):.1f}")
+
+    def _update_end_time(self, x_end: float) -> None:
+        self.time_end.delete(0, tk.END)
+        self.time_end.insert(tk.END, f"{x_end:.1f}")
+        self.start_or_end = 0
+        self.ln1_end.set_data([x_end,x_end], self.ax1.get_ylim())
+        self.ln2_end.set_data([x_end,x_end], self.ax2.get_ylim())
+        self.ln3_end.set_data([x_end,x_end], self.ax3.get_ylim())
+        self.ln4_end.set_data([x_end,x_end], self.ax4.get_ylim())
+        if self.time_start.get() and self.time_end.get():
+            self.time_dt_value.set(f"{float(self.time_end.get())-float(self.time_start.get()):.1f}")
+
+    def _update_exp_line(self, t1: float, t2: float, t3: float, t4: float) -> None:
+        """バックグラウンド測定開始・終了時間とQ>0での測定開始・終了時間の描画
+        """
+        self.ln1_s0.set_data([t1,t1], self.ax1.get_ylim())
+        self.ln2_s0.set_data([t1,t1], self.ax2.get_ylim())
+        self.ln3_s0.set_data([t1,t1], self.ax3.get_ylim())
+        self.ln4_s0.set_data([t1,t1], self.ax4.get_ylim())
+
+        self.ln1_e0.set_data([t2,t2], self.ax1.get_ylim())
+        self.ln2_e0.set_data([t2,t2], self.ax2.get_ylim())
+        self.ln3_e0.set_data([t2,t2], self.ax3.get_ylim())
+        self.ln4_e0.set_data([t2,t2], self.ax4.get_ylim())
+
+        self.ln1_s1.set_data([t3,t3], self.ax1.get_ylim())
+        self.ln2_s1.set_data([t3,t3], self.ax2.get_ylim())
+        self.ln3_s1.set_data([t3,t3], self.ax3.get_ylim())
+        self.ln4_s1.set_data([t3,t3], self.ax4.get_ylim())
+
+        self.ln1_e1.set_data([t4,t4], self.ax1.get_ylim())
+        self.ln2_e1.set_data([t4,t4], self.ax2.get_ylim())
+        self.ln3_e1.set_data([t4,t4], self.ax3.get_ylim())
+        self.ln4_e1.set_data([t4,t4], self.ax4.get_ylim())
+
+    def _reset_click(self, event: Any | None = None) -> None:
+        """'Reset'を押したときにsliderの値をを初期値にリセット
+        """
+        t1: float = 0
+        t2: float = max(self.RawData.Time)+1
+        self.sliders[0].set(t1)
+        self.sliders[1].set(t2)
+        self._update_xlim(t1,t2)
+        self._update_ylim(t1,t2)
+        self.adjust_tickslabel(t1, t2)
+        self.fig_canvas.draw()
+
+    def _lock_click(self) -> None:
+        """'Lock'を押したときにsliderの相対位置を固定
+        """
+        t1: float = self.sliders[0].get()
+        t2: float = self.sliders[1].get()
+        self.t_lock = t2-t1
+
+    def _increment_click(self) -> None:
+        """'Increment'を押したときに描画範囲や'start time'や'end time'を自動的に変更
+        """
+        increment: float = float(self.increment.get())
+        t1: float = self.sliders[0].get() + increment
+        t2: float = self.sliders[1].get() + increment
+        self.sliders[0].set(t1)
+        self.sliders[1].set(t2)
+        self._update_xlim(t1,t2)
+        self._update_ylim(t1,t2)
+        self.adjust_tickslabel(t1, t2)
+        if self.time_start.get():
+            x_start: float = float(self.time_start.get()) + increment
+            self._update_start_time(x_start)
+        if self.time_end.get():
+            x_end: float = float(self.time_end.get()) + increment
+            self._update_end_time(x_end)
+        self.fig_canvas.draw()
+
+    def _reflection_exp_idx(self, idx: int) -> None:
+        """描画にexp_idxを反映させる
+        """
+        sidx0, eidx0, sidx1, eidx1 = self.ExpData.Index[idx]
+        t1: float = self.RawData.Time[sidx0]
+        t2: float = self.RawData.Time[eidx0]
+        t3: float = self.RawData.Time[sidx1]
+        t4: float = self.RawData.Time[eidx1]
+        self.sliders[0].set(t1-30)
+        self.sliders[1].set(t4+30)
+        self._update_xlim(t1-30,t4+30)
+        self._update_ylim(t1-30,t4+30)
+        self.adjust_tickslabel(t1-30, t4+30)
+        self._update_exp_line(t1,t2,t3,t4)
+        self.now_idx_value.set(f"{idx}")
+        kxx: float = self.ExpData.kxx[idx]
+        self.kxx_value.set(f"{kxx:.4f}")
+
+    def _update_click(self) -> None:
+        """'Update'を押したときに描画範囲を自動的に変更
+        """
+        now: int
+        if self.exp_idx.get() == '' or self.exp_idx.get() is None:
+            now = 0
+        else:
+            now = int(self.exp_idx.get())
+        self._reflection_exp_idx(now)
+        self.fig_canvas.draw()
+
+    def _prev_click(self) -> None:
+        """'Prev'を押したときに描画範囲を自動的に変更
+        """
+        value: int = max(0, int(self.now_idx_value.get())-1)
+        self._reflection_exp_idx(value)
+        self.fig_canvas.draw()
+
+    def _next_click(self) -> None:
+        """'Next'を押したときに描画範囲を自動的に変更
+        """
+        value: int = min(len(self.ExpData.Index)-1, int(self.now_idx_value.get())+1)
+        self._reflection_exp_idx(value)
+        self.fig_canvas.draw()
+
+    def _select_range_by_click_click(self) -> None:
+        """'select range by click'をclickしたときに'is_select_range_by_click'を変更
+        """
+        self.is_select_range_by_click.set(self.is_select_range_by_click.get()^False)
+
+    def _calc_click(self, event: Any | None = None) -> None:
+        """'Calc'ボタンをクリックしたときに'start time'から'end time'の各物理量の平均値と標準偏差を計算
+        """
+        t_start: float = float(self.time_start.get())
+        t_end: float = float(self.time_end.get())
+        idx: list[int] = [i for i,t in enumerate(self.RawData.Time) if t_start <= t <= t_end]
+        now_H: list[float] = [self.RawData.Field[i] for i in idx]
+        ave_H: float = np.average(now_H)
+        std_H: float = np.std(now_H)
+
+        now_Cernox_temp: list[float] = [self.RawData.CernoxTemp[i] for i in idx]
+        ave_Cernox_temp: float = np.average(now_Cernox_temp)
+        std_Cernox_temp: float = np.std(now_Cernox_temp)
+        
+        now_dTx: list[float] = [self.RawData.dTx[i] for i in idx]
+        ave_dTx: float = np.average(now_dTx)
+        std_dTx: float = np.std(now_dTx)
+
+        now_dTy: list[float] = [self.RawData.dTy[i] for i in idx]
+        ave_dTy: float = np.average(now_dTy)
+        std_dTy: float = np.std(now_dTy)
+        self.field_value.set(f"{ave_H:.1f} ± {std_H:.2g}")
+        self.Cernox_temp_value.set(f"{ave_Cernox_temp:.4f} ± {std_Cernox_temp:.2g}")
+        self.dTx_value.set(f"{ave_dTx:.4f} ± {std_dTx:.2g}")
+        self.dTy_value.set(f"{ave_dTy:.4f} ± {std_dTy:.2g}")
+        
+    def _save_click(self) -> None:
+        """'Save'ボタンをクリックしたときに'start time'から'end time'の各物理量の平均値と
+            標準偏差を指定したファイルに保存
+        """
+        filename = self.filename_to_save.get()
+        try:
+            t_start: float = float(self.time_start.get())
+            t_end: float = float(self.time_end.get())
+            idx: list[int] = [i for i,t in enumerate(self.RawData.Time) if t_start <= t <= t_end]
+
+            now_H: list[float] = [self.RawData.Field[i] for i in idx]
+            ave_H: float = np.average(now_H)
+            std_H: float = np.std(now_H)
+
+            now_Cernox_temp: list[float] = [self.RawData.CernoxTemp[i] for i in idx]
+            ave_Cernox_temp: float = np.average(now_Cernox_temp)
+            std_Cernox_temp: float = np.std(now_Cernox_temp)
+            
+            now_dTx: list[float] = [self.RawData.dTx[i] for i in idx]
+            ave_dTx: float = np.average(now_dTx)
+            std_dTx: float = np.std(now_dTx)
+
+            now_dTy: list[float] = [self.RawData.dTy[i] for i in idx]
+            ave_dTy: float = np.average(now_dTy)
+            std_dTy: float = np.std(now_dTy)
+
+            res: str = ", ".join(map(str, [t_start, t_end, 
+                                ave_H, std_H, 
+                                ave_Cernox_temp, std_Cernox_temp,
+                                ave_dTx, std_dTx,
+                                ave_dTy, std_dTy]))
+            with open(file=filename, mode="w") as f:
+                f.write(res)
+        except:
+            print("failed: save data")
+
+    def _print_click(self) -> None:
+        """'Print'ボタンをクリックしたときに'start time'から'end time'の各物理量の平均値と
+            標準偏差を所定の形式で出力
+        """
+        self.print_mode = 1
+        self.t_s0.set("")
+        self.t_e0.set("")
+        self.t_s1.set("")
+        self.t_e1.set("")
+
+    def _expfit_click(self) -> None:
+        """'ExpFit'ボタンをクリックしたときに'start time'から'end time'のdTxを
+            f(t) := A exp(-(t-t_start)/τ) + B
+            でフィッティングしたときの緩和時間τの計算
+        """
+        try:
+            t_start: float = float(self.time_start.get())
+            t_end: float = float(self.time_end.get())
+            idx: list[int] = [i for i,t in enumerate(self.RawData.Time) if t_start <= t <= t_end]
+
+            X: npt.NDArray = np.array([self.RawData.Time[i] for i in idx])
+            Y: npt.NDArray = np.array([self.RawData.dTx[i] for i in idx])
+            def f(t: float, A: float, B: float, tau: float) -> float:
+                return A * np.exp(-(t-t_start)/tau) + B
+
+            param: tuple[float, float, float] = optimize.curve_fit(f, X, Y)[0] # 返り値はtuple(np.ndarray(#パラメータの値),np.ndarray(#パラメータの標準偏差))
+            A, B, tau = param
+            tau_1percent: float = -tau * np.log(0.01) # 収束先からの偏差が1％になるまでの時間
+            self.relaxation_time.set(f"{tau_1percent:.2f}")
+            self.expfit_dTx.set_data(X, f(X, *param))
+            print(f"parameters: A:{A:.3f} (K), B:{B:.3f} (K), tau:{tau:.3f}, <1%: {tau_1percent:.3f}")
+        except:
+            print("failed: fit data")
+
+    def _slider_scroll(self, event: Any | None = None) -> None:
+        """sliderを変化させたときにx座標の描画範囲を変更
+        """
+        t1: float = self.sliders[0].get()
+        t2: float = self.sliders[1].get()
+        if self.is_locked.get():
+            if t2 != t1+self.t_lock:
+                t2 = t1+self.t_lock
+                self.sliders[1].set(t2)
+        # 描画範囲を更新
+        self._update_xlim(t1,t2)
+        self._update_ylim(t1,t2)
+        self.adjust_tickslabel(t1, t2)
+        self.fig_canvas.draw()
+
+    def _fig_hover(self, event: Any) -> None:
+        """figure領域をマウスオーバーしたときにそのx座標に対応する縦線を描画
+        """
+        x: float = event.xdata
+        self.ln1_hover.set_data([x,x], self.ax1.get_ylim())
+        self.ln2_hover.set_data([x,x], self.ax2.get_ylim())
+        self.ln3_hover.set_data([x,x], self.ax3.get_ylim())
+        self.ln4_hover.set_data([x,x], self.ax4.get_ylim())
+        self.fig_canvas.draw()
+
+    def _fig_click(self, event: Any) -> None:
+        """figure領域をclickしたときにそのx座標に対応する縦線を描画
+        """
+        x: float = event.xdata
+        if self.print_mode == 1:
+            if self.t0 is None and self.is_select_range_by_click.get() and self.start_or_end == 0:
+                self.t0 = x
+                self.t_s0.set(f"{x:.1f}")
+            if self.t1 is None and self.is_select_range_by_click.get() and self.start_or_end == 1:
+                self.t1 = x
+                self.t_e0.set(f"{x:.1f}")
+            if self.t0 is not None and self.t1 is not None:
+                idx: list[int] = [i for i,t in enumerate(self.RawData.Time) if self.t0 <= t <= self.t1]
+                sidx: int = idx[0]
+                eidx: int = idx[-1]
+
+                self.data0 = [sidx, eidx] + list(self.ave_std(sidx, eidx))
+                self.t0 = None
+                self.t1 = None
+                self.print_mode = 2
+        elif self.print_mode == 2:
+            if self.t0 is None and self.is_select_range_by_click.get() and self.start_or_end == 0:
+                self.t0 = x
+                self.t_s1.set(f"{x:.1f}")
+            if self.t1 is None and self.is_select_range_by_click.get() and self.start_or_end == 1:
+                self.t1 = x
+                self.t_e1.set(f"{x:.1f}")
+            if self.t0 is not None and self.t1 is not None:
+                idx: list[int] = [i for i,t in enumerate(self.RawData.Time) if self.t0 <= t <= self.t1]
+                sidx: int = idx[0]
+                eidx: int = idx[-1]
+
+                self.data1 = [sidx, eidx] + list(self.ave_std(sidx, eidx))
+                self.t0 = None
+                self.t1 = None
+                self.print_mode = 0
+                sidx0, eidx0, tp0, etp0, h0, eh0, cur0, ecur0, tc0, etc0, vx0, evx0, vy0, evy0 = self.data0
+                sidx1, eidx1, tp1, etp1, h1, eh1, cur1, ecur1, tc1, etc1, vx1, evx1, vy1, evy1 = self.data1
+                dtx: float = (vx1-vx0) / self.RawData.Seebeck_at_T(tp1)
+                errdtx: float = (evx0**2+evx1**2)**0.5 / self.RawData.Seebeck_at_T(tp1)
+                kxx: float = self.RawData.R*(cur1**2)/self.RawData.Width/self.RawData.Thickness / (dtx / self.RawData.LTx)
+                errkxx: float = kxx * errdtx / dtx
+                print("Start Index0	End Index0	ave T_PPMS0 (K)	err T_PPMS0 (K)	ave H0 (Oe)	err H0 (Oe)	\
+                    ave Current0 (mA)	err Current0 (mA)	ave T_Cernox0 (K)	err T_Cernox0 (K)	\
+                    ave Vx0 (V)	err Vx0 (V)	ave Vy0 (V)	err Vy0 (V)	\
+                    Start Index1	End Index1	ave T_PPMS1 (K)	err T_PPMS1 (K)	ave H1 (Oe)	err H1 (Oe)	\
+                    ave Current1 (mA)	err Current1 (mA)	ave T_Cernox1 (K)	err T_Cernox1 (K)	\
+                    ave Vx1 (V)	err Vx1 (V)	ave Vy1 (V)	err Vy1 (V)	\
+                    dTx (K)	err dTx (K)	kxx (W/Km)	err kxx (W/Km)")
+                print("\t".join(map(str, self.data0+self.data1+[dtx, errdtx, kxx, errkxx])))
+
+        if self.is_select_range_by_click.get():
+            if self.start_or_end == 0:
+                self._update_start_time(x)
+                self.fig_canvas.draw()
+            else:
+                self._update_end_time(x)
+                self.fig_canvas.draw()
+    
+    def ave_std(self, sidx: int, eidx: int) -> tuple[float, ...]:
+        slc: slice = slice(sidx, eidx+1)
+        attr_cor_to_V: list[int] = self.RawData.attr_cor_to_V
+        aveT_PPMS: float = np.average(self.RawData.PPMSTemp[slc])
+        errT_PPMS: float = np.std(self.RawData.PPMSTemp[slc])
+        aveH: float = np.average(self.RawData.Field[slc])
+        errH: float = np.std(self.RawData.Field[slc])
+        aveCurrent: float = np.average(self.RawData.HeaterCurrent[slc])
+        errCurrent: float = np.std(self.RawData.HeaterCurrent[slc])
+        aveT_Cernox: float = np.average(self.RawData.CernoxTemp[slc])
+        errT_Cernox: float = np.std(self.RawData.CernoxTemp[slc])
+        Vs: list[list[list[float]]] = [self.RawData.V1, self.RawData.V2, self.RawData.V3, self.RawData.V4, self.RawData.V5, self.RawData.V6]
+        aveVx: float = np.average(Vs[attr_cor_to_V[1]][slc])
+        errVx: float = np.std(Vs[attr_cor_to_V[1]][slc])
+        aveVy: float = np.average(Vs[attr_cor_to_V[2]][slc])
+        errVy: float = np.std(Vs[attr_cor_to_V[2]][slc])
+        return aveT_PPMS, errT_PPMS, aveH, errH, aveCurrent, errCurrent, aveT_Cernox, errT_Cernox, aveVx, errVx, aveVy, errVy
+
+    def adjust_tickslabel(self, t1: float, t2: float) -> None:
+        """目盛りのラベルを変更"""
+        time_origin_tranformation: int = 60 * self.RawData.StartTime.minute + self.RawData.StartTime.second # 目盛を0分0秒を基準として見やすくする
+        t1_int: int = int(t1)
+        t2_int: int = int(t2)
+        t_range: float = t2_int - t1_int
+        dt_list: list[int] = [86400, 43200, 21600, 10800, 7200, 3600, 1800, 900, 600, 300, 180, 120, 60, 30, 15, 10, 5, 3, 2, 1]
+        dt_list = dt_list[::-1]
+        xticks: list[int] = []
+        for dt in dt_list:
+            if t_range // dt <= 10:
+                xticks = [t for t in range(((t1_int-1)//dt+1)*dt-time_origin_tranformation, t2_int+1, dt) if t1 <= t <= t2]
+                break
+            elif dt == 86400:
+                xticks = [t for t in range(((t1_int-1)//dt+1)*dt-time_origin_tranformation, t2_int+1, dt) if t1 <= t <= t2]
+                break
+            else:
+                continue
+        xtickslabel: list[str] = [(self.RawData.StartTime + datetime.timedelta(seconds=t)).strftime('%Y/%m/%d %H:%M:%S') for t in xticks]
+        self.ax1.xaxis.set_ticks(xticks)
+        self.ax2.xaxis.set_ticks(xticks)
+        self.ax3.xaxis.set_ticks(xticks)
+        self.ax4.xaxis.set_ticks(xticks)
+        self.ax1.xaxis.set_ticklabels([]) # 目盛を削除
+        self.ax2.xaxis.set_ticklabels([]) # 目盛を削除
+        self.ax3.xaxis.set_ticklabels([]) # 目盛を削除
+        self.ax4.xaxis.set_ticklabels(xtickslabel, Rotation=90)
+
+    def excute(self, save_filename: str | None = None) -> None:
+        """アプリを実行
+        """
+        if save_filename is not None:
+            self.filename_to_save.insert(tk.END, save_filename)
+
+        self.mainloop()
+    
+    def delete(self) -> None:
+        self.master.destroy()
+
 
 
 def main() -> None:
