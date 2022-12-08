@@ -24,6 +24,7 @@ import re
 from typing import Any
 
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk # type: ignore
+import matplotlib.animation
 import matplotlib.pyplot as plt # type: ignore
 import numpy as np
 import numpy.typing as npt
@@ -34,6 +35,7 @@ from scipy.optimize import curve_fit # type: ignore
 from scipy.stats import norm # type: ignore
 from scipy import integrate, optimize # type: ignore
 import tkinter as tk
+import tqdm
 
 
 from ..core import Crystal, PhysicalConstant
@@ -3354,6 +3356,506 @@ class HistoryOfTTM(tk.Frame):
         self.master.destroy()
 
 
+def triu_inv(U: npt.NDArray, b: npt.NDArray) -> npt.NDArray:
+    """Upper triangular matrix linear simultaneous equation.
+
+    Args:
+        U (npt.NDArray): Upper triangular matrix.
+        b (npt.NDArray): Vector.
+
+    Returns:
+        npt.NDArray: Answer of the linear simultaneous equation.
+    """
+    n: int = len(U)
+    x: npt.NDArray = np.zeros(n)
+    for i in reversed(range(n)):
+        s: float = 0.
+        for j in range(i+1,n):
+            s += U[i][j] * x[j]
+        x[i] = (b[i]-s) / U[i][i]
+    return x
+
+def tril_inv(L: npt.NDArray, b: npt.NDArray) -> npt.NDArray:
+    """Lower triangular matrix linear simultaneous equation.
+
+    Args:
+        L (npt.NDArray): Lower triangular matrix.
+        b (npt.NDArray): Vector.
+
+    Returns:
+        npt.NDArray: Answer of the linear simultaneous equation.
+    """
+    n: int = len(L)
+    x: npt.NDArray = np.zeros(n)
+    for i in range(n):
+        s: float = 0.
+        for j in range(i):
+            s += L[i][j] * x[j]
+        x[i] = (b[i]-s) / L[i][i]
+    return x
+
+def Jacobi(A: npt.NDArray, b: npt.NDArray, tol: float = 1e-9):
+    """Jacobi method.
+
+    Args:
+        A (npt.NDArray): Coefficient matrix.
+        b (npt.NDArray): Vector.
+        tol (float, optional): Tolerance. Defaults to 1e-9.
+
+    Returns:
+        npt.NDArray: Answer of the linear simultaneous equation.
+    
+    ToDo:
+        Pivoting for 0 elements in D.
+    """
+    k: int = 0
+    x_k: npt.NDArray = np.empty_like(b, dtype=np.float64)
+    error: float = float('inf')
+
+    A_diag_vector: npt.NDArray = np.diag(A)
+    D: npt.NDArray = np.diag(A_diag_vector)
+    LU: npt.NDArray = A-D # LU分解ではなく、LU==L+U==A-D
+    D_inv: npt.NDArray = np.diag(1/A_diag_vector) # Dの中に0があったらどうするの？
+
+    #while error  > tol: # 更新量がtol以下になったら終了
+    while np.linalg.norm(b-np.dot(A,x_k)) > tol: # 残差がtol以下になったら終了
+        x: npt.NDArray = np.dot(D_inv, b-np.dot(LU, x_k))
+        k += 1
+        error = np.linalg.norm(x-x_k)/np.linalg.norm(x)
+        x_k = x
+    return x
+
+def GaussSeidel(A: npt.NDArray, b: npt.NDArray, tol: float = 1e-9) -> npt.NDArray:
+    """Gauss-Seidel method.
+
+    Args:
+        A (npt.NDArray): Coefficient matrix.
+        b (npt.NDArray): Vector.
+        tol (float, optional): Tolerance. Defaults to 1e-9.
+
+    Returns:
+        npt.NDArray: Answer of the linear simultaneous equation.
+    """
+    k: int = 0
+    x_k: npt.NDArray = np.empty_like(b, dtype=np.float64)
+    error: float = float('inf')
+
+    L: npt.NDArray = np.tril(A) # 下三角行列(対角成分含む)
+    U: npt.NDArray = A - L # 上三角行列
+    
+    # while error > tol: # 更新量がtol以下になったら終了
+    while np.linalg.norm(b-np.dot(A,x_k)) > tol: # 残差がtol以下になったら終了
+        x: npt.NDArray = tril_inv(L, b-np.dot(U, x_k))
+        k += 1
+        # error = np.linalg.norm(x-x_k)/np.linalg.norm(x)
+        x_k = x
+    return x
+
+def TDMA(d: npt.NDArray, u: npt.NDArray, l: npt.NDArray, b: npt.NDArray) -> npt.NDArray:
+    """Tri-Diagonal Matrix Algorithm for linear simultaneous equation.
+
+    Args:
+        d (npt.NDArray): Diagonal elements.
+        u (npt.NDArray): Upper diagonal elements.
+        l (npt.NDArray): Lower diagonal elements.
+        b (npt.NDArray): Right side vector.
+
+    Returns:
+        npt.NDArray: Answer of the linear simultaneous equation.
+    """
+    n: int = len(d)
+    P: npt.NDArray = np.zeros(n)
+    Q: npt.NDArray = np.zeros(n)
+    x: npt.NDArray = np.zeros(n)
+    for i in range(n):
+        P[i] = -u[i] / (d[i]+l[i]*P[i-1])
+        Q[i] = (b[i]-l[i]*Q[i-1]) / (d[i]+l[i]*P[i-1])
+    x[-1] = Q[-1]
+    for i in range(n-2,-1,-1):
+        x[i] = P[i] * x[i+1] + Q[i]
+    return x
+
+
+class ThermalDiffusionSimulation:
+    def __init__(self, 
+            Lx: float, 
+            Ly: float,
+            Lz: float,
+            Lt: float,
+            mol_density: float,
+            dx: float = 1.,
+            dt: float = 0.01,
+        ) -> None:
+        """initialize
+
+        Args:
+            Lx (float): Length of the sample (μm).
+            Ly (float): Width of the sample (μm).
+            Lz (float): Thickness of the sample (μm).
+            Lt (float): Time length of simulation (s).
+            mol_density (float): Mol density of the sample (mol/cm^3).
+            dx (float, optional): Discretization length of x direction (μm). Defaluts to 1.
+            dt (float, optional): Discretization length of time (s). Defaluts to 0.01.
+        """
+        self.Lx: float = Lx
+        self.Ly: float = Ly
+        self.Lz: float = Lz
+        self.Lt: float = Lt
+        self.mol_density: float = mol_density
+
+        self.dx: float = dx # x方向離散化長さ(μm)
+        self.dt: float = dt # 離散化時間単位(s)
+
+        self.Nx: int = int(Lx/self.dx) # x方向グリッド数
+        self.Nt: int = int(Lt/self.dt) # t方向グリッド数
+
+    def excute_1D_FTCS(self, T_init: float, Q: float, kappa: float, c: float) -> npt.NDArray:
+        """1D thermal diffusion simulation by Forward Time Center Space explicit method.
+
+        Note:
+            The discretization width (dx,dt) must be satisfied the CFL condition as below:
+                dt/(dx**2) < 1/(2*D),
+            where D is diffusion coefficient.
+            The boundary conditions are:
+                x=0: Neumann condition under steady thermal flux flowing.
+                x=L: Dirichlet condition at the constant temperature T_init.
+            T_{n}^(t+1) = (1-2α)T_{n}^(t) + α(T_{n-1}^(t) + T_{n+1}^(t))
+            
+        Args:
+            T_init (float): Initial temperature (K).
+            Q (float): Heater power (mW).
+            kappa (float): Thermal conductivity (W/Km).
+            c (float): Specific heat (J/molK).
+
+        Returns:
+            npt.NDArray: Temperature distribution T(x,t).
+        """
+        # 時間前進-空間中心の陽的解法
+        Nx: int = self.Nx
+        Nt: int = self.Nt
+        T: npt.NDarray = np.zeros((Nx, Nt))
+        T[:, 0] = T_init
+    
+        dtdxdx: float = self.dt / (self.dx)**2 # s / (μm)^2
+        D: float = kappa / self.mol_density / c * 1e6 # (W/Km) / (mol/cm^3) / (J/molK) = 10^6 * (μm)^2 / s
+        alpha: float = D * dtdxdx
+        beta: float = Q/self.Ly/self.Lz * self.dx / kappa * 1e3 # mW/μm/μm * μm / (W/Km) = 10^3 * K
+        print(dtdxdx, 1/(2*D))
+        assert dtdxdx <= 1/(2*D) # 拡散方程式の安定条件
+        for t in tqdm.tqdm(range(Nt-1)):
+            T[1:Nx-1, t+1] = T[1:Nx-1, t] + alpha * (T[0:Nx-2, t] - 2*T[1:Nx-1, t] + T[2:Nx, t])
+        
+            # Neumann条件(定常熱流印加バージョン)
+            # T[0, t+1] = T[0, t] + Q/self.Ly/self.Lz * self.dx / kappa * 1e3 # mW/μm/μm * μm / (W/Km) = 10^3 * K
+            T[0, t+1] = T[1, t+1] + beta
+            # Dirichlet条件
+            T[Nx-1, t+1] = T_init
+        self.T: npt.NDArray = T
+        return T
+    
+    def _excute_1D_implicit2(self, T_init: float, Q: float, kappa: float, c: float) -> npt.NDArray:
+        """1D thermal diffusion simulation by iterative implicit method.
+
+        Note:
+            The constraint of discretization width (dx,dt) is nothing.
+            The boundary conditions are:
+                x=0: Neumann condition under steady thermal flux flowing.
+                x=L: Dirichlet condition at the constant temperature T_init.
+            
+        Args:
+            T_init (float): Initial temperature (K).
+            Q (float): Heater power (mW).
+            kappa (float): Thermal conductivity (W/Km).
+            c (float): Specific heat (J/molK).
+
+        Returns:
+            npt.NDArray: Temperature distribution T(x,t).
+        """
+        # 反復法の陰的解法
+        Nx: int = self.Nx
+        Nt: int = self.Nt
+        T: npt.NDarray = np.zeros((Nx, Nt))
+        T[:, 0] = T_init
+    
+        dtdxdx: float = self.dt / (self.dx)**2 # s / (μm)^2
+        D: float = kappa / self.mol_density / c * 1e6 # (W/Km) / (mol/cm^3) / (J/molK) = 10^6 * (μm)^2 / s
+        alpha: float = D * dtdxdx # dimensionless
+        beta: float = Q/self.Ly/self.Lz * self.dx / kappa * 1e3 # mW/μm/μm * μm / (W/Km) = 10^3 * K
+        for t in tqdm.tqdm(range(Nt-1)):
+            v: npt.NDArray = np.copy(T[:, t])
+            for n in range(1000):
+                w: npt.NDArray = np.copy(T[:, t+1])
+                T[1:Nx-1, t+1] = 1 / (1+2*alpha) * (v[1:Nx-1] + alpha*(w[2:Nx]+w[0:Nx-2]))
+                if n % 10 == 0:
+                    if np.sqrt(np.sum(T[:, t+1] - w) ** 2) / np.sum(w ** 2) < 1e-6:
+                        break
+
+                # boundary condition
+                # Neumann条件(定常熱流印加バージョン)
+                T[0, t+1] = T[1, t+1] + beta
+                # Dirichlet条件
+                T[Nx-1, t+1] = T_init
+        self.T: npt.NDArray = T
+        return T
+
+    def excute_1D_implicit(self, T_init: float, Q: float, kappa: float, c: float) -> npt.NDArray:
+        """1D thermal diffusion simulation by implicit method with TDMA.
+
+        Note:
+            The constraint of discretization width (dx,dt) is nothing.
+            The boundary conditions are:
+                x=0: Neumann condition under steady thermal flux flowing.
+                x=L: Dirichlet condition at the constant temperature T_init.
+            (1+2α)T_{n}^(t+1) - α(T_{n-1}^(t+1) + T_{n+1}^(t+1)) = T_{n}^(t)
+            
+        Args:
+            T_init (float): Initial temperature (K).
+            Q (float): Heater power (mW).
+            kappa (float): Thermal conductivity (W/Km).
+            c (float): Specific heat (J/molK).
+
+        Returns:
+            npt.NDArray: Temperature distribution T(x,t).
+        """
+        # 三重対角行列の陰的解法
+        Nx: int = self.Nx
+        Nt: int = self.Nt
+        T: npt.NDarray = np.zeros((Nx, Nt))
+        T[:, 0] = T_init
+    
+        dtdxdx: float = self.dt / (self.dx)**2 # s / (μm)^2
+        D: float = kappa / self.mol_density / c * 1e6 # (W/Km) / (mol/cm^3) / (J/molK) = 10^6 * (μm)^2 / s
+        alpha: float = D * dtdxdx # dimensionless
+        beta: float = Q/self.Ly/self.Lz * self.dx / kappa * 1e3 # mW/μm/μm * μm / (W/Km) = 10^3 * K
+        d: npt.NDArray = np.array([1.]+[1+2*alpha]*(Nx-2)+[1.])
+        u: npt.NDArray = np.array([-1.]+[-alpha]*(Nx-2)+[0.])
+        l: npt.NDArray = np.array([0.]+[-alpha]*(Nx-2)+[0.])
+        for t in tqdm.tqdm(range(Nt-1)):
+            b: npt.NDArray = np.copy(T[:, t])
+            b[0] = beta
+            T[:, t+1] = TDMA(d, u, l, b)
+        self.T = T
+        return T
+
+    def excute_1D_Crank_Nicolson(self, T_init: float, Q: float, kappa: float, c: float) -> npt.NDArray:
+        """1D thermal diffusion simulation by Crank-Nicolson method.
+
+        Note:
+            The constraint of discretization width (dx,dt) is nothing.
+            The boundary conditions are:
+                x=0: Neumann condition under steady thermal flux flowing.
+                x=L: Dirichlet condition at the constant temperature T_init.
+            (1+2θα)T_{n}^(t+1) - θα(T_{n-1}^(t+1) + T_{n+1}^(t+1)) = (1-2(1-θ)α)T_{n}^(t) + (1-θ)α(T_{n-1}^(t) + T_{n+1}^(t))
+            
+        Args:
+            T_init (float): Initial temperature (K).
+            Q (float): Heater power (mW).
+            kappa (float): Thermal conductivity (W/Km).
+            c (float): Specific heat (J/molK).
+
+        Returns:
+            npt.NDArray: Temperature distribution T(x,t).
+        """
+        # Crank-Nicolson法の陰的解法
+        Nx: int = self.Nx
+        Nt: int = self.Nt
+        T: npt.NDarray = np.zeros((Nx, Nt))
+        T[:, 0] = T_init
+
+        theta: float = 1/2
+        dtdxdx: float = self.dt / (self.dx)**2 # s / (μm)^2
+        D: float = kappa / self.mol_density / c * 1e6 # (W/Km) / (mol/cm^3) / (J/molK) = 10^6 * (μm)^2 / s
+        alpha: float = D * dtdxdx # dimensionless
+        beta: float = Q/self.Ly/self.Lz * self.dx / kappa * 1e3 # mW/μm/μm * μm / (W/Km) = 10^3 * K
+        print(D, dtdxdx, alpha, beta)
+        d: npt.NDArray = np.array([1.]+[1+2*theta*alpha]*(Nx-2)+[1.])
+        u: npt.NDArray = np.array([-1.]+[-theta*alpha]*(Nx-2)+[0.])
+        l: npt.NDArray = np.array([0.]+[-theta*alpha]*(Nx-2)+[0.])
+        for t in tqdm.tqdm(range(Nt-1)):
+            b: npt.NDArray = np.copy(T[:, t]) * (1 - 2*(1-theta)*alpha)
+            b[1:] += T[:-1, t] * (1-theta)*alpha
+            b[:-1] += T[1:, t] * (1-theta)*alpha
+            b[0] = beta # boundary condition
+            b[-1] = T_init # boundary condition
+            T[:, t+1] = TDMA(d, u, l, b)
+        self.T = T
+        return T
+
+    def _excutor(self, T_init: float, Q: float, kappa: float, c: float, mode: str = "Crank-Nicolson") -> tuple[npt.NDArray, npt.NDArray]:
+        X: npt.NDArray = np.linspace(0, self.Lx, self.Nx)
+        T: npt.NDArray
+        if mode is None and "T" in dir(self):
+            T = self.T
+        else:
+            if mode == "FTCS":
+                T = self.excute_1D_FTCS(T_init, Q, kappa, c)
+            elif mode == "implicit":
+                T = self.excute_1D_implicit(T_init, Q, kappa, c)
+            elif mode == "Crank-Nicolson":
+                T = self.excute_1D_Crank_Nicolson(T_init, Q, kappa, c)
+            else:
+                raise ValueError
+        return X, T
+    
+    def snapshot(self, t: float, T_init: float, Q: float, kappa: float, c: float, mode: str = "Crank-Nicolson") -> None:
+        """Visualize temperature distribution at the selected time.
+
+        Args:
+            t (float): Time (s).
+            T_init (float): Initial temperature (K).
+            Q (float): Heater power (mW).
+            kappa (float): Thermal conductivity (W/Km).
+            mode (str, optional): Simulation mode. Defaults to "Crank-Nicolson".
+
+        Raises:
+            ValueError: mode must be in ["FTCS", "implicit", "Crank-Nicolson", "reuse"]
+        """
+        X, T = self._excutor(T_init, Q, kappa, c, mode)
+        fig: plt.Figure = plt.figure()
+        fig.set_dpi(100)
+        ax: plt.Subplot = fig.add_subplot(1,1,1)
+        ax.xaxis.set_ticks_position('both')
+        ax.yaxis.set_ticks_position('both')
+        min_y: float = np.min(T)
+        max_y: float = np.max(T)*1.1
+        ax.plot(X, T[:,t], color="blue")
+        ax.text(0.05, 0.9, f"t = {(t+1)*self.dt:.2f}/{self.Lt:.2f},", transform=ax.transAxes)
+        ax.set_xlim(0, self.Lx)
+        ax.set_ylim(min_y, max_y)
+        ax.set_xlabel(r"$x$ ($\mathrm{\mu}$m)")
+        ax.set_ylabel(r"$T$ (K)")
+        plt.show()
+
+    def animation(self, T_init: float, Q: float, kappa: float, c: float, mode: str = "Crank-Nicolson") -> None:
+        """Make an animation of temperature distribution.
+
+        Args:
+            T_init (float): Initial temperature (K).
+            Q (float): Heater power (mW).
+            kappa (float): Thermal conductivity (W/Km).
+            c (float): Specific heat (J/molK).
+            mode (str, optional): Simulation mode. Defaults to "Crank-Nicolson".
+
+        Raises:
+            ValueError: mode must be in ["FTCS", "implicit", "Crank-Nicolson", "reuse"]
+        """
+        X, T = self._excutor(T_init, Q, kappa, c, mode)
+        fig: plt.Figure = plt.figure()
+        fig.set_dpi(100)
+        ax: plt.Subplot = fig.add_subplot(1,1,1)
+        min_y: float = np.min(T)
+        max_y: float = np.max(T)*1.1
+        ax.set_xlim(0, self.Lx)
+        ax.set_ylim(min_y, max_y)
+        ax.set_xlabel(r"$x$ ($\mathrm{\mu}$m)")
+        ax.set_ylabel(r"$T$ (K)")
+        def animate(t):
+            ax.clear()
+            ax.plot(X, T[:,t])
+            ax.text(0.05, 0.9, f"t = {(t+1)*self.dt:.2f}/{self.Lt:.2f},", transform=ax.transAxes)
+            ax.set_ylim(min_y, max_y)
+        anim = matplotlib.animation.FuncAnimation(fig, animate, frames=range(0,self.Nt,self.Nt//100), interval=1, repeat=True)
+        plt.show()
+
+    def exp_fit(self, X: npt.NDArray, Y: npt.NDArray) -> tuple[npt.NDArray, tuple[float, float, float]]:
+        """Exponential fitting.
+
+        Args:
+            X (npt.NDArray): X.
+            Y (npt.NDArray): Y.
+
+        Returns:
+            tuple[npt.NDArray, tuple[float, float, float]]: Result of fitting and used parameters.
+        """
+        def f(t: float, A: float, B: float, tau: float) -> float:
+            return A * np.exp(-t/tau) + B
+        param: tuple[float, float, float] = optimize.curve_fit(f, X, Y)[0]
+        return f(X, *param), param
+    
+    def cal_tau(self, X: npt.NDArray, Y: npt.NDArray) -> float:
+        """Get the relaxation time.
+
+        Args:
+            X (npt.NDArray): X.
+            Y (npt.NDArray): Y.
+
+        Returns:
+            float: Relaxation time.
+        """
+        _, (_, _, tau) = self.exp_fit(X, Y)
+        return tau
+    
+    def dT(self, lx1: float, lx2: float, T_init: float, Q: float, kappa: float, c: float, mode: str = "Crank-Nicolson") -> None:
+        """Visualize dT vs time.
+
+        Args:
+            lx1 (float): Left side point (μm).
+            lx2 (float): Right side point (μm).
+            T_init (float): Initial temperature (K).
+            Q (float): Heater power (mW).
+            kappa (float): Thermal conductivity (W/Km).
+            c (float): Specific heat (J/molK).
+            mode (str, optional): Simulation mode. Defaults to "Crank-Nicolson".
+        """
+        _, T = self._excutor(T_init, Q, kappa, c, mode)
+        idx1: int = int(lx1 / self.dx)
+        idx2: int = int(lx2 / self.dx)
+
+        X: npt.NDArray = np.linspace(0, self.Lt, self.Nt)
+        Y: npt.NDArray = T[idx1].T - T[idx2].T
+
+        fig: plt.Figure = plt.figure()
+        ax: plt.Subplot = fig.add_subplot(1,1,1)
+        ax.xaxis.set_ticks_position('both')
+        ax.yaxis.set_ticks_position('both')
+        ax.plot(X, Y, marker="o", color="red")
+        Y_fit, (_, _, tau) = self.exp_fit(X, Y)
+        ax.plot(X, Y_fit, color="black", linewidth=1, label=f"τ*ln(100): {tau*np.log(100):.2f} (s)")
+        ax.set_xlim(0, self.Lt)
+        ax.set_xlabel(r"$t$ (s)")
+        ax.set_ylabel(r"$\Delta T$ (K)")
+        ax.legend()
+        plt.show()
+    
+    def tau_vs_c(self, lx1: float, lx2: float, T_init: float, Q: float, kappa: float, mode: str = "Crank-Nicolson") -> None:
+        """Visualize tau vs specific heat.
+
+        Args:
+            lx1 (float): Left side point (μm).
+            lx2 (float): Right side point (μm).
+            T_init (float): Initial temperature (K).
+            Q (float): Heater power (mW).
+            kappa (float): Thermal conductivity (W/Km).
+            mode (str, optional): Simulation mode. Defaults to "Crank-Nicolson".
+        """
+        idx1: int = int(lx1 / self.dx)
+        idx2: int = int(lx2 / self.dx)
+        X: npt.NDArray = np.linspace(0, self.Lt, self.Nt)
+        c_max: float = 100
+        specific_heat: npt.NDArray = np.linspace(0.01, c_max, 50)
+        tau_list: npt.NDArray = np.array([])
+        for c in specific_heat:
+            _, T = self._excutor(T_init, Q, kappa, c, mode)
+            Y: npt.NDArray = T[idx1].T - T[idx2].T
+            tau: float = self.cal_tau(X, Y)
+            tau_list = np.append(tau_list, tau)
+        
+        fig: plt.Figure = plt.figure()
+        ax: plt.Subplot = fig.add_subplot(1,1,1)
+        ax.xaxis.set_ticks_position('both')
+        ax.yaxis.set_ticks_position('both')
+        ax.plot(specific_heat, tau_list, marker="o", color="red")
+        ax.set_title(
+            fr"$T_{{\mathrm{{init}}}}$: {T_init}K, Q: {Q}mW, $\kappa$: {kappa}W/Km"+"\n"+
+            fr"$L_{{x}}$: {self.Lx}, $L_{{y}}$: {self.Ly}, $L_{{z}}$: {self.Lz}, $L_{{t}}$: {self.Lt}"+"\n"+
+            fr"$dx$: {self.dx}, $dt$: {self.dt}, $l_{{x1}}$: {lx1}, $l_{{x2}}$: {lx2}"
+        )
+        ax.set_xlim(0, c_max)
+        ax.set_xlabel(r"$c$ (J/molK)")
+        ax.set_ylabel(r"$\tau$ (s)")
+        ax.legend()
+        fig.savefig("./tau_vs_c.png", bbox_inches="tight", transparent=True, dpi=300)
+        plt.show()
 
 def main() -> None:
     pass
