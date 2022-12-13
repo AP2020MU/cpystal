@@ -1201,9 +1201,12 @@ class ExpDataExpander:
         
         self.header_length: int = 14
 
-        filename_raw: str = re.sub(r"Exp", r"Raw", self.filename)
-        with open(file=filename_raw, mode="r") as f:
-            self.len_Index: int = len(f.readlines()) - self.header_length
+        try:
+            filename_raw: str = re.sub(r"Exp", r"Raw", self.filename)
+            with open(file=filename_raw, mode="r") as f:
+                self.len_Index: int = len(f.readlines()) - self.header_length
+        except:
+            self.len_Index = -10**9
 
         self.StartTime: datetime.datetime = datetime.datetime.strptime(re.sub(r"[^\d]+?:", r"", self.full_contents[0]).strip(), '%Y/%m/%d %H:%M:%S')
         self.LTx: float = float(re.sub(r".+:", r"", self.full_contents[2]))
