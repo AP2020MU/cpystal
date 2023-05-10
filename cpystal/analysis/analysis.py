@@ -871,13 +871,15 @@ class RawDataExpander:
         self.R: float = 1000.
 
         idx: int = self.header_length
-        while True:
-            try:
-                row: str = self.full_contents[idx]
-                ind, ti, temp, field, angle, cur, *values = map(float, row.split())
-                v1re, v1im, v2re, v2im, v3re, v3im, v4re, v4im, v5re, v5im, v6re, v6im = values
-            except:
-                break
+        while idx < len(self.full_contents):
+            row: str = self.full_contents[idx]
+            if row.startswith("#"):
+                idx += 1
+                continue
+            row = re.sub(r"#.*", "", row)
+            ind, ti, temp, field, angle, cur, *values = map(float, row.split())
+            v1re, v1im, v2re, v2im, v3re, v3im, v4re, v4im, v5re, v5im, v6re, v6im = values
+
             idx += 1
             self.Time.append(ti)
             self.PPMSTemp.append(temp)
@@ -1401,6 +1403,71 @@ class ExpDataExpander:
         dTy_symm: list[float] = [(self.dTy[i]-self.dTy[N-1-i])/2 for i in range(N)]
         dTy_symm_err: list[float] = [np.sqrt(self.errdTy[i]**2 + self.errdTy[N-1-i]**2)/2 for i in range(N)]
         return H_, dTx_symm, dTy_symm, dTx_symm_err, dTy_symm_err
+
+    def exponential_fit(self, idx_of_expdata: int, filename_raw: str | None = None, after_starting_time: float = 30, before_ending_time: float = 15) -> tuple[float, float]:
+        """Exponential fit of i-th experimental data by using RawDataExpander.
+
+        Args:
+            idx (int): Index of experimental data.
+
+        Returns:
+            tuple[float, float]: Result of exponential fitting.
+        """
+        sidx0, eidx0, sidx1, eidx1 = self.Index[idx_of_expdata]
+        if filename_raw is None:
+            filename_raw = re.sub(r"Exp", r"Raw", self.filename)
+        filename_exp: str = re.sub(r"Raw", r"Exp", filename_raw)
+        RDE: RawDataExpander = RawDataExpander(filename_raw, self.filename_Seebeck)
+        RDE.kxxkxy_mode()
+        EDE: ExpDataExpander = ExpDataExpander(filename_exp, self.filename_Seebeck) # self.filename == "Exp integrated..."の場合を考慮
+        for i in range(len(EDE.Index)):
+            if (sidx0, eidx0, sidx1, eidx1) == EDE.Index[i]:
+                idx_of_expdata = i
+                break
+        t_start: float = RDE.Time[eidx0] + after_starting_time
+        t_end: float = RDE.Time[eidx1] - before_ending_time
+        idx: list[int] = [i for i,t in enumerate(RDE.Time) if t_start <= t <= t_end]
+        
+        X: npt.NDArray = np.array([RDE.Time[i] for i in idx])
+        Y: npt.NDArray = np.array([RDE.dTx[i] for i in idx])
+        def f(t: float, A: float, B: float, tau: float) -> float:
+            return A * np.exp(-(t-t_start)/tau) + B
+        def f2(t: float, A: float, B: float, tau: float, C: float) -> float:
+            return A * np.exp(-(t-t_start)/tau) + B - C*(t-t_start)
+
+        p0 = [Y[-1]-Y[0], Y[-1], 20]
+        p0_2 = [Y[-1]-Y[0], Y[-1], 20, 0.1]
+        try:
+            param: tuple[float, float, float] = optimize.curve_fit(f2, X, Y, p0_2)[0] # 返り値はtuple(np.ndarray(#パラメータの値),np.ndarray(#パラメータの標準偏差))
+            error_ratio: float = np.sqrt(np.sum((Y-f2(X, *param))**2) / np.sum(Y**2))
+            Y_fit = f2(X, *param)
+        except RuntimeError:
+            # try:
+            #     param: tuple[float, float, float] = optimize.curve_fit(f, X, Y, p0)[0] # 返り値はtuple(np.ndarray(#パラメータの値),np.ndarray(#パラメータの標準偏差))
+            #     error_ratio: float = np.sqrt(np.sum((Y-f(X, *param))**2) / np.sum(Y**2))
+            #     Y_fit = f(X, *param)
+            # except:
+            #     raise RuntimeError("kokodayo")
+            Y_fit = np.array([EDE.dTx1[idx_of_expdata]]*len(X))
+            param = [0,EDE.dTx1[idx_of_expdata]]
+            error_ratio = 0
+
+        # A, B, tau = param
+        # tau_1percent: float = -tau * np.log(0.01) # 収束先からの偏差が1％になるまでの時間
+        
+
+        plt.title(f"{idx_of_expdata}, {EDE.T_PPMS[idx_of_expdata]}K")
+        plt.plot(X, Y, marker="o")
+        plt.plot(X, Y_fit)
+        plt.show()
+        kxx_recalculated: float = EDE.R*(EDE.Current[idx_of_expdata]**2)/EDE.Width/EDE.Thickness / ((param[1]-EDE.dTx0[idx_of_expdata])/EDE.LTx)
+
+        if error_ratio > 0.1: # 10%以上の相対誤差がある場合はAssetionErrorを送出する
+            raise RuntimeError(f"{idx_of_expdata}, {EDE.T_PPMS[idx_of_expdata]}, {kxx_recalculated}")
+
+
+        return EDE.T_PPMS[idx_of_expdata], kxx_recalculated
+
 
 
 class ExpDataExpanderSeebeck:
@@ -2458,7 +2525,6 @@ class AATTPMD(RawDataExpander, tk.Frame):
             t_start: float = float(self.time_start.get())
             t_end: float = float(self.time_end.get())
             idx: list[int] = [i for i,t in enumerate(self.Time) if t_start <= t <= t_end]
-
             
             X: npt.NDArray = np.array([self.Time[i] for i in idx])
             Y: npt.NDArray = np.array([self.dTx[i] for i in idx])
@@ -2585,6 +2651,9 @@ class HistoryOfTTM(tk.Frame):
     """History of Thermal Transport Measurement
     """
     def __init__(self, filename_Seebeck: str, cernox_name: str, foldername: str | None = None, attr_cor_to_V: list[int] | None = None) -> None:
+        self.filename_Seebeck: str = filename_Seebeck
+        self.cernox_name: str = cernox_name
+        self.attr_cor_to_V: str = attr_cor_to_V
         if foldername is None:
             foldername = os.getcwd()
         filenames: list[str] = []
@@ -2814,11 +2883,9 @@ class HistoryOfTTM(tk.Frame):
         ### データ解析のFrame
         analysis_frame: tk.Frame = tk.Frame(self.master, borderwidth=3, relief="ridge")
 
-        # # データsave先のfilename
-        # lbl_filename: tk.Label = tk.Label(analysis_frame, text="save filename")
-        # lbl_filename.pack()
-        # self.filename_to_save: tk.Entry = tk.Entry(analysis_frame, width=20)
-        # self.filename_to_save.pack()
+        # 別のデータを読み込む
+        opennew_button: tk.Button = tk.Button(master=analysis_frame, text="Open New File", font=(None,12), command=self._opennew_click)
+        opennew_button.pack()
 
         # 測定番号を元に時間範囲を指定するFrame
         exp_idx_frame: tk.Frame = tk.Frame(analysis_frame, borderwidth=3, relief="ridge")
@@ -2944,6 +3011,37 @@ class HistoryOfTTM(tk.Frame):
 
         analysis_frame.pack(pady=20)
         #-----------------------------------------------
+    
+    def _opennew_click(self) -> None:
+        foldername: str = tk.simpledialog.askstring("Open New Folder", "Entry the new folder name.")
+        filenames: list[str] = []
+        for filename in glob.glob(foldername+"/*"):
+            if "Raw" in filename:
+                filenames.append(filename)
+        filenames = sorted(filenames)
+        
+        self.start_time_list: list[float] = []
+        RDE: RawDataExpander = RawDataExpander(filenames[0], self.filename_Seebeck)
+        RDE.kxxkxy_mode(self.cernox_name, self.attr_cor_to_V)
+        EDE: ExpDataExpander = ExpDataExpander(re.sub(r"Raw", r"Exp", filenames[0]), self.filename_Seebeck)
+        for filename in filenames[1:]:
+            R: RawDataExpander = RawDataExpander(filename, self.filename_Seebeck)
+            R.kxxkxy_mode(self.cernox_name, self.attr_cor_to_V)
+            E: ExpDataExpander = ExpDataExpander(re.sub(r"Raw", r"Exp", filename), self.filename_Seebeck)
+            RDE = RDE + R
+            EDE = EDE + E
+            self.start_time_list.append((R.StartTime-RDE.StartTime).total_seconds())
+        self.RawData: RawDataExpander = RDE
+        self.ExpData: ExpDataExpander = EDE
+
+        raise NotImplementedError
+        """
+        HistoryOfTTMのコンストラクタでRawDataの値を参照してスライダーの最大最小値を定義していて，
+        この上限値を後から変更することはできないっぽいので，一旦詰み．
+        後から変更可能にできればいいけどそんなことはできなそう
+        一旦すべてのaxを破壊して作り直すことができればそれがいいかもしれない
+        """
+
     
     def _update_xlim(self, t1: float, t2: float) -> None:
         if t1 > t2:
@@ -3146,42 +3244,6 @@ class HistoryOfTTM(tk.Frame):
         self.Cernox_temp_value.set(f"{ave_Cernox_temp:.4f} ± {std_Cernox_temp:.2g}")
         self.dTx_value.set(f"{ave_dTx:.4f} ± {std_dTx:.2g}")
         self.dTy_value.set(f"{ave_dTy:.4f} ± {std_dTy:.2g}")
-        
-    def _save_click(self) -> None:
-        """'Save'ボタンをクリックしたときに'start time'から'end time'の各物理量の平均値と
-            標準偏差を指定したファイルに保存
-        """
-        filename = self.filename_to_save.get()
-        try:
-            t_start: float = float(self.time_start.get())
-            t_end: float = float(self.time_end.get())
-            idx: list[int] = [i for i,t in enumerate(self.RawData.Time) if t_start <= t <= t_end]
-
-            now_H: list[float] = [self.RawData.Field[i] for i in idx]
-            ave_H: float = np.average(now_H)
-            std_H: float = np.std(now_H)
-
-            now_Cernox_temp: list[float] = [self.RawData.CernoxTemp[i] for i in idx]
-            ave_Cernox_temp: float = np.average(now_Cernox_temp)
-            std_Cernox_temp: float = np.std(now_Cernox_temp)
-            
-            now_dTx: list[float] = [self.RawData.dTx[i] for i in idx]
-            ave_dTx: float = np.average(now_dTx)
-            std_dTx: float = np.std(now_dTx)
-
-            now_dTy: list[float] = [self.RawData.dTy[i] for i in idx]
-            ave_dTy: float = np.average(now_dTy)
-            std_dTy: float = np.std(now_dTy)
-
-            res: str = ", ".join(map(str, [t_start, t_end, 
-                                ave_H, std_H, 
-                                ave_Cernox_temp, std_Cernox_temp,
-                                ave_dTx, std_dTx,
-                                ave_dTy, std_dTy]))
-            with open(file=filename, mode="w") as f:
-                f.write(res)
-        except:
-            print("failed: save data")
 
     def _print_click(self) -> None:
         """'Print'ボタンをクリックしたときに'start time'から'end time'の各物理量の平均値と
@@ -3350,9 +3412,6 @@ class HistoryOfTTM(tk.Frame):
     def excute(self, save_filename: str | None = None) -> None:
         """アプリを実行
         """
-        if save_filename is not None:
-            self.filename_to_save.insert(tk.END, save_filename)
-
         self.mainloop()
     
     def delete(self) -> None:

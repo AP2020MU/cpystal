@@ -973,6 +973,9 @@ class Energy:
 
     def __str__(self) -> str:
         return f"{self.quantity} {self.unit}"
+    
+    def __repr__(self) -> str:
+        return f"{self.quantity} {self.unit}"
 
     def __add__(self: Energychild, other: Any) -> Energychild:
         new_quantity: float = self.quantity + other.quantity * self.mapping[self.unit] / self.mapping[other.unit]
