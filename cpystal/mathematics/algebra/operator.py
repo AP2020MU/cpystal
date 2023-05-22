@@ -1,9 +1,10 @@
-"""`cpystal.math.operator` is a module for JOperators of quantum mechanics.
+"""`cpystal.math.operator` is a module for operators of quantum mechanics.
 
 Functions:
 
 Classes:
-
+    `JOperator`
+    `StevensJOperator`
 """
 from __future__ import annotations
 
@@ -15,13 +16,16 @@ import numpy as np
 import numpy.typing as npt
 import sympy
 
-
 from core import PolyInt
 
 HalfInt = TypeVar("HalfInt", int, float)
 JOperatorChild = TypeVar("JOperatorChild", bound="JOperator")
 
 class JOperator(object):
+    """General angular momentum operator.
+
+    The basis is defined as {|-J>, |-J+1>, ... |J>} in this order.
+    """
     def __init__(self, J: HalfInt) -> None:
         self.matrix: npt.NDArray = np.zeros((int(2*J+1), int(2*J+1)))
         self.J: HalfInt = J
@@ -32,29 +36,29 @@ class JOperator(object):
         return self.__class__(self.J)
 
     @staticmethod
-    def Jz(J) -> JOperator:
+    def Jz(J: HalfInt) -> JOperator:
         res: JOperator = JOperator(J)
         res.matrix = np.diag(res.M)
         return res
 
     @staticmethod
-    def Jp(J) -> JOperator:
+    def Jp(J: HalfInt) -> JOperator:
         res: JOperator = JOperator(J)
         res.matrix = np.diag(np.sqrt((res.J-res.M)*(res.J+res.M+1))[:-1], 1)
         return res
 
     @staticmethod
-    def Jm(J) -> JOperator:
+    def Jm(J: HalfInt) -> JOperator:
         res: JOperator = JOperator(J)
         res.matrix = np.diag(np.sqrt((res.J+res.M)*(res.J-res.M+1))[1:], -1)
         return res
 
     @staticmethod
-    def Jx(J) -> JOperator:
+    def Jx(J: HalfInt) -> JOperator:
         return 0.5 * (JOperator.Jp(J) + JOperator.Jm(J))
 
     @staticmethod
-    def Jy(J) -> JOperator:
+    def Jy(J: HalfInt) -> JOperator:
         return -0.5j * (JOperator.Jp(J) - JOperator.Jm(J))
     
     def __len__(self) -> int:
@@ -174,6 +178,19 @@ class JOperator(object):
         return res
 
 class StevensJOperator(JOperator):
+    """Stevens operator.
+
+    The Stevens operators \mathcal{O}_{lm}(J_x,J_y,J_z) can be calculated
+    from cubic tensor operators O_{lm}(x,y,z)
+    by Stevens' equivalent operator method.
+    For more detail in theory, see also Wigner-Eckart theorem.
+    
+    The mapping from O_{lm}(x,y,z) to \mathcal{O}_{lm}(J_x,J_y,J_z) is as below:
+        x^a y^b z^c \mapsto a!b!c!/(a+b+c)! \sum_{\mathcal{P}} \mathcal{P}(J_x^a J_y^b J_z^c),
+    where \mathcal{P} is a permutation of angular momentum operators 
+        J_x, ..., J_x, J_y, ..., J_y, J_z, ..., J_z
+    each the number of operators (J_x, J_y, J_z) are (a, b, c).
+    """
     def __init__(self, J: HalfInt, l: HalfInt, m: HalfInt) -> None:
         super().__init__(J)
         self.l: HalfInt = l

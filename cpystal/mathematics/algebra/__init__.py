@@ -3,3 +3,5 @@ from .linalg import tril_inv as tril_inv
 from .linalg import Jacobi as Jacobi
 from .linalg import GaussSeidel as GaussSeidel
 from .linalg import TDMA as TDMA
+from .operator import JOperator as JOperator
+from .operator import StevensJOperator as StevensJOperator
