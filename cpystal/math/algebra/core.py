@@ -16,6 +16,7 @@ from fractions import Fraction
 from functools import reduce
 from itertools import product
 from math import factorial, gcd
+import re
 from typing import Any, Iterable, Iterator, List, overload, TypeVar
 
 import matplotlib.pyplot as plt # type: ignore
@@ -649,9 +650,17 @@ class IREF:
                 else:
                     if val == 1:
                         res = res + f"√{root} + "
+                    elif val == -1:
+                        res = res + f"-√{root} + "
+                    elif val.numerator == 1:
+                        res = res + f"√{root}/{val.denominator} + "
+                    elif val.numerator == -1:
+                        res = res + f"-√{root}/{val.denominator} + "
+                    elif val.denominator == 1:
+                        res = res + f"{val.numerator}√{root} + "
                     else:
-                        res = res + f"{val}√{root} + "
-        res = res.strip("+ ")
+                        res = res + f"{val.numerator}√{root}/{val.denominator} + "
+        res = res.strip("+ ").replace("+ -", "- ").replace("  ", " ")
         if len(res) == 0:
             return "0"
         else:
@@ -666,9 +675,17 @@ class IREF:
                 else:
                     if val == 1:
                         res = res + f"√{root} + "
+                    elif val == -1:
+                        res = res + f"-√{root} + "
+                    elif val.numerator == 1:
+                        res = res + f"√{root}/{val.denominator} + "
+                    elif val.numerator == -1:
+                        res = res + f"-√{root}/{val.denominator} + "
+                    elif val.denominator == 1:
+                        res = res + f"{val.numerator}√{root} + "
                     else:
-                        res = res + f"{val}√{root} + "
-        res = res.strip("+ ")
+                        res = res + f"{val.numerator}√{root}/{val.denominator} + "
+        res = res.strip("+ ").replace("+ -", "- ").replace("  ", " ")
         if len(res) == 0:
             return "0"
         else:
@@ -681,6 +698,8 @@ class IREF:
                 return True
             else:
                 return False
+        elif isinstance(other, int) or isinstance(other, float):
+            return self.__le__(other) and self.__ge__(other)
         else:
             return False
 
@@ -1173,6 +1192,9 @@ class PolyInt:
         """
         self.P: npt.NDArray = np.array(P) # P:np.ndarray[int,...] P[i]==多項式P[X]のX**iの係数
 
+    def __len__(self) -> int:
+        return len(self.P)
+    
     def __pos__(self):
         return self.__class__(self.P)
 
@@ -1266,7 +1288,7 @@ class PolyInt:
                 return self.__class__(np.array(Q[::-1])), self.__class__(new.P[:np.max(np.where(new.P!=0))+1]) # 商Q[X], 剰余R[X]
         else:
             raise TypeError(f"unsupported operand type(s) for __divmod__: '{type(self).__name__}' and '{type(other).__name__}'")
-        
+
     def cal_deg(self) -> int:
         """Calculate maximum degree of the polynomial.
 
@@ -1307,7 +1329,7 @@ class PolyInt:
         Returns:
             tuple[PolyInt, int]: Simplified polynomial and the common factor.
         """
-        g: int = reduce(gcd, self.P)
+        g: int = int(reduce(gcd, self.P))
         return self.__class__(self.P // g), g
     
     @staticmethod
@@ -1342,7 +1364,7 @@ class PolyInt:
     
     @classmethod
     def Pn_coeff(cls, n: int, m: int) -> int:
-        """Coefficient of x^m in Legendre polynomial P_n(x)*2**n.
+        """Integerized coefficient of x^m in Legendre polynomial P_n(x)*2**n.
 
         Args:
             n (int): Degree of Legendre polynomial P_n(x)*2**n.
@@ -1358,7 +1380,7 @@ class PolyInt:
     
     @classmethod
     def Plm_coeff(cls, l: int, m: int, k: int) -> int:
-        """Coefficient of x^k in Associated Legendre polynomial P_l^m(x)/(1-x^2)^{|m|/2}*2**l.
+        """Integerized coefficient of x^k in Associated Legendre polynomial P_l^m(x)/(1-x^2)^{|m|/2}*2**l.
 
         Args:
             l (int): Degree of Legendre polynomial P_l^m(x).
@@ -1518,7 +1540,7 @@ class PolyInt:
 
     @classmethod
     def Ln(cls, n: int) -> PolyInt:
-        """Laguerre polynomial whose coefficients are integerized L_n(x).
+        """Laguerre polynomial L_n(x).
 
         Args:
             n (int): Degree of Laguerre polynomial L_n(x).
@@ -1542,7 +1564,7 @@ class PolyInt:
     
     @classmethod
     def Lnk(cls, n: int, k: int) -> PolyInt:
-        """Associated Laguerre polynomial whose coefficients are integerized L_n^k(x).
+        """Associated Laguerre polynomial L_n^k(x).
 
         Args:
             n (int): Degree of Laguerre polynomial L_n^k(x).
@@ -1635,7 +1657,7 @@ class PolyInt:
 
     @classmethod
     def Pilm(cls, l: int, m: int) -> PolyInt:
-        """z-dependence polynomial \Pi_l^m(z)*2**l in spherical harmonics.
+        """Integerized z-dependence polynomial \Pi_l^m(z)*2**l in spherical harmonics.
 
         Args:
             l (int): Azumuthal quantum number.
@@ -1664,12 +1686,15 @@ class PolyInt:
             - C_l^m = [(l-|m|)!/(l+|m|)!]^{1/2} Π_l^m(z) A_m(x,y)
             - S_l^m = [(l-|m|)!/(l+|m|)!]^{1/2} Π_l^m(z) B_m(x,y)
             - R_l^m(r,θ,φ) = (-1)^{(m+|m|)/2} (C_l^m + iS_l^m).
+
+            Here, Condon-Shortley phase is adopted.
         """
         return cls.Plm(l, abs(m))
     
     @classmethod
     def Am(cls, m: int) -> PolyInt:
         """(x,y)-dependence polynomial A_m(x,y) in spherical harmonics.
+        The parity is gerade (cos-like).
 
         Args:
             m (int): Magnetic quantum number.
@@ -1697,6 +1722,8 @@ class PolyInt:
             - C_l^m = [(l-|m|)!/(l+|m|)!]^{1/2} Π_l^m(z) A_m(x,y)
             - S_l^m = [(l-|m|)!/(l+|m|)!]^{1/2} Π_l^m(z) B_m(x,y)
             - R_l^m(r,θ,φ) = (-1)^{(m+|m|)/2} (C_l^m + iS_l^m).
+
+            Here, Condon-Shortley phase is adopted.
         """
         def cos_sign(i: int) -> int:
             if i % 2:
@@ -1710,6 +1737,7 @@ class PolyInt:
     @classmethod
     def Bm(cls, m: int) -> PolyInt:
         """(x,y)-dependence polynomial B_m(x,y) in spherical harmonics.
+        The parity is ungerade (sin-like).
 
         Args:
             m (int): Magnetic quantum number.
@@ -1737,6 +1765,8 @@ class PolyInt:
             - C_l^m = [(l-|m|)!/(l+|m|)!]^{1/2} Π_l^m(z) A_m(x,y)
             - S_l^m = [(l-|m|)!/(l+|m|)!]^{1/2} Π_l^m(z) B_m(x,y)
             - R_l^m(r,θ,φ) = (-1)^{(m+|m|)/2} (C_l^m + iS_l^m).
+
+            Here, Condon-Shortley phase is adopted.
         """
         def sin_sign(i: int) -> int:
             if i % 2 == 0:
@@ -1746,7 +1776,104 @@ class PolyInt:
             else:
                 return -1
         return cls([cls.binomial_coeff(m, p)*sin_sign(m-p) for p in range(m+1)])
+
+    @staticmethod
+    def expstr(b: str, e: int, powstr: str = "^") -> str:
+        if e == 0:
+            return f""
+        elif e == 1:
+            return f"{b}"
+        else:
+            return f"{b}{powstr}{e}"
+
+    @staticmethod
+    def coeffstr(c: int) -> str:
+        if c == 1:
+            return f""
+        elif c == -1:
+            return f"-"
+        else:
+            return f"{c}"
     
+    @staticmethod
+    def spherical_harmonics_polynomial_expr(
+            ZR: PolyInt,
+            XY: PolyInt,
+            l: int,
+            m: int,
+            coeff: IREF = IREF(1),
+            evalable: bool = False) -> str:
+        coeffstr: callable = PolyInt.coeffstr
+        expstr: callable = PolyInt.expstr
+        def zr(i: int, c: int, l: int, m: int, evalable: bool = False) -> str:
+            cstr: str = coeffstr(c)
+            powstr: str = "^"
+            op1: str = ""
+            op2: str = ""
+            if evalable:
+                powstr = "**"
+                op1 = "*"
+                op2 = "*"
+                rstr = expstr('(x**2+y**2+z**2)', (l-abs(m)-i)//2, powstr)
+            else:
+                rstr = expstr('r', l-abs(m)-i, powstr)
+            zstr: str = expstr('z', i, powstr)
+            if (cstr == "" or cstr == "-") or zstr == "":
+                op1 = ""
+            if zstr == "" or rstr == "":
+                op2 = ""
+            return f"{cstr} {op1} {zstr} {op2} {rstr}"
+        
+        def xy(i: int, c: int, l: int, m: int, evalable: bool = False) -> str:
+            cstr: str = coeffstr(c)
+            op1: str = ""
+            op2: str = ""
+            powstr: str = "^"
+            if evalable:
+                powstr = "**"
+                op1 = "*"
+                op2 = "*"
+            xstr: str = expstr('x', i, powstr)
+            ystr: str = expstr('y', abs(m)-i, powstr)
+            if (cstr == "" or cstr == "-") or xstr == "":
+                op1 = ""
+            if xstr == "" or ystr == "":
+                op2 = ""
+            return f"{cstr} {op1} {xstr} {op2} {ystr}"
+
+        zrstr: str = ""
+        for i in range(len(ZR.P)):
+            if ZR.P[i] != 0:
+                zrstr = f"{zr(i, ZR.P[i], l, m, evalable=evalable)} + {zrstr}"
+        zrstr = zrstr.strip(' + ')
+
+        xystr: str = ""
+        for i in range(len(XY.P)):
+            if XY.P[i] != 0:
+                xystr = f"{xy(i, XY.P[i], l, m, evalable=evalable)} + {xystr}"
+        xystr = xystr.strip(' + ')
+
+        if coeff == IREF(1):
+            if len(np.where(ZR.P != 0)[0]) > 1 and len(xystr) > 0:
+                zrstr = f"({zrstr})"
+            if len(np.where(XY.P != 0)[0]) > 1 and len(zrstr) > 0:
+                xystr = f"({xystr})"
+        else:
+            if len(np.where(ZR.P != 0)[0]) > 1:
+                zrstr = f"({zrstr})"
+            if len(np.where(XY.P != 0)[0]) > 1:
+                xystr = f"({xystr})"
+        op1: str = ""
+        op2: str = ""
+        cstr: str = coeffstr(coeff)
+        if evalable and not (cstr == "" or cstr == "-" or xystr == ""):
+            op1 = "*"
+        if evalable and not (xystr == "" or zrstr == ""):
+            op2 = "*"
+        res: str = f"{cstr} {op1} {xystr} {op2} {zrstr}".replace("+ -", "- ").strip(" ")
+        res = re.sub(r'\s{2,}', r" ", res)
+        return res
+
     @classmethod
     def multipole_notation(cls, l: int, m: int) -> str:
         """Multipole represented by (x,y,z).
@@ -1758,7 +1885,7 @@ class PolyInt:
         Returns:
             str: Multipole represented by (x,y,z).
         
-         Note:
+        Note:
             #   (l, m): result
                 (0, 0): 1
                 (1, -1): y
@@ -1778,60 +1905,265 @@ class PolyInt:
             XY = cls.Am(abs(m)).simplify()[0]
         else:
             XY = cls.Bm(abs(m)).simplify()[0]
-        def expstr(b: str, e: int) -> str:
-            if e == 0:
-                return f""
-            elif e == 1:
-                return f"{b}"
-            else:
-                return f"{b}^{e}"
-        def coeffstr(c: int) -> str:
-            if c == 1:
-                return f""
-            elif c == -1:
-                return f"-"
-            else:
-                return f"{c}"
-                    
-        def zr(i: int, c: int, l: int, m: int) -> str:
-            if i == 0:
-                if l-abs(m) == 0:
-                    return ""
-                else:
-                    return f"{coeffstr(c)}{expstr('r',l-abs(m))}"
-            elif i == l-abs(m):
-                return f"{coeffstr(c)}{expstr('z',i)}"
-            else:
-                return f"{coeffstr(c)}{expstr('z',i)} {expstr('r',l-abs(m)-i)}"
+        return cls.spherical_harmonics_polynomial_expr(ZR, XY, l, m)
+
+    @classmethod
+    def tesseral_harmonics_expr(cls, l: int, m: int) -> str:
+        """Tesseral harmonics r^l Z_{lm}^{(c,s)}(r). 
+        This is also called as Spherical tensor operators.
+        See also;
+            http://www.isc.meiji.ac.jp/~hk/documents/memo/he_as_multipole_text.pdf,
+            『スピンと軌道の電子論』(楠瀬博明)
+            S. Hayami, M. Yatsushiro, Y. Yanagi, and H. Kusunose, Phys. Rev. B 98, 165110 (2018).
+
+        Args:
+            l (int): Azumuthal quantum number.
+            m (int): Magnetic quantum number.
+
+        Returns:
+            str: Tesseral harmonics represented by (x,y,z).
         
-        def xy(i: int, c: int, l: int, m: int) -> str:
-            if m == 0:
-                return ""
-            elif m == 1:
-                return f"{coeffstr(c)}{expstr('x',1)}"
-            elif m == -1:
-                return f"{coeffstr(c)}{expstr('y',1)}"
-            else:
-                return f"{coeffstr(c)}{expstr('x',i)} {expstr('y',abs(m)-i)}"
+        Note:
+            Y_{lm}^{(c)} := (-1)^m/√2 (Y_{l}^{m}+Y_{l}^{m*})
+            Y_{lm}^{(s)} := (-1)^m/√2i (Y_{l}^{m}-Y_{l}^{m*})
+            Z_{lm}^{(c,s)} := √4π/(2l+1) Y_{lm}^{(c,s)}
+            O_{lm}^{(c,s)} := r^l Z_{lm}^{(c,s)}(r)
 
-        zrstr: str = ""
-        for i in range(len(ZR.P)):
-            if ZR.P[i] != 0:
-                zrstr = f"{zr(i, ZR.P[i], l, m)} + {zrstr}"
-        zrstr = zrstr.strip(' + ')
+            This function returns
+                O_{lm}^{(c)} (m > 0)
+                O_{lm}^{(s)} (m < 0).
 
-        xystr: str = ""
-        for i in range(len(XY.P)):
-            if XY.P[i] != 0:
-                xystr = f"{xy(i, XY.P[i], l, m)} + {xystr}"
-        xystr = xystr.strip(' + ')
+            #   (l, m): result
+                (1, -1): y
+                (1, 0): z
+                (1, 1): x
 
-        if len(np.where(ZR.P != 0)[0]) > 1 and len(xystr) > 0:
-            zrstr = f"({zrstr})"
-        if len(np.where(XY.P != 0)[0]) > 1 and len(zrstr) > 0:
-            xystr = f"({xystr})"
+                (2, -2): √3 x y
+                (2, -1): √3 y z
+                (2, 0): 1/2 (3 z^2 - r^2)
+                (2, 1): √3 x z
+                (2, 2): √3/2 (x^2 - y^2)
 
-        res: str = f"{xystr} {zrstr}".strip(" ").replace("+ -", "- ").replace("  ", " ")
+                (3, -3): √10/4 (3 x^2 y - y^3)
+                (3, -2): √15 x y z
+                (3, -1): √6/4 y (5 z^2 - r^2)
+                (3, 0): 1/2 (5 z^3 - 3 z r^2)
+                (3, 1): √6/4 x (5 z^2 - r^2)
+                (3, 2): √15/2 (x^2 - y^2) z
+                (3, 3): √10/4 (x^3 - 3 x y^2)
+
+                (4, -4): √35/2 (x^3 y - x y^3)
+                (4, -3): √70/4 (3 x^2 y - y^3) z
+                (4, -2): √5/2 x y (7 z^2 - r^2)
+                (4, -1): √10/4 y (7 z^3 - 3 z r^2)
+                (4, 0): 1/8 (35 z^4 - 30 z^2 r^2 + 3 r^4)
+                (4, 1): √10/4 x (7 z^3 - 3 z r^2)
+                (4, 2): √5/4 (x^2 - y^2) (7 z^2 - r^2)
+                (4, 3): √70/4 (x^3 - 3 x y^2) z
+                (4, 4): √35/8 (x^4 - 6 x^2 y^2 + y^4)
+
+                (5, -5): 3√14/16 (5 x^4 y - 10 x^2 y^3 + y^5)
+                (5, -4): 3√35/2 (x^3 y - x y^3) z
+                (5, -3): √70/16 (3 x^2 y - y^3) (9 z^2 - r^2)
+                (5, -2): √105/2 x y (3 z^3 - z r^2)
+                (5, -1): √15/8 y (21 z^4 - 14 z^2 r^2 + r^4)
+                (5, 0): 1/8 (63 z^5 - 70 z^3 r^2 + 15 z r^4)
+                (5, 1): √15/8 x (21 z^4 - 14 z^2 r^2 + r^4)
+                (5, 2): √105/4 (x^2 - y^2) (3 z^3 - z r^2)
+                (5, 3): √70/16 (x^3 - 3 x y^2) (9 z^2 - r^2)
+                (5, 4): 3√35/8 (x^4 - 6 x^2 y^2 + y^4) z
+                (5, 5): 3√14/16 (x^5 - 10 x^3 y^2 + 5 x y^4)
+
+                (6, -6): √462/16 (3 x^5 y - 10 x^3 y^3 + 3 x y^5)
+                (6, -5): 3√154/16 (5 x^4 y - 10 x^2 y^3 + y^5) z
+                (6, -4): 3√7/4 (x^3 y - x y^3) (11 z^2 - r^2)
+                (6, -3): √210/16 (3 x^2 y - y^3) (11 z^3 - 3 z r^2)
+                (6, -2): √210/16 x y (33 z^4 - 18 z^2 r^2 + r^4)
+                (6, -1): √21/8 y (33 z^5 - 30 z^3 r^2 + 5 z r^4)
+                (6, 0): 1/16 (231 z^6 - 315 z^4 r^2 + 105 z^2 r^4 - 5 r^6)
+                (6, 1): √21/8 x (33 z^5 - 30 z^3 r^2 + 5 z r^4)
+                (6, 2): √210/32 (x^2 - y^2) (33 z^4 - 18 z^2 r^2 + r^4)
+                (6, 3): √210/16 (x^3 - 3 x y^2) (11 z^3 - 3 z r^2)
+                (6, 4): 3√7/16 (x^4 - 6 x^2 y^2 + y^4) (11 z^2 - r^2)
+                (6, 5): 3√154/16 (x^5 - 10 x^3 y^2 + 5 x y^4) z
+                (6, 6): √462/32 (x^6 - 15 x^4 y^2 + 15 x^2 y^4 - y^6)
+        """
+        if l == m == 0:
+            return "1"
+        coeff: IREF = IREF((factorial(l-abs(m)),1)) / IREF((factorial(l+abs(m)),1)) / 2**l
+        ZR, g_ZR = cls.Pilm(l, abs(m)).simplify()
+        XY: PolyInt
+        if m >= 0:
+            XY, g_XY = cls.Am(abs(m)).simplify()
+        else:
+            XY, g_XY = cls.Bm(abs(m)).simplify()
+        coeff *= g_XY * g_ZR
+        if m != 0:
+            coeff *= IREF((2,1))
+        res: str = f"{cls.spherical_harmonics_polynomial_expr(ZR, XY, l, m, coeff=coeff)}"
+        return res
+    
+    @classmethod
+    def tesseral_harmonics(cls, l: int, m: int) -> callable:
+        """Tesseral harmonics r^l Z_{lm}^{(c,s)}(r). 
+        This is also called as Spherical tensor operators.
+        See also;
+            http://www.isc.meiji.ac.jp/~hk/documents/memo/he_as_multipole_text.pdf,
+            『スピンと軌道の電子論』(楠瀬博明)
+            S. Hayami, M. Yatsushiro, Y. Yanagi, and H. Kusunose, Phys. Rev. B 98, 165110 (2018).
+
+        Args:
+            l (int): Azumuthal quantum number.
+            m (int): Magnetic quantum number.
+
+        Returns:
+            str: Tesseral harmonics represented by (x,y,z).
+        
+        Note:
+            Y_{lm}^{(c)} := (-1)^m/√2 (Y_{l}^{m}+Y_{l}^{m*})
+            Y_{lm}^{(s)} := (-1)^m/√2i (Y_{l}^{m}-Y_{l}^{m*})
+            Z_{lm}^{(c,s)} := √4π/(2l+1) Y_{lm}^{(c,s)}
+            O_{lm}^{(c,s)} := r^l Z_{lm}^{(c,s)}(r)
+
+            This function returns
+                O_{lm}^{(c)} (m > 0)
+                O_{lm}^{(s)} (m < 0).
+
+            #   (l, m): result
+                (1, -1): y
+                (1, 0): z
+                (1, 1): x
+
+                (2, -2): √3 x y
+                (2, -1): √3 y z
+                (2, 0): 1/2 (3 z^2 - r^2)
+                (2, 1): √3 x z
+                (2, 2): √3/2 (x^2 - y^2)
+
+                (3, -3): √10/4 (3 x^2 y - y^3)
+                (3, -2): √15 x y z
+                (3, -1): √6/4 y (5 z^2 - r^2)
+                (3, 0): 1/2 (5 z^3 - 3 z r^2)
+                (3, 1): √6/4 x (5 z^2 - r^2)
+                (3, 2): √15/2 (x^2 - y^2) z
+                (3, 3): √10/4 (x^3 - 3 x y^2)
+
+                (4, -4): √35/2 (x^3 y - x y^3)
+                (4, -3): √70/4 (3 x^2 y - y^3) z
+                (4, -2): √5/2 x y (7 z^2 - r^2)
+                (4, -1): √10/4 y (7 z^3 - 3 z r^2)
+                (4, 0): 1/8 (35 z^4 - 30 z^2 r^2 + 3 r^4)
+                (4, 1): √10/4 x (7 z^3 - 3 z r^2)
+                (4, 2): √5/4 (x^2 - y^2) (7 z^2 - r^2)
+                (4, 3): √70/4 (x^3 - 3 x y^2) z
+                (4, 4): √35/8 (x^4 - 6 x^2 y^2 + y^4)
+
+                (5, -5): 3√14/16 (5 x^4 y - 10 x^2 y^3 + y^5)
+                (5, -4): 3√35/2 (x^3 y - x y^3) z
+                (5, -3): √70/16 (3 x^2 y - y^3) (9 z^2 - r^2)
+                (5, -2): √105/2 x y (3 z^3 - z r^2)
+                (5, -1): √15/8 y (21 z^4 - 14 z^2 r^2 + r^4)
+                (5, 0): 1/8 (63 z^5 - 70 z^3 r^2 + 15 z r^4)
+                (5, 1): √15/8 x (21 z^4 - 14 z^2 r^2 + r^4)
+                (5, 2): √105/4 (x^2 - y^2) (3 z^3 - z r^2)
+                (5, 3): √70/16 (x^3 - 3 x y^2) (9 z^2 - r^2)
+                (5, 4): 3√35/8 (x^4 - 6 x^2 y^2 + y^4) z
+                (5, 5): 3√14/16 (x^5 - 10 x^3 y^2 + 5 x y^4)
+
+                (6, -6): √462/16 (3 x^5 y - 10 x^3 y^3 + 3 x y^5)
+                (6, -5): 3√154/16 (5 x^4 y - 10 x^2 y^3 + y^5) z
+                (6, -4): 3√7/4 (x^3 y - x y^3) (11 z^2 - r^2)
+                (6, -3): √210/16 (3 x^2 y - y^3) (11 z^3 - 3 z r^2)
+                (6, -2): √210/16 x y (33 z^4 - 18 z^2 r^2 + r^4)
+                (6, -1): √21/8 y (33 z^5 - 30 z^3 r^2 + 5 z r^4)
+                (6, 0): 1/16 (231 z^6 - 315 z^4 r^2 + 105 z^2 r^4 - 5 r^6)
+                (6, 1): √21/8 x (33 z^5 - 30 z^3 r^2 + 5 z r^4)
+                (6, 2): √210/32 (x^2 - y^2) (33 z^4 - 18 z^2 r^2 + r^4)
+                (6, 3): √210/16 (x^3 - 3 x y^2) (11 z^3 - 3 z r^2)
+                (6, 4): 3√7/16 (x^4 - 6 x^2 y^2 + y^4) (11 z^2 - r^2)
+                (6, 5): 3√154/16 (x^5 - 10 x^3 y^2 + 5 x y^4) z
+                (6, 6): √462/32 (x^6 - 15 x^4 y^2 + 15 x^2 y^4 - y^6)
+        """
+        if l == m == 0:
+            return lambda x,y,z: 1.
+        coeff: IREF = IREF((factorial(l-abs(m)),1)) / IREF((factorial(l+abs(m)),1)) / 2**l
+        ZR, g_ZR = cls.Pilm(l, abs(m)).simplify()
+        XY: PolyInt
+        if m >= 0:
+            XY, g_XY = cls.Am(abs(m)).simplify()
+        else:
+            XY, g_XY = cls.Bm(abs(m)).simplify()
+        coeff *= g_XY * g_ZR
+        if m != 0:
+            coeff *= IREF((2,1))
+        fzr: callable = ZR.to_func(True)
+        fxy: callable = XY.to_func(True)
+        res: callable = lambda x,y,z: coeff.to_float() * fzr(z,(x**2+y**2+z**2)**0.5) * fxy(x,y)
+        return res
+    
+    def to_func(self, is_bivariable: bool = False) -> callable:
+        """Polynomial function.
+
+        Note:
+            The return value of this function is
+                f_{P}(x) := sum_{i=0}^{n-1} P[i] * x**i,
+            where P is a list of polynomial coefficients and n := len(P).
+            If `is_bivariable` is True,
+                f_{P}(x,y) := sum_{i=0}^{n-1} P[i] * x**i * y**(n-1-i).
+
+        Examples:
+            >>> P = PolyInt([3,4,5])
+            >>> f = P.to_func()
+            >>> g = P.to_func(is_bivariable=True)
+            >>> print(f(2) == 3 + 4*2 + 5*2**2)
+            >>> True
+            >>> print(g(-1,2) == 3 * 2**2 + 4 * (-1) * 2 + 5 * (-1)**2)
+            >>> True
+
+        Args:
+            is_bivariable (bool, optional): If True, the return value is a bivariable function. Defaults to False.
+
+        Returns:
+            callable: Polynomial function.
+        """
+        n: int = len(self)
+        if is_bivariable:
+            return lambda x, y: sum([c * x**i * y**(n-1-i) for i, c in enumerate(self.P)])
+        else:
+            return lambda x: sum([c * x**i for i, c in enumerate(self.P)])
+
+    @classmethod
+    def to_symbol(cls, l: int, m: int) -> str:
+        """Multipole represented by (x,y,z).
+
+        Args:
+            l (int): Azumuthal quantum number.
+            m (int): Magnetic quantum number.
+
+        Returns:
+            str: Multipole represented by (x,y,z).
+        
+        Note:
+            #   (l, m): result
+                (0, 0): 1
+                (1, -1): y
+                (1, 0): z
+                (1, 1): x
+                (2, -2): x * y
+                (2, -1): y * z
+                (2, 0): 3z**2 - r**2
+                (2, 1): x * z
+                (2, 2): x**2 - y**2
+        """
+        if l == m == 0:
+            return "1"
+        ZR: PolyInt = cls.Pilm(l, abs(m)).simplify()[0]
+        XY: PolyInt
+        if m >= 0:
+            XY = cls.Am(abs(m)).simplify()[0]
+        else:
+            XY = cls.Bm(abs(m)).simplify()[0]
+        res = cls.spherical_harmonics_polynomial_expr(ZR, XY, l, m, evalable=True)
         return res
 
 
@@ -2006,8 +2338,605 @@ def visualize_spherical_harmonics(l_max: int = 10) -> None:
     plt.show()
 
 
+class CubicHarmonics(PolyInt):
+    """Cubic harmonics.
+
+    References:
+        S. Hayami, M. Yatsushiro, Y. Yanagi, and H. Kusunose, Phys. Rev. B 98, 165110 (2018).
+    """
+    def __init__(self, P: list[int] | npt.NDArray = []):
+        super().__init__(P)
+
+    @classmethod
+    def Ou(cls, x: float, y: float, z: float) -> float:
+        """Q_{u}.
+
+        Note:
+            irreducible representation: E_{g}^{+}
+            definition: 1/2 (3z^2-r^2)
+
+        Args:
+            x (float): Value of x.
+            y (float): Value of y.
+            z (float): Value of z.
+
+        Returns:
+            float: Q_{u}(x,y,z).
+        """
+        return cls.tesseral_harmonics(2,0)(x,y,z)
+    
+    @classmethod
+    def Ov(cls, x: float, y: float, z: float) -> float:
+        """Q_{v}.
+
+        Note:
+            irreducible representation: E_{g}^{+}
+            definition: \sqrt(3)/2 (x^2-y^2)
+
+        Args:
+            x (float): Value of x.
+            y (float): Value of y.
+            z (float): Value of z.
+
+        Returns:
+            float: Q_{v}(x,y,z).
+        """
+        return cls.tesseral_harmonics(2,2)(x,y,z)
+    
+    @classmethod
+    def Oyz(cls, x: float, y: float, z: float) -> float:
+        """Q_{yz}.
+
+        Note:
+            irreducible representation: T_{2g}^{+}
+            definition: \sqrt(3) y z
+
+        Args:
+            x (float): Value of x.
+            y (float): Value of y.
+            z (float): Value of z.
+
+        Returns:
+            float: Q_{yz}(x,y,z).
+        """
+        return cls.tesseral_harmonics(2,-1)(x,y,z)
+    
+    @classmethod
+    def Ozx(cls, x: float, y: float, z: float) -> float:
+        """Q_{zx}.
+
+        Note:
+            irreducible representation: T_{2g}^{+}
+            definition: \sqrt(3) z x
+
+        Args:
+            x (float): Value of x.
+            y (float): Value of y.
+            z (float): Value of z.
+
+        Returns:
+            float: Q_{zx}(x,y,z).
+        """
+        return cls.tesseral_harmonics(2,1)(x,y,z)
+    
+    @classmethod
+    def Oxy(cls, x: float, y: float, z: float) -> float:
+        """Q_{xy}.
+
+        Note:
+            irreducible representation: T_{2g}^{+}
+            definition: \sqrt(3) x y
+
+        Args:
+            x (float): Value of x.
+            y (float): Value of y.
+            z (float): Value of z.
+
+        Returns:
+            float: Q_{xy}(x,y,z).
+        """
+        return cls.tesseral_harmonics(2,-2)(x,y,z)
+
+    @classmethod
+    def O4(cls, x: float, y: float, z: float) -> float:
+        """Q_{4}.
+
+        Note:
+            irreducible representation: A_{1g}^{+}
+            definition: 5\sqrt(21)/12 (x^4 + y^4 + z^4 - 3/5 r^4)
+
+        Args:
+            x (float): Value of x.
+            y (float): Value of y.
+            z (float): Value of z.
+
+        Returns:
+            float: Q_{4}(x,y,z).
+        """
+        O40 = cls.tesseral_harmonics(4,0)(x,y,z)
+        O44 = cls.tesseral_harmonics(4,4)(x,y,z)
+        return np.sqrt(7/12) * O40 + np.sqrt(5/12) * O44
+    
+    @classmethod
+    def O4u(cls, x: float, y: float, z: float) -> float:
+        """Q_{4u}.
+
+        Note:
+            irreducible representation: E_{g}^{+}
+            definition: 7\sqrt(15)/6 (z^4 - 1/2 (x^4 + y^4) - 3/7 r^2 (3z^2 - r^2))
+
+        Args:
+            x (float): Value of x.
+            y (float): Value of y.
+            z (float): Value of z.
+
+        Returns:
+            float: Q_{4u}(x,y,z).
+        """
+        O40 = cls.tesseral_harmonics(4,0)(x,y,z)
+        O44 = cls.tesseral_harmonics(4,4)(x,y,z)
+        return np.sqrt(5/12) * O40 - np.sqrt(7/12) * O44
+    
+    @classmethod
+    def O4v(cls, x: float, y: float, z: float) -> float:
+        """Q_{4v}.
+
+        Note:
+            irreducible representation: E_{g}^{+}
+            definition: 7\sqrt(5)/4 (x^4 - y^4 - 6/7 r^2 (x^2 - y^2))
+
+        Args:
+            x (float): Value of x.
+            y (float): Value of y.
+            z (float): Value of z.
+
+        Returns:
+            float: Q_{4v}(x,y,z).
+        """
+        O42 = cls.tesseral_harmonics(4,2)(x,y,z)
+        return -O42
+    
+    @classmethod
+    def O4xa(cls, x: float, y: float, z: float) -> float:
+        """Q_{4x}^{\alpha}.
+
+        Note:
+            irreducible representation: T_{1g}^{+}
+            definition: \sqrt(35)/2 y z (y^2 - z^2)
+
+        Args:
+            x (float): Value of x.
+            y (float): Value of y.
+            z (float): Value of z.
+
+        Returns:
+            float: Q_{4x}^{\alpha}(x,y,z).
+        """
+        O4m1 = cls.tesseral_harmonics(4,-1)(x,y,z)
+        O4m3 = cls.tesseral_harmonics(4,-3)(x,y,z)
+        return - np.sqrt(1/8) * O4m3 - np.sqrt(7/8) * O4m1
+    
+    @classmethod
+    def O4ya(cls, x: float, y: float, z: float) -> float:
+        """Q_{4y}^{\alpha}.
+
+        Note:
+            irreducible representation: T_{1g}^{+}
+            definition: \sqrt(35)/2 z x (z^2 - x^2)
+
+        Args:
+            x (float): Value of x.
+            y (float): Value of y.
+            z (float): Value of z.
+
+        Returns:
+            float: Q_{4y}^{\alpha}(x,y,z).
+        """
+        O41 = cls.tesseral_harmonics(4,1)(x,y,z)
+        O43 = cls.tesseral_harmonics(4,3)(x,y,z)
+        return - np.sqrt(1/8) * O43 + np.sqrt(7/8) * O41
+    
+    @classmethod
+    def O4za(cls, x: float, y: float, z: float) -> float:
+        """Q_{4z}^{\alpha}.
+
+        Note:
+            irreducible representation: T_{1g}^{+}
+            definition: \sqrt(35)/2 x y (x^2 - y^2)
+
+        Args:
+            x (float): Value of x.
+            y (float): Value of y.
+            z (float): Value of z.
+
+        Returns:
+            float: Q_{4z}^{\alpha}(x,y,z).
+        """
+        return cls.tesseral_harmonics(4,-4)(x,y,z)
+    
+    @classmethod
+    def O4xb(cls, x: float, y: float, z: float) -> float:
+        """Q_{4x}^{\beta}.
+
+        Note:
+            irreducible representation: T_{2g}^{+}
+            definition: \sqrt(5)/2 y z (7x^2 - r^2)
+
+        Args:
+            x (float): Value of x.
+            y (float): Value of y.
+            z (float): Value of z.
+
+        Returns:
+            float: Q_{4x}^{\beta}(x,y,z).
+        """
+        O4m1 = cls.tesseral_harmonics(4,-1)(x,y,z)
+        O4m3 = cls.tesseral_harmonics(4,-3)(x,y,z)
+        return -np.sqrt(1/8) * O4m1 + np.sqrt(7/8) * O4m3
+    
+    @classmethod
+    def O4yb(cls, x: float, y: float, z: float) -> float:
+        """Q_{4y}^{\beta}.
+
+        Note:
+            irreducible representation: T_{2g}^{+}
+            definition: \sqrt(5)/2 z x (7y^2 - r^2)
+
+        Args:
+            x (float): Value of x.
+            y (float): Value of y.
+            z (float): Value of z.
+
+        Returns:
+            float: Q_{4y}^{\beta}(x,y,z).
+        """
+        O41 = cls.tesseral_harmonics(4,1)(x,y,z)
+        O43 = cls.tesseral_harmonics(4,3)(x,y,z)
+        return -np.sqrt(1/8) * O41 - np.sqrt(7/8) * O43
+    
+    @classmethod
+    def O4zb(cls, x: float, y: float, z: float) -> float:
+        """Q_{4z}^{\beta}.
+
+        Note:
+            irreducible representation: T_{2g}^{+}
+            definition: \sqrt(5)/2 x y (7z^2 - r^2)
+
+        Args:
+            x (float): Value of x.
+            y (float): Value of y.
+            z (float): Value of z.
+
+        Returns:
+            float: Q_{4z}^{\beta}(x,y,z).
+        """
+        return cls.tesseral_harmonics(4,-2)(x,y,z)
+
+    @classmethod
+    def O6(cls, x: float, y: float, z: float) -> float:
+        """Q_{6}.
+
+        Note:
+            irreducible representation: A_{1g}^{+}
+            definition: 231\sqrt(2)/8 (x^2 y^2 z^2 + 1/22 r^2(x^4 + y^4 + z^4 - 3/5 r^4) - 1/105 r^6)
+
+        Args:
+            x (float): Value of x.
+            y (float): Value of y.
+            z (float): Value of z.
+
+        Returns:
+            float: Q_{6}(x,y,z).
+        """
+        O60 = cls.tesseral_harmonics(6,0)(x,y,z)
+        O64 = cls.tesseral_harmonics(6,4)(x,y,z)
+        return np.sqrt(1/8) * O60 + np.sqrt(7/8) * O64
+
+    @classmethod
+    def O6t(cls, x: float, y: float, z: float) -> float:
+        """Q_{6t}.
+
+        Note:
+            irreducible representation: A_{2g}^{+}
+            definition: \sqrt(2310)/8 (x^4 (y^2 - z^2) + y^4 (z^2 - x^2) +z^4 (x^2 - y^2))
+
+        Args:
+            x (float): Value of x.
+            y (float): Value of y.
+            z (float): Value of z.
+
+        Returns:
+            float: Q_{6t}(x,y,z).
+        """
+        O66 = cls.tesseral_harmonics(6,6)(x,y,z)
+        O62 = cls.tesseral_harmonics(6,2)(x,y,z)
+        return -np.sqrt(5/16) * O66 + np.sqrt(11/16) * O62
+
+    @classmethod
+    def O6u(cls, x: float, y: float, z: float) -> float:
+        """Q_{6u}.
+
+        Note:
+            irreducible representation: E_{g}^{+}
+            definition: 11\sqrt(14)/4 (z^6 - 1/2 (x^6 + y^6) - 15/11 r^2 (z^4 - 1/2 (x^4 + y^4)) + 5/22 r^4 (3z^2 - r^2))
+
+        Args:
+            x (float): Value of x.
+            y (float): Value of y.
+            z (float): Value of z.
+
+        Returns:
+            float: Q_{6u}(x,y,z).
+        """
+        O64 = cls.tesseral_harmonics(6,4)(x,y,z)
+        O60 = cls.tesseral_harmonics(6,0)(x,y,z)
+        return np.sqrt(7/8) * O60 + np.sqrt(1/8) * O64
+
+    @classmethod
+    def O6v(cls, x: float, y: float, z: float) -> float:
+        """Q_{6v}.
+
+        Note:
+            irreducible representation: E_{g}^{+}
+            definition: 11\sqrt(42)/8 (x^6 - y^6 - 15/11 r^2 (x^4-y^4) + 5/11 r^4 (x^2 - y^2))
+
+        Args:
+            x (float): Value of x.
+            y (float): Value of y.
+            z (float): Value of z.
+
+        Returns:
+            float: Q_{6v}(x,y,z).
+        """
+        O66 = cls.tesseral_harmonics(6,6)(x,y,z)
+        O62 = cls.tesseral_harmonics(6,2)(x,y,z)
+        return np.sqrt(11/16) * O66 + np.sqrt(5/16) * O62
+    
+    @classmethod
+    def O6xa(cls, x: float, y: float, z: float) -> float:
+        """Q_{6x}^{\alpha}.
+
+        Note:
+            irreducible representation: T_{1g}^{+}
+            definition: 3\sqrt(7)/4 y z (y^2 - z^2) (11x^2 - r^2)
+
+        Args:
+            x (float): Value of x.
+            y (float): Value of y.
+            z (float): Value of z.
+
+        Returns:
+            float: Q_{6x}^{\alpha}(x,y,z).
+        """
+        O6m5 = cls.tesseral_harmonics(6,-5)(x,y,z)
+        O6m3 = cls.tesseral_harmonics(6,-3)(x,y,z)
+        O6m1 = cls.tesseral_harmonics(6,-1)(x,y,z)
+        return -np.sqrt(22/64) * O6m5 - np.sqrt(30/64) * O6m3 + np.sqrt(12/64) * O6m1
+
+    @classmethod
+    def O6ya(cls, x: float, y: float, z: float) -> float:
+        """Q_{6y}^{\alpha}.
+
+        Note:
+            irreducible representation: T_{1g}^{+}
+            definition: 3\sqrt(7)/4 z x (z^2 - x^2) (11y^2 - r^2)
+
+        Args:
+            x (float): Value of x.
+            y (float): Value of y.
+            z (float): Value of z.
+
+        Returns:
+            float: Q_{6y}^{\alpha}(x,y,z).
+        """
+        O65 = cls.tesseral_harmonics(6,5)(x,y,z)
+        O63 = cls.tesseral_harmonics(6,3)(x,y,z)
+        O61 = cls.tesseral_harmonics(6,1)(x,y,z)
+        return np.sqrt(22/64) * O65 - np.sqrt(30/64) * O63 - np.sqrt(12/64) * O61
+    
+    @classmethod
+    def O6za(cls, x: float, y: float, z: float) -> float:
+        """Q_{6z}^{\alpha}.
+
+        Note:
+            irreducible representation: T_{1g}^{+}
+            definition: 3\sqrt(7)/4 x y (x^2 - y^2) (11z^2 - r^2)
+
+        Args:
+            x (float): Value of x.
+            y (float): Value of y.
+            z (float): Value of z.
+
+        Returns:
+            float: Q_{6z}^{\alpha}(x,y,z).
+        """
+        return cls.tesseral_harmonics(6,-4)(x,y,z)
+
+    @classmethod
+    def O6xb1(cls, x: float, y: float, z: float) -> float:
+        """Q_{6x}^{\beta 1}.
+
+        Note:
+            irreducible representation: T_{2g}^{+}
+            definition: \sqrt(462)/2 y z (y^4 + z^4 - 5/8 (y^2 + z^2)^2)
+
+        Args:
+            x (float): Value of x.
+            y (float): Value of y.
+            z (float): Value of z.
+
+        Returns:
+            float: Q_{6x}^{\beta 1}(x,y,z).
+        """
+        O6m5 = cls.tesseral_harmonics(6,-5)(x,y,z)
+        O6m3 = cls.tesseral_harmonics(6,-3)(x,y,z)
+        O6m1 = cls.tesseral_harmonics(6,-1)(x,y,z)
+        return np.sqrt(3/256) * O6m5 + np.sqrt(55/256) * O6m3 + np.sqrt(198/256) * O6m1
+
+    @classmethod
+    def O6yb1(cls, x: float, y: float, z: float) -> float:
+        """Q_{6y}^{\beta 1}.
+
+        Note:
+            irreducible representation: T_{2g}^{+}
+            definition: \sqrt(462)/2 z x (z^4 + x^4 - 5/8 (z^2 + x^2)^2)
+
+        Args:
+            x (float): Value of x.
+            y (float): Value of y.
+            z (float): Value of z.
+
+        Returns:
+            float: Q_{6y}^{\beta 1}(x,y,z).
+        """
+        O65 = cls.tesseral_harmonics(6,5)(x,y,z)
+        O63 = cls.tesseral_harmonics(6,3)(x,y,z)
+        O61 = cls.tesseral_harmonics(6,1)(x,y,z)
+        return np.sqrt(3/256) * O65 - np.sqrt(55/256) * O63 + np.sqrt(198/256) * O61
+    
+    @classmethod
+    def O6zb1(cls, x: float, y: float, z: float) -> float:
+        """Q_{6z}^{\beta 1}.
+
+        Note:
+            irreducible representation: T_{2g}^{+}
+            definition: \sqrt(462)/2 x y (x^4 + y^4 - 5/8 (x^2 + y^2)^2)
+
+        Args:
+            x (float): Value of x.
+            y (float): Value of y.
+            z (float): Value of z.
+
+        Returns:
+            float: Q_{6z}^{\beta 1}(x,y,z).
+        """
+        return cls.tesseral_harmonics(6,-6)(x,y,z)
+
+    @classmethod
+    def O6xb2(cls, x: float, y: float, z: float) -> float:
+        """Q_{6x}^{\beta 2}.
+
+        Note:
+            irreducible representation: T_{2g}^{+}
+            definition: \sqrt(210)/16 y z (33 x^4 - 18 x^2 r^2 + r^4)
+
+        Args:
+            x (float): Value of x.
+            y (float): Value of y.
+            z (float): Value of z.
+
+        Returns:
+            float: Q_{6x}^{\beta 2}(x,y,z).
+        """
+        O6m5 = cls.tesseral_harmonics(6,-5)(x,y,z)
+        O6m3 = cls.tesseral_harmonics(6,-3)(x,y,z)
+        O6m1 = cls.tesseral_harmonics(6,-1)(x,y,z)
+        return np.sqrt(165/256) * O6m5 - np.sqrt(81/256) * O6m3 + np.sqrt(10/256) * O6m1
+
+    @classmethod
+    def O6yb2(cls, x: float, y: float, z: float) -> float:
+        """Q_{6y}^{\beta 2}.
+
+        Note:
+            irreducible representation: T_{2g}^{+}
+            definition: \sqrt(210)/16 z x (33 y^4 - 18 y^2 r^2 + r^4)
+
+        Args:
+            x (float): Value of x.
+            y (float): Value of y.
+            z (float): Value of z.
+
+        Returns:
+            float: Q_{6y}^{\beta 2}(x,y,z).
+        """
+        O65 = cls.tesseral_harmonics(6,5)(x,y,z)
+        O63 = cls.tesseral_harmonics(6,3)(x,y,z)
+        O61 = cls.tesseral_harmonics(6,1)(x,y,z)
+        return np.sqrt(165/256) * O65 + np.sqrt(81/256) * O63 + np.sqrt(10/256) * O61
+    
+    @classmethod
+    def O6zb2(cls, x: float, y: float, z: float) -> float:
+        """Q_{6z}^{\beta 2}.
+
+        Note:
+            irreducible representation: T_{2g}^{+}
+            definition: \sqrt(210)/16 x y (33 z^4 - 18 z^2 r^2 + r^4)
+
+        Args:
+            x (float): Value of x.
+            y (float): Value of y.
+            z (float): Value of z.
+
+        Returns:
+            float: Q_{6z}^{\beta 2}(x,y,z).
+        """
+        return cls.tesseral_harmonics(6,-2)(x,y,z)
+    
+    @classmethod
+    def visualize(cls, name: str) -> None:
+        def paramed_cubic_harm() -> tuple[npt.NDArray, npt.NDArray, npt.NDArray, npt.NDArray]:
+            n: int = 512 + 1
+            theta: npt.NDArray = np.linspace(0, np.pi, n)
+            phi: npt.NDArray = np.linspace(0, 2*np.pi, n)
+            theta, phi = np.meshgrid(theta, phi)
+
+            x: npt.NDArray = np.sin(theta) * np.cos(phi)
+            y: npt.NDArray = np.sin(theta) * np.sin(phi)
+            z: npt.NDArray = np.cos(theta)
+            u: npt.NDArray = getattr(cls, name)(x,y,z)
+            x *= np.abs(u)
+            y *= np.abs(u)
+            z *= np.abs(u)
+
+            plus_minus: tuple[str, str] = ('r','b')
+            color: npt.NDArray = np.empty(theta.shape, dtype=str)
+            for i in range(x.shape[0]):
+                for j in range(x.shape[1]):
+                    if u[i,j] >= 0:
+                        color[i,j] = plus_minus[0]
+                    else:
+                        color[i,j] = plus_minus[1]
+            return x, y, z, color
+        
+        fig: plt.Figure = plt.figure(figsize=(7, 7))
+        # 領域を小区画に分けて番号で指定できるようにする
+        gs: plt.GridSpec = fig.add_gridspec(20+4, 20+4)
+        ax: plt.Subplot = fig.add_subplot(gs[:21,:], projection='3d')
+        # ax.set_title(rf'${orbit_name[0]}_{{{PolyInt.multipole_notation(0, 0)}}}$')
+        ax.set_xlim(-1, 1)
+        ax.set_ylim(-1, 1)
+        ax.set_zlim(-1, 1)
+        ax.set_xlabel("x")
+        ax.set_ylabel("y")
+        ax.set_zlabel("z")
+        
+        # 初期値で曲面を描画
+        X, Y, Z, color = paramed_cubic_harm()
+        # 曲面の描画(ここは適宜カスタマイズする)
+        ax.plot_surface(X, Y, Z, facecolors=color)
+        # ax.plot_wireframe(X, Y, Z, color="skyblue", linewidth=0.5)
+        plt.show()
+
+
+# class ClebschGordan(object):
+#     def __init__(self) -> None:
+#         pass
+#     def cg_coeff(
+#         j1: float,
+#         m1: float,
+#         j2: float,
+#         m2: float,
+#         j3: float,
+#         m3: float
+#     ) -> float:
+#         pass
+#         return
+
+
 def main() -> None:
     pass
+    CubicHarmonics.visualize("O4za")
+
     return
 
 if __name__ == "__main__":
