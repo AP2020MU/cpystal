@@ -1,4 +1,4 @@
-"""`cpystal.math.matrixperator` is a module for JOperators of quantum mechanics.
+"""`cpystal.math.operator` is a module for JOperators of quantum mechanics.
 
 Functions:
 
