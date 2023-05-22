@@ -52,7 +52,7 @@ class ImageProcessing:
         self.dirname: str = os.path.dirname(filepath)
         self.name_original: str
         self.extension: str
-        self.name_original, self.extension = os.path.splitext(os.path.basename(filepath))
+        self.name_original, self.extension = os.path.splitext(filepath)
         self.name_current: str = self.name_original
         img: Image = Image.open(filepath)
         self.original: Image = img

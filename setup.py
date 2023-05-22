@@ -5,7 +5,7 @@ def _requires_from_file(filename):
 
 setup(
     name="cpystal",
-    version="0.0.0",
+    version="0.1.0",
     description="This is a Python package for dealing with crystals and experimental data of their physical property.",
     packages=[""],
     package_dir={"": "cpystal"},
