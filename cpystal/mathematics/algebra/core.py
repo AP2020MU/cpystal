@@ -8,6 +8,7 @@ Classes:
     `MatrixREF`
     `IREF`
     `PolyInt`
+    `CubicHarmonics`
 """
 from __future__ import annotations
 
