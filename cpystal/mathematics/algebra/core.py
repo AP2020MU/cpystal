@@ -1911,7 +1911,7 @@ class PolyInt:
     @classmethod
     def tesseral_harmonics_expr(cls, l: int, m: int) -> str:
         """Tesseral harmonics r^l Z_{lm}^{(c,s)}(r). 
-        This is also called as Spherical tensor operators.
+        This is also called as Spherical tensors.
         See also;
             http://www.isc.meiji.ac.jp/~hk/documents/memo/he_as_multipole_text.pdf,
             『スピンと軌道の電子論』(楠瀬博明)
@@ -2007,7 +2007,7 @@ class PolyInt:
     @classmethod
     def tesseral_harmonics(cls, l: int, m: int) -> callable:
         """Tesseral harmonics r^l Z_{lm}^{(c,s)}(r). 
-        This is also called as Spherical tensor operators.
+        This is also called as Spherical tensors.
         See also;
             http://www.isc.meiji.ac.jp/~hk/documents/memo/he_as_multipole_text.pdf,
             『スピンと軌道の電子論』(楠瀬博明)
