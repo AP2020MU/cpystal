@@ -55,10 +55,10 @@ class Color:
                 color_system: str,
                 white_point: str = "D65",
                 ) -> None:
-        self.__color: Color_type = color
-        self.__color_system: str = color_system
-        self.__white_point: str = white_point
-        self.__value_range: dict[str, list[tuple[float, float]]] = {
+        self._color: Color_type = color
+        self._color_system: str = color_system
+        self._white_point: str = white_point
+        self._value_range: dict[str, list[tuple[float, float]]] = {
             "RGB": [(0.0, 1.0), (0.0, 1.0), (0.0, 1.0)],
             "HSV": [(0.0, 1.0), (0.0, 1.0), (0.0, 1.0)],
             "HLS": [(0.0, 1.0), (0.0, 1.0), (0.0, 1.0)],
@@ -68,6 +68,7 @@ class Color:
             "XYZ": [(0.0, 0.951), (0.0, 1.0), (0.0, 1.090)],
             "L*a*b*": [(0.0, 100.0), (-128.0, 127.0), (-128.0, 127.0)],
         }
+        self._weight: int = 1
 
     def __str__(self) -> str:
         return f"{self.color_system}{self.color}"
@@ -80,39 +81,35 @@ class Color:
         if new_color.color_system == "RGB":
             r,g,b = new_color.color
             m: float = max(r,g,b) + min(r,g,b)
-            new_color.__color = (m-r, m-g, m-b)
-            return new_color
-        elif new_color.color_system == "HSV":
-            h,s,v = new_color.color
-            new_color.__color = ((h+0.5) % 1.0, s, v)
-            return new_color
-        elif new_color.color_system == "HLS":
-            h,l,s = new_color.color
-            new_color.__color = ((h+0.5) % 1.0, l, s)
-            return new_color
-        elif new_color.color_system == "YIQ":
-            new_color = (-new_color.to_rgb()).rgb_to_yiq()
-            return new_color
-        elif new_color.color_system == "sRGB":
-            new_color = (-new_color.to_rgb()).rgb_to_srgb()
-            return new_color
-        elif new_color.color_system == "Adobe RGB":
-            new_color = (-new_color.to_rgb()).rgb_to_srgb()
-            return new_color
-        elif new_color.color_system == "XYZ":
-            new_color = (-new_color.to_rgb()).rgb_to_xyz()
-            return new_color
-        elif new_color.color_system == "L*a*b*":
-            new_color = (-new_color.to_rgb()).rgb_to_xyz().xyz_to_lab()
+            new_color._color = (m-r, m-g, m-b)
             return new_color
         else:
-            raise ValueError
-            pass
+            new_color = (-new_color.to_rgb()).to_other_system(new_color.color_system)
+            return new_color
+    
+    def __invert__(self) -> Color:
+        new_color: Color = self.__deepcopy__()
+        if new_color.color_system == "RGB":
+            r,g,b = new_color.color
+            new_color._color = (1-r, 1-g, 1-b)
+            return new_color
+        else:
+            new_color = (~new_color.to_rgb()).to_other_system(new_color.color_system)
+            return new_color
 
+    def __eq__(self, other: Any) -> bool:
+        if isinstance(other, Color):
+            return self.get_properties() == other.get_properties()
+        else:
+            return False
+        
+    def __neq__(self, other: Any) -> bool:
+        return not self.__eq__(other)
+    
     def __add__(self, other: Color) -> Color:
         a,b,c = self.to_rgb().color
         x,y,z = other.to_rgb().color
-        (_, maxr),( _, maxg), (_, maxb) = self.__value_range["RGB"]
+        (_, maxr),( _, maxg), (_, maxb) = self._value_range["RGB"]
         return self.__class__(
             color=(min(a+x, maxr), min(b+y, maxg), min(c+z, maxb)),
             color_system="RGB",
@@ -121,35 +118,52 @@ class Color:
     def __sub__(self, other: Color) -> Color:
         a,b,c = self.to_rgb().color
         x,y,z = other.to_rgb().color
-        (minr, _), (ming, _), (minb, _) = self.__value_range["RGB"]
+        (minr, _), (ming, _), (minb, _) = self._value_range["RGB"]
         return self.__class__(
             color=(max(a-x, minr), max(b-y, ming), max(c-z, minb)),
             color_system="RGB",
         )
     
+    @staticmethod
+    def _weighted_average(x1: float, x2: float, w1: float, w2: float) -> float:
+        return (w1*x1 + w2*x2) / (w1 + w2)
+    
     def __mul__(self, other: Color) -> Color:
-        """Additive color change.
-
-        ref: A. Kitaoka, Journal of Color Science Association of Japan, 35(3), 234-236, (2011).
+        """Weighted average.
         """
         a,b,c = self.to_rgb().color
         x,y,z = other.to_rgb().color
-        t: float = 0.5
-        return self.__class__(
-            color=(t*a+(1-t)*x, t*b+(1-t)*y, t*c+(1-t)*z),
+        n, m = self._weight, other._weight
+        p: float = self._weighted_average(a,x,n,m)
+        q: float = self._weighted_average(b,y,n,m)
+        r: float = self._weighted_average(c,z,n,m)
+        new_color: Color = self.__class__(
+            color=(p, q, r),
             color_system="RGB",
         )
+        new_color._weight = n + m
+        return new_color
     
-    def __div__(self, other: Color) -> Color:
+    def __truediv__(self, other: Color) -> Color:
+        """Anti-weighted average.
+
+        Note:
+            `ZeroDivisionError` is called if self._weight == other._weight.
+        """
         a,b,c = self.to_rgb().color
         x,y,z = other.to_rgb().color
-        t: float = 0.5
-        return self.__class__(
-            color=(a/t-(1-t)/t*x, b/t+(1-t)/t*y, c/t+(1-t)/t*z),
+        n, m = self._weight, other._weight
+        p: float = self._weighted_average(a,x,n,-m)
+        q: float = self._weighted_average(b,y,n,-m)
+        r: float = self._weighted_average(c,z,n,-m)
+        new_color: Color = self.__class__(
+            color=(p, q, r),
             color_system="RGB",
         )
+        new_color._weight = n - m
+        return new_color
     
-    def __mutmul__(self, other: Color) -> Color:
+    def __matmul__(self, other: Color) -> Color:
         """Multiplicative color change.
 
         ref: A. Kitaoka, Journal of Color Science Association of Japan, 35(3), 234-236, (2011).
@@ -159,6 +173,39 @@ class Color:
         t: float = 0.5
         return self.__class__(
             color=((t+(1-t)*x)*a, (t+(1-t)*y)*b, (t+(1-t)*z)*c),
+            color_system="RGB",
+        )
+    
+    def __xor__(self, other: Color) -> Color:
+        a,b,c = self.to_rgb().color
+        x,y,z = other.to_rgb().color
+        p: float = np.sin(np.arcsin(a) + np.arcsin(x))
+        q: float = np.sin(np.arcsin(b) + np.arcsin(y))
+        r: float = np.sin(np.arcsin(c) + np.arcsin(z))
+        return self.__class__(
+            color=(p, q, r),
+            color_system="RGB",
+        )
+    
+    def __or__(self, other: Color) -> Color:
+        a,b,c = self.to_rgb().color
+        x,y,z = other.to_rgb().color
+        p: float = 1 - (1-a) * (1-x)
+        q: float = 1 - (1-b) * (1-y)
+        r: float = 1 - (1-c) * (1-z)
+        return self.__class__(
+            color=(p, q, r),
+            color_system="RGB",
+        )
+
+    def __and__(self, other: Color) -> Color:
+        a,b,c = self.to_rgb().color
+        x,y,z = other.to_rgb().color
+        p: float = 0 if a == x == 0 else a*x / (a+x-a*x)
+        q: float = 0 if b == y == 0 else b*y / (b+y-b*y)
+        r: float = 0 if c == z == 0 else c*z / (c+z-c*z)
+        return self.__class__(
+            color=(p, q, r),
             color_system="RGB",
         )
     
@@ -175,17 +222,18 @@ class Color:
         return self.__class__(
             color=self.color,
             color_system=self.color_system,
+            white_point=self.white_point
         )
     
     def __check_color_value(self) -> None:
         res: list[float | int] = list(self.color)
         for i, c in enumerate(self.color):
-            minc, maxc = self.__value_range[self.color_system][i]
+            minc, maxc = self._value_range[self.color_system][i]
             if c < minc:
                 res[i] = minc
             if c > maxc:
                 res[i] = maxc
-        self.__color = (res[0], res[1], res[2])
+        self._color = (res[0], res[1], res[2])
 
     def __hls_calc(self, m1: float, m2: float, hue: float) -> float:
         hue = hue % 1.0
@@ -196,18 +244,22 @@ class Color:
         if hue < 2.0/3.0:
             return m1 + (m2-m1)*(2.0/3.0-hue)*6.0
         return m1
+    
+    @staticmethod
+    def _round_color(color: Color_type) -> Color_type:
+        return tuple(round(c, 10) for c in color)
 
     @property
     def color(self) -> Color_type:
-        return self.__color
+        return self._round_color(self._color)
 
     @property
     def color_system(self) -> str:
-        return self.__color_system
+        return self._color_system
 
     @property
     def white_point(self) -> str:
-        return self.__white_point
+        return self._white_point
     
     @white_point.setter
     def white_point(self, value: str) -> None:
@@ -215,7 +267,7 @@ class Color:
         途中でwhite pointを変更されるとself.colorが指す色が変わってしまうので管理する．
         """
         raise NotImplementedError("future works")
-        if self.__white_point != value:
+        if self._white_point != value:
             if self.color_system == "XYZ":
                 pass
             if self.color_system == "L*a*b*":
@@ -225,7 +277,7 @@ class Color:
         return self.__deepcopy__()
 
     def get_properties(self) -> tuple[str]:
-        return (self.color_system, )
+        return (self.color, self.color_system, self.white_point)
 
     def rgb_to_hsv(self) -> Color:
         """RGB -> HSV
@@ -613,6 +665,9 @@ class Color:
         x: float = 0.412391*r + 0.357584*g + 0.180481*b
         y: float = 0.212639*r + 0.715169*g + 0.072192*b
         z: float = 0.019331*r + 0.119195*g + 0.950532*b
+        # x: float = 2.76883*r + 1.75171*g + 1.13014*b
+        # y: float = 1.00000*r + 4.59061*g + 0.06007*b
+        # z: float = 0.00000*r + 0.05651*g + 5.59417*b
         color: Color_type = (x, y, z)
         new_color: Color = self.__class__(
             color=color,
@@ -901,6 +956,27 @@ class Color:
             return self.xyz_to_lab()
         elif self.color_system == "L*a*b*":
             return self.__deepcopy__()
+        else:
+            raise ValueError
+            return
+
+    def to_other_system(self, color_system: str) -> Color:
+        if color_system == "RGB":
+            return self.to_rgb()
+        elif color_system == "HSV":
+            return self.to_hsv()
+        elif color_system == "HLS":
+            return self.to_hls()
+        elif color_system == "YIQ":
+            return self.to_yiq()
+        elif color_system == "sRGB":
+            return self.to_srgb()
+        elif color_system == "Adobe RGB":
+            return self.to_adobergb()
+        elif color_system == "XYZ":
+            return self.to_xyz()
+        elif color_system == "L*a*b*":
+            return self.to_lab()
         else:
             raise ValueError
             return
@@ -1723,6 +1799,7 @@ MAGENTA_RGB: Color_type = (1.0, 0.0, 1.0)
 CYAN_RGB: Color_type = (0.0, 1.0, 1.0)
 WHITE_RGB: Color_type = (1.0, 1.0, 1.0)
 BLACK_RGB: Color_type = (0.0, 0.0, 0.0)
+GRAY_RGB: Color_type = (0.5, 0.5, 0.5)
 
 RED_HSV: Color_type = (0.0, 1.0, 1.0)
 YELLOW_HSV: Color_type = (1/6, 1.0, 1.0)
