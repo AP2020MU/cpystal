@@ -16,7 +16,7 @@ import numpy as np
 import numpy.typing as npt
 import sympy
 
-from core import PolyInt
+from .core import PolyInt
 
 HalfInt = TypeVar("HalfInt", int, float)
 JOperatorChild = TypeVar("JOperatorChild", bound="JOperator")
