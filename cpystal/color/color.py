@@ -1175,6 +1175,8 @@ class Gradation:
     def __init__(self, start: Color,
                 end: Color,
                 middle: Color | None = None,
+                num: int = 50,
+                next_color_system: str | None = None
                 ) -> None:
         if middle is None:
             if start.get_base_info() != end.get_base_info():
@@ -1185,15 +1187,165 @@ class Gradation:
         self.start: Color = start
         self.end: Color = end
         self.middle: Color | None = middle
+        self.color_list: list[Color] = [
+            self._get_linear(i/(num-1),
+                             start,
+                             end,
+                             middle=middle,
+                             next_color_system=next_color_system)
+            for i in range(num)
+        ]
 
-    def rgb_to_rgba(self, color_list: list[Color]) -> list[tuple[float,float,float,float]]:
+    def __str__(self) -> str:
+        return f"{self.color_system}{self.color}"
+    
+    def __repr__(self) -> str:
+        return str(self)
+
+    def __neg__(self) -> Gradation:
+        return self.from_color_list([-c for c in self.color_list])
+        
+    def __invert__(self) -> Gradation:
+        return self.from_color_list([~c for c in self.color_list])
+
+    def __len__(self) -> int:
+        return len(self.color_list)
+    
+    def __eq__(self, other: Any) -> bool:
+        if isinstance(other, Gradation):
+            return len(self) == len(other) and all([c1 == c2 for c1, c2 in zip(self, other)])
+        else:
+            return False
+    
+    def __neq__(self, other: Any) -> bool:
+        return self.__eq__(other)
+    
+    def __add__(self, other: Any) -> Gradation:
+        if isinstance(other, Gradation):
+            if len(self) == len(other):
+                return self.from_color_list([c1 + c2 for c1, c2 in zip(self, other)])
+            else:
+                raise ValueError
+        elif isinstance(other, Color):
+            return self.from_color_list([c + other for c in self.color_list])
+        else:
+            raise ValueError
+        
+    def __sub__(self, other: Any) -> Gradation:
+        if isinstance(other, Gradation):
+            if len(self) == len(other):
+                return self.from_color_list([c1 - c2 for c1, c2 in zip(self, other)])
+            else:
+                raise ValueError
+        elif isinstance(other, Color):
+            return self.from_color_list([c - other for c in self.color_list])
+        else:
+            raise ValueError
+    
+    def __mul__(self, other: Any) -> Gradation:
+        if isinstance(other, Gradation):
+            if len(self) == len(other):
+                return self.from_color_list([c1 * c2 for c1, c2 in zip(self, other)])
+            else:
+                raise ValueError
+        elif isinstance(other, Color):
+            return self.from_color_list([c * other for c in self.color_list])
+        else:
+            raise ValueError
+        
+    def __truediv__(self, other: Any) -> Gradation:
+        if isinstance(other, Gradation):
+            if len(self) == len(other):
+                return self.from_color_list([c1 / c2 for c1, c2 in zip(self, other)])
+            else:
+                raise ValueError
+        elif isinstance(other, Color):
+            return self.from_color_list([c / other for c in self.color_list])
+        else:
+            raise ValueError
+        
+    def __matmul__(self, other: Any) -> Gradation:
+        if isinstance(other, Gradation):
+            if len(self) == len(other):
+                return self.from_color_list([c1 @ c2 for c1, c2 in zip(self, other)])
+            else:
+                raise ValueError
+        elif isinstance(other, Color):
+            return self.from_color_list([c @ other for c in self.color_list])
+        else:
+            raise ValueError
+    
+    def __and__(self, other: Any) -> Gradation:
+        if isinstance(other, Gradation):
+            if len(self) == len(other):
+                return self.from_color_list([c1 & c2 for c1, c2 in zip(self, other)])
+            else:
+                raise ValueError
+        elif isinstance(other, Color):
+            return self.from_color_list([c & other for c in self.color_list])
+        else:
+            raise ValueError
+
+    def __or__(self, other: Any) -> Gradation:
+        if isinstance(other, Gradation):
+            if len(self) == len(other):
+                return self.from_color_list([c1 | c2 for c1, c2 in zip(self, other)])
+            else:
+                raise ValueError
+        elif isinstance(other, Color):
+            return self.from_color_list([c | other for c in self.color_list])
+        else:
+            raise ValueError
+    
+    def __xor__(self, other: Any) -> Gradation:
+        if isinstance(other, Gradation):
+            if len(self) == len(other):
+                return self.from_color_list([c1 ^ c2 for c1, c2 in zip(self, other)])
+            else:
+                raise ValueError
+        elif isinstance(other, Color):
+            return self.from_color_list([c ^ other for c in self.color_list])
+        else:
+            raise ValueError
+        
+    def __iter__(self) -> Iterator[Color]:
+        yield from self.color_list
+
+    @classmethod
+    def from_color_list(cls, color_list: list[Color]) -> Gradation:
+        new: Gradation = cls(color_list[0].deepcopy(), color_list[-1].deepcopy())
+        new.color_list = [c.deepcopy() for c in color_list]
+        return new
+
+    def rgba_color_list(self) -> list[tuple[float,float,float,float]]:
         res: list[tuple[float,float,float,float]] = []
-        for color in color_list:
+        for color in self.color_list:
             r,g,b = color.to_rgb()
             res.append((r, g, b, 1.0))
         return res
 
-    def gradation_linear(self, proportion: float) -> Color:
+    @staticmethod
+    def _internal_division(
+        start: Color_type,
+        end: Color_type,
+        proportion: float,
+    ) -> Color_type:
+        a,b,c = start
+        x,y,z = end
+        u: float = a + (x-a) * proportion
+        v: float = b + (y-b) * proportion
+        w: float = c + (z-c) * proportion
+        return (u, v, w)
+
+    @classmethod
+    def _get_linear(
+            cls,
+            proportion: float,
+            start: Color,
+            end: Color,
+            middle: Color | None = None,
+            next_color_system: str | None = None,
+        ) -> Color:
         """Make a color gradation linearly in a color space.
 
         Note:
@@ -1210,38 +1362,64 @@ class Gradation:
         """
         if not (0.0 <= proportion <= 1.0):
             raise ValueError("'proportion' must be in [0.0, 1.0]")
-        if self.middle is None:
-            if self.start.get_base_info() != self.end.get_base_info():
+        if middle is None:
+            if start.get_base_info() != end.get_base_info():
                 raise ValueError("'start' and 'end' must have the same properties")
         else:
-            if not (self.start.get_base_info() == self.middle.get_base_info() == self.end.get_base_info()):
+            if not (start.get_base_info() == middle.get_base_info() == end.get_base_info()):
                 raise ValueError("'start' and 'middle' and 'end' must have the same properties")
 
-        color_system: str = self.start.color_system
-        u: float; v: float; w: float
-        if self.middle is None:
-            a,b,c = self.start
-            x,y,z = self.end
-            u = a + (x-a) * proportion
-            v = b + (y-b) * proportion
-            w = c + (z-c) * proportion
+        if next_color_system is None:
+            next_color_system = start.color_system
+        color_system: str = start.color_system
+        if middle is None:
+            u,v,w = cls._internal_division(start, end, proportion)
         else:
-            a,b,c = self.start
-            p,q,r = self.middle
-            x,y,z = self.end
             if proportion < 0.5:
-                u = a + (p-a) * proportion
-                v = b + (q-b) * proportion
-                w = c + (r-c) * proportion
+                u,v,w = cls._internal_division(start, middle, proportion)
             else:
-                u = p + (x-p) * (proportion-0.5)
-                v = q + (y-q) * (proportion-0.5)
-                w = r + (z-r) * (proportion-0.5)
+                u,v,w = cls._internal_division(middle, end, proportion-0.5)
         return Color(color=(u,v,w),
             color_system=color_system,
-        )
+        ).to_other_system(next_color_system)
 
-    def gradation_chart(self, proportion: float, order: tuple[int, int, int] = (0,1,2)) -> Color:
+    @staticmethod
+    def _chart_goal(
+        start: Color_type,
+        end: Color_type,
+        proportion: float,
+        order: tuple[int, int, int],
+        full_dist: float,
+    ) -> Color_type:
+        i,j,k = order
+        res: Color_type = [0., 0., 0.]
+        di: float = end[i] - start[i]
+        dj: float = end[j] - start[j]
+        dk: float = end[k] - start[k]
+        if proportion < abs(di) / full_dist:
+            res[i] = start[i] + di * proportion
+            res[j] = start[j]
+            res[k] = start[k]
+        elif proportion < (abs(di) + abs(dj)) / full_dist:
+            res[i] = end[i]
+            res[j] = start[j] + dj * (proportion - abs(di)/full_dist)
+            res[k] = start[k]
+        else:
+            res[i] = end[i]
+            res[j] = start[j]
+            res[k] = start[k] + dk * (proportion - (abs(di)+abs(dj))/full_dist)
+        return tuple(res)
+    
+    @classmethod
+    def _get_chart(
+            cls,
+            proportion: float,
+            start: Color,
+            end: Color,
+            middle: Color | None = None,
+            order: tuple[int, int, int] = (0,1,2),
+            next_color_system: str | None = None,
+        ) -> Color:
         """Make a color gradation like a chart line in a color space.
 
         Note:
@@ -1261,74 +1439,48 @@ class Gradation:
         """
         if not (0.0 <= proportion <= 1.0):
             raise ValueError("'proportion' must be in [0.0, 1.0]")
-        if self.middle is None:
-            if self.start.get_base_info() != self.end.get_base_info():
+        if middle is None:
+            if start.get_base_info() != end.get_base_info():
                 raise ValueError("'start' and 'end' must have the same properties")
         else:
-            if not (self.start.get_base_info() == self.middle.get_base_info() == self.end.get_base_info()):
+            if not (start.get_base_info() == middle.get_base_info() == end.get_base_info()):
                 raise ValueError("'start' and 'middle' and 'end' must have the same properties")
-
-        color_system: str = self.start.color_system
-        dist: float
+        
+        if next_color_system is None:
+            next_color_system = start.color_system
+        color_system: str = start.color_system
         res: list[float]
-        if self.middle is None:
-            a,b,c = self.start
-            x,y,z = self.end
-            res = [0., 0., 0.]
-            dist = (abs(a-x) + abs(b-y) + abs(c-z)) * proportion
-            if dist < abs(self.start[order[0]]-self.end[order[0]]):
-                res[order[0]] = self.start[order[0]] + (self.end[order[0]]-self.start[order[0]]) * proportion
-                res[order[1]] = self.start[order[1]]
-                res[order[2]] = self.start[order[2]]
-            elif dist < abs(self.start[order[0]]-self.end[order[0]]) + abs(self.start[order[1]]-self.end[order[1]]):
-                res[order[0]] = self.end[order[0]]
-                res[order[1]] = self.start[order[1]] + (self.end[order[1]]-self.start[order[1]]) * proportion
-                res[order[2]] = self.start[order[2]]
-            else:
-                res[order[0]] = self.end[order[0]]
-                res[order[1]] = self.start[order[1]]
-                res[order[2]] = self.start[order[2]] + (self.end[order[2]]-self.start[order[2]]) * proportion
+        full_dist: float
+        if middle is None:
+            a,b,c = start
+            x,y,z = end
+            full_dist = abs(a-x) + abs(b-y) + abs(c-z)
+            res = cls._chart_goal(start, end, proportion, order, full_dist)
         else:
-            a,b,c = self.start
-            p,q,r = self.middle
-            x,y,z = self.end
-            res = [0., 0., 0.]
-            dist = (abs(a-p) + abs(b-q) + abs(c-r) + abs(p-x) + abs(q-y) + abs(r-z)) * proportion
-            if dist < abs(a-p) + abs(b-q) + abs(c-r):
-                if dist < abs(self.start[order[0]]-self.middle[order[0]]):
-                    res[order[0]] = self.start[order[0]] + (self.middle[order[0]]-self.start[order[0]]) * proportion
-                    res[order[1]] = self.start[order[1]]
-                    res[order[2]] = self.start[order[2]]
-                elif dist < abs(self.start[order[0]]-self.middle[order[0]]) + abs(self.start[order[1]]-self.middle[order[1]]):
-                    res[order[0]] = self.middle[order[0]]
-                    res[order[1]] = self.start[order[1]] + (self.middle[order[1]]-self.start[order[1]]) * proportion
-                    res[order[2]] = self.start[order[2]]
-                else:
-                    res[order[0]] = self.middle[order[0]]
-                    res[order[1]] = self.start[order[1]]
-                    res[order[2]] = self.start[order[2]] + (self.middle[order[2]]-self.start[order[2]]) * proportion
+            a,b,c = start
+            p,q,r = middle
+            x,y,z = end
+            full_dist = abs(a-p) + abs(b-q) + abs(c-r) + abs(p-x) + abs(q-y) + abs(r-z)
+            mid_dist: float = abs(a-p) + abs(b-q) + abs(c-r)
+            if proportion < mid_dist / full_dist:
+                res = cls._chart_goal(start, middle, proportion, order, full_dist)
             else:
-                dist -= abs(a-p) + abs(b-q) + abs(c-r)
-                if dist < abs(self.middle[order[0]]-self.end[order[0]]):
-                    res[order[0]] = self.middle[order[0]] + (self.end[order[0]]-self.middle[order[0]]) * proportion
-                    res[order[1]] = self.middle[order[1]]
-                    res[order[2]] = self.middle[order[2]]
-                elif dist < abs(self.middle[order[0]]-self.end[order[0]]) + abs(self.middle[order[1]]-self.end[order[1]]):
-                    res[order[0]] = self.end[order[0]]
-                    res[order[1]] = self.middle[order[1]] + (self.end[order[1]]-self.middle[order[1]]) * proportion
-                    res[order[2]] = self.middle[order[2]]
-                else:
-                    res[order[0]] = self.end[order[0]]
-                    res[order[1]] = self.middle[order[1]]
-                    res[order[2]] = self.middle[order[2]] + (self.end[order[2]]-self.middle[order[2]]) * proportion
+                res = cls._chart_goal(middle, end, proportion-mid_dist / full_dist, order, full_dist)
+            
         return Color(color=(res[0], res[1], res[2]),
             color_system=color_system,
-        )
+        ).to_other_system(next_color_system)
 
-    def gradation_helical(self,
-                        proportion: float,
-                        clockwise: bool = True,
-                        ) -> Color:
+    @classmethod
+    def _get_helical(
+            cls,
+            proportion: float,
+            start: Color,
+            end: Color,
+            middle: Color | None = None,
+            clockwise: bool = True,
+            next_color_system: str | None = None,
+        ) -> Color:
         """Make a color gradation helically in a color space.
         This method is mainly used for HSV or HLS.
 
@@ -1336,33 +1488,32 @@ class Gradation:
             A gradation can be represented by a curve in a color space.
             Helical curves are used as the gradation curves in this method,
             assuming that a cylindrical coordinates system is defined in the color space.
+            
+            proportion = 0.0 -> start color, proportion = 1.0 -> end color.
 
         Args:
             proportion (float): Floating point number in [0.0, 1.0].
-                proportion = 0.0 -> start color, proportion = 1.0 -> end color.
-            clockwise (bool): If True, direction of spiral winding is clockwise. Defaults to True.
+            start (Color): Start color.
+            end (Color): End color.
+            middle (Color, optional): Middle color. Defaults to None.
+            clockwise (bool, optional): If True, direction of spiral winding is clockwise. Defaults to True.
+            next_color_system (str, optional): Color system of return value. Defaults to None.
 
         Returns:
             (Color): Color corresponding the number 'proportion' in the gradation.
         """
         if not (0.0 <= proportion <= 1.0):
             raise ValueError("'proportion' must be in [0.0, 1.0]")
-        if self.middle is None:
-            if self.start.get_base_info() != self.end.get_base_info():
+        if middle is None:
+            if start.get_base_info() != end.get_base_info():
                 raise ValueError("'start' and 'end' must have the same properties")
         else:
-            if not (self.start.get_base_info() == self.middle.get_base_info() == self.end.get_base_info()):
+            if not (start.get_base_info() == middle.get_base_info() == end.get_base_info()):
                 raise ValueError("'start' and 'middle' and 'end' must have the same properties")
         
-        start: Color = self.start.deepcopy()
-        end: Color = self.end.deepcopy()
-        middle: Color | None = self.middle
-        if middle is not None:
-            if self.middle is None:
-                raise ValueError
-            middle = self.middle.deepcopy()
+        if next_color_system is None:
+            next_color_system = start.color_system
         color_system: str = start.color_system
-        u: float; v: float; w: float
         if middle is None:
             a,b,c = start
             x,y,z = end
@@ -1370,9 +1521,7 @@ class Gradation:
                 x += 1.0
             if (not clockwise) and a < x:
                 x -= 1.0
-            u = a + (x-a) * proportion
-            v = b + (y-b) * proportion
-            w = c + (z-c) * proportion
+            u,v,w = cls._internal_division((a,b,c), (x,y,z), proportion)
         else:
             a,b,c = start
             p,q,r = middle
@@ -1382,105 +1531,51 @@ class Gradation:
                     p += 1
                 if (not clockwise) and a < p:
                     p -= 1
-                u = a + (p-a) * proportion
-                v = b + (q-b) * proportion
-                w = c + (r-c) * proportion
+                u,v,w = cls._internal_division((a,b,c), (p,q,r), proportion)
             else:
                 if clockwise and p > x:
                     x += 1
                 if (not clockwise) and p < x:
                     x -= 1
-                u = p + (x-p) * (proportion-0.5)
-                v = q + (y-q) * (proportion-0.5)
-                w = r + (z-r) * (proportion-0.5)
+                u,v,w = cls._internal_division((p,q,r), (x,y,z), proportion-0.5)
         return Color(color=(u%1.0, v, w),
             color_system=color_system,
-        )
-
-    def gradation_linear_list(self, num: int = 50) -> list[Color]:
-        """Make a list of color gradation linearly in a color space.
+        ).to_other_system(next_color_system)
+    
+    def convert_to_helical(
+            self,
+            num: int = 50,
+            clockwise: bool = True,
+            next_color_system: str | None = None
+        ) -> None:
+        """Make a list of color gradation helically in a color space.
+        This method is mainly used for HSV or HLS.
 
         Note:
-            A gradation can be represented as a curve in a color space.
-            Straight geodesic lines are used as the gradation curves in this method,
-            assuming that the color space is considered as a real 3D Euclidean space.
+            A gradation can be represented by a curve in a color space.
+            Helical curves are used as the gradation curves in this method,
+            assuming that a cylindrical coordinates system is defined in the color space.
 
         Args:
             num (int): Length of the return list.
-
-        Returns:
-            (list[Color]): Gradation color list.
+            clockwise (bool): If True, direction of spiral winding is clockwise. Defaults to True.
         """
-        if self.middle is None:
-            if self.start.get_base_info() != self.end.get_base_info():
-                raise ValueError("'start' and 'end' must have the same properties")
-        else:
-            if not (self.start.get_base_info() == self.middle.get_base_info() == self.end.get_base_info()):
-                raise ValueError("'start' and 'middle' and 'end' must have the same properties")
+        self.color_list = [
+            self._get_helical(i/(num-1),
+                             self.start,
+                             self.end,
+                             middle=self.middle,
+                             clockwise=clockwise,
+                             next_color_system=next_color_system)
+            for i in range(num)
+        ]
 
-        color_system: str = self.start.color_system
-        res: list[Color] = []
-        if num == 1:
-            return [self.start.deepcopy()]
-        u: float; v: float; w: float
-        if self.middle is None:
-            a,b,c = self.start
-            x,y,z = self.end
-            for i in range(num):
-                u = a + (x-a)*i/(num-1)
-                v = b + (y-b)*i/(num-1)
-                w = c + (z-c)*i/(num-1)
-                res.append(
-                    Color(color=(u,v,w),
-                    color_system=color_system,
-                    )
-                )
-            return res
-        else:
-            a,b,c = self.start
-            p,q,r = self.middle
-            x,y,z = self.end
-            if num % 2 == 1:
-                for i in range(num//2+1):
-                    u = a + (p-a)*i/(num//2)
-                    v = b + (q-b)*i/(num//2)
-                    w = c + (r-c)*i/(num//2)
-                    res.append(
-                        Color(color=(u,v,w),
-                        color_system=color_system,
-                        )
-                    )
-                for i in range(1,num-num//2):
-                    u = p + (x-p)*i/(num-num//2-1)
-                    v = q + (y-q)*i/(num-num//2-1)
-                    w = r + (z-r)*i/(num-num//2-1)
-                    res.append(
-                        Color(color=(u,v,w),
-                        color_system=color_system,
-                        )
-                    )
-            else:
-                for i in range(num//2):
-                    u = a + (p-a)*i*2/(num-1)
-                    v = b + (q-b)*i*2/(num-1)
-                    w = c + (r-c)*i*2/(num-1)
-                    res.append(
-                        Color(color=(u,v,w),
-                        color_system=color_system,
-                        )
-                    )
-                for i in range(num//2-1,-1,-1):
-                    u = x - (x-p)*i*2/(num-1)
-                    v = y - (y-q)*i*2/(num-1)
-                    w = z - (z-r)*i*2/(num-1)
-                    res.append(
-                        Color(color=(u,v,w),
-                        color_system=color_system,
-                        )
-                    )
-            return res
-
-    def gradation_chart_list(self, num: int = 50, order: tuple[int, int, int] = (0,1,2)) -> list[Color]:
+    def convert_to_chart(
+            self,
+            num: int = 50,
+            order: tuple[int, int, int] = (0,1,2),
+            next_color_system: str | None = None,
+        ) -> Gradation:
         """Make a list of color gradation like a chart in a color space.
 
         Note:
@@ -1492,25 +1587,94 @@ class Gradation:
             num (int): Length of the return list.
 
         Returns:
-            (list[Color]): Gradation color list.
+            (Gradation): Gradation object.
         """
-        if self.middle is None:
-            if self.start.get_base_info() != self.end.get_base_info():
-                raise ValueError("'start' and 'end' must have the same properties")
-        else:
-            if not (self.start.get_base_info() == self.middle.get_base_info() == self.end.get_base_info()):
-                raise ValueError("'start' and 'middle' and 'end' must have the same properties")
+        self.color_list = [
+            self._get_chart(i/(num-1),
+                             self.start,
+                             self.end,
+                             middle=self.middle,
+                             order=order,
+                             next_color_system=next_color_system)
+            for i in range(num)
+        ]
 
-        if num == 1:
-            return [self.start.deepcopy()]
-        
-        return [self.gradation_chart(proportion=i/(num-1), order=order) for i in range(num)]
-        
-    def gradation_helical_list(self,
-                        num: int = 50,
-                        clockwise: bool = True,
-                        next_color_system: str | None = None
-                        ) -> list[Color]:
+    @classmethod
+    def gradation_linear_list(
+            cls,
+            start: Color,
+            end: Color,
+            middle: Color | None = None,
+            num: int = 50,
+            next_color_system: str | None = None
+        ) -> Gradation:
+        """Make a list of color gradation linearly in a color space.
+
+        Note:
+            A gradation can be represented as a curve in a color space.
+            Straight geodesic lines are used as the gradation curves in this method,
+            assuming that the color space is considered as a real 3D Euclidean space.
+
+        Args:
+            num (int): Length of the return list.
+
+        Returns:
+            (Gradation): Gradation object.
+        """
+        color_list: list[Color] = [
+            cls._get_linear(i/(num-1),
+                             start,
+                             end,
+                             middle=middle,
+                             next_color_system=next_color_system)
+            for i in range(num)
+        ]
+        return cls.from_color_list(color_list)
+
+    @classmethod
+    def gradation_chart_list(
+            cls,
+            start: Color,
+            end: Color,
+            middle: Color | None = None,
+            num: int = 50,
+            order: tuple[int, int, int] = (0,1,2),
+            next_color_system: str | None = None,
+        ) -> Gradation:
+        """Make a list of color gradation like a chart in a color space.
+
+        Note:
+            A gradation can be represented as a curve in a color space.
+            Chart lines along with each color axis are used as the gradation curves in this method,
+            assuming that the color space is considered as a real 3D Euclidean space.
+
+        Args:
+            num (int): Length of the return list.
+
+        Returns:
+            (Gradation): Gradation object.
+        """
+        color_list: list[Color] = [
+            cls._get_chart(i/(num-1),
+                             start,
+                             end,
+                             middle=middle,
+                             order=order,
+                             next_color_system=next_color_system)
+            for i in range(num)
+        ]
+        return cls.from_color_list(color_list)
+    
+    @classmethod
+    def gradation_helical_list(
+            cls,
+            start: Color,
+            end: Color,
+            middle: Color | None = None,
+            num: int = 50,
+            clockwise: bool = True,
+            next_color_system: str | None = None
+        ) -> Gradation:
         """Make a list of color gradation helically in a color space.
         This method is mainly used for HSV or HLS.
 
@@ -1524,108 +1688,19 @@ class Gradation:
             clockwise (bool): If True, direction of spiral winding is clockwise. Defaults to True.
 
         Returns:
-            (list[Color]): Gradation color list.
+            (Gradation): Gradation object.
         """
-        if self.middle is None:
-            if self.start.get_base_info() != self.end.get_base_info():
-                raise ValueError("'start' and 'end' must have the same properties")
-        else:
-            if not (self.start.get_base_info() == self.middle.get_base_info() == self.end.get_base_info()):
-                raise ValueError("'start' and 'middle' and 'end' must have the same properties")
+        color_list: list[Color] = [
+            cls._get_helical(i/(num-1),
+                             start,
+                             end,
+                             middle=middle,
+                             clockwise=clockwise,
+                             next_color_system=next_color_system)
+            for i in range(num)
+        ]
+        return cls.from_color_list(color_list)
         
-        start: Color = self.start.deepcopy()
-        end: Color = self.end.deepcopy()
-        middle: Color | None = self.middle
-        if middle is not None:
-            if self.middle is None:
-                raise ValueError
-            middle = self.middle.deepcopy()
-
-        if next_color_system is None:
-            next_color_system = start.color_system
-        color_system = start.color_system
-        res: list[Color] = []
-        if num == 1:
-            return [start.deepcopy()]
-        u: float; v: float; w: float
-        if middle is None:
-            a,b,c = start
-            x,y,z = end
-            if clockwise and a > x:
-                x += 1
-            if (not clockwise) and a < x:
-                x -= 1
-            for i in range(num):
-                u = a + (x-a)*i/(num-1)
-                v = b + (y-b)*i/(num-1)
-                w = c + (z-c)*i/(num-1)
-                res.append(
-                    Color(color=(u%1.0, v, w),
-                    color_system=color_system,
-                    ).to_other_system(next_color_system)
-                )
-            return res
-        else:
-            a,b,c = start
-            p,q,r = middle
-            x,y,z = end
-            if num % 2 == 1:
-                if clockwise and a > p:
-                    p += 1
-                if (not clockwise) and a < p:
-                    p -= 1
-                for i in range(num//2+1):
-                    u = a + (p-a)*i/(num//2)
-                    v = b + (q-b)*i/(num//2)
-                    w = c + (r-c)*i/(num//2)
-                    res.append(
-                        Color(color=(u%1.0, v, w),
-                        color_system=color_system,
-                        ).to_other_system(next_color_system)
-                    )
-                p %= 1.0
-                if clockwise and p > x:
-                    x += 1
-                if (not clockwise) and p < x:
-                    x -= 1
-                for i in range(1,num-num//2):
-                    u = p + (x-p)*i/(num-num//2-1)
-                    v = q + (y-q)*i/(num-num//2-1)
-                    w = r + (z-r)*i/(num-num//2-1)
-                    res.append(
-                        Color(color=(u%1.0, v, w),
-                        color_system=color_system,
-                        ).to_other_system(next_color_system)
-                    )
-            else:
-                if clockwise and a > p:
-                    p += 1
-                if (not clockwise) and a < p:
-                    p -= 1
-                for i in range(num//2):
-                    u = a + (p-a)*i*2/(num-1)
-                    v = b + (q-b)*i*2/(num-1)
-                    w = c + (r-c)*i*2/(num-1)
-                    res.append(
-                        Color(color=(u%1.0, v, w),
-                        color_system=color_system,
-                        ).to_other_system(next_color_system)
-                    )
-                p %= 1.0
-                if clockwise and p > x:
-                    x += 1
-                if (not clockwise) and p < x:
-                    x -= 1
-                for i in range(num//2-1,-1,-1):
-                    u = x - (x-p)*i*2/(num-1)
-                    v = y - (y-q)*i*2/(num-1)
-                    w = z - (z-r)*i*2/(num-1)
-                    res.append(
-                        Color(color=(u%1.0, v, w),
-                        color_system=color_system,
-                        ).to_other_system(next_color_system)
-                    )
-            return res
 
     @staticmethod
     def visualize_color(color: Color) -> None:
