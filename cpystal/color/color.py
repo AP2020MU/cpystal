@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import Any, Iterator, Tuple, Union
 
 import matplotlib.pyplot as plt # type: ignore
+import matplotlib.colors # type: ignore
 import numpy as np
 import numpy.typing as npt
 
@@ -276,8 +277,11 @@ class Color:
     def deepcopy(self) -> Color:
         return self.__deepcopy__()
 
-    def get_properties(self) -> tuple[str]:
+    def get_properties(self) -> tuple[Color_type, str, str]:
         return (self.color, self.color_system, self.white_point)
+    
+    def get_base_info(self) -> tuple[str, str]:
+        return (self.color_system, self.white_point)
 
     def rgb_to_hsv(self) -> Color:
         """RGB -> HSV
@@ -959,6 +963,12 @@ class Color:
         else:
             raise ValueError
             return
+    
+    def to_srgb(self) -> Color:
+        return self.to_rgb().rgb_to_srgb()
+    
+    def to_adobergb(self) -> Color:
+        return self.to_rgb().rgb_to_adobergb()
 
     def to_other_system(self, color_system: str) -> Color:
         if color_system == "RGB":
@@ -1035,6 +1045,101 @@ class Color:
             (str): String of float value. The value will be in [0.0, 1.0].
         """
         return str(self.to_xyz().color[1])
+    
+    def rgb_255(self) -> Color_type:
+        r,g,b = self.to_rgb().color
+        return (int(r*255), int(g*255), int(b*255))
+    
+    def srgb_255(self) -> Color_type:
+        r,g,b = self.to_rgb().rgb_to_srgb().color
+        return (int(r*255), int(g*255), int(b*255))
+    
+    @classmethod
+    def color_temperature(cls, T: float) -> Color:
+        """Color temperature.
+
+        Args:
+            T (float): Temperature (K).
+
+        Returns:
+            Color: Color temperature.
+
+        References:
+            https://en.wikipedia.org/wiki/Planckian_locus
+            http://yamatyuu.net/other/color/cie1931xyzrgb/xyz.html
+        """
+        color_temperature_list: list[tuple[int, float, float]] = [
+            (1000, 0.6527, 0.3445),
+            (1100, 0.6387, 0.3565),
+            (1200, 0.6250, 0.3675),
+            (1300, 0.6116, 0.3772),
+            (1400, 0.5985, 0.3858),
+            (1500, 0.5857, 0.3931),
+            (1600, 0.5732, 0.3993),
+            (1700, 0.5611, 0.4043),
+            (1800, 0.5492, 0.4082),
+            (1900, 0.5378, 0.4112),
+            (2000, 0.5267, 0.4133),
+            (3000, 0.4369, 0.4041),
+            (4000, 0.3804, 0.3768),
+            (5000, 0.3451, 0.3516),
+            (6000, 0.3221, 0.3318),
+            (7000, 0.3064, 0.3166),
+            (8000, 0.2952, 0.3048),
+            (9000, 0.2869, 0.2956),
+            (10000, 0.2807, 0.2884),
+            (20000, 0.2565, 0.2577),
+            (30000, 0.2501, 0.2489),
+            (40000, 0.2472, 0.2448),
+            (50000, 0.2456, 0.2425),
+            (60000, 0.2446, 0.2410),
+            (70000, 0.2439, 0.2400),
+            (80000, 0.2433, 0.2392),
+            (90000, 0.2429, 0.2386),
+            (100000, 0.2426, 0.2381),
+        ]
+        def _interp(target: float) -> tuple[float, float]:
+            for i in range(len(color_temperature_list)-1):
+                t1, x1, y1 = color_temperature_list[i]
+                t2, x2, y2 = color_temperature_list[i+1]
+                if t1 <= target <= t2:
+                    x_target: float = x1 + (target-t1) / (t2-t1) * (x2-x1)
+                    y_target: float = y1 + (target-t1) / (t2-t1) * (y2-y1)
+                    return (x_target, y_target)
+            raise ValueError 
+        
+        x: float
+        y: float
+
+        if 1667 <= T <= 4000:
+            x = -0.2661239e9/T**3 - 0.2343589e6/T**2 + 0.8776956e3/T + 0.179910
+        elif 4000 < T <= 25000:
+            x = -3.0258469e9/T**3 + 2.1070379e6/T**2 + 0.2226347e3/T + 0.240390
+        else:
+            x, _ = _interp(T)
+
+        if 1667 <= T <= 2222:
+            y = -1.1063814 * x**3 - 1.34811020 * x**2 + 2.18555832 * x - 0.20219683
+        elif 2222 < T <= 4000:
+            y = -0.9549476 * x**3 - 1.37418593 * x**2 + 2.09137015 * x - 0.16748867
+        elif 4000 < T <= 25000:
+            y = 3.0817580 * x**3 - 5.87338670 * x**2 + 3.75112997 * x - 0.37001483
+        else:
+            _, y = _interp(T)
+
+        z: float = 1 - x - y
+        return Color(
+            color=(x, y, z),
+            color_system="XYZ"
+        )
+    
+    @property
+    def D65(self) -> Color:
+        return self.color_temperature(6500 * 1.4388 / 1.438)
+    
+    @property
+    def D50(self) -> Color:
+        return self.color_temperature(5000 * 1.4388 / 1.438)
 
 
 class Gradation:
@@ -1044,6 +1149,11 @@ class Gradation:
         start (Color): Start color of the gradation.
         end (Color): End color of the gradation.
         middle (Color | None): Middle color of the gradation. Defaults to None.
+
+    TODO:
+        The constructor of Gradation generates Gradation.color_list.
+        The methods gradation_*_list is converted to classmethod.
+        Make Gradation object iterable (Implement __iter__).
 
     Examples:
         >>> ### you can use this class as 'matplotlib.cm' objects.
@@ -1067,11 +1177,11 @@ class Gradation:
                 middle: Color | None = None,
                 ) -> None:
         if middle is None:
-            if start.get_properties() != end.get_properties():
-                raise ValueError("'start' and 'end' must have same properties")
+            if start.get_base_info() != end.get_base_info():
+                raise ValueError("'start' and 'end' must have the same properties")
         else:
-            if not (start.get_properties() == middle.get_properties() == end.get_properties()):
-                raise ValueError("'start' and 'middle' and 'end' must have same properties")
+            if not (start.get_base_info() == middle.get_base_info() == end.get_base_info()):
+                raise ValueError("'start' and 'middle' and 'end' must have the same properties")
         self.start: Color = start
         self.end: Color = end
         self.middle: Color | None = middle
@@ -1101,11 +1211,11 @@ class Gradation:
         if not (0.0 <= proportion <= 1.0):
             raise ValueError("'proportion' must be in [0.0, 1.0]")
         if self.middle is None:
-            if self.start.get_properties() != self.end.get_properties():
-                raise ValueError("'start' and 'end' must have same properties")
+            if self.start.get_base_info() != self.end.get_base_info():
+                raise ValueError("'start' and 'end' must have the same properties")
         else:
-            if not (self.start.get_properties() == self.middle.get_properties() == self.end.get_properties()):
-                raise ValueError("'start' and 'middle' and 'end' must have same properties")
+            if not (self.start.get_base_info() == self.middle.get_base_info() == self.end.get_base_info()):
+                raise ValueError("'start' and 'middle' and 'end' must have the same properties")
 
         color_system: str = self.start.color_system
         u: float; v: float; w: float
@@ -1152,11 +1262,11 @@ class Gradation:
         if not (0.0 <= proportion <= 1.0):
             raise ValueError("'proportion' must be in [0.0, 1.0]")
         if self.middle is None:
-            if self.start.get_properties() != self.end.get_properties():
-                raise ValueError("'start' and 'end' must have same properties")
+            if self.start.get_base_info() != self.end.get_base_info():
+                raise ValueError("'start' and 'end' must have the same properties")
         else:
-            if not (self.start.get_properties() == self.middle.get_properties() == self.end.get_properties()):
-                raise ValueError("'start' and 'middle' and 'end' must have same properties")
+            if not (self.start.get_base_info() == self.middle.get_base_info() == self.end.get_base_info()):
+                raise ValueError("'start' and 'middle' and 'end' must have the same properties")
 
         color_system: str = self.start.color_system
         dist: float
@@ -1238,11 +1348,11 @@ class Gradation:
         if not (0.0 <= proportion <= 1.0):
             raise ValueError("'proportion' must be in [0.0, 1.0]")
         if self.middle is None:
-            if self.start.get_properties() != self.end.get_properties():
-                raise ValueError("'start' and 'end' must have same properties")
+            if self.start.get_base_info() != self.end.get_base_info():
+                raise ValueError("'start' and 'end' must have the same properties")
         else:
-            if not (self.start.get_properties() == self.middle.get_properties() == self.end.get_properties()):
-                raise ValueError("'start' and 'middle' and 'end' must have same properties")
+            if not (self.start.get_base_info() == self.middle.get_base_info() == self.end.get_base_info()):
+                raise ValueError("'start' and 'middle' and 'end' must have the same properties")
         
         start: Color = self.start.deepcopy()
         end: Color = self.end.deepcopy()
@@ -1302,11 +1412,11 @@ class Gradation:
             (list[Color]): Gradation color list.
         """
         if self.middle is None:
-            if self.start.get_properties() != self.end.get_properties():
-                raise ValueError("'start' and 'end' must have same properties")
+            if self.start.get_base_info() != self.end.get_base_info():
+                raise ValueError("'start' and 'end' must have the same properties")
         else:
-            if not (self.start.get_properties() == self.middle.get_properties() == self.end.get_properties()):
-                raise ValueError("'start' and 'middle' and 'end' must have same properties")
+            if not (self.start.get_base_info() == self.middle.get_base_info() == self.end.get_base_info()):
+                raise ValueError("'start' and 'middle' and 'end' must have the same properties")
 
         color_system: str = self.start.color_system
         res: list[Color] = []
@@ -1385,11 +1495,11 @@ class Gradation:
             (list[Color]): Gradation color list.
         """
         if self.middle is None:
-            if self.start.get_properties() != self.end.get_properties():
-                raise ValueError("'start' and 'end' must have same properties")
+            if self.start.get_base_info() != self.end.get_base_info():
+                raise ValueError("'start' and 'end' must have the same properties")
         else:
-            if not (self.start.get_properties() == self.middle.get_properties() == self.end.get_properties()):
-                raise ValueError("'start' and 'middle' and 'end' must have same properties")
+            if not (self.start.get_base_info() == self.middle.get_base_info() == self.end.get_base_info()):
+                raise ValueError("'start' and 'middle' and 'end' must have the same properties")
 
         if num == 1:
             return [self.start.deepcopy()]
@@ -1399,6 +1509,7 @@ class Gradation:
     def gradation_helical_list(self,
                         num: int = 50,
                         clockwise: bool = True,
+                        next_color_system: str | None = None
                         ) -> list[Color]:
         """Make a list of color gradation helically in a color space.
         This method is mainly used for HSV or HLS.
@@ -1416,11 +1527,11 @@ class Gradation:
             (list[Color]): Gradation color list.
         """
         if self.middle is None:
-            if self.start.get_properties() != self.end.get_properties():
-                raise ValueError("'start' and 'end' must have same properties")
+            if self.start.get_base_info() != self.end.get_base_info():
+                raise ValueError("'start' and 'end' must have the same properties")
         else:
-            if not (self.start.get_properties() == self.middle.get_properties() == self.end.get_properties()):
-                raise ValueError("'start' and 'middle' and 'end' must have same properties")
+            if not (self.start.get_base_info() == self.middle.get_base_info() == self.end.get_base_info()):
+                raise ValueError("'start' and 'middle' and 'end' must have the same properties")
         
         start: Color = self.start.deepcopy()
         end: Color = self.end.deepcopy()
@@ -1430,7 +1541,9 @@ class Gradation:
                 raise ValueError
             middle = self.middle.deepcopy()
 
-        color_system: str = start.color_system
+        if next_color_system is None:
+            next_color_system = start.color_system
+        color_system = start.color_system
         res: list[Color] = []
         if num == 1:
             return [start.deepcopy()]
@@ -1449,7 +1562,7 @@ class Gradation:
                 res.append(
                     Color(color=(u%1.0, v, w),
                     color_system=color_system,
-                    )
+                    ).to_other_system(next_color_system)
                 )
             return res
         else:
@@ -1468,7 +1581,7 @@ class Gradation:
                     res.append(
                         Color(color=(u%1.0, v, w),
                         color_system=color_system,
-                        )
+                        ).to_other_system(next_color_system)
                     )
                 p %= 1.0
                 if clockwise and p > x:
@@ -1482,7 +1595,7 @@ class Gradation:
                     res.append(
                         Color(color=(u%1.0, v, w),
                         color_system=color_system,
-                        )
+                        ).to_other_system(next_color_system)
                     )
             else:
                 if clockwise and a > p:
@@ -1496,7 +1609,7 @@ class Gradation:
                     res.append(
                         Color(color=(u%1.0, v, w),
                         color_system=color_system,
-                        )
+                        ).to_other_system(next_color_system)
                     )
                 p %= 1.0
                 if clockwise and p > x:
@@ -1510,9 +1623,60 @@ class Gradation:
                     res.append(
                         Color(color=(u%1.0, v, w),
                         color_system=color_system,
-                        )
+                        ).to_other_system(next_color_system)
                     )
             return res
+
+    @staticmethod
+    def visualize_color(color: Color) -> None:
+        pass
+    
+    @staticmethod
+    def compare_colors(color_list: list[Color]) -> None:
+        pass
+    
+    @staticmethod
+    def visualize_gradation(color_list: list[Color]) -> None:
+        x: npt.NDArray = np.linspace(0, 1, 256).reshape(1, 256)
+        fig: plt.figure = plt.figure(figsize=(5, 2))
+        ax: plt.subplot = fig.add_subplot(1, 1, 1)
+        ax.set_axis_off()
+        cdict: dict[str, list[tuple[float, float, float]]] = {"red":[], "green": [], "blue": []}
+        N: int = len(color_list)
+        for i in range(N):
+            r,g,b = color_list[i].color
+            cdict["red"].append((i/(N-1), r, r))
+            cdict["green"].append((i/(N-1), g, g))
+            cdict["blue"].append((i/(N-1), b, b))
+        cmap = matplotlib.colors.LinearSegmentedColormap("custom", cdict, N=N)
+        ax.imshow(x, cmap=cmap, aspect="auto")
+        plt.show()
+    
+    @staticmethod
+    def compare_gradations(gradation_list: list[list[Color]]) -> None:
+        x: npt.NDArray = np.linspace(0, 1, 256).reshape(1, 256)
+        fig: plt.figure = plt.figure(figsize=(5, 2))
+        for j, color_list in enumerate(gradation_list, 1):
+            ax: plt.subplot = fig.add_subplot(len(gradation_list), 1, j)
+            ax.set_axis_off()
+            cdict: dict[str, list[tuple[float, float, float]]] = {"red":[], "green": [], "blue": []}
+            N: int = len(color_list)
+            for i in range(N):
+                r,g,b = color_list[i].color
+                cdict["red"].append((i/(N-1), r, r))
+                cdict["green"].append((i/(N-1), g, g))
+                cdict["blue"].append((i/(N-1), b, b))
+            cmap = matplotlib.colors.LinearSegmentedColormap("custom", cdict, N=N)
+            ax.imshow(x, cmap=cmap, aspect="auto")
+        plt.show()
+
+    @staticmethod
+    def planckian_curve(lowT: float, highT: float, num: int = 256) -> list[Color]:
+        return [Color.color_temperature(T).to_srgb() for T in np.linspace(lowT,highT,num)]
+
+    @staticmethod
+    def equidistant(num: int) -> list[Color]:
+        return Gradation(Color(BLUE_HSV,"HSV"), Color(RED_HSV,"HSV")).gradation_helical_list(num=num, clockwise=False, next_color_system="sRGB")
 
 
 
@@ -1831,31 +1995,48 @@ BLACK_YIQ: Color_type = (0.0, 0.0, 0.0)
 
 
 def main() -> None:
-    C1: Color = Color(RED_RGB, RGB)
-    C2: Color = Color(RED_HSV, HSV)
-    C3: Color = Color(GREEN_HSV, HSV)
-    C4: Color = Color(BLUE_YIQ, YIQ)
-    print(C1.color_code())
-    print(-(-C1.to_rgb()))
-
-    import numpy as np
-    A: npt.NDArray[np.float32] = np.array([
-        [1.047886,  0.022919, -0.050216],
-        [0.029582,  0.990484, -0.017079],
-        [-0.009252,  0.015073,  0.751678]
-    ])
-    print(np.linalg.inv(A))
     pass
-    # G = Gradation(Color(RED_RGB, RGB), Color(BLUE_RGB, RGB), middle=Color(GREEN_RGB, RGB))
+    def check_color_temp():
+        for T in [1000,2000,3000,4000,5000,6500,7000,10000,50000]:
+            print(T)
+            print(Color.color_temperature(T))
+            print(Color.color_temperature(T).srgb_255())
+            print()
+        color_list = [Color.color_temperature(T).to_srgb() for T in range(1000,10000+1,1000)]
+        # Gradation.visualize_gradation(Gradation.planckian_curve(1000,10000))
 
-    G = Gradation(Color(RED_HSV, HSV), Color(BLUE_HSV, HSV), middle=Color(GREEN_HSV, HSV))
-    # G = Gradation(Color(RED_HLS, HLS), Color(BLUE_HLS, HLS))
-    # G = Gradation(Color(RED_YIQ, YIQ), Color(BLUE_YIQ, YIQ))
+        color_list = Gradation(Color(BLUE_HSV,"HSV"), Color(RED_HSV,"HSV")).gradation_helical_list(num=256,clockwise=False, next_color_system="RGB")
+        color_list2 = Gradation(Color(BLUE_HSV,"HSV"), Color(RED_HSV,"HSV")).gradation_helical_list(num=256,clockwise=False, next_color_system="sRGB")
+        color_list3 = Gradation(Color(BLUE_HSV,"HSV"), Color(RED_HSV,"HSV")).gradation_helical_list(num=10,clockwise=False, next_color_system="RGB")
+        color_list4 = Gradation.equidistant(10)
+        Gradation.compare_gradations([color_list,color_list2, color_list3, color_list4])
 
-    # view_gradation(G.gradation_linear_list())
-    # view_gradation(G.gradation_helical_list(clockwise=False))
-    print(G.gradation_chart_list(order=(2,1,0)))
-    view_gradation(G.gradation_chart_list(num=100,order=(0,2,1)))
+    check_color_temp()
+    # C1: Color = Color(RED_RGB, RGB)
+    # C2: Color = Color(RED_HSV, HSV)
+    # C3: Color = Color(GREEN_HSV, HSV)
+    # C4: Color = Color(BLUE_YIQ, YIQ)
+    # print(C1.color_code())
+    # print(-(-C1.to_rgb()))
+
+    # import numpy as np
+    # A: npt.NDArray[np.float32] = np.array([
+    #     [1.047886,  0.022919, -0.050216],
+    #     [0.029582,  0.990484, -0.017079],
+    #     [-0.009252,  0.015073,  0.751678]
+    # ])
+    # print(np.linalg.inv(A))
+    # pass
+    # # G = Gradation(Color(RED_RGB, RGB), Color(BLUE_RGB, RGB), middle=Color(GREEN_RGB, RGB))
+
+    # G = Gradation(Color(RED_HSV, HSV), Color(BLUE_HSV, HSV), middle=Color(GREEN_HSV, HSV))
+    # # G = Gradation(Color(RED_HLS, HLS), Color(BLUE_HLS, HLS))
+    # # G = Gradation(Color(RED_YIQ, YIQ), Color(BLUE_YIQ, YIQ))
+
+    # # view_gradation(G.gradation_linear_list())
+    # # view_gradation(G.gradation_helical_list(clockwise=False))
+    # print(G.gradation_chart_list(order=(2,1,0)))
+    # view_gradation(G.gradation_chart_list(num=100,order=(0,2,1)))
 
 
 
