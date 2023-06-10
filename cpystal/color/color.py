@@ -2,10 +2,13 @@
 """
 from __future__ import annotations
 
+import math
 from typing import Any, Iterator, Tuple, Union
 
 import matplotlib.pyplot as plt # type: ignore
 import matplotlib.colors # type: ignore
+from matplotlib.patches import Rectangle
+import matplotlib.colors as mcolors
 import numpy as np
 import numpy.typing as npt
 
@@ -72,10 +75,10 @@ class Color:
         self._weight: int = 1
 
     def __str__(self) -> str:
-        return f"{self.color_system}{self.color}"
+        return f"{self.color_system}{tuple(round(c, 2) for c in self.color)}"
     
     def __repr__(self) -> str:
-        return str(self)
+        return f"Color({repr(self._color)}, {repr(self.color_system)}, white_point={repr(self.white_point)})"
 
     def __neg__(self) -> Color:
         new_color: Color = self.__deepcopy__()
@@ -425,7 +428,6 @@ class Color:
         new_color.__check_color_value()
         return new_color
 
-    
     def hls_to_rgb(self) -> Color:
         """HLS -> RGB
 
@@ -998,7 +1000,7 @@ class Color:
             (str): Color code in hexadecimal notation.
         """
         r,g,b = self.to_rgb()
-        return f"#{int(r*255):02x}{int(g*255):02x}{int(b*255):02x}"
+        return f"#{round(r*255):02x}{round(g*255):02x}{round(b*255):02x}"
 
     def to_rgba(self, alpha: float | None = None) -> tuple[float, float, float, float]:
         """Hexadecimal color code
@@ -1135,12 +1137,51 @@ class Color:
     
     @property
     def D65(self) -> Color:
+        """this should be a class property in Python 3.9"""
         return self.color_temperature(6500 * 1.4388 / 1.438)
     
     @property
     def D50(self) -> Color:
+        """this should be a class property in Python 3.9"""
         return self.color_temperature(5000 * 1.4388 / 1.438)
 
+    @classmethod
+    def from_color_code(cls, code: str) -> Color:
+        r: float = int(f"0x{code[1:3]}", base=16)/255
+        g: float = int(f"0x{code[3:5]}", base=16)/255
+        b: float = int(f"0x{code[5:7]}", base=16)/255
+        return Color((r,g,b), "RGB")
+
+    @classmethod
+    def starlight(cls) -> list[Color]:
+        return [
+            cls.from_color_code("#fb5458"),
+            cls.from_color_code("#6292e9"),
+            cls.from_color_code("#62bd93"),
+            cls.from_color_code("#fe9952"),
+            cls.from_color_code("#cbc6cc"),
+            cls.from_color_code("#95caee"),
+            cls.from_color_code("#fdd162"),
+            cls.from_color_code("#8c67aa"),
+            cls.from_color_code("#e08696"),
+        ]
+    
+    @classmethod
+    def from_name(cls, name: str) -> Color:
+        return cls.from_color_code(mcolors.CSS4_COLORS[name])
+
+    def change_saturation_hsv(self, saturation: float) -> Color:
+        color_system: str = self.color_system
+        new: Color = self.to_hsv()
+        new._color = (new.color[0], saturation, new.color[2])
+        return new.to_other_system(color_system)
+    
+    def change_value_hsv(self, value: float) -> Color:
+        color_system: str = self.color_system
+        new: Color = self.to_hsv()
+        new._color = (new.color[0], new.color[1], value)
+        return new.to_other_system(color_system)
+    
 
 class Gradation:
     """Color gradation
@@ -1195,12 +1236,14 @@ class Gradation:
                              next_color_system=next_color_system)
             for i in range(num)
         ]
+        self.next_color_system: str | None = next_color_system
 
     def __str__(self) -> str:
-        return f"{self.color_system}{self.color}"
+        return str(self.color_list)
     
     def __repr__(self) -> str:
-        return str(self)
+        return f"Gradation({repr(self.start)}, {repr(self.end)}, middle={repr(self.middle)}, "\
+                f"num={repr(len(self.color_list))}, next_color_system={repr(self.next_color_system)})"
 
     def __neg__(self) -> Gradation:
         return self.from_color_list([-c for c in self.color_list])
@@ -1313,7 +1356,7 @@ class Gradation:
 
     @classmethod
     def from_color_list(cls, color_list: list[Color]) -> Gradation:
-        new: Gradation = cls(color_list[0].deepcopy(), color_list[-1].deepcopy())
+        new: Gradation = cls(color_list[0].deepcopy(), color_list[-1].deepcopy(), num=len(color_list),)
         new.color_list = [c.deepcopy() for c in color_list]
         return new
 
@@ -1700,26 +1743,16 @@ class Gradation:
             for i in range(num)
         ]
         return cls.from_color_list(color_list)
-        
-
-    @staticmethod
-    def visualize_color(color: Color) -> None:
-        pass
     
-    @staticmethod
-    def compare_colors(color_list: list[Color]) -> None:
-        pass
-    
-    @staticmethod
-    def visualize_gradation(color_list: list[Color]) -> None:
+    def visualize_gradation(self, rgb_type: str = "RGB") -> None:
         x: npt.NDArray = np.linspace(0, 1, 256).reshape(1, 256)
         fig: plt.figure = plt.figure(figsize=(5, 2))
         ax: plt.subplot = fig.add_subplot(1, 1, 1)
         ax.set_axis_off()
         cdict: dict[str, list[tuple[float, float, float]]] = {"red":[], "green": [], "blue": []}
-        N: int = len(color_list)
-        for i in range(N):
-            r,g,b = color_list[i].color
+        N: int = len(self.color_list)
+        for i, c in enumerate(self.color_list):
+            r,g,b = c.to_other_system(rgb_type)
             cdict["red"].append((i/(N-1), r, r))
             cdict["green"].append((i/(N-1), g, g))
             cdict["blue"].append((i/(N-1), b, b))
@@ -1727,17 +1760,17 @@ class Gradation:
         ax.imshow(x, cmap=cmap, aspect="auto")
         plt.show()
     
-    @staticmethod
-    def compare_gradations(gradation_list: list[list[Color]]) -> None:
+    def compare_gradations(self, gradation_list: list[Gradation], rgb_type: str = "RGB") -> None:
         x: npt.NDArray = np.linspace(0, 1, 256).reshape(1, 256)
         fig: plt.figure = plt.figure(figsize=(5, 2))
-        for j, color_list in enumerate(gradation_list, 1):
+        gradation_list = [self] + gradation_list
+        for j, gradation in enumerate(gradation_list, 1):
             ax: plt.subplot = fig.add_subplot(len(gradation_list), 1, j)
             ax.set_axis_off()
             cdict: dict[str, list[tuple[float, float, float]]] = {"red":[], "green": [], "blue": []}
-            N: int = len(color_list)
-            for i in range(N):
-                r,g,b = color_list[i].color
+            N: int = len(gradation.color_list)
+            for i, c in enumerate(gradation.color_list):
+                r,g,b = c.to_other_system(rgb_type)
                 cdict["red"].append((i/(N-1), r, r))
                 cdict["green"].append((i/(N-1), g, g))
                 cdict["blue"].append((i/(N-1), b, b))
@@ -1745,15 +1778,74 @@ class Gradation:
             ax.imshow(x, cmap=cmap, aspect="auto")
         plt.show()
 
-    @staticmethod
-    def planckian_curve(lowT: float, highT: float, num: int = 256) -> list[Color]:
-        return [Color.color_temperature(T).to_srgb() for T in np.linspace(lowT,highT,num)]
+    @classmethod
+    def planckian_curve(cls, lowT: float, highT: float, num: int = 256) -> Gradation:
+        return cls.from_color_list([Color.color_temperature(T).to_srgb() for T in np.linspace(lowT,highT,num)])
+
+    @classmethod
+    def equidistant(cls, num: int) -> list[Color]:
+        if num == 10:
+            return cls.ten_colors()
+        else:
+            return cls.gradation_helical_list(Color(BLUE_HSV,"HSV"), Color(RED_HSV,"HSV"), num=num, clockwise=False, next_color_system="sRGB").color_list
 
     @staticmethod
-    def equidistant(num: int) -> list[Color]:
-        return Gradation(Color(BLUE_HSV,"HSV"), Color(RED_HSV,"HSV")).gradation_helical_list(num=num, clockwise=False, next_color_system="sRGB")
+    def ten_colors() -> list[Color]:
+        return [
+            Color.from_color_code("#000000"),
+            Color.from_color_code("#8c67aa").change_saturation_hsv(0.8),
+            Color.from_color_code("#0000ff"),
+            Color.from_color_code("#6292e9").change_saturation_hsv(0.8),
+            Color.from_color_code("#95caee").change_saturation_hsv(0.5),
+            Color.from_color_code("#62bd93").change_saturation_hsv(0.8),
+            Color.from_color_code("#adff2f").change_saturation_hsv(0.8),
+            Color.from_color_code("#fdd162").change_saturation_hsv(0.8),
+            Color.from_color_code("#fe9952").change_saturation_hsv(0.8),
+            Color.from_color_code("#fb5458").change_saturation_hsv(0.8),
+        ]
+    
+def plot_colortable(colors: list[Color], *, ncols: int = 4, sort_colors: bool = True):
+    cell_width: int = 212
+    cell_height: int = 22
+    swatch_width: int = 48
+    margin: int = 12
 
+    # Sort colors by hue, saturation, value and name.
+    if sort_colors is True:
+        colors = sorted(
+            colors, key=lambda c: c.to_hsv().color)
+    else:
+        colors = list(colors)
 
+    n: int = len(colors)
+    nrows: int = math.ceil(n / ncols)
+    width: int = cell_width * 4 + 2 * margin
+    height: int = cell_height * nrows + 2 * margin
+    dpi: int = 72
+
+    fig, ax = plt.subplots(figsize=(width / dpi, height / dpi), dpi=dpi)
+    fig.subplots_adjust(margin/width, margin/height,
+                        (width-margin)/width, (height-margin)/height)
+    ax.set_xlim(0, cell_width * 4)
+    ax.set_ylim(cell_height * (nrows-0.5), -cell_height/2.)
+    ax.yaxis.set_visible(False)
+    ax.xaxis.set_visible(False)
+    ax.set_axis_off()
+
+    for i, color in enumerate(colors):
+        row: int = i % nrows
+        col: int = i // nrows
+        y: int = row * cell_height
+        swatch_start_x: int = cell_width * col
+        text_pos_x: int = cell_width * col + swatch_width + 7
+        ax.text(text_pos_x, y, color.color_code(), fontsize=14,
+                horizontalalignment='left',
+                verticalalignment='center')
+        ax.add_patch(
+            Rectangle(xy=(swatch_start_x, y-9), width=swatch_width,
+                      height=18, facecolor=color.to_rgb(), edgecolor='0.7')
+        )
+    return fig
 
 def rgb_to_hsv(rgb: Color_type, digitization: bool = False, MAX_SV: int = 100) -> Color_type:
     """RGB -> HSV
@@ -2086,7 +2178,58 @@ def main() -> None:
         color_list4 = Gradation.equidistant(10)
         Gradation.compare_gradations([color_list,color_list2, color_list3, color_list4])
 
-    check_color_temp()
+    # check_color_temp()
+    # plot_colortable(mcolors.BASE_COLORS, ncols=3, sort_colors=False)
+
+    # names = sorted(mcolors.CSS4_COLORS, key=lambda c: tuple(mcolors.rgb_to_hsv(mcolors.to_rgb(c))))
+    # names = sorted([(*tuple(mcolors.rgb_to_hsv(mcolors.to_rgb(c))),c) for c in mcolors.CSS4_COLORS])
+    # print(names)
+    colors = [Color(Color.from_color_code(c),RGB) for _, c in mcolors.CSS4_COLORS.items()]
+
+    colors = [
+        Color((240/360, 1.0, 0.5), HSV),
+        Color((240/360, 1.0, 1.0), HSV),
+        Color((210/360, 1.0, 1.0), HSV),
+        Color((190/360, 1.0, 1.0), HSV),
+        Color((160/360, 1.0, 1.0), HSV),
+        Color((110/360, 1.0, 1.0), HSV),
+        Color((70/360, 1.0, 1.0), HSV),
+        Color((50/360, 1.0, 1.0), HSV),
+        Color((30/360, 1.0, 1.0), HSV),
+        Color((0/360, 1.0, 0.95), HSV),
+    ]
+    import matplotlib.cm as cm
+
+    colors = [
+        Color.from_color_code("#000000"),
+        # Color.from_color_code("#6600cc"),
+        Color.from_color_code("#8c67aa").change_saturation_hsv(0.8),
+        Color.from_color_code("#0000ff"),
+        Color.from_color_code("#6292e9").change_saturation_hsv(0.8),
+        Color.from_color_code("#95caee").change_saturation_hsv(0.5),
+        Color.from_color_code("#62bd93").change_saturation_hsv(0.8),
+        Color.from_color_code("#adff2f").change_saturation_hsv(0.8),
+        Color.from_color_code("#fdd162").change_saturation_hsv(0.8),
+        Color.from_color_code("#fe9952").change_saturation_hsv(0.8),
+        # Color.from_color_code("#e08696"),
+        Color.from_color_code("#fb5458").change_saturation_hsv(0.8),
+    ]
+    plot_colortable(colors, ncols=2, sort_colors=False)
+    # plot_colortable(Gradation.ten_colors(), ncols=1, sort_colors=False)
+    plt.show()
+
+    print(*[c.to_hsv() for c in colors],sep="\n")
+
+    print(Color((270/360,1.0,0.8), HSV).color_code())
+
+    print(colors)
+
+
+
+
+
+
+
     # C1: Color = Color(RED_RGB, RGB)
     # C2: Color = Color(RED_HSV, HSV)
     # C3: Color = Color(GREEN_HSV, HSV)
