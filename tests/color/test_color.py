@@ -2,7 +2,8 @@ from __future__ import annotations
 
 from cpystal.color.color import (Color, RGB, RED_RGB, GREEN_RGB, BLUE_RGB,
                                  CYAN_RGB, MAGENTA_RGB, YELLOW_RGB,
-                                 WHITE_RGB, BLACK_RGB, GRAY_RGB)
+                                 WHITE_RGB, BLACK_RGB, GRAY_RGB,
+                                 Gradation)
 
 def test_color_001():
     r: Color = Color(RED_RGB, RGB)
@@ -14,7 +15,16 @@ def test_color_001():
     assert b.color == (0.0, 0.0, 1.0)
     assert r.color_code() == "#ff0000"
     assert r.color_system == "RGB"
+    assert r.get_base_info() == ("RGB", "D65")
     assert r.get_properties() == ((1.0, 0.0, 0.0), "RGB", "D65")
+    assert eval(repr(r)) == r
+
+def test_color_002():
+    r: Color = Color(RED_RGB, RGB)
+    g: Color = Color(GREEN_RGB, RGB)
+    b: Color = Color(BLUE_RGB, RGB)
+    d65: Color = r.D65
+    assert d65 == Color.color_temperature(6504)
 
 def test_operation_001():
     r: Color = Color(RED_RGB, RGB)
@@ -230,4 +240,10 @@ def test_bit_operation_004():
     assert c ^ c == m ^ m == y ^ y == black
 
 
+def test_gradation_001():
+    r: Color = Color(RED_RGB, RGB)
+    g: Color = Color(GREEN_RGB, RGB)
+    b: Color = Color(BLUE_RGB, RGB)
+    grad: Gradation = Gradation(b, r)
 
+    assert eval(repr(grad)) == grad
