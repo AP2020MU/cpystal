@@ -83,7 +83,7 @@ class Color:
     def __neg__(self) -> Color:
         new_color: Color = self.__deepcopy__()
         if new_color.color_system == "RGB":
-            r,g,b = new_color.color
+            r,g,b = new_color._color
             m: float = max(r,g,b) + min(r,g,b)
             new_color._color = (m-r, m-g, m-b)
             return new_color
@@ -94,7 +94,7 @@ class Color:
     def __invert__(self) -> Color:
         new_color: Color = self.__deepcopy__()
         if new_color.color_system == "RGB":
-            r,g,b = new_color.color
+            r,g,b = new_color._color
             new_color._color = (1-r, 1-g, 1-b)
             return new_color
         else:
@@ -111,8 +111,44 @@ class Color:
         return not self.__eq__(other)
     
     def __add__(self, other: Color) -> Color:
-        a,b,c = self.to_rgb().color
-        x,y,z = other.to_rgb().color
+        """Simple addition operationn between `Color` instances.
+
+        Args:
+            other (Color): `Color` instance.
+
+        Returns:
+            Color: Result of the operation.
+        
+        Examples:
+            >>> r: Color = Color(RED_RGB, RGB)
+            >>> g: Color = Color(GREEN_RGB, RGB)
+            >>> b: Color = Color(BLUE_RGB, RGB)
+            >>> c: Color = Color(CYAN_RGB, RGB)
+            >>> m: Color = Color(MAGENTA_RGB, RGB)
+            >>> y: Color = Color(YELLOW_RGB, RGB)
+            >>> white: Color = Color(WHITE_RGB, RGB)
+            >>> black: Color = Color(BLACK_RGB, RGB)
+
+            >>> assert r + g == g + r == y
+            >>> assert b + r == r + b == m
+            >>> assert g + b == b + g == c
+            >>> assert c + m == m + c == white
+            >>> assert m + y == y + m == white
+            >>> assert y + c == c + y == white
+            >>> assert r + g + b == white
+            >>> assert c + m + y == white
+            >>> assert black + white == white
+            >>> assert r + black == r
+            >>> assert g + black == g
+            >>> assert b + black == b
+            >>> assert c + black == c
+            >>> assert m + black == m
+            >>> assert y + black == y
+            >>> assert r + white == g + white == b + white == white
+            >>> assert c + white == m + white == y + white == white
+        """
+        a,b,c = self.to_rgb()._color
+        x,y,z = other.to_rgb()._color
         (_, maxr),( _, maxg), (_, maxb) = self._value_range["RGB"]
         return self.__class__(
             color=(min(a+x, maxr), min(b+y, maxg), min(c+z, maxb)),
@@ -120,8 +156,30 @@ class Color:
         )
 
     def __sub__(self, other: Color) -> Color:
-        a,b,c = self.to_rgb().color
-        x,y,z = other.to_rgb().color
+        """Inverse simple addition operationn between `Color` instances.
+
+        Args:
+            other (Color): `Color` instance.
+
+        Returns:
+            Color: Result of the operation.
+        
+        Examples:
+            >>> r: Color = Color(RED_RGB, RGB)
+            >>> g: Color = Color(GREEN_RGB, RGB)
+            >>> b: Color = Color(BLUE_RGB, RGB)
+            >>> c: Color = Color(CYAN_RGB, RGB)
+            >>> m: Color = Color(MAGENTA_RGB, RGB)
+            >>> y: Color = Color(YELLOW_RGB, RGB)
+            >>> white: Color = Color(WHITE_RGB, RGB)
+            >>> black: Color = Color(BLACK_RGB, RGB)
+
+            >>> assert r - g != r + -g
+            >>> assert r + g - g != r - g + g
+            >>> assert r - r == black
+        """
+        a,b,c = self.to_rgb()._color
+        x,y,z = other.to_rgb()._color
         (minr, _), (ming, _), (minb, _) = self._value_range["RGB"]
         return self.__class__(
             color=(max(a-x, minr), max(b-y, ming), max(c-z, minb)),
@@ -133,10 +191,40 @@ class Color:
         return (w1*x1 + w2*x2) / (w1 + w2)
     
     def __mul__(self, other: Color) -> Color:
-        """Weighted average.
+        """Weighted average operationn between `Color` instances.
+
+        Args:
+            other (Color): `Color` instance.
+
+        Returns:
+            Color: Result of the operation.
+        
+        Examples:
+            >>> r: Color = Color(RED_RGB, RGB)
+            >>> g: Color = Color(GREEN_RGB, RGB)
+            >>> b: Color = Color(BLUE_RGB, RGB)
+            >>> c: Color = Color(CYAN_RGB, RGB)
+            >>> m: Color = Color(MAGENTA_RGB, RGB)
+            >>> y: Color = Color(YELLOW_RGB, RGB)
+            >>> white: Color = Color(WHITE_RGB, RGB)
+            >>> black: Color = Color(BLACK_RGB, RGB)
+            >>> gray: Color = Color(GRAY_RGB, RGB)
+            >>> olive: Color = Color((0.5, 0.5, 0.0), RGB)
+            >>> purple: Color = Color((0.5, 0.0, 0.5), RGB)
+            >>> teal: Color = Color((0.0, 0.5, 0.5), RGB)
+
+            >>> assert r * g == g * r == olive
+            >>> assert g * b == b * g == teal
+            >>> assert b * r == r * b == purple
+            >>> assert c * y == Color((0.5, 1.0, 0.5), RGB)
+            >>> assert y * m == Color((1.0, 0.5, 0.5), RGB)
+            >>> assert m * c == Color((0.5, 0.5, 1.0), RGB)
+            >>> assert black * white == gray
+            >>> assert (r * g) * b == r * (g * b) == Color((1/3, 1/3, 1/3), RGB)
+            >>> assert c * m * y == Color((2/3, 2/3, 2/3), RGB)
         """
-        a,b,c = self.to_rgb().color
-        x,y,z = other.to_rgb().color
+        a,b,c = self.to_rgb()._color
+        x,y,z = other.to_rgb()._color
         n, m = self._weight, other._weight
         p: float = self._weighted_average(a,x,n,m)
         q: float = self._weighted_average(b,y,n,m)
@@ -154,8 +242,8 @@ class Color:
         Note:
             `ZeroDivisionError` is called if self._weight == other._weight.
         """
-        a,b,c = self.to_rgb().color
-        x,y,z = other.to_rgb().color
+        a,b,c = self.to_rgb()._color
+        x,y,z = other.to_rgb()._color
         n, m = self._weight, other._weight
         p: float = self._weighted_average(a,x,n,-m)
         q: float = self._weighted_average(b,y,n,-m)
@@ -172,8 +260,8 @@ class Color:
 
         ref: A. Kitaoka, Journal of Color Science Association of Japan, 35(3), 234-236, (2011).
         """
-        a,b,c = self.to_rgb().color
-        x,y,z = other.to_rgb().color
+        a,b,c = self.to_rgb()._color
+        x,y,z = other.to_rgb()._color
         t: float = 0.5
         return self.__class__(
             color=((t+(1-t)*x)*a, (t+(1-t)*y)*b, (t+(1-t)*z)*c),
@@ -181,8 +269,44 @@ class Color:
         )
     
     def __xor__(self, other: Color) -> Color:
-        a,b,c = self.to_rgb().color
-        x,y,z = other.to_rgb().color
+        """XOR-like operationn between `Color` instances.
+
+        Args:
+            other (Color): `Color` instance.
+
+        Returns:
+            Color: Result of the operation.
+        
+        Examples:
+            >>> r: Color = Color(RED_RGB, RGB)
+            >>> g: Color = Color(GREEN_RGB, RGB)
+            >>> b: Color = Color(BLUE_RGB, RGB)
+            >>> c: Color = Color(CYAN_RGB, RGB)
+            >>> m: Color = Color(MAGENTA_RGB, RGB)
+            >>> y: Color = Color(YELLOW_RGB, RGB)
+            >>> white: Color = Color(WHITE_RGB, RGB)
+            >>> black: Color = Color(BLACK_RGB, RGB)
+
+            >>> assert r ^ g == g ^ r == y
+            >>> assert b ^ r == r ^ b == m
+            >>> assert g ^ b == b ^ g == c
+            >>> assert c ^ m == m ^ c == y
+            >>> assert m ^ y == y ^ m == c
+            >>> assert y ^ c == c ^ y == m
+            >>> assert r ^ g ^ b == white
+            >>> assert c ^ m ^ y == black
+            >>> assert black ^ white == white
+            >>> assert r ^ white == c
+            >>> assert g ^ white == m
+            >>> assert b ^ white == y
+            >>> assert r ^ black == r
+            >>> assert g ^ black == g
+            >>> assert b ^ black == b
+            >>> assert r ^ r == b ^ b == g ^ g == black
+            >>> assert c ^ c == m ^ m == y ^ y == black
+        """
+        a,b,c = self.to_rgb()._color
+        x,y,z = other.to_rgb()._color
         p: float = np.sin(np.arcsin(a) + np.arcsin(x))
         q: float = np.sin(np.arcsin(b) + np.arcsin(y))
         r: float = np.sin(np.arcsin(c) + np.arcsin(z))
@@ -192,8 +316,44 @@ class Color:
         )
     
     def __or__(self, other: Color) -> Color:
-        a,b,c = self.to_rgb().color
-        x,y,z = other.to_rgb().color
+        """OR-like operationn between `Color` instances.
+
+        Args:
+            other (Color): `Color` instance.
+
+        Returns:
+            Color: Result of the operation.
+        
+        Examples:
+            >>> r: Color = Color(RED_RGB, RGB)
+            >>> g: Color = Color(GREEN_RGB, RGB)
+            >>> b: Color = Color(BLUE_RGB, RGB)
+            >>> c: Color = Color(CYAN_RGB, RGB)
+            >>> m: Color = Color(MAGENTA_RGB, RGB)
+            >>> y: Color = Color(YELLOW_RGB, RGB)
+            >>> white: Color = Color(WHITE_RGB, RGB)
+            >>> black: Color = Color(BLACK_RGB, RGB)
+
+            >>> assert r | g == g | r == y
+            >>> assert b | r == r | b == m
+            >>> assert g | b == b | g == c
+            >>> assert c | m == m | c == white
+            >>> assert m | y == y | m == white
+            >>> assert y | c == c | y == white
+            >>> assert r | g | b == white
+            >>> assert c | m | y == white
+            >>> assert black | white == white
+            >>> assert r | black == r
+            >>> assert g | black == g
+            >>> assert b | black == b
+            >>> assert c | black == c
+            >>> assert m | black == m
+            >>> assert y | black == y
+            >>> assert r | white == g | white == b | white == white
+            >>> assert c | white == m | white == y | white == white
+        """
+        a,b,c = self.to_rgb()._color
+        x,y,z = other.to_rgb()._color
         p: float = 1 - (1-a) * (1-x)
         q: float = 1 - (1-b) * (1-y)
         r: float = 1 - (1-c) * (1-z)
@@ -203,8 +363,44 @@ class Color:
         )
 
     def __and__(self, other: Color) -> Color:
-        a,b,c = self.to_rgb().color
-        x,y,z = other.to_rgb().color
+        """AND-like operationn between `Color` instances.
+
+        Args:
+            other (Color): `Color` instance.
+
+        Returns:
+            Color: Result of the operation.
+        
+        Examples:
+            >>> r: Color = Color(RED_RGB, RGB)
+            >>> g: Color = Color(GREEN_RGB, RGB)
+            >>> b: Color = Color(BLUE_RGB, RGB)
+            >>> c: Color = Color(CYAN_RGB, RGB)
+            >>> m: Color = Color(MAGENTA_RGB, RGB)
+            >>> y: Color = Color(YELLOW_RGB, RGB)
+            >>> white: Color = Color(WHITE_RGB, RGB)
+            >>> black: Color = Color(BLACK_RGB, RGB)
+
+            >>> assert r & g == g & r == black
+            >>> assert b & r == r & b == black
+            >>> assert g & b == b & g == black
+            >>> assert c & m == m & c == b
+            >>> assert m & y == y & m == r
+            >>> assert y & c == c & y == g
+            >>> assert r & g & b == black
+            >>> assert c & m & y == black
+            >>> assert black & white == black
+            >>> assert r & white == r
+            >>> assert g & white == g
+            >>> assert b & white == b
+            >>> assert c & white == c
+            >>> assert m & white == m
+            >>> assert y & white == y
+            >>> assert r & black == g & black == b & black == black
+            >>> assert c & black == m & black == y & black == black
+        """
+        a,b,c = self.to_rgb()._color
+        x,y,z = other.to_rgb()._color
         p: float = 0 if a == x == 0 else a*x / (a+x-a*x)
         q: float = 0 if b == y == 0 else b*y / (b+y-b*y)
         r: float = 0 if c == z == 0 else c*z / (c+z-c*z)
@@ -214,24 +410,24 @@ class Color:
         )
     
     def __len__(self) -> int:
-        return len(self.color)
+        return len(self._color)
 
     def __iter__(self) -> Iterator[float | int]:
-        yield from self.color
+        yield from self._color
     
     def __getitem__(self, key: Any) -> float:
-        return self.color[key]
+        return self._color[key]
     
     def __deepcopy__(self) -> Color:
         return self.__class__(
-            color=self.color,
+            color=self._color,
             color_system=self.color_system,
             white_point=self.white_point
         )
     
-    def __check_color_value(self) -> None:
-        res: list[float | int] = list(self.color)
-        for i, c in enumerate(self.color):
+    def _check_color_value(self) -> None:
+        res: list[float | int] = list(self._color)
+        for i, c in enumerate(self._color):
             minc, maxc = self._value_range[self.color_system][i]
             if c < minc:
                 res[i] = minc
@@ -239,7 +435,8 @@ class Color:
                 res[i] = maxc
         self._color = (res[0], res[1], res[2])
 
-    def __hls_calc(self, m1: float, m2: float, hue: float) -> float:
+    @staticmethod
+    def _hls_calc(m1: float, m2: float, hue: float) -> float:
         hue = hue % 1.0
         if hue < 1.0/6.0:
             return m1 + (m2-m1)*hue*6.0
@@ -251,7 +448,7 @@ class Color:
     
     @staticmethod
     def _round_color(color: Color_type) -> Color_type:
-        return tuple(round(c, 10) for c in color)
+        return tuple(round(c, 4) for c in color)
 
     @property
     def color(self) -> Color_type:
@@ -281,9 +478,19 @@ class Color:
         return self.__deepcopy__()
 
     def get_properties(self) -> tuple[Color_type, str, str]:
+        """Properties of `Color` instance.
+
+        Returns:
+            tuple[Color_type, str, str]: (color, color system, white point)
+        """
         return (self.color, self.color_system, self.white_point)
     
     def get_base_info(self) -> tuple[str, str]:
+        """Basic information of `Color` instance.
+
+        Returns:
+            tuple[str, str]: (color system, white point)
+        """
         return (self.color_system, self.white_point)
 
     def rgb_to_hsv(self) -> Color:
@@ -305,7 +512,7 @@ class Color:
         """
         if self.color_system != "RGB":
             raise ValueError("'color_system' must be 'RGB'")
-        r,g,b = self.color
+        r,g,b = self._color
         maxc: float = max(r, g, b)
         minc: float = min(r, g, b)
         v: float = maxc
@@ -328,7 +535,7 @@ class Color:
             color=color,
             color_system="HSV",
         )
-        new_color.__check_color_value()
+        new_color._check_color_value()
         return new_color
 
     def hsv_to_rgb(self) -> Color:
@@ -350,7 +557,7 @@ class Color:
         """
         if self.color_system != "HSV":
             raise ValueError("'color_system' must be 'HSV'")
-        h,s,v = self.color
+        h,s,v = self._color
         if s == 0.0:
             return self.__class__((v, v, v), "RGB")
         i: int = int(h*6.0)
@@ -376,7 +583,7 @@ class Color:
             color=color,
             color_system="RGB",
         )
-        new_color.__check_color_value()
+        new_color._check_color_value()
         return new_color
         
     def rgb_to_hls(self) -> Color:
@@ -398,7 +605,7 @@ class Color:
         """
         if self.color_system != "RGB":
             raise ValueError("'color_system' must be 'RGB'")
-        r,g,b = self.color
+        r,g,b = self._color
         maxc: float = max(r, g, b)
         minc: float = min(r, g, b)
         l: float = (minc+maxc) / 2.0
@@ -425,7 +632,7 @@ class Color:
             color=color,
             color_system="HLS",
         )
-        new_color.__check_color_value()
+        new_color._check_color_value()
         return new_color
 
     def hls_to_rgb(self) -> Color:
@@ -447,7 +654,7 @@ class Color:
         """
         if self.color_system != "HLS":
             raise ValueError("'color_system' must be 'HLS'")
-        h,l,s = self.color
+        h,l,s = self._color
         if s == 0.0:
             r = g = b = l
         else:
@@ -457,13 +664,13 @@ class Color:
             else:
                 m2 = l + s - l*s
             m1: float = 2.0*l - m2
-            r, g, b = self.__hls_calc(m1, m2, h+1.0/3.0), self.__hls_calc(m1, m2, h), self.__hls_calc(m1, m2, h-1.0/3.0)
+            r, g, b = self._hls_calc(m1, m2, h+1.0/3.0), self._hls_calc(m1, m2, h), self._hls_calc(m1, m2, h-1.0/3.0)
         color: Color_type = (r, g, b)
         new_color: Color = self.__class__(
             color=color,
             color_system="RGB",
         )
-        new_color.__check_color_value()
+        new_color._check_color_value()
         return new_color
     
     def rgb_to_yiq(self) -> Color:
@@ -485,7 +692,7 @@ class Color:
         """
         if self.color_system != "RGB":
             raise ValueError("'color_system' must be 'RGB'")
-        r,g,b = self.color
+        r,g,b = self._color
         y: float = 0.299*r + 0.587*g + 0.114*b
         i: float = 0.596*r - 0.274*g - 0.322*b
         q: float = 0.211*r - 0.523*g + 0.312*b
@@ -494,7 +701,7 @@ class Color:
             color=color,
             color_system="YIQ",
         )
-        new_color.__check_color_value()
+        new_color._check_color_value()
         return new_color
 
     def yiq_to_rgb(self) -> Color:
@@ -516,7 +723,7 @@ class Color:
         """
         if self.color_system != "YIQ":
             raise ValueError("'color_system' must be 'YIQ'")
-        y,i,q = self.color
+        y,i,q = self._color
         r: float = y + 0.956*i + 0.621*q
         g: float = y - 0.273*i - 0.647*q
         b: float = y - 1.104*i + 1.701*q
@@ -525,7 +732,7 @@ class Color:
             color=color,
             color_system="RGB",
         )
-        new_color.__check_color_value()
+        new_color._check_color_value()
         return new_color
 
     def rgb_to_srgb(self) -> Color:
@@ -549,13 +756,13 @@ class Color:
             else:
                 return 1.055 * u**(1/2.4) - 0.055
 
-        r,g,b = self.color
+        r,g,b = self._color
         color: Color_type = (_f(r), _f(g), _f(b))
         new_color: Color = self.__class__(
             color=color,
             color_system="sRGB",
         )
-        new_color.__check_color_value()
+        new_color._check_color_value()
         return new_color
 
     def srgb_to_rgb(self) -> Color:
@@ -579,13 +786,13 @@ class Color:
             else:
                 return ((u + 0.055) / 1.055) ** 2.4
 
-        sr,sg,sb = self.color
+        sr,sg,sb = self._color
         color: Color_type = (_f(sr), _f(sg), _f(sb))
         new_color: Color = self.__class__(
             color=color,
             color_system="RGB",
         )
-        new_color.__check_color_value()
+        new_color._check_color_value()
         return new_color
 
     def rgb_to_adobergb(self) -> Color:
@@ -609,13 +816,13 @@ class Color:
             else:
                 return u ** (1/2.2)
 
-        r,g,b = self.color
+        r,g,b = self._color
         color: Color_type = (_f(r), _f(g), _f(b))
         new_color: Color = self.__class__(
             color=color,
             color_system="Adobe RGB",
         )
-        new_color.__check_color_value()
+        new_color._check_color_value()
         return new_color
 
     def adobergb_to_rgb(self) -> Color:
@@ -639,13 +846,13 @@ class Color:
             else:
                 return u ** 2.2
 
-        ar,ag,ab = self.color
+        ar,ag,ab = self._color
         color: Color_type = (_f(ar), _f(ag), _f(ab))
         new_color: Color = self.__class__(
             color=color,
             color_system="RGB",
         )
-        new_color.__check_color_value()
+        new_color._check_color_value()
         return new_color
 
     def rgb_to_xyz(self, white_point: str = "D65") -> Color:
@@ -667,7 +874,7 @@ class Color:
         """
         if self.color_system != "RGB":
             raise ValueError("'color_system' must be 'RGB'")
-        r,g,b = self.color
+        r,g,b = self._color
         x: float = 0.412391*r + 0.357584*g + 0.180481*b
         y: float = 0.212639*r + 0.715169*g + 0.072192*b
         z: float = 0.019331*r + 0.119195*g + 0.950532*b
@@ -679,7 +886,7 @@ class Color:
             color=color,
             color_system="XYZ",
         )
-        # new_color.__check_color_value()
+        # new_color._check_color_value()
         return new_color
 
     def xyz_to_rgb(self) -> Color:
@@ -699,7 +906,7 @@ class Color:
         """
         if self.color_system != "XYZ":
             raise ValueError("'color_system' must be 'XYZ'")
-        x,y,z = self.color
+        x,y,z = self._color
         r: float = 3.240970*x - 1.537383*y - 0.498611*z
         g: float = -0.969244*x + 1.875968*y + 0.041555*z
         b: float = 0.055630*x - 0.203977*y + 1.056972*z
@@ -708,7 +915,7 @@ class Color:
             color=color,
             color_system="RGB",
         )
-        new_color.__check_color_value()
+        new_color._check_color_value()
         return new_color
 
     def _d65_to_d50(self, xyz: Color_type) -> Color_type:
@@ -783,7 +990,7 @@ class Color:
             else:
                 return ((29/3)**3 * u + 16) / 116
         xw,yw,zw = 0.9642, 1.0, 0.8249 # D50 white point
-        x,y,z = self._d65_to_d50(self.color) # Bradford transformation
+        x,y,z = self._d65_to_d50(self._color) # Bradford transformation
         fx,fy,fz = _f(x/xw), _f(y/yw), _f(z/zw)
         l: float = 116*fy - 16
         a: float = 500 * (fx-fy)
@@ -793,7 +1000,7 @@ class Color:
             color=color,
             color_system="L*a*b*",
         )
-        new_color.__check_color_value()
+        new_color._check_color_value()
         return new_color
 
     def lab_to_xyz(self) -> Color:
@@ -825,7 +1032,7 @@ class Color:
             else:
                 return (3/29)**3 * (116*u - 16)
         xw,yw,zw = 0.9642, 1.0, 0.8249 # D50 white point
-        l,a,b = self.color
+        l,a,b = self._color
         fy: float = (l+16) / 116
         fx: float = fy + a/500
         fz: float = fy - b/200
@@ -837,7 +1044,7 @@ class Color:
             color=color,
             color_system="XYZ",
         )
-        # new_color.__check_color_value()
+        # new_color._check_color_value()
         return new_color
 
     def to_rgb(self) -> Color:
@@ -973,6 +1180,14 @@ class Color:
         return self.to_rgb().rgb_to_adobergb()
 
     def to_other_system(self, color_system: str) -> Color:
+        """Convert the color system.
+
+        Args:
+            color_system (str): Color system.
+
+        Returns:
+            Color: `Color` instance.
+        """
         if color_system == "RGB":
             return self.to_rgb()
         elif color_system == "HSV":
@@ -1025,8 +1240,8 @@ class Color:
         Returns:
             (Color): Projected color. Note that `color_system` of the returned color is always 'RGB'.
         """
-        u: npt.NDArray[np.float32] = np.array(self.to_rgb().color)
-        v: npt.NDArray[np.float32] = np.array(other_color.to_rgb().color)
+        u: npt.NDArray[np.float32] = np.array(self.to_rgb()._color)
+        v: npt.NDArray[np.float32] = np.array(other_color.to_rgb()._color)
         if np.linalg.norm(v) == 0.0:
             a, b, c = 0.0, 0.0, 0.0
         else:
@@ -1046,14 +1261,24 @@ class Color:
         Returns:
             (str): String of float value. The value will be in [0.0, 1.0].
         """
-        return str(self.to_xyz().color[1])
+        return str(self.to_xyz()._color[1])
     
-    def rgb_255(self) -> Color_type:
-        r,g,b = self.to_rgb().color
+    def rgb_256(self) -> Color_type:
+        """RGB color in 0-255.
+
+        Returns:
+            Color_type: `Color` instance.
+        """
+        r,g,b = self.to_rgb()._color
         return (int(r*255), int(g*255), int(b*255))
     
-    def srgb_255(self) -> Color_type:
-        r,g,b = self.to_rgb().rgb_to_srgb().color
+    def srgb_256(self) -> Color_type:
+        """sRGB color in 0-255.
+
+        Returns:
+            Color_type: `Color` instance.
+        """
+        r,g,b = self.to_rgb().rgb_to_srgb()._color
         return (int(r*255), int(g*255), int(b*255))
     
     @classmethod
@@ -1137,16 +1362,33 @@ class Color:
     
     @property
     def D65(self) -> Color:
-        """this should be a class property in Python 3.9"""
+        """D65 white point.
+
+        TODO:
+            This should be a class property in Python 3.9.
+        """
         return self.color_temperature(6500 * 1.4388 / 1.438)
     
     @property
     def D50(self) -> Color:
-        """this should be a class property in Python 3.9"""
+        """D50 white point.
+
+        TODO:
+            This should be a class property in Python 3.9.
+        """
         return self.color_temperature(5000 * 1.4388 / 1.438)
 
     @classmethod
     def from_color_code(cls, code: str) -> Color:
+        """Construct a `Color` instance from color code.
+
+        Args:
+            name (str): Color code written in '#xxxxxx' format.
+                For example, '#FFFFFF' is white.
+
+        Returns:
+            Color: `Color` instance.
+        """
         r: float = int(f"0x{code[1:3]}", base=16)/255
         g: float = int(f"0x{code[3:5]}", base=16)/255
         b: float = int(f"0x{code[5:7]}", base=16)/255
@@ -1154,6 +1396,11 @@ class Color:
 
     @classmethod
     def starlight(cls) -> list[Color]:
+        """Starlight colors.
+
+        Returns:
+            list[Color]: List of `Color`.
+        """
         return [
             cls.from_color_code("#fb5458"),
             cls.from_color_code("#6292e9"),
@@ -1168,19 +1415,25 @@ class Color:
     
     @classmethod
     def from_name(cls, name: str) -> Color:
+        """Construct a `Color` instance from color name.
+
+        Args:
+            name (str): Name of color. See `matplotlib.colors`.
+
+        Returns:
+            Color: `Color` instance.
+        """
         return cls.from_color_code(mcolors.CSS4_COLORS[name])
 
     def change_saturation_hsv(self, saturation: float) -> Color:
-        color_system: str = self.color_system
         new: Color = self.to_hsv()
-        new._color = (new.color[0], saturation, new.color[2])
-        return new.to_other_system(color_system)
+        new._color = (new._color[0], saturation, new._color[2])
+        return new.to_other_system(self.color_system)
     
     def change_value_hsv(self, value: float) -> Color:
-        color_system: str = self.color_system
         new: Color = self.to_hsv()
-        new._color = (new.color[0], new.color[1], value)
-        return new.to_other_system(color_system)
+        new._color = (new._color[0], new._color[1], value)
+        return new.to_other_system(self.color_system)
     
 
 class Gradation:
@@ -1261,7 +1514,7 @@ class Gradation:
             return False
     
     def __neq__(self, other: Any) -> bool:
-        return self.__eq__(other)
+        return not self.__eq__(other)
     
     def __add__(self, other: Any) -> Gradation:
         if isinstance(other, Gradation):
@@ -1804,7 +2057,17 @@ class Gradation:
             Color.from_color_code("#fb5458").change_saturation_hsv(0.8),
         ]
     
-def plot_colortable(colors: list[Color], *, ncols: int = 4, sort_colors: bool = True):
+def plot_colortable(colors: list[Color], *, ncols: int = 4, sort_colors: bool = True) -> plt.figure:
+    """Plot a table of colors.
+
+    Args:
+        colors (list[Color]): List of colors.
+        ncols (int, optional): Number of columns. Defaults to 4.
+        sort_colors (bool, optional): If True, the output will be sorted by the hue. Defaults to True.
+
+    Returns:
+        plt.figure: Figure object.
+    """
     cell_width: int = 212
     cell_height: int = 22
     swatch_width: int = 48
@@ -2029,13 +2292,13 @@ def hls_to_rgb(hls: Color_type, digitization: bool = False, MAX_LS: int = 100) -
         else:
             m2 = l + s - l*s
         m1: float = 2.0*l - m2
-        r, g, b = __hls_calc(m1, m2, h+1.0/3.0), __hls_calc(m1, m2, h), __hls_calc(m1, m2, h-1.0/3.0)
+        r, g, b = _hls_calc(m1, m2, h+1.0/3.0), _hls_calc(m1, m2, h), _hls_calc(m1, m2, h-1.0/3.0)
     if digitization:
         return (int(r*255), int(g*255), int(b*255))
     else:
         return (r, g, b)
 
-def __hls_calc(m1: float, m2: float, hue: float) -> float:
+def _hls_calc(m1: float, m2: float, hue: float) -> float:
     hue = hue % 1.0
     if hue < 1.0/6.0:
         return m1 + (m2-m1)*hue*6.0
@@ -2109,9 +2372,8 @@ def view_gradation(color_list: list[Color]) -> None:
     """
     x: npt.NDArray[np.float32] = np.linspace(-np.pi, np.pi)
     for i, c in enumerate(color_list):
-        print(i,c.to_rgb().color)
         y: npt.NDArray[np.float32] = i/len(color_list) * np.sin(x)
-        plt.plot(x, y, color=c.to_rgb().color)
+        plt.plot(x, y, color=c.to_rgb()._color)
     plt.show()
     return
 
