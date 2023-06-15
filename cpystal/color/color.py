@@ -2039,6 +2039,12 @@ class Gradation:
     def equidistant(cls, num: int) -> list[Color]:
         if num == 10:
             return cls.ten_colors()
+        elif num == 4:
+            return cls.four_colors()
+        elif num == 7:
+            return cls.seven_colors()
+        elif num == 8:
+            return cls.eight_colors()
         else:
             return cls.gradation_helical_list(Color(BLUE_HSV,"HSV"), Color(RED_HSV,"HSV"), num=num, clockwise=False, next_color_system="sRGB").color_list
 
@@ -2056,6 +2062,44 @@ class Gradation:
             Color.from_color_code("#fe9952").change_saturation_hsv(0.8),
             Color.from_color_code("#fb5458").change_saturation_hsv(0.8),
         ]
+    
+    @staticmethod
+    def four_colors() -> list[Color]:
+        return [
+            Color.from_color_code("#8c67aa"),
+            Color.from_color_code("#62bd93"),
+            Color.from_color_code("#fdd162"),
+            Color.from_color_code("#fb5458"),
+        ]
+    
+    
+    @staticmethod
+    def seven_colors() -> list[Color]:
+        return [
+            Color.from_color_code("#8c67aa"),
+            Color.from_color_code("#6292e9"),
+            Color.from_color_code("#62bd93"),
+            Color.from_color_code("#95caee"),
+            Color.from_color_code("#fdd162"),
+            Color.from_color_code("#fe9952"),
+            Color.from_color_code("#fb5458"),
+            Color.from_color_code("#e08696"),
+        ]
+    
+    @staticmethod
+    def eight_colors() -> list[Color]:
+        return [
+            Color.from_color_code("#8c67aa").change_saturation_hsv(0.8),
+            Color.from_color_code("#0000ff"),
+            # Color.from_color_code("#6292e9").change_saturation_hsv(0.8),
+            Color.from_color_code("#95caee").change_saturation_hsv(0.5),
+            Color.from_color_code("#62bd93").change_saturation_hsv(0.8),
+            Color.from_color_code("#adff2f").change_saturation_hsv(0.8),
+            Color.from_color_code("#fdd162").change_saturation_hsv(0.8),
+            Color.from_color_code("#fe9952").change_saturation_hsv(0.8),
+            Color.from_color_code("#fb5458").change_saturation_hsv(0.8),
+        ]
+
     
 def plot_colortable(colors: list[Color], *, ncols: int = 4, sort_colors: bool = True) -> plt.figure:
     """Plot a table of colors.
