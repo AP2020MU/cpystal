@@ -191,7 +191,7 @@ class RawDataExpander:
                 self.TC_TS.append([t,s])
         self.TC_TS = sorted(self.TC_TS, key=lambda x:x[0]) # 温度順にソート
         
-        self.header_length: int = 14
+        self.header_length: int = 15
 
         self.StartTime: datetime.datetime = datetime.datetime.strptime(re.sub(r"[^\d]+?:", r"", self.full_contents[0]).strip(), '%Y/%m/%d %H:%M:%S')
         self.LTx: float = float(re.sub(r".+:", r"", self.full_contents[2]))
@@ -591,9 +591,12 @@ class ExpDataExpander:
                 idx += 1
                 continue
             row = re.sub(r"#.*", "", row)
-
-            sidx0, eidx0, aveT_PPMS0, errT_PPMS0, aveH0, errH0, aveCurrent0, errCurrent0, aveT_Cernox0, errT_Cernox0, aveVx0, errVx0, aveVy0, errVy0, \
-            sidx1, eidx1, aveT_PPMS1, errT_PPMS1, aveH1, errH1, aveCurrent1, errCurrent1, aveT_Cernox1, errT_Cernox1, aveVx1, errVx1, aveVy1, errVy1, dTx, errdTx, kxx, *errkxx = map(float, row.split())
+            try:
+                sidx0, eidx0, aveT_PPMS0, errT_PPMS0, aveH0, errH0, aveCurrent0, errCurrent0, aveT_Cernox0, errT_Cernox0, aveVx0, errVx0, aveVy0, errVy0, \
+                sidx1, eidx1, aveT_PPMS1, errT_PPMS1, aveH1, errH1, aveCurrent1, errCurrent1, aveT_Cernox1, errT_Cernox1, aveVx1, errVx1, aveVy1, errVy1, dTx, errdTx, kxx, *errkxx = map(float, row.split())
+            except ValueError:
+                idx += 1
+                continue
             self.Index.append((int(sidx0), int(eidx0), int(sidx1), int(eidx1)))
             self.T_PPMS.append(aveT_PPMS1)
             self.Field.append(aveH1)
