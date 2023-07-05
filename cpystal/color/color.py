@@ -1425,6 +1425,11 @@ class Color:
         """
         return cls.from_color_code(mcolors.CSS4_COLORS[name])
 
+    def change_hue_hsv(self, hue: float) -> Color:
+        new: Color = self.to_hsv()
+        new._color = (hue, new._color[1], new._color[2])
+        return new.to_other_system(self.color_system)
+    
     def change_saturation_hsv(self, saturation: float) -> Color:
         new: Color = self.to_hsv()
         new._color = (new._color[0], saturation, new._color[2])
@@ -1435,6 +1440,9 @@ class Color:
         new._color = (new._color[0], new._color[1], value)
         return new.to_other_system(self.color_system)
     
+    def rotate_hsv(self, degree: int) -> Color:
+        h, _, _ = self.to_hsv()
+        return self.change_hue_hsv((h + degree/360) % 1.0)
 
 class Gradation:
     """Color gradation
@@ -1606,6 +1614,9 @@ class Gradation:
         
     def __iter__(self) -> Iterator[Color]:
         yield from self.color_list
+
+    def __call__(self, proportion: float) -> Color:
+        return self.color_list[int((len(self.color_list)-1) * proportion)]
 
     @classmethod
     def from_color_list(cls, color_list: list[Color]) -> Gradation:
@@ -2072,7 +2083,6 @@ class Gradation:
             Color.from_color_code("#fb5458"),
         ]
     
-    
     @staticmethod
     def seven_colors() -> list[Color]:
         return [
@@ -2099,6 +2109,50 @@ class Gradation:
             Color.from_color_code("#fe9952").change_saturation_hsv(0.8),
             Color.from_color_code("#fb5458").change_saturation_hsv(0.8),
         ]
+
+    @classmethod
+    def multi_middle(cls, base_colors: list[Color], approach_mode: list[str]) -> Gradation:
+        n: int = 255
+        m: int = len(base_colors)
+        color_list: list[Color] = []
+        for i in range(m-1):
+            start: Color = base_colors[i]
+            end: Color = base_colors[i+1]
+            if i == m-2:
+                l = n - i*(n//(m-1))
+            else:
+                l = n//(m-1)
+            for j in range(l):
+                if approach_mode[i] == "helical":
+                    color_list.append(cls._get_helical(j/l, start, end))
+                elif approach_mode[i] == "helical-anticlockwise":
+                    color_list.append(cls._get_helical(j/l, start, end, colockwise=False))
+                elif approach_mode[i] == "linear":
+                    color_list.append(cls._get_linear(j/l, start, end))
+                elif approach_mode[i] == "chart":
+                    color_list.append(cls._get_chart(j/l, start, end))
+        return cls.from_color_list(color_list)
+
+    @classmethod
+    def planetearth(cls) -> Gradation:
+        base_colors: list[Color] = [
+            Color((0,0,0), "HSV"),
+            Color((26/360,1,1), "HSV"),
+            Color((60/360,1,1), "HSV"),
+            Color((120/360,1,1), "HSV"),
+            Color((167/360,1,0.71), "HSV"),
+            Color((240/360,0,0.4), "HSV"),
+            Color((240/360,0,1), "HSV"),
+            Color((240/360,1,1), "HSV"),
+        ]
+        return cls.multi_middle(base_colors, ["helical"]*(len(base_colors)-1))
+
+    def to_matplotlib_colormap(self) -> mcolors.ListedColormap:
+        colors: npt.NDArray = np.array(
+            [c.to_rgb().color for c in self.color_list]
+        )
+        return mcolors.ListedColormap(colors)
+
 
     
 def plot_colortable(colors: list[Color], *, ncols: int = 4, sort_colors: bool = True) -> plt.figure:
@@ -2490,45 +2544,59 @@ def main() -> None:
     # names = sorted(mcolors.CSS4_COLORS, key=lambda c: tuple(mcolors.rgb_to_hsv(mcolors.to_rgb(c))))
     # names = sorted([(*tuple(mcolors.rgb_to_hsv(mcolors.to_rgb(c))),c) for c in mcolors.CSS4_COLORS])
     # print(names)
-    colors = [Color(Color.from_color_code(c),RGB) for _, c in mcolors.CSS4_COLORS.items()]
 
-    colors = [
-        Color((240/360, 1.0, 0.5), HSV),
-        Color((240/360, 1.0, 1.0), HSV),
-        Color((210/360, 1.0, 1.0), HSV),
-        Color((190/360, 1.0, 1.0), HSV),
-        Color((160/360, 1.0, 1.0), HSV),
-        Color((110/360, 1.0, 1.0), HSV),
-        Color((70/360, 1.0, 1.0), HSV),
-        Color((50/360, 1.0, 1.0), HSV),
-        Color((30/360, 1.0, 1.0), HSV),
-        Color((0/360, 1.0, 0.95), HSV),
-    ]
-    import matplotlib.cm as cm
 
-    colors = [
-        Color.from_color_code("#000000"),
-        # Color.from_color_code("#6600cc"),
-        Color.from_color_code("#8c67aa").change_saturation_hsv(0.8),
-        Color.from_color_code("#0000ff"),
-        Color.from_color_code("#6292e9").change_saturation_hsv(0.8),
-        Color.from_color_code("#95caee").change_saturation_hsv(0.5),
-        Color.from_color_code("#62bd93").change_saturation_hsv(0.8),
-        Color.from_color_code("#adff2f").change_saturation_hsv(0.8),
-        Color.from_color_code("#fdd162").change_saturation_hsv(0.8),
-        Color.from_color_code("#fe9952").change_saturation_hsv(0.8),
-        # Color.from_color_code("#e08696"),
-        Color.from_color_code("#fb5458").change_saturation_hsv(0.8),
-    ]
-    plot_colortable(colors, ncols=2, sort_colors=False)
-    # plot_colortable(Gradation.ten_colors(), ncols=1, sort_colors=False)
-    plt.show()
+    # colors = [Color(Color.from_color_code(c),RGB) for _, c in mcolors.CSS4_COLORS.items()]
 
-    print(*[c.to_hsv() for c in colors],sep="\n")
+    # colors = [
+    #     Color((240/360, 1.0, 0.5), HSV),
+    #     Color((240/360, 1.0, 1.0), HSV),
+    #     Color((210/360, 1.0, 1.0), HSV),
+    #     Color((190/360, 1.0, 1.0), HSV),
+    #     Color((160/360, 1.0, 1.0), HSV),
+    #     Color((110/360, 1.0, 1.0), HSV),
+    #     Color((70/360, 1.0, 1.0), HSV),
+    #     Color((50/360, 1.0, 1.0), HSV),
+    #     Color((30/360, 1.0, 1.0), HSV),
+    #     Color((0/360, 1.0, 0.95), HSV),
+    # ]
+    # import matplotlib.cm as cm
 
-    print(Color((270/360,1.0,0.8), HSV).color_code())
+    # colors = [
+    #     Color.from_color_code("#000000"),
+    #     # Color.from_color_code("#6600cc"),
+    #     Color.from_color_code("#8c67aa").change_saturation_hsv(0.8),
+    #     Color.from_color_code("#0000ff"),
+    #     Color.from_color_code("#6292e9").change_saturation_hsv(0.8),
+    #     Color.from_color_code("#95caee").change_saturation_hsv(0.5),
+    #     Color.from_color_code("#62bd93").change_saturation_hsv(0.8),
+    #     Color.from_color_code("#adff2f").change_saturation_hsv(0.8),
+    #     Color.from_color_code("#fdd162").change_saturation_hsv(0.8),
+    #     Color.from_color_code("#fe9952").change_saturation_hsv(0.8),
+    #     # Color.from_color_code("#e08696"),
+    #     Color.from_color_code("#fb5458").change_saturation_hsv(0.8),
+    # ]
+    # plot_colortable(colors, ncols=2, sort_colors=False)
+    # # plot_colortable(Gradation.ten_colors(), ncols=1, sort_colors=False)
+    # plt.show()
 
-    print(colors)
+    # print(*[c.to_hsv() for c in colors],sep="\n")
+
+    # print(Color((270/360,1.0,0.8), HSV).color_code())
+
+    # print(colors)
+
+
+
+    # r: Color = Color(RED_HSV, HSV)
+    # g: Color = Color(GREEN_HSV, HSV)
+    # b: Color = Color(BLUE_HSV, HSV)
+    # g = Gradation.multi_middle([b,r,g], ["helical"]*3)
+    # r: Color = Color(RED_RGB, RGB)
+    # g: Color = Color(GREEN_RGB, RGB)
+    # b: Color = Color(BLUE_RGB, RGB)
+    # g = Gradation.multi_middle([b,r,g], ["linear"]*3)
+    # g.visualize_gradation()
 
 
 
