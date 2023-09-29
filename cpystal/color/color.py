@@ -1452,11 +1452,6 @@ class Gradation:
         end (Color): End color of the gradation.
         middle (Color | None): Middle color of the gradation. Defaults to None.
 
-    TODO:
-        The constructor of Gradation generates Gradation.color_list.
-        The methods gradation_*_list is converted to classmethod.
-        Make Gradation object iterable (Implement __iter__).
-
     Examples:
         >>> ### you can use this class as 'matplotlib.cm' objects.
         >>> import matplotlib.pyplot as plt

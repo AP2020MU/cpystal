@@ -1,6 +1,8 @@
 """`cpystal.graph` is a module for making graphs.
 
 Functions:
+    `eliminate_filename_duplication`
+    `frac_coord`
     `graph_moment_vs_temp`
     `graph_moment_vs_field`
     `graph_magnetization_vs_temp`
@@ -15,6 +17,7 @@ from __future__ import annotations # class定義中に自己classを型ヒント
 
 from collections import deque
 from math import pi
+import os
 
 import matplotlib.pyplot as plt # type: ignore
 from mpl_toolkits.axisartist.axislines import SubplotZero # type: ignore
@@ -22,6 +25,38 @@ import numpy as np
 import numpy.typing as npt
 
 from ..core import Crystal
+
+def eliminate_filename_duplication(filename: str) -> str:
+    if os.path.exists(filename):
+        basename, extension = os.path.splitext(filename)
+        not_duplicated: bool = False
+        for i in range(10000):
+            new_filename: str = f"{basename}_{i}{extension}"
+            if not os.path.exists(new_filename):
+                filename = new_filename
+                not_duplicated = True
+                break
+        if not_duplicated:
+            return filename
+        else:
+            raise ValueError("filename cannot help being duplicated.")
+    else:
+        return filename
+
+
+def frac_coord(ax: plt.Subplot, px: float, py: float) -> tuple[float, float]:
+    def f(a: float, b: float, p: float) -> float:
+        return a + (b-a) * p
+    x1, x2 = ax.get_xlim()
+    y1, y2 = ax.get_ylim()
+    resx: float = f(x1, x2, px)
+    resy: float = f(y1, y2, py)
+    if ax.get_xscale() == "log":
+        resx = 10 ** f(np.log10(x1), np.log10(x2), px)
+    if ax.get_yscale() == "log":
+        resy = 10 ** f(np.log10(y1), np.log10(y2), py)
+    return resx, resy
+
 
 def graph_moment_vs_temp(material: Crystal, Temp: list[float], Moment: list[float], field_val: float, SI: bool = False, per: str | None = None) -> tuple[plt.Figure, plt.Subplot]: # 磁場固定
     # 縦軸：磁気モーメント，横軸：温度 のグラフを作成
