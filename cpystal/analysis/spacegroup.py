@@ -627,6 +627,117 @@ AUGMENTED_POINT_GROUPS: list[str] = [
     "m-3m",
 ]
 
+ARITHMETIC_CLASSES: list[str] = [
+    "1P",
+    "-1P",
+    "2P",
+    "2C",
+    "mP",
+    "mC",
+    "2/mP",
+    "2/mC",
+    "222P",
+    "222C",
+    "222F",
+    "222I",
+    "mm2P",
+    "mm2C",
+    "mm2A",
+    "mm2F",
+    "mm2I",
+    "mmmP",
+    "mmmC",
+    "mmmF",
+    "mmmI",
+    "4P",
+    "4I",
+    "-4P",
+    "-4I",
+    "4/mP",
+    "4/mI",
+    "422P",
+    "422I",
+    "4mmP",
+    "4mmI",
+    "-42mP",
+    "-4m2P",
+    "-4m2I",
+    "-42mI",
+    "4/mmmP",
+    "4/mmmI",
+    "3P",
+    "3R",
+    "-3P",
+    "-3R",
+    "312P",
+    "321P",
+    "32R",
+    "3m1P",
+    "31mP",
+    "3mR",
+    "-31mP",
+    "-3m1P",
+    "-3mR",
+    "6P",
+    "-6P",
+    "6/mP",
+    "622P",
+    "6mmP",
+    "-6m2P",
+    "-62mP",
+    "6/mmmP",
+    "23P",
+    "23F",
+    "23I",
+    "m-3P",
+    "m-3F",
+    "m-3I",
+    "432P",
+    "432F",
+    "432I",
+    "-43mP",
+    "-43mF",
+    "-43mI",
+    "m-3mP",
+    "m-3mF",
+    "m-3mI",
+]
+
+GEOMETIC_CLASSES: list[str] = [
+    "1",
+    "-1",
+    "2",
+    "m",
+    "2/m",
+    "222",
+    "mm2",
+    "mmm",
+    "4",
+    "-4",
+    "4/m",
+    "422",
+    "4mm",
+    "-42m",
+    "4/mmm",
+    "3",
+    "-3",
+    "32",
+    "3m",
+    "-3m",
+    "6",
+    "-6",
+    "6/m",
+    "622",
+    "6mm",
+    "-62m",
+    "6/mmm",
+    "23",
+    "m-3",
+    "432",
+    "-43m",
+    "m-3m",
+]
+
 LAUE_CLASSES: list[str] = [
     "-1",
     "2/m",
@@ -641,12 +752,41 @@ LAUE_CLASSES: list[str] = [
     "m3m",
 ]
 
+HOLOHEDRY: list[str] = [
+    "-1",
+    "2/m",
+    "mmm",
+    "4/mmm",
+    "-3m",
+    "6/mmm",
+    "m3m",
+]
+
 CRYSTAL_SYSTEMS: list[str] = [
     "triclinic",
     "monoclinic",
     "orthorhombic",
     "tetragonal",
     "trigonal",
+    "hexagonal",
+    "cubic",
+]
+
+LATTICE_SYSTEMS: list[str] = [
+    "triclinic",
+    "monoclinic",
+    "orthorhombic",
+    "tetragonal",
+    "rhombohedral",
+    "hexagonal",
+    "cubic",
+]
+
+CRYSTAL_FAMILIES: list[str] = [
+    "triclinic",
+    "monoclinic",
+    "orthorhombic",
+    "tetragonal",
     "hexagonal",
     "cubic",
 ]
@@ -667,6 +807,7 @@ BRAVAIS_LATTICE: list[str] = [
     "cI",
     "cF",
 ]
+
 
 def lcm(a: int, b: int) -> int:
     return a * b // gcd(a, b)
@@ -889,7 +1030,7 @@ def crystal_system_to_symbol(crystal_system: str) -> str:
     return symbol[crystal_system]
 
 def spacegroup_to_bravais_lattice(space_group: str) -> str:
-    amothc: str = crystal_system_to_symbol(pointgroup_to_crystal_system(space_group))
+    amothc: str = crystal_system_to_symbol(pointgroup_to_crystal_system(spacegroup_to_pointgroup(space_group)))
     centering: str = space_group[0]
     if centering == "A" or centering == "B" or centering == "C":
         centering = "S"
@@ -933,13 +1074,13 @@ def is_enantiomorphic_space_group(space_group: str) -> bool:
     return is_chiral_space_group(space_group)
 
 def is_bieberbach_space_group(space_group: str) -> bool:
-    """Judge the space group whether Bieberbach space group or not.
+    """Judge whether the space group is Bieberbach space group or not.
 
     Args:
-        space_group (str): _description_
+        space_group (str): Name of the space group.
 
     Returns:
-        bool: _description_
+        bool: Whether the space group is Bieberbach space group or not.
     """
     bieberbach: list[str] = [
         "P1",

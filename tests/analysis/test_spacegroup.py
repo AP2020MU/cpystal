@@ -6,8 +6,13 @@ from cpystal.analysis.spacegroup import (
     SPACE_GROUPS,
     POINT_GROUPS,
     AUGMENTED_POINT_GROUPS,
+    ARITHMETIC_CLASSES,
+    GEOMETIC_CLASSES,
     LAUE_CLASSES,
+    HOLOHEDRY,
     CRYSTAL_SYSTEMS,
+    LATTICE_SYSTEMS,
+    CRYSTAL_FAMILIES,
     BRAVAIS_LATTICE,
     spacegroup_to_pointgroup,
     pointgroup_to_laueclass,
@@ -22,6 +27,7 @@ from cpystal.analysis.spacegroup import (
     is_enantiomorphic_space_group,
     is_sohncke_space_group,
     is_symmorphic_space_group,
+    is_bieberbach_space_group,
     generate_point_group,
     crystal_system_to_symmetry_directions,
     spacegroup_to_symmetry_directions,
@@ -40,17 +46,24 @@ def test_spacegroup_001():
     assert len(SPACE_GROUPS) == 230
     assert len(POINT_GROUPS) == 32
     assert len(AUGMENTED_POINT_GROUPS) == 40
+    assert len(ARITHMETIC_CLASSES) == 73
+    assert len(GEOMETIC_CLASSES) == 32
     assert len(LAUE_CLASSES) == 11
+    assert len(HOLOHEDRY) == 7
     assert len(CRYSTAL_SYSTEMS) == 7
+    assert len(LATTICE_SYSTEMS) == 7
+    assert len(CRYSTAL_FAMILIES) == 6
     assert len(BRAVAIS_LATTICE) == 14
+    assert POINT_GROUPS == GEOMETIC_CLASSES
 
 def test_spacegroup_002():
-    assert len([s for s in SPACE_GROUPS if is_enantiomorphic_space_group(s)]) == 22
-    assert len([s for s in SPACE_GROUPS if is_chiral_space_group(s)]) == 22
-    assert len([s for s in SPACE_GROUPS if is_polar_space_group(s)]) == 68
     assert len([s for s in SPACE_GROUPS if is_centrosymmetric_space_group(s)]) == 85
     assert len([s for s in SPACE_GROUPS if is_symmorphic_space_group(s)]) == 73
+    assert len([s for s in SPACE_GROUPS if is_polar_space_group(s)]) == 68
     assert len([s for s in SPACE_GROUPS if is_sohncke_space_group(s)]) == 65
+    assert len([s for s in SPACE_GROUPS if is_enantiomorphic_space_group(s)]) == 22
+    assert len([s for s in SPACE_GROUPS if is_chiral_space_group(s)]) == 22
+    assert len([s for s in SPACE_GROUPS if is_bieberbach_space_group(s)]) == 13
 
 def test_spacegroup_003():
     assert len([p for p in POINT_GROUPS if is_polar_point_group(p)]) == 10
@@ -58,7 +71,7 @@ def test_spacegroup_003():
     assert len([p for p in POINT_GROUPS if is_centrosymmetric_point_group(p)]) == 10
 
 def test_spacegroup_004():
-    assert all([spacegroup_to_pointgroup(s) in POINT_GROUPS for s in SPACE_GROUPS])
+    assert all([spacegroup_to_pointgroup(s) in AUGMENTED_POINT_GROUPS for s in SPACE_GROUPS])
     assert all([pointgroup_to_laueclass(p) in LAUE_CLASSES for p in POINT_GROUPS])
     assert all([pointgroup_to_crystal_system(p) in CRYSTAL_SYSTEMS for p in POINT_GROUPS])
     assert all([spacegroup_to_bravais_lattice(s) in BRAVAIS_LATTICE for s in SPACE_GROUPS])
@@ -68,9 +81,9 @@ def test_spacegroup_005():
     assert circular_mean(np.pi, 0.0) == np.pi/2
     assert circular_mean(np.pi/3, 2*np.pi-np.pi/3) == 0.0
     assert circular_diff(np.pi, 0.0) == np.pi
-    assert circular_diff(np.pi/6, np.pi+np.pi/12) == -np.pi*11/12
-    assert circular_diff(np.pi+np.pi/12, np.pi/6) == np.pi*11/12
-    assert circular_diff(99*np.pi+np.pi/12, np.pi/6) == np.pi*11/12
+    assert abs(circular_diff(np.pi/6, np.pi+np.pi/12) - -np.pi*11/12) < 1e-10
+    assert abs(circular_diff(np.pi+np.pi/12, np.pi/6) - np.pi*11/12) < 1e-10
+    assert abs(circular_diff(99*np.pi+np.pi/12, np.pi/6) - np.pi*11/12) < 1e-10
 
 def test_spacegroup_006():
     La_CNO: float = 5.1610
