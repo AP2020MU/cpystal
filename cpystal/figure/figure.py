@@ -5,6 +5,9 @@ import os
 
 from PIL import Image, ImageOps, ImageDraw, ImageFilter, ImageFont, ImageChops # type: ignore
 
+from ..color import Color
+
+
 class ImageProcessing:
     """画像処理
 
@@ -46,6 +49,7 @@ class ImageProcessing:
         extract_line: 線画抽出
         blend: 一様に画像合成
         composite: マスク画像に沿って画像合成
+        rotate_color: pixelごとに色相(Hue)の回転
     """
     def __init__(self, filepath: str) -> None:
         self.filepath: str = filepath
@@ -607,6 +611,29 @@ class ImageProcessing:
                 for w in range(self.current.width):
                     self.current.putpixel((w,h), color)
         new_name: str = self.name_current + '_monochromatizated'
+        self.change_name(new_name)
+        if flag:
+            self.current.save(new_name + self.extension, quality=95)
+        return self.current
+    
+    def rotate_color(self, degree: float, flag: bool = False):
+        """色相(Hue)の回転
+        
+        Args:
+            degree (float): 回転角度
+            flag (bool): Trueなら保存
+        """
+        if self.extension != '.png':
+            self.current.save(self.name_current + '_extensioned' + '.png', 'PNG') # PNG形式で保存
+            self.current = Image.open(self.name_current + '_extensioned' + '.png') # self.currentをpng画像として改めてopen
+        trans: Image = Image.new('RGBA', self.current.size, (0, 0, 0, 0))
+        for x in range(self.current.size[0]):
+            for y in range(self.current.size[1]):
+                r,g,b,a = self.current.getpixel((x,y))
+                r,g,b = Color((r/255,g/255,b/255), "RGB").rotate_hsv(degree).rgb_256()
+                trans.putpixel((x,y), (r,g,b,a))
+        self.current = trans
+        new_name: str = self.name_current + '_color-rotated'
         self.change_name(new_name)
         if flag:
             self.current.save(new_name + self.extension, quality=95)

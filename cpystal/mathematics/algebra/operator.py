@@ -16,7 +16,7 @@ import numpy as np
 import numpy.typing as npt
 import sympy
 
-from core import PolyInt
+from .core import PolyInt
 
 HalfInt = TypeVar("HalfInt", int, float)
 JOperatorChild = TypeVar("JOperatorChild", bound="JOperator")
@@ -24,12 +24,20 @@ JOperatorChild = TypeVar("JOperatorChild", bound="JOperator")
 class JOperator(object):
     """General angular momentum operator.
 
-    The basis is defined as {|-J>, |-J+1>, ... |J>} in this order.
+    The basis is defined as {|J>, |J-1>, ... |-J>} in this order.
+
+    Note:
+        The matrix product is defined as below
+            A * B (== A @ B).
+        This class has unique operators for commutation relations as below
+            A ^ B := AB + BA,
+            A % B := AB - BA.
+        
     """
     def __init__(self, J: HalfInt) -> None:
         self.matrix: npt.NDArray = np.zeros((int(2*J+1), int(2*J+1)))
         self.J: HalfInt = J
-        self.M: npt.NDArray = np.arange(-J,J+1,1)
+        self.M: npt.NDArray = np.linspace(J,-J,int(2*J+1))
         self.JJ: HalfInt = J*(J+1)
 
     def _constructor(self) -> JOperator:
@@ -44,13 +52,13 @@ class JOperator(object):
     @staticmethod
     def Jp(J: HalfInt) -> JOperator:
         res: JOperator = JOperator(J)
-        res.matrix = np.diag(np.sqrt((res.J-res.M)*(res.J+res.M+1))[:-1], 1)
+        res.matrix = np.diag(np.sqrt((res.J-res.M)*(res.J+res.M+1))[1:], 1)
         return res
 
     @staticmethod
     def Jm(J: HalfInt) -> JOperator:
         res: JOperator = JOperator(J)
-        res.matrix = np.diag(np.sqrt((res.J+res.M)*(res.J-res.M+1))[1:], -1)
+        res.matrix = np.diag(np.sqrt((res.J+res.M)*(res.J-res.M+1))[:-1], -1)
         return res
 
     @staticmethod
@@ -81,7 +89,10 @@ class JOperator(object):
         return res
     
     def __eq__(self, other: Any) -> bool:
-        return np.all(self.round().matrix == other.round().matrix)
+        if isinstance(other, JOperator):
+            return np.all(self.round().matrix == other.round().matrix)
+        else:
+            return np.all(self.round().matrix == other)
     
     def __neq__(self, other: Any) -> bool:
         return not self.__eq__(other)
@@ -112,21 +123,33 @@ class JOperator(object):
         else:
             res.matrix = self.matrix - other * np.identity(len(self))
         return res
+    
+    def __rsub__(self, other: Any) -> JOperatorChild:
+        res: JOperatorChild = self._constructor()
+        if isinstance(other, JOperator):
+            res.matrix = other.matrix - self.matrix
+        else:
+            res.matrix = other * np.identity(len(self)) - self.matrix
+        return res
 
     def __mul__(self, other: Any) -> JOperatorChild:
         res: JOperatorChild = self._constructor()
         if (isinstance(other, int) or isinstance(other, float) or isinstance(other, complex)):
            res.matrix = self.matrix * other
+        elif isinstance(other, JOperator):
+            res.matrix = self.matrix @ other.matrix
         else:
-           res.matrix = self.matrix @ other.matrix
+           res.matrix = self.matrix @ other
         return res
 
     def __rmul__(self, other: Any) -> JOperatorChild:
         res: JOperatorChild = self._constructor()
         if (isinstance(other, int) or isinstance(other, float)  or isinstance(other, complex)):
            res.matrix = other * self.matrix
+        elif isinstance(other, JOperator):
+            res.matrix = other.matrix @ self.matrix
         else:
-           res.matrix = other.matrix @ self.matrix
+           res.matrix = other @ self.matrix
         return res
     
     def __truediv__(self, other: Any) -> JOperatorChild:
@@ -139,12 +162,18 @@ class JOperator(object):
     
     def __matmul__(self, other: Any) -> JOperatorChild:
         res: JOperatorChild = self._constructor()
-        res.matrix = self.matrix @ other.matrix
+        if isinstance(other, JOperator):
+            res.matrix = self.matrix @ other.matrix
+        else:
+           res.matrix = self.matrix @ other
         return res
 
     def __rmatmul__(self, other: Any) -> JOperatorChild:
         res: JOperatorChild = self._constructor()
-        res.matrix = other.matrix @ self.matrix
+        if isinstance(other, JOperator):
+            res.matrix = other.matrix @ self.matrix
+        else:
+           res.matrix = other @ self.matrix
         return res
 
     def __pow__(self, n: int) -> JOperatorChild:
@@ -174,15 +203,16 @@ class JOperator(object):
     
     def round(self) -> JOperatorChild:
         res: JOperatorChild = self._constructor()
-        res.matrix = np.round(self.matrix, decimals=12)
+        res.matrix = np.round(self.matrix, decimals=8)
         return res
 
 class StevensJOperator(JOperator):
     """Stevens operator.
 
-    The Stevens operators \mathcal{O}_{lm}(J_x,J_y,J_z) can be calculated
-    from cubic tensor operators O_{lm}(x,y,z)
-    by Stevens' equivalent operator method.
+    The cubic tensor operators O_{lm}(J_x,J_y,J_z) can be calculated
+    from cubic tensors O_{lm}(x,y,z) by Stevens' equivalent operator method,
+    and the Stevens operators \mathcal{O}_{lm}(J_x,J_y,J_z) can be calculated
+    from the cubic tensor operators O_{lm}(J_x,J_y,J_z) by eliminating the coefficient.
     For more detail in theory, see also Wigner-Eckart theorem.
     
     The mapping from O_{lm}(x,y,z) to \mathcal{O}_{lm}(J_x,J_y,J_z) is as below:

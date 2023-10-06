@@ -1183,7 +1183,7 @@ class PolyInt:
         P (list[int] | npt.NDArray, optional): List of coefficients of polynomial.
     """
     def __init__(self, P: list[int] | npt.NDArray = []):
-        """Constructor.
+        r"""Constructor.
 
         Args:
             P (list[int] | npt.NDArray, optional): List of coefficients of polynomial. Defaults to [].
@@ -1658,7 +1658,7 @@ class PolyInt:
 
     @classmethod
     def Pilm(cls, l: int, m: int) -> PolyInt:
-        """Integerized z-dependence polynomial \Pi_l^m(z)*2**l in spherical harmonics.
+        r"""Integerized z-dependence polynomial \Pi_l^m(z)*2**l in spherical harmonics.
 
         Args:
             l (int): Azumuthal quantum number.
@@ -1694,7 +1694,7 @@ class PolyInt:
     
     @classmethod
     def Am(cls, m: int) -> PolyInt:
-        """(x,y)-dependence polynomial A_m(x,y) in spherical harmonics.
+        r"""(x,y)-dependence polynomial A_m(x,y) in spherical harmonics.
         The parity is gerade (cos-like).
 
         Args:
@@ -1737,7 +1737,7 @@ class PolyInt:
     
     @classmethod
     def Bm(cls, m: int) -> PolyInt:
-        """(x,y)-dependence polynomial B_m(x,y) in spherical harmonics.
+        r"""(x,y)-dependence polynomial B_m(x,y) in spherical harmonics.
         The parity is ungerade (sin-like).
 
         Args:
@@ -1911,7 +1911,7 @@ class PolyInt:
     @classmethod
     def tesseral_harmonics_expr(cls, l: int, m: int) -> str:
         """Tesseral harmonics r^l Z_{lm}^{(c,s)}(r). 
-        This is also called as Spherical tensor operators.
+        This is also called as Spherical tensors.
         See also;
             http://www.isc.meiji.ac.jp/~hk/documents/memo/he_as_multipole_text.pdf,
             『スピンと軌道の電子論』(楠瀬博明)
@@ -2007,7 +2007,7 @@ class PolyInt:
     @classmethod
     def tesseral_harmonics(cls, l: int, m: int) -> callable:
         """Tesseral harmonics r^l Z_{lm}^{(c,s)}(r). 
-        This is also called as Spherical tensor operators.
+        This is also called as Spherical tensors.
         See also;
             http://www.isc.meiji.ac.jp/~hk/documents/memo/he_as_multipole_text.pdf,
             『スピンと軌道の電子論』(楠瀬博明)
@@ -2350,7 +2350,7 @@ class CubicHarmonics(PolyInt):
 
     @classmethod
     def Ou(cls, x: float, y: float, z: float) -> float:
-        """Q_{u}.
+        r"""Q_{u}.
 
         Note:
             irreducible representation: E_{g}^{+}
@@ -2368,7 +2368,7 @@ class CubicHarmonics(PolyInt):
     
     @classmethod
     def Ov(cls, x: float, y: float, z: float) -> float:
-        """Q_{v}.
+        r"""Q_{v}.
 
         Note:
             irreducible representation: E_{g}^{+}
@@ -2386,7 +2386,7 @@ class CubicHarmonics(PolyInt):
     
     @classmethod
     def Oyz(cls, x: float, y: float, z: float) -> float:
-        """Q_{yz}.
+        r"""Q_{yz}.
 
         Note:
             irreducible representation: T_{2g}^{+}
@@ -2404,7 +2404,7 @@ class CubicHarmonics(PolyInt):
     
     @classmethod
     def Ozx(cls, x: float, y: float, z: float) -> float:
-        """Q_{zx}.
+        r"""Q_{zx}.
 
         Note:
             irreducible representation: T_{2g}^{+}
@@ -2422,7 +2422,7 @@ class CubicHarmonics(PolyInt):
     
     @classmethod
     def Oxy(cls, x: float, y: float, z: float) -> float:
-        """Q_{xy}.
+        r"""Q_{xy}.
 
         Note:
             irreducible representation: T_{2g}^{+}
@@ -2440,7 +2440,7 @@ class CubicHarmonics(PolyInt):
 
     @classmethod
     def O4(cls, x: float, y: float, z: float) -> float:
-        """Q_{4}.
+        r"""Q_{4}.
 
         Note:
             irreducible representation: A_{1g}^{+}
@@ -2460,7 +2460,7 @@ class CubicHarmonics(PolyInt):
     
     @classmethod
     def O4u(cls, x: float, y: float, z: float) -> float:
-        """Q_{4u}.
+        r"""Q_{4u}.
 
         Note:
             irreducible representation: E_{g}^{+}
@@ -2480,7 +2480,7 @@ class CubicHarmonics(PolyInt):
     
     @classmethod
     def O4v(cls, x: float, y: float, z: float) -> float:
-        """Q_{4v}.
+        r"""Q_{4v}.
 
         Note:
             irreducible representation: E_{g}^{+}
@@ -2499,7 +2499,7 @@ class CubicHarmonics(PolyInt):
     
     @classmethod
     def O4xa(cls, x: float, y: float, z: float) -> float:
-        """Q_{4x}^{\alpha}.
+        r"""Q_{4x}^{\alpha}.
 
         Note:
             irreducible representation: T_{1g}^{+}
@@ -2519,7 +2519,7 @@ class CubicHarmonics(PolyInt):
     
     @classmethod
     def O4ya(cls, x: float, y: float, z: float) -> float:
-        """Q_{4y}^{\alpha}.
+        r"""Q_{4y}^{\alpha}.
 
         Note:
             irreducible representation: T_{1g}^{+}
@@ -2539,7 +2539,7 @@ class CubicHarmonics(PolyInt):
     
     @classmethod
     def O4za(cls, x: float, y: float, z: float) -> float:
-        """Q_{4z}^{\alpha}.
+        r"""Q_{4z}^{\alpha}.
 
         Note:
             irreducible representation: T_{1g}^{+}
@@ -2557,7 +2557,7 @@ class CubicHarmonics(PolyInt):
     
     @classmethod
     def O4xb(cls, x: float, y: float, z: float) -> float:
-        """Q_{4x}^{\beta}.
+        r"""Q_{4x}^{\beta}.
 
         Note:
             irreducible representation: T_{2g}^{+}
@@ -2577,7 +2577,7 @@ class CubicHarmonics(PolyInt):
     
     @classmethod
     def O4yb(cls, x: float, y: float, z: float) -> float:
-        """Q_{4y}^{\beta}.
+        r"""Q_{4y}^{\beta}.
 
         Note:
             irreducible representation: T_{2g}^{+}
@@ -2597,7 +2597,7 @@ class CubicHarmonics(PolyInt):
     
     @classmethod
     def O4zb(cls, x: float, y: float, z: float) -> float:
-        """Q_{4z}^{\beta}.
+        r"""Q_{4z}^{\beta}.
 
         Note:
             irreducible representation: T_{2g}^{+}
@@ -2615,7 +2615,7 @@ class CubicHarmonics(PolyInt):
 
     @classmethod
     def O6(cls, x: float, y: float, z: float) -> float:
-        """Q_{6}.
+        r"""Q_{6}.
 
         Note:
             irreducible representation: A_{1g}^{+}
@@ -2635,7 +2635,7 @@ class CubicHarmonics(PolyInt):
 
     @classmethod
     def O6t(cls, x: float, y: float, z: float) -> float:
-        """Q_{6t}.
+        r"""Q_{6t}.
 
         Note:
             irreducible representation: A_{2g}^{+}
@@ -2655,7 +2655,7 @@ class CubicHarmonics(PolyInt):
 
     @classmethod
     def O6u(cls, x: float, y: float, z: float) -> float:
-        """Q_{6u}.
+        r"""Q_{6u}.
 
         Note:
             irreducible representation: E_{g}^{+}
@@ -2675,7 +2675,7 @@ class CubicHarmonics(PolyInt):
 
     @classmethod
     def O6v(cls, x: float, y: float, z: float) -> float:
-        """Q_{6v}.
+        r"""Q_{6v}.
 
         Note:
             irreducible representation: E_{g}^{+}
@@ -2695,7 +2695,7 @@ class CubicHarmonics(PolyInt):
     
     @classmethod
     def O6xa(cls, x: float, y: float, z: float) -> float:
-        """Q_{6x}^{\alpha}.
+        r"""Q_{6x}^{\alpha}.
 
         Note:
             irreducible representation: T_{1g}^{+}
@@ -2716,7 +2716,7 @@ class CubicHarmonics(PolyInt):
 
     @classmethod
     def O6ya(cls, x: float, y: float, z: float) -> float:
-        """Q_{6y}^{\alpha}.
+        r"""Q_{6y}^{\alpha}.
 
         Note:
             irreducible representation: T_{1g}^{+}
@@ -2737,7 +2737,7 @@ class CubicHarmonics(PolyInt):
     
     @classmethod
     def O6za(cls, x: float, y: float, z: float) -> float:
-        """Q_{6z}^{\alpha}.
+        r"""Q_{6z}^{\alpha}.
 
         Note:
             irreducible representation: T_{1g}^{+}
@@ -2755,7 +2755,7 @@ class CubicHarmonics(PolyInt):
 
     @classmethod
     def O6xb1(cls, x: float, y: float, z: float) -> float:
-        """Q_{6x}^{\beta 1}.
+        r"""Q_{6x}^{\beta 1}.
 
         Note:
             irreducible representation: T_{2g}^{+}
@@ -2776,7 +2776,7 @@ class CubicHarmonics(PolyInt):
 
     @classmethod
     def O6yb1(cls, x: float, y: float, z: float) -> float:
-        """Q_{6y}^{\beta 1}.
+        r"""Q_{6y}^{\beta 1}.
 
         Note:
             irreducible representation: T_{2g}^{+}
@@ -2797,7 +2797,7 @@ class CubicHarmonics(PolyInt):
     
     @classmethod
     def O6zb1(cls, x: float, y: float, z: float) -> float:
-        """Q_{6z}^{\beta 1}.
+        r"""Q_{6z}^{\beta 1}.
 
         Note:
             irreducible representation: T_{2g}^{+}
@@ -2815,7 +2815,7 @@ class CubicHarmonics(PolyInt):
 
     @classmethod
     def O6xb2(cls, x: float, y: float, z: float) -> float:
-        """Q_{6x}^{\beta 2}.
+        r"""Q_{6x}^{\beta 2}.
 
         Note:
             irreducible representation: T_{2g}^{+}
@@ -2836,7 +2836,7 @@ class CubicHarmonics(PolyInt):
 
     @classmethod
     def O6yb2(cls, x: float, y: float, z: float) -> float:
-        """Q_{6y}^{\beta 2}.
+        r"""Q_{6y}^{\beta 2}.
 
         Note:
             irreducible representation: T_{2g}^{+}
@@ -2857,7 +2857,7 @@ class CubicHarmonics(PolyInt):
     
     @classmethod
     def O6zb2(cls, x: float, y: float, z: float) -> float:
-        """Q_{6z}^{\beta 2}.
+        r"""Q_{6z}^{\beta 2}.
 
         Note:
             irreducible representation: T_{2g}^{+}

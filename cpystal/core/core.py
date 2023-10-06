@@ -946,6 +946,10 @@ class Energy:
     Args:
         quantity (float): Quantity part of a physical quantity.
         unit (str): Unit part of a physical quantity.
+    
+    Example:
+        1 meV -> 11.6 K
+        1 THz -> 4.14 meV
     """
     def __init__(self, quantity: float, unit: str) -> None:
         self.quantity: float = quantity
