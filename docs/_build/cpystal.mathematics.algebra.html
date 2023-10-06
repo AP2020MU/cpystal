@@ -1,0 +1,2148 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>cpystal.mathematics.algebra package &mdash; cpystal  documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="cpystal.mathematics.linalg package" href="cpystal.mathematics.linalg.html" />
+    <link rel="prev" title="cpystal.mathematics package" href="cpystal.mathematics.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            cpystal
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="cpystal.html">cpystal package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="cpystal.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="cpystal.analysis.html">cpystal.analysis package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cpystal.color.html">cpystal.color package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cpystal.core.html">cpystal.core package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cpystal.figure.html">cpystal.figure package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cpystal.graph.html">cpystal.graph package</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="cpystal.mathematics.html">cpystal.mathematics package</a><ul class="current">
+<li class="toctree-l4 current"><a class="reference internal" href="cpystal.mathematics.html#subpackages">Subpackages</a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpystal.mathematics.html#module-cpystal.mathematics">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="cpystal.measurement.html">cpystal.measurement package</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="cpystal.html#module-cpystal">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">cpystal</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="cpystal.html">cpystal package</a></li>
+          <li class="breadcrumb-item"><a href="cpystal.mathematics.html">cpystal.mathematics package</a></li>
+      <li class="breadcrumb-item active">cpystal.mathematics.algebra package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/cpystal.mathematics.algebra.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="cpystal-mathematics-algebra-package">
+<h1>cpystal.mathematics.algebra package<a class="headerlink" href="#cpystal-mathematics-algebra-package" title="Permalink to this heading"></a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading"></a></h2>
+</section>
+<section id="module-cpystal.mathematics.algebra.core">
+<span id="cpystal-mathematics-algebra-core-module"></span><h2>cpystal.mathematics.algebra.core module<a class="headerlink" href="#module-cpystal.mathematics.algebra.core" title="Permalink to this heading"></a></h2>
+<p><cite>cpystal.math.core</cite> is a module for mathematical objects.</p>
+<dl class="simple">
+<dt>Functions:</dt><dd><p><cite>visualize_spherical_harmonics</cite></p>
+</dd>
+<dt>Classes:</dt><dd><p><cite>REF</cite>
+<cite>MatrixREF</cite>
+<cite>IREF</cite>
+<cite>PolyInt</cite>
+<cite>CubicHarmonics</cite></p>
+</dd>
+</dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="cpystal.mathematics.algebra.core.CubicHarmonics">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cpystal.mathematics.algebra.core.</span></span><span class="sig-name descname"><span class="pre">CubicHarmonics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">P</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">npt.NDArray</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cpystal/mathematics/algebra/core.html#CubicHarmonics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.mathematics.algebra.core.CubicHarmonics" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#cpystal.mathematics.algebra.core.PolyInt" title="cpystal.mathematics.algebra.core.PolyInt"><code class="xref py py-class docutils literal notranslate"><span class="pre">PolyInt</span></code></a></p>
+<p>Cubic harmonics.</p>
+<p class="rubric">References</p>
+<ol class="upperalpha simple" start="19">
+<li><p>Hayami, M. Yatsushiro, Y. Yanagi, and H. Kusunose, Phys. Rev. B 98, 165110 (2018).</p></li>
+</ol>
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.mathematics.algebra.core.CubicHarmonics.O4">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">O4</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="_modules/cpystal/mathematics/algebra/core.html#CubicHarmonics.O4"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.mathematics.algebra.core.CubicHarmonics.O4" title="Permalink to this definition"></a></dt>
+<dd><p>Q_{4}.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>irreducible representation: A_{1g}^{+}
+definition: 5sqrt(21)/12 (x^4 + y^4 + z^4 - 3/5 r^4)</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>float</em>) – Value of x.</p></li>
+<li><p><strong>y</strong> (<em>float</em>) – Value of y.</p></li>
+<li><p><strong>z</strong> (<em>float</em>) – Value of z.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Q_{4}(x,y,z).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.mathematics.algebra.core.CubicHarmonics.O4u">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">O4u</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="_modules/cpystal/mathematics/algebra/core.html#CubicHarmonics.O4u"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.mathematics.algebra.core.CubicHarmonics.O4u" title="Permalink to this definition"></a></dt>
+<dd><p>Q_{4u}.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>irreducible representation: E_{g}^{+}
+definition: 7sqrt(15)/6 (z^4 - 1/2 (x^4 + y^4) - 3/7 r^2 (3z^2 - r^2))</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>float</em>) – Value of x.</p></li>
+<li><p><strong>y</strong> (<em>float</em>) – Value of y.</p></li>
+<li><p><strong>z</strong> (<em>float</em>) – Value of z.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Q_{4u}(x,y,z).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.mathematics.algebra.core.CubicHarmonics.O4v">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">O4v</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="_modules/cpystal/mathematics/algebra/core.html#CubicHarmonics.O4v"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.mathematics.algebra.core.CubicHarmonics.O4v" title="Permalink to this definition"></a></dt>
+<dd><p>Q_{4v}.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>irreducible representation: E_{g}^{+}
+definition: 7sqrt(5)/4 (x^4 - y^4 - 6/7 r^2 (x^2 - y^2))</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>float</em>) – Value of x.</p></li>
+<li><p><strong>y</strong> (<em>float</em>) – Value of y.</p></li>
+<li><p><strong>z</strong> (<em>float</em>) – Value of z.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Q_{4v}(x,y,z).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.mathematics.algebra.core.CubicHarmonics.O4xa">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">O4xa</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="_modules/cpystal/mathematics/algebra/core.html#CubicHarmonics.O4xa"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.mathematics.algebra.core.CubicHarmonics.O4xa" title="Permalink to this definition"></a></dt>
+<dd><p>Q_{4x}^{alpha}.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>irreducible representation: T_{1g}^{+}
+definition: sqrt(35)/2 y z (y^2 - z^2)</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>float</em>) – Value of x.</p></li>
+<li><p><strong>y</strong> (<em>float</em>) – Value of y.</p></li>
+<li><p><strong>z</strong> (<em>float</em>) – Value of z.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Q_{4x}^{alpha}(x,y,z).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.mathematics.algebra.core.CubicHarmonics.O4xb">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">O4xb</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="_modules/cpystal/mathematics/algebra/core.html#CubicHarmonics.O4xb"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.mathematics.algebra.core.CubicHarmonics.O4xb" title="Permalink to this definition"></a></dt>
+<dd><p>Q_{4x}^{beta}.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>irreducible representation: T_{2g}^{+}
+definition: sqrt(5)/2 y z (7x^2 - r^2)</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>float</em>) – Value of x.</p></li>
+<li><p><strong>y</strong> (<em>float</em>) – Value of y.</p></li>
+<li><p><strong>z</strong> (<em>float</em>) – Value of z.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Q_{4x}^{beta}(x,y,z).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.mathematics.algebra.core.CubicHarmonics.O4ya">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">O4ya</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="_modules/cpystal/mathematics/algebra/core.html#CubicHarmonics.O4ya"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.mathematics.algebra.core.CubicHarmonics.O4ya" title="Permalink to this definition"></a></dt>
+<dd><p>Q_{4y}^{alpha}.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>irreducible representation: T_{1g}^{+}
+definition: sqrt(35)/2 z x (z^2 - x^2)</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>float</em>) – Value of x.</p></li>
+<li><p><strong>y</strong> (<em>float</em>) – Value of y.</p></li>
+<li><p><strong>z</strong> (<em>float</em>) – Value of z.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Q_{4y}^{alpha}(x,y,z).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.mathematics.algebra.core.CubicHarmonics.O4yb">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">O4yb</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="_modules/cpystal/mathematics/algebra/core.html#CubicHarmonics.O4yb"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.mathematics.algebra.core.CubicHarmonics.O4yb" title="Permalink to this definition"></a></dt>
+<dd><p>Q_{4y}^{beta}.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>irreducible representation: T_{2g}^{+}
+definition: sqrt(5)/2 z x (7y^2 - r^2)</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>float</em>) – Value of x.</p></li>
+<li><p><strong>y</strong> (<em>float</em>) – Value of y.</p></li>
+<li><p><strong>z</strong> (<em>float</em>) – Value of z.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Q_{4y}^{beta}(x,y,z).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.mathematics.algebra.core.CubicHarmonics.O4za">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">O4za</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="_modules/cpystal/mathematics/algebra/core.html#CubicHarmonics.O4za"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.mathematics.algebra.core.CubicHarmonics.O4za" title="Permalink to this definition"></a></dt>
+<dd><p>Q_{4z}^{alpha}.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>irreducible representation: T_{1g}^{+}
+definition: sqrt(35)/2 x y (x^2 - y^2)</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>float</em>) – Value of x.</p></li>
+<li><p><strong>y</strong> (<em>float</em>) – Value of y.</p></li>
+<li><p><strong>z</strong> (<em>float</em>) – Value of z.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Q_{4z}^{alpha}(x,y,z).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.mathematics.algebra.core.CubicHarmonics.O4zb">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">O4zb</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="_modules/cpystal/mathematics/algebra/core.html#CubicHarmonics.O4zb"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.mathematics.algebra.core.CubicHarmonics.O4zb" title="Permalink to this definition"></a></dt>
+<dd><p>Q_{4z}^{beta}.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>irreducible representation: T_{2g}^{+}
+definition: sqrt(5)/2 x y (7z^2 - r^2)</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>float</em>) – Value of x.</p></li>
+<li><p><strong>y</strong> (<em>float</em>) – Value of y.</p></li>
+<li><p><strong>z</strong> (<em>float</em>) – Value of z.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Q_{4z}^{beta}(x,y,z).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.mathematics.algebra.core.CubicHarmonics.O6">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">O6</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="_modules/cpystal/mathematics/algebra/core.html#CubicHarmonics.O6"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.mathematics.algebra.core.CubicHarmonics.O6" title="Permalink to this definition"></a></dt>
+<dd><p>Q_{6}.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>irreducible representation: A_{1g}^{+}
+definition: 231sqrt(2)/8 (x^2 y^2 z^2 + 1/22 r^2(x^4 + y^4 + z^4 - 3/5 r^4) - 1/105 r^6)</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>float</em>) – Value of x.</p></li>
+<li><p><strong>y</strong> (<em>float</em>) – Value of y.</p></li>
+<li><p><strong>z</strong> (<em>float</em>) – Value of z.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Q_{6}(x,y,z).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.mathematics.algebra.core.CubicHarmonics.O6t">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">O6t</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="_modules/cpystal/mathematics/algebra/core.html#CubicHarmonics.O6t"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.mathematics.algebra.core.CubicHarmonics.O6t" title="Permalink to this definition"></a></dt>
+<dd><p>Q_{6t}.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>irreducible representation: A_{2g}^{+}
+definition: sqrt(2310)/8 (x^4 (y^2 - z^2) + y^4 (z^2 - x^2) +z^4 (x^2 - y^2))</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>float</em>) – Value of x.</p></li>
+<li><p><strong>y</strong> (<em>float</em>) – Value of y.</p></li>
+<li><p><strong>z</strong> (<em>float</em>) – Value of z.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Q_{6t}(x,y,z).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.mathematics.algebra.core.CubicHarmonics.O6u">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">O6u</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="_modules/cpystal/mathematics/algebra/core.html#CubicHarmonics.O6u"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.mathematics.algebra.core.CubicHarmonics.O6u" title="Permalink to this definition"></a></dt>
+<dd><p>Q_{6u}.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>irreducible representation: E_{g}^{+}
+definition: 11sqrt(14)/4 (z^6 - 1/2 (x^6 + y^6) - 15/11 r^2 (z^4 - 1/2 (x^4 + y^4)) + 5/22 r^4 (3z^2 - r^2))</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>float</em>) – Value of x.</p></li>
+<li><p><strong>y</strong> (<em>float</em>) – Value of y.</p></li>
+<li><p><strong>z</strong> (<em>float</em>) – Value of z.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Q_{6u}(x,y,z).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.mathematics.algebra.core.CubicHarmonics.O6v">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">O6v</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="_modules/cpystal/mathematics/algebra/core.html#CubicHarmonics.O6v"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.mathematics.algebra.core.CubicHarmonics.O6v" title="Permalink to this definition"></a></dt>
+<dd><p>Q_{6v}.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>irreducible representation: E_{g}^{+}
+definition: 11sqrt(42)/8 (x^6 - y^6 - 15/11 r^2 (x^4-y^4) + 5/11 r^4 (x^2 - y^2))</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>float</em>) – Value of x.</p></li>
+<li><p><strong>y</strong> (<em>float</em>) – Value of y.</p></li>
+<li><p><strong>z</strong> (<em>float</em>) – Value of z.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Q_{6v}(x,y,z).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.mathematics.algebra.core.CubicHarmonics.O6xa">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">O6xa</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="_modules/cpystal/mathematics/algebra/core.html#CubicHarmonics.O6xa"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.mathematics.algebra.core.CubicHarmonics.O6xa" title="Permalink to this definition"></a></dt>
+<dd><p>Q_{6x}^{alpha}.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>irreducible representation: T_{1g}^{+}
+definition: 3sqrt(7)/4 y z (y^2 - z^2) (11x^2 - r^2)</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>float</em>) – Value of x.</p></li>
+<li><p><strong>y</strong> (<em>float</em>) – Value of y.</p></li>
+<li><p><strong>z</strong> (<em>float</em>) – Value of z.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Q_{6x}^{alpha}(x,y,z).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.mathematics.algebra.core.CubicHarmonics.O6xb1">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">O6xb1</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="_modules/cpystal/mathematics/algebra/core.html#CubicHarmonics.O6xb1"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.mathematics.algebra.core.CubicHarmonics.O6xb1" title="Permalink to this definition"></a></dt>
+<dd><p>Q_{6x}^{beta 1}.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>irreducible representation: T_{2g}^{+}
+definition: sqrt(462)/2 y z (y^4 + z^4 - 5/8 (y^2 + z^2)^2)</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>float</em>) – Value of x.</p></li>
+<li><p><strong>y</strong> (<em>float</em>) – Value of y.</p></li>
+<li><p><strong>z</strong> (<em>float</em>) – Value of z.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Q_{6x}^{beta 1}(x,y,z).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.mathematics.algebra.core.CubicHarmonics.O6xb2">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">O6xb2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="_modules/cpystal/mathematics/algebra/core.html#CubicHarmonics.O6xb2"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.mathematics.algebra.core.CubicHarmonics.O6xb2" title="Permalink to this definition"></a></dt>
+<dd><p>Q_{6x}^{beta 2}.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>irreducible representation: T_{2g}^{+}
+definition: sqrt(210)/16 y z (33 x^4 - 18 x^2 r^2 + r^4)</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>float</em>) – Value of x.</p></li>
+<li><p><strong>y</strong> (<em>float</em>) – Value of y.</p></li>
+<li><p><strong>z</strong> (<em>float</em>) – Value of z.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Q_{6x}^{beta 2}(x,y,z).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.mathematics.algebra.core.CubicHarmonics.O6ya">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">O6ya</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="_modules/cpystal/mathematics/algebra/core.html#CubicHarmonics.O6ya"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.mathematics.algebra.core.CubicHarmonics.O6ya" title="Permalink to this definition"></a></dt>
+<dd><p>Q_{6y}^{alpha}.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>irreducible representation: T_{1g}^{+}
+definition: 3sqrt(7)/4 z x (z^2 - x^2) (11y^2 - r^2)</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>float</em>) – Value of x.</p></li>
+<li><p><strong>y</strong> (<em>float</em>) – Value of y.</p></li>
+<li><p><strong>z</strong> (<em>float</em>) – Value of z.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Q_{6y}^{alpha}(x,y,z).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.mathematics.algebra.core.CubicHarmonics.O6yb1">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">O6yb1</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="_modules/cpystal/mathematics/algebra/core.html#CubicHarmonics.O6yb1"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.mathematics.algebra.core.CubicHarmonics.O6yb1" title="Permalink to this definition"></a></dt>
+<dd><p>Q_{6y}^{beta 1}.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>irreducible representation: T_{2g}^{+}
+definition: sqrt(462)/2 z x (z^4 + x^4 - 5/8 (z^2 + x^2)^2)</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>float</em>) – Value of x.</p></li>
+<li><p><strong>y</strong> (<em>float</em>) – Value of y.</p></li>
+<li><p><strong>z</strong> (<em>float</em>) – Value of z.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Q_{6y}^{beta 1}(x,y,z).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.mathematics.algebra.core.CubicHarmonics.O6yb2">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">O6yb2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="_modules/cpystal/mathematics/algebra/core.html#CubicHarmonics.O6yb2"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.mathematics.algebra.core.CubicHarmonics.O6yb2" title="Permalink to this definition"></a></dt>
+<dd><p>Q_{6y}^{beta 2}.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>irreducible representation: T_{2g}^{+}
+definition: sqrt(210)/16 z x (33 y^4 - 18 y^2 r^2 + r^4)</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>float</em>) – Value of x.</p></li>
+<li><p><strong>y</strong> (<em>float</em>) – Value of y.</p></li>
+<li><p><strong>z</strong> (<em>float</em>) – Value of z.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Q_{6y}^{beta 2}(x,y,z).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.mathematics.algebra.core.CubicHarmonics.O6za">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">O6za</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="_modules/cpystal/mathematics/algebra/core.html#CubicHarmonics.O6za"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.mathematics.algebra.core.CubicHarmonics.O6za" title="Permalink to this definition"></a></dt>
+<dd><p>Q_{6z}^{alpha}.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>irreducible representation: T_{1g}^{+}
+definition: 3sqrt(7)/4 x y (x^2 - y^2) (11z^2 - r^2)</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>float</em>) – Value of x.</p></li>
+<li><p><strong>y</strong> (<em>float</em>) – Value of y.</p></li>
+<li><p><strong>z</strong> (<em>float</em>) – Value of z.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Q_{6z}^{alpha}(x,y,z).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.mathematics.algebra.core.CubicHarmonics.O6zb1">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">O6zb1</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="_modules/cpystal/mathematics/algebra/core.html#CubicHarmonics.O6zb1"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.mathematics.algebra.core.CubicHarmonics.O6zb1" title="Permalink to this definition"></a></dt>
+<dd><p>Q_{6z}^{beta 1}.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>irreducible representation: T_{2g}^{+}
+definition: sqrt(462)/2 x y (x^4 + y^4 - 5/8 (x^2 + y^2)^2)</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>float</em>) – Value of x.</p></li>
+<li><p><strong>y</strong> (<em>float</em>) – Value of y.</p></li>
+<li><p><strong>z</strong> (<em>float</em>) – Value of z.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Q_{6z}^{beta 1}(x,y,z).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.mathematics.algebra.core.CubicHarmonics.O6zb2">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">O6zb2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="_modules/cpystal/mathematics/algebra/core.html#CubicHarmonics.O6zb2"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.mathematics.algebra.core.CubicHarmonics.O6zb2" title="Permalink to this definition"></a></dt>
+<dd><p>Q_{6z}^{beta 2}.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>irreducible representation: T_{2g}^{+}
+definition: sqrt(210)/16 x y (33 z^4 - 18 z^2 r^2 + r^4)</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>float</em>) – Value of x.</p></li>
+<li><p><strong>y</strong> (<em>float</em>) – Value of y.</p></li>
+<li><p><strong>z</strong> (<em>float</em>) – Value of z.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Q_{6z}^{beta 2}(x,y,z).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.mathematics.algebra.core.CubicHarmonics.Ou">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Ou</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="_modules/cpystal/mathematics/algebra/core.html#CubicHarmonics.Ou"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.mathematics.algebra.core.CubicHarmonics.Ou" title="Permalink to this definition"></a></dt>
+<dd><p>Q_{u}.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>irreducible representation: E_{g}^{+}
+definition: 1/2 (3z^2-r^2)</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>float</em>) – Value of x.</p></li>
+<li><p><strong>y</strong> (<em>float</em>) – Value of y.</p></li>
+<li><p><strong>z</strong> (<em>float</em>) – Value of z.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Q_{u}(x,y,z).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.mathematics.algebra.core.CubicHarmonics.Ov">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Ov</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="_modules/cpystal/mathematics/algebra/core.html#CubicHarmonics.Ov"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.mathematics.algebra.core.CubicHarmonics.Ov" title="Permalink to this definition"></a></dt>
+<dd><p>Q_{v}.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>irreducible representation: E_{g}^{+}
+definition: sqrt(3)/2 (x^2-y^2)</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>float</em>) – Value of x.</p></li>
+<li><p><strong>y</strong> (<em>float</em>) – Value of y.</p></li>
+<li><p><strong>z</strong> (<em>float</em>) – Value of z.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Q_{v}(x,y,z).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.mathematics.algebra.core.CubicHarmonics.Oxy">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Oxy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="_modules/cpystal/mathematics/algebra/core.html#CubicHarmonics.Oxy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.mathematics.algebra.core.CubicHarmonics.Oxy" title="Permalink to this definition"></a></dt>
+<dd><p>Q_{xy}.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>irreducible representation: T_{2g}^{+}
+definition: sqrt(3) x y</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>float</em>) – Value of x.</p></li>
+<li><p><strong>y</strong> (<em>float</em>) – Value of y.</p></li>
+<li><p><strong>z</strong> (<em>float</em>) – Value of z.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Q_{xy}(x,y,z).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.mathematics.algebra.core.CubicHarmonics.Oyz">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Oyz</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="_modules/cpystal/mathematics/algebra/core.html#CubicHarmonics.Oyz"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.mathematics.algebra.core.CubicHarmonics.Oyz" title="Permalink to this definition"></a></dt>
+<dd><p>Q_{yz}.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>irreducible representation: T_{2g}^{+}
+definition: sqrt(3) y z</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>float</em>) – Value of x.</p></li>
+<li><p><strong>y</strong> (<em>float</em>) – Value of y.</p></li>
+<li><p><strong>z</strong> (<em>float</em>) – Value of z.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Q_{yz}(x,y,z).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.mathematics.algebra.core.CubicHarmonics.Ozx">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Ozx</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="_modules/cpystal/mathematics/algebra/core.html#CubicHarmonics.Ozx"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.mathematics.algebra.core.CubicHarmonics.Ozx" title="Permalink to this definition"></a></dt>
+<dd><p>Q_{zx}.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>irreducible representation: T_{2g}^{+}
+definition: sqrt(3) z x</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>float</em>) – Value of x.</p></li>
+<li><p><strong>y</strong> (<em>float</em>) – Value of y.</p></li>
+<li><p><strong>z</strong> (<em>float</em>) – Value of z.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Q_{zx}(x,y,z).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.mathematics.algebra.core.CubicHarmonics.visualize">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">visualize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/cpystal/mathematics/algebra/core.html#CubicHarmonics.visualize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.mathematics.algebra.core.CubicHarmonics.visualize" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="cpystal.mathematics.algebra.core.IREF">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cpystal.mathematics.algebra.core.</span></span><span class="sig-name descname"><span class="pre">IREF</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">iref_number</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Fraction</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Fraction</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Fraction</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">defaultdict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Fraction</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cpystal/mathematics/algebra/core.html#IREF"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.mathematics.algebra.core.IREF" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Infinite Rational Extention Field.</p>
+<p>The set of all rational numbers plus the square roots of all square-free integers
+forms a field with the usual addition, subtraction, and division operations.
+An instance of this class corresponds to an element of this Infinite Rational Extention Field (IREF).</p>
+<dl class="simple">
+<dt>The following types of the argument of the constructor of this class <cite>iref_number</cite> are allowed:</dt><dd><p><cite>int</cite>, <cite>Fraction</cite>, <cite>tuple[int, int | Fraction]</cite>, <cite>list[tuple[int, int | Fraction]]</cite>, or <cite>defaultdict[int, Fraction]</cite>.</p>
+</dd>
+</dl>
+<p>The keys of the attribute <cite>root_value_dict</cite> are square roots of square-free integers in IREF.
+The values of the attribute <cite>root_value_dict</cite> are the coefficients of the keys which represent square roots of square-free integers.</p>
+<p>Examples:
+<code class="docutils literal notranslate"><span class="pre">`</span>
+<span class="pre">print(IREF())</span>
+<span class="pre">&gt;&gt;&gt;</span> <span class="pre">0</span>
+<span class="pre">a</span> <span class="pre">=</span> <span class="pre">IREF([(2,1),</span> <span class="pre">(3,-1)]</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">#</span> <span class="pre">√2-√3</span>
+<span class="pre">a</span> <span class="pre">+=</span> <span class="pre">IREF((-1,Fraction(4,3)))</span> <span class="pre">*</span> <span class="pre">3</span>&#160;&#160; <span class="pre">#</span> <span class="pre">a</span> <span class="pre">==</span> <span class="pre">√2-√3+4√-1</span>
+<span class="pre">a[5]</span> <span class="pre">=</span> <span class="pre">Fraction(1,2)</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">#</span> <span class="pre">a</span> <span class="pre">==</span> <span class="pre">√2-√3+4√-1+1/2√5</span>
+<span class="pre">b</span> <span class="pre">=</span> <span class="pre">IREF(3)</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">#</span> <span class="pre">3</span>
+<span class="pre">print(a</span> <span class="pre">*</span> <span class="pre">b)</span>
+<span class="pre">&gt;&gt;&gt;</span> <span class="pre">3√2</span> <span class="pre">+</span> <span class="pre">-3√3</span> <span class="pre">+</span> <span class="pre">12√-1</span> <span class="pre">+</span> <span class="pre">3/2√5</span>
+<span class="pre">print(a.root_value_dict)</span>
+<span class="pre">&gt;&gt;&gt;</span> <span class="pre">defaultdict(&lt;class</span> <span class="pre">'fractions.Fraction'&gt;,</span> <span class="pre">{2:</span> <span class="pre">Fraction(1,</span> <span class="pre">1),</span> <span class="pre">3:</span> <span class="pre">Fraction(-1,</span> <span class="pre">1),</span> <span class="pre">-1:</span> <span class="pre">Fraction(4,</span> <span class="pre">1),</span> <span class="pre">5:</span> <span class="pre">Fraction(1,</span> <span class="pre">2)})</span>
+<span class="pre">print(b.root_value_dict)</span>
+<span class="pre">&gt;&gt;&gt;</span> <span class="pre">defaultdict(&lt;class</span> <span class="pre">'fractions.Fraction'&gt;,</span> <span class="pre">{1:</span> <span class="pre">Fraction(3,</span> <span class="pre">1)})</span>
+<span class="pre">`</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.mathematics.algebra.core.IREF.cal_square_factor">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">cal_square_factor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="_modules/cpystal/mathematics/algebra/core.html#IREF.cal_square_factor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.mathematics.algebra.core.IREF.cal_square_factor" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.mathematics.algebra.core.IREF.copy">
+<span class="sig-name descname"><span class="pre">copy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cpystal.mathematics.algebra.core.IREF" title="cpystal.mathematics.algebra.core.IREF"><span class="pre">IREF</span></a></span></span><a class="reference internal" href="_modules/cpystal/mathematics/algebra/core.html#IREF.copy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.mathematics.algebra.core.IREF.copy" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.mathematics.algebra.core.IREF.deepcopy">
+<span class="sig-name descname"><span class="pre">deepcopy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cpystal.mathematics.algebra.core.IREF" title="cpystal.mathematics.algebra.core.IREF"><span class="pre">IREF</span></a></span></span><a class="reference internal" href="_modules/cpystal/mathematics/algebra/core.html#IREF.deepcopy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.mathematics.algebra.core.IREF.deepcopy" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.mathematics.algebra.core.IREF.factorize">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">factorize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">defaultdict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/cpystal/mathematics/algebra/core.html#IREF.factorize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.mathematics.algebra.core.IREF.factorize" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.mathematics.algebra.core.IREF.factorize_fast">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">factorize_fast</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">defaultdict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/cpystal/mathematics/algebra/core.html#IREF.factorize_fast"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.mathematics.algebra.core.IREF.factorize_fast" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.mathematics.algebra.core.IREF.isqrt">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">isqrt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="_modules/cpystal/mathematics/algebra/core.html#IREF.isqrt"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.mathematics.algebra.core.IREF.isqrt" title="Permalink to this definition"></a></dt>
+<dd><p>Calculate floor(sqrt(n)) by binary search.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Time complexity: Θ(logn).</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>n</strong> (<em>int</em>) – Non-negative integer.</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – Argument <cite>n</cite> must be a non-negative integer.</p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>floor(sqrt(n)).</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.mathematics.algebra.core.IREF.make_square_factor_list">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">make_square_factor_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">100000</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/cpystal/mathematics/algebra/core.html#IREF.make_square_factor_list"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.mathematics.algebra.core.IREF.make_square_factor_list" title="Permalink to this definition"></a></dt>
+<dd><p>Calculate a list of square factor.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Time complexity: Θ(nloglogn).</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>n</strong> (<em>int</em><em>, </em><em>optional</em>) – Non-negative integer. Defaults to 10**5.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>List of square factor. The i-th element represents the square factor of i.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[int]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="cpystal.mathematics.algebra.core.IREF.root_value_dict">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">root_value_dict</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">defaultdict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Fraction</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#cpystal.mathematics.algebra.core.IREF.root_value_dict" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.mathematics.algebra.core.IREF.to_complex">
+<span class="sig-name descname"><span class="pre">to_complex</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">complex</span></span></span><a class="reference internal" href="_modules/cpystal/mathematics/algebra/core.html#IREF.to_complex"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.mathematics.algebra.core.IREF.to_complex" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.mathematics.algebra.core.IREF.to_float">
+<span class="sig-name descname"><span class="pre">to_float</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="_modules/cpystal/mathematics/algebra/core.html#IREF.to_float"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.mathematics.algebra.core.IREF.to_float" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="cpystal.mathematics.algebra.core.MatrixREF">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cpystal.mathematics.algebra.core.</span></span><span class="sig-name descname"><span class="pre">MatrixREF</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mat</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Matrix</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cpystal/mathematics/algebra/core.html#MatrixREF"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.mathematics.algebra.core.MatrixREF" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Matrix of <cite>REF</cite> instance.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpystal.mathematics.algebra.core.MatrixREF.p">
+<span class="sig-name descname"><span class="pre">p</span></span><a class="headerlink" href="#cpystal.mathematics.algebra.core.MatrixREF.p" title="Permalink to this definition"></a></dt>
+<dd><p>Square of the generator of simple extension Q(√p).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpystal.mathematics.algebra.core.MatrixREF.mat">
+<span class="sig-name descname"><span class="pre">mat</span></span><a class="headerlink" href="#cpystal.mathematics.algebra.core.MatrixREF.mat" title="Permalink to this definition"></a></dt>
+<dd><p>2-dimension matrix of <cite>REF</cite> instance.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[list[<a class="reference internal" href="#cpystal.mathematics.algebra.core.REF" title="cpystal.mathematics.algebra.core.REF">REF</a>]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpystal.mathematics.algebra.core.MatrixREF.shape">
+<span class="sig-name descname"><span class="pre">shape</span></span><a class="headerlink" href="#cpystal.mathematics.algebra.core.MatrixREF.shape" title="Permalink to this definition"></a></dt>
+<dd><p>Shape of <cite>MatrixREF.mat</cite>. First element is the number of row, second is the number of column.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple[int, int]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.mathematics.algebra.core.MatrixREF.copy">
+<span class="sig-name descname"><span class="pre">copy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">MatrixREFchild</span></span></span><a class="reference internal" href="_modules/cpystal/mathematics/algebra/core.html#MatrixREF.copy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.mathematics.algebra.core.MatrixREF.copy" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.mathematics.algebra.core.MatrixREF.deepcopy">
+<span class="sig-name descname"><span class="pre">deepcopy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">MatrixREFchild</span></span></span><a class="reference internal" href="_modules/cpystal/mathematics/algebra/core.html#MatrixREF.deepcopy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.mathematics.algebra.core.MatrixREF.deepcopy" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.mathematics.algebra.core.MatrixREF.identity">
+<span class="sig-name descname"><span class="pre">identity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shape</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">MatrixREFchild</span></span></span><a class="reference internal" href="_modules/cpystal/mathematics/algebra/core.html#MatrixREF.identity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.mathematics.algebra.core.MatrixREF.identity" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.mathematics.algebra.core.MatrixREF.sum">
+<span class="sig-name descname"><span class="pre">sum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">axis</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cpystal.mathematics.algebra.core.REF" title="cpystal.mathematics.algebra.core.REF"><span class="pre">REF</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#cpystal.mathematics.algebra.core.REF" title="cpystal.mathematics.algebra.core.REF"><span class="pre">REF</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/cpystal/mathematics/algebra/core.html#MatrixREF.sum"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.mathematics.algebra.core.MatrixREF.sum" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.mathematics.algebra.core.MatrixREF.to_ndarray">
+<span class="sig-name descname"><span class="pre">to_ndarray</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">ScalarType</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/cpystal/mathematics/algebra/core.html#MatrixREF.to_ndarray"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.mathematics.algebra.core.MatrixREF.to_ndarray" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="cpystal.mathematics.algebra.core.PolyInt">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cpystal.mathematics.algebra.core.</span></span><span class="sig-name descname"><span class="pre">PolyInt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">P</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">npt.NDArray</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cpystal/mathematics/algebra/core.html#PolyInt"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.mathematics.algebra.core.PolyInt" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Polynomial with integer coefficients.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpystal.mathematics.algebra.core.PolyInt.P">
+<span class="sig-name descname"><span class="pre">P</span></span><a class="headerlink" href="#cpystal.mathematics.algebra.core.PolyInt.P" title="Permalink to this definition"></a></dt>
+<dd><p>List of coefficients of polynomial.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[int] | npt.NDArray, optional</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.mathematics.algebra.core.PolyInt.Am">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Am</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">m</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cpystal.mathematics.algebra.core.PolyInt" title="cpystal.mathematics.algebra.core.PolyInt"><span class="pre">PolyInt</span></a></span></span><a class="reference internal" href="_modules/cpystal/mathematics/algebra/core.html#PolyInt.Am"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.mathematics.algebra.core.PolyInt.Am" title="Permalink to this definition"></a></dt>
+<dd><p>(x,y)-dependent polynomial A_m(x,y) in spherical harmonics.
+The parity is gerade (cos-like).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>m</strong> (<em>int</em>) – Magnetic quantum number.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A_m(x,y).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#cpystal.mathematics.algebra.core.PolyInt" title="cpystal.mathematics.algebra.core.PolyInt">PolyInt</a></p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>△R_l^m(r,θ,φ) = 0
+R_l^m(r,θ,φ) := (4pi/(2l+1))^{1/2} r^l Y_l^m(θ,φ)
+Y_l^m(θ,φ) := (-1)^{(m+|m|)/2} ((2l+1)/4pi)^{1/2} Q_l^{|m|} e^{imφ}
+Q_l^{|m|} := [(l-|m|)!/(l+|m|)!]^{1/2} P_l^{|m|}(cosθ)
+P_l^{|m|}(cosθ) := sin^{|m|}θ sum_{k=0}^{(l-|m|)//2} c_{lkm} cos^{l-|m|-2k}θ
+c_{lkm} := (-1)^k/(2^l) (2l-2k)! / (k!(l-k)!(l-|m|-2k)!)</p>
+<p>C_l^m := r^l Re[Q_l^{|m|} e^{imφ}] = r^l Q_l^{|m|} cos(mφ)
+S_l^m := r^l Im[Q_l^{|m|} e^{imφ}] = r^l Q_l^{|m|} sin(mφ)
+Π_l^m(z) := r^{l-|m|} P_l^{|m|}(cosθ) / sin^{|m|}θ</p>
+<blockquote>
+<div><p>= sum_{k=0}^{(l-|m|)//2} c_{lkm} r^{2k} z^{l-2k-|m|}</p>
+</div></blockquote>
+<dl class="simple">
+<dt>A_m(x,y) := r^{|m|} sin^{|m|}θ cos(mφ)</dt><dd><p>= [(x+iy)^{|m|} + (x-iy)^{|m|}] / 2</p>
+</dd>
+<dt>B_m(x,y) := r^{|m|} sin^{|m|}θ sin(mφ)</dt><dd><p>= [(x+iy)^{|m|} - (x-iy)^{|m|}] / 2i</p>
+</dd>
+</dl>
+<p>then,
+- C_l^m = [(l-|m|)!/(l+|m|)!]^{1/2} Π_l^m(z) A_m(x,y)
+- S_l^m = [(l-|m|)!/(l+|m|)!]^{1/2} Π_l^m(z) B_m(x,y)
+- R_l^m(r,θ,φ) = (-1)^{(m+|m|)/2} (C_l^m + iS_l^m).</p>
+<p>Here, Condon-Shortley phase is adopted.</p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.mathematics.algebra.core.PolyInt.Bm">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Bm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">m</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cpystal.mathematics.algebra.core.PolyInt" title="cpystal.mathematics.algebra.core.PolyInt"><span class="pre">PolyInt</span></a></span></span><a class="reference internal" href="_modules/cpystal/mathematics/algebra/core.html#PolyInt.Bm"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.mathematics.algebra.core.PolyInt.Bm" title="Permalink to this definition"></a></dt>
+<dd><p>(x,y)-dependent polynomial B_m(x,y) in spherical harmonics.
+The parity is ungerade (sin-like).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>m</strong> (<em>int</em>) – Magnetic quantum number.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>B_m(x,y).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#cpystal.mathematics.algebra.core.PolyInt" title="cpystal.mathematics.algebra.core.PolyInt">PolyInt</a></p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>△R_l^m(r,θ,φ) = 0
+R_l^m(r,θ,φ) := (4pi/(2l+1))^{1/2} r^l Y_l^m(θ,φ)
+Y_l^m(θ,φ) := (-1)^{(m+|m|)/2} ((2l+1)/4pi)^{1/2} Q_l^{|m|} e^{imφ}
+Q_l^{|m|} := [(l-|m|)!/(l+|m|)!]^{1/2} P_l^{|m|}(cosθ)
+P_l^{|m|}(cosθ) := sin^{|m|}θ sum_{k=0}^{(l-|m|)//2} c_{lkm} cos^{l-|m|-2k}θ
+c_{lkm} := (-1)^k/(2^l) (2l-2k)! / (k!(l-k)!(l-|m|-2k)!)</p>
+<p>C_l^m := r^l Re[Q_l^{|m|} e^{imφ}] = r^l Q_l^{|m|} cos(mφ)
+S_l^m := r^l Im[Q_l^{|m|} e^{imφ}] = r^l Q_l^{|m|} sin(mφ)
+Π_l^m(z) := r^{l-|m|} P_l^{|m|}(cosθ) / sin^{|m|}θ</p>
+<blockquote>
+<div><p>= sum_{k=0}^{(l-|m|)//2} c_{lkm} r^{2k} z^{l-2k-|m|}</p>
+</div></blockquote>
+<dl class="simple">
+<dt>A_m(x,y) := r^{|m|} sin^{|m|}θ cos(mφ)</dt><dd><p>= [(x+iy)^{|m|} + (x-iy)^{|m|}] / 2</p>
+</dd>
+<dt>B_m(x,y) := r^{|m|} sin^{|m|}θ sin(mφ)</dt><dd><p>= [(x+iy)^{|m|} - (x-iy)^{|m|}] / 2i</p>
+</dd>
+</dl>
+<p>then,
+- C_l^m = [(l-|m|)!/(l+|m|)!]^{1/2} Π_l^m(z) A_m(x,y)
+- S_l^m = [(l-|m|)!/(l+|m|)!]^{1/2} Π_l^m(z) B_m(x,y)
+- R_l^m(r,θ,φ) = (-1)^{(m+|m|)/2} (C_l^m + iS_l^m).</p>
+<p>Here, Condon-Shortley phase is adopted.</p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.mathematics.algebra.core.PolyInt.Hn">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Hn</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cpystal.mathematics.algebra.core.PolyInt" title="cpystal.mathematics.algebra.core.PolyInt"><span class="pre">PolyInt</span></a></span></span><a class="reference internal" href="_modules/cpystal/mathematics/algebra/core.html#PolyInt.Hn"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.mathematics.algebra.core.PolyInt.Hn" title="Permalink to this definition"></a></dt>
+<dd><p>Hermite polynomial H_n(x).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>n</strong> (<em>int</em>) – Degree of Hermite polynomial H_n(x).</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Hermite polynomial H_n(x).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#cpystal.mathematics.algebra.core.PolyInt" title="cpystal.mathematics.algebra.core.PolyInt">PolyInt</a></p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The result of this method equals to <cite>cls([cls.Hn_coeff(n, m) for m in range(n+1)])</cite>.</p>
+<p>[(d/dx)^2 - 2x(d/dx) + 2n] H_n(x) = 0
+H_n(x) = (-1)^n e^{x^2} (d/dx)^n e^{-x^2}
+Exponential generating function: exp(2xt-t^2) = sum H_n(x)t^n/n!
+H_{n+1}(x) = 2xH_n(x) - 2nH_{n-1}(x) (H_0=1, H_1=2x)</p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.mathematics.algebra.core.PolyInt.Hn_coeff">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Hn_coeff</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">m</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="_modules/cpystal/mathematics/algebra/core.html#PolyInt.Hn_coeff"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.mathematics.algebra.core.PolyInt.Hn_coeff" title="Permalink to this definition"></a></dt>
+<dd><p>Coefficient of x^m in Hermite polynomial H_n(x).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n</strong> (<em>int</em>) – Degree of Hermite polynomial H_n(x).</p></li>
+<li><p><strong>m</strong> (<em>int</em>) – Degree of x.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Coefficient of x^m in Hermite polynomial H_n(x).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.mathematics.algebra.core.PolyInt.Ln">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Ln</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cpystal.mathematics.algebra.core.PolyInt" title="cpystal.mathematics.algebra.core.PolyInt"><span class="pre">PolyInt</span></a></span></span><a class="reference internal" href="_modules/cpystal/mathematics/algebra/core.html#PolyInt.Ln"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.mathematics.algebra.core.PolyInt.Ln" title="Permalink to this definition"></a></dt>
+<dd><p>Laguerre polynomial L_n(x).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>n</strong> (<em>int</em>) – Degree of Laguerre polynomial L_n(x).</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Laguerre polynomial whose coefficients are integerized L_n(x).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#cpystal.mathematics.algebra.core.PolyInt" title="cpystal.mathematics.algebra.core.PolyInt">PolyInt</a></p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The result of this method equals to <cite>cls([cls.Ln_coeff(n, m) for m in range(n+1)])</cite>.</p>
+<p>[x(d/dx)^2 + (1-x)(d/dx) + n] L_n(x) = 0
+L_n(x) = e^x (d/dx)^n (x^n e^{-x})
+Exponential generating function: 1/(1-t) exp(-xt(1-t)) = sum L_n(x)t^{n}/n!
+L_{n+1}(x) = (2n+1-x)L_n(x) - n^2 L_{n-1}(x)</p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.mathematics.algebra.core.PolyInt.Ln_coeff">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Ln_coeff</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">m</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="_modules/cpystal/mathematics/algebra/core.html#PolyInt.Ln_coeff"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.mathematics.algebra.core.PolyInt.Ln_coeff" title="Permalink to this definition"></a></dt>
+<dd><p>Coefficient of x^m in Laguerre polynomial L_n(x).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n</strong> (<em>int</em>) – Degree of Laguerre polynomial L_n(x).</p></li>
+<li><p><strong>m</strong> (<em>int</em>) – Degree of x.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Coefficient of x^m in Laguerre polynomial L_n(x).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.mathematics.algebra.core.PolyInt.Lnk">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Lnk</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cpystal.mathematics.algebra.core.PolyInt" title="cpystal.mathematics.algebra.core.PolyInt"><span class="pre">PolyInt</span></a></span></span><a class="reference internal" href="_modules/cpystal/mathematics/algebra/core.html#PolyInt.Lnk"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.mathematics.algebra.core.PolyInt.Lnk" title="Permalink to this definition"></a></dt>
+<dd><p>Associated Laguerre polynomial L_n^k(x).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n</strong> (<em>int</em>) – Degree of Laguerre polynomial L_n^k(x).</p></li>
+<li><p><strong>k</strong> (<em>int</em>) – Order of Laguerre polynomial L_n^k(x).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Associated Laguerre polynomial whose coefficients are integerized L_n^k(x).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#cpystal.mathematics.algebra.core.PolyInt" title="cpystal.mathematics.algebra.core.PolyInt">PolyInt</a></p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The result of this method equals to <cite>cls([cls.Ln_coeff(n, m) for m in range(n+1)])</cite>.
+Note that this polynomial is not L_n^{(k)}(x) = e^x x^{-k} (d/dx)^n (x^{n+k} e^{-x}).</p>
+<p>[x(d/dx)^2 + (k+1-x)(d/dx) + n-k] L_n^k(x) = 0
+L_n^k(x) = (d/dx)^k L_n(x)
+generating function: (-1)^k/(1-t)^{k+1} exp(-xt(1-t)) = sum L_n^k(x)t^{n-k}/n!</p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.mathematics.algebra.core.PolyInt.Pilm">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Pilm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">l</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">m</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cpystal.mathematics.algebra.core.PolyInt" title="cpystal.mathematics.algebra.core.PolyInt"><span class="pre">PolyInt</span></a></span></span><a class="reference internal" href="_modules/cpystal/mathematics/algebra/core.html#PolyInt.Pilm"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.mathematics.algebra.core.PolyInt.Pilm" title="Permalink to this definition"></a></dt>
+<dd><p>Integerized z-dependent polynomial Pi_l^m(z)*2**l in spherical harmonics.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>l</strong> (<em>int</em>) – Azumuthal quantum number.</p></li>
+<li><p><strong>m</strong> (<em>int</em>) – Magnetic quantum number.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Pi_l^m(z)*2**l.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#cpystal.mathematics.algebra.core.PolyInt" title="cpystal.mathematics.algebra.core.PolyInt">PolyInt</a></p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>△R_l^m(r,θ,φ) = 0
+R_l^m(r,θ,φ) := (4pi/(2l+1))^{1/2} r^l Y_l^m(θ,φ)
+Y_l^m(θ,φ) := (-1)^{(m+|m|)/2} ((2l+1)/4pi)^{1/2} Q_l^{|m|} e^{imφ}
+Q_l^{|m|} := [(l-|m|)!/(l+|m|)!]^{1/2} P_l^{|m|}(cosθ)
+P_l^{|m|}(cosθ) := sin^{|m|}θ sum_{k=0}^{(l-|m|)//2} c_{lkm} cos^{l-|m|-2k}θ
+c_{lkm} := (-1)^k/(2^l) (2l-2k)! / (k!(l-k)!(l-|m|-2k)!)</p>
+<p>C_l^m := r^l Re[Q_l^{|m|} e^{imφ}] = r^l Q_l^{|m|} cos(mφ)
+S_l^m := r^l Im[Q_l^{|m|} e^{imφ}] = r^l Q_l^{|m|} sin(mφ)
+Π_l^m(z) := r^{l-|m|} P_l^{|m|}(cosθ) / sin^{|m|}θ</p>
+<blockquote>
+<div><p>= sum_{k=0}^{(l-|m|)//2} c_{lkm} r^{2k} z^{l-2k-|m|}</p>
+</div></blockquote>
+<dl class="simple">
+<dt>A_m(x,y) := r^{|m|} sin^{|m|}θ cos(mφ)</dt><dd><p>= [(x+iy)^{|m|} + (x-iy)^{|m|}] / 2</p>
+</dd>
+<dt>B_m(x,y) := r^{|m|} sin^{|m|}θ sin(mφ)</dt><dd><p>= [(x+iy)^{|m|} - (x-iy)^{|m|}] / 2i</p>
+</dd>
+</dl>
+<p>then,
+- C_l^m = [(l-|m|)!/(l+|m|)!]^{1/2} Π_l^m(z) A_m(x,y)
+- S_l^m = [(l-|m|)!/(l+|m|)!]^{1/2} Π_l^m(z) B_m(x,y)
+- R_l^m(r,θ,φ) = (-1)^{(m+|m|)/2} (C_l^m + iS_l^m).</p>
+<p>Here, Condon-Shortley phase is adopted.</p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.mathematics.algebra.core.PolyInt.Plm">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Plm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">l</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">m</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cpystal.mathematics.algebra.core.PolyInt" title="cpystal.mathematics.algebra.core.PolyInt"><span class="pre">PolyInt</span></a></span></span><a class="reference internal" href="_modules/cpystal/mathematics/algebra/core.html#PolyInt.Plm"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.mathematics.algebra.core.PolyInt.Plm" title="Permalink to this definition"></a></dt>
+<dd><p>Associated Legendre polynomial whose coefficients are integerized P_l^m(x)/(1-x^2)^{|m|/2}*2**l.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>l</strong> (<em>int</em>) – Degree of associated Legendre polynomial P_l^m(x).</p></li>
+<li><p><strong>m</strong> (<em>int</em>) – Order of associated Legendre polynomial P_l^m(x). Only non-negative values are allowed.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Associated Legendre polynomial whose coefficients are integerized P_l^m(x)/(1-x^2)^{|m|/2}*2**l.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#cpystal.mathematics.algebra.core.PolyInt" title="cpystal.mathematics.algebra.core.PolyInt">PolyInt</a></p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>[(1-x^2)(d/dx)^2 - 2x(d/dx) + n(n+1) - m^2/(1-x^2)] P_n^l(x) = 0
+P_l^m(x) = (-1)^m (1-x^2)^{m/2} (d/dx)^m P_l(x)
+P_l^{-m}(x) = (-1)^m (l-m)!/(l+m)! P_l^m(x)</p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.mathematics.algebra.core.PolyInt.Plm_coeff">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Plm_coeff</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">l</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">m</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="_modules/cpystal/mathematics/algebra/core.html#PolyInt.Plm_coeff"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.mathematics.algebra.core.PolyInt.Plm_coeff" title="Permalink to this definition"></a></dt>
+<dd><p>Integerized coefficient of x^k in Associated Legendre polynomial P_l^m(x)/(1-x^2)^{|m|/2}*2**l.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>l</strong> (<em>int</em>) – Degree of Legendre polynomial P_l^m(x).</p></li>
+<li><p><strong>m</strong> (<em>int</em>) – Order of Legendre polynomial P_l^m(x). Only non-negative values are allowed.</p></li>
+<li><p><strong>k</strong> (<em>int</em>) – Degree of x.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Coefficient of x^k in Legendre polynomial P_l^m(x)/(1-x^2)^{|m|/2}*2**l.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.mathematics.algebra.core.PolyInt.Plm_coeff_float">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Plm_coeff_float</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">l</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">m</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">float</span></span></span><a class="reference internal" href="_modules/cpystal/mathematics/algebra/core.html#PolyInt.Plm_coeff_float"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.mathematics.algebra.core.PolyInt.Plm_coeff_float" title="Permalink to this definition"></a></dt>
+<dd><p>Coefficient of x^k in Associated Legendre polynomial P_l^m(x)/(1-x^2)^{|m|/2}*2**l.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>l</strong> (<em>int</em>) – Degree of Legendre polynomial P_l^m(x)/(1-x^2)^{|m|/2}*2**l.</p></li>
+<li><p><strong>m</strong> (<em>int</em>) – Order of Legendre polynomial P_l^m(x)/(1-x^2)^{|m|/2}*2**l.</p></li>
+<li><p><strong>k</strong> (<em>int</em>) – Degree of x.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Coefficient of x^k in Legendre polynomial P_l^m(x)/(1-x^2)^{|m|/2}*2**l.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.mathematics.algebra.core.PolyInt.Pn">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Pn</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cpystal.mathematics.algebra.core.PolyInt" title="cpystal.mathematics.algebra.core.PolyInt"><span class="pre">PolyInt</span></a></span></span><a class="reference internal" href="_modules/cpystal/mathematics/algebra/core.html#PolyInt.Pn"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.mathematics.algebra.core.PolyInt.Pn" title="Permalink to this definition"></a></dt>
+<dd><p>Legendre polynomial whose coefficients are integerized P_n(x)*2**n.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>n</strong> (<em>int</em>) – Degree of Legendre polynomial P_n(x)*2**n.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Legendre polynomial whose coefficients are integerized P_n(x)*2**n.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#cpystal.mathematics.algebra.core.PolyInt" title="cpystal.mathematics.algebra.core.PolyInt">PolyInt</a></p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The result of this method equals to <cite>cls([cls.Pn_coeff(n, m) for m in range(n+1)])</cite>.</p>
+<p>[(1-x^2)(d/dx)^2 - 2x(d/dx) + n(n+1)] P_n(x) = 0
+P_n(x) = 1/(n!*2**n) (d/dx)^n (x^2-1)^n
+Ordinary generating function: 1/(1-2tx+t^2)^{1/2} = sum P_n(x)t^n
+(n+1)P_{n+1}(x) = (2n+1)xP_n(x) - nP_{n-1}(x)</p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.mathematics.algebra.core.PolyInt.Pn_coeff">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Pn_coeff</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">m</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="_modules/cpystal/mathematics/algebra/core.html#PolyInt.Pn_coeff"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.mathematics.algebra.core.PolyInt.Pn_coeff" title="Permalink to this definition"></a></dt>
+<dd><p>Integerized coefficient of x^m in Legendre polynomial P_n(x)*2**n.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n</strong> (<em>int</em>) – Degree of Legendre polynomial P_n(x)*2**n.</p></li>
+<li><p><strong>m</strong> (<em>int</em>) – Degree of x.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Coefficient of x^m in Legendre polynomial P_n(x)*2**n.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.mathematics.algebra.core.PolyInt.Tn">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Tn</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cpystal.mathematics.algebra.core.PolyInt" title="cpystal.mathematics.algebra.core.PolyInt"><span class="pre">PolyInt</span></a></span></span><a class="reference internal" href="_modules/cpystal/mathematics/algebra/core.html#PolyInt.Tn"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.mathematics.algebra.core.PolyInt.Tn" title="Permalink to this definition"></a></dt>
+<dd><p>Chebyshev polynomial of the first kind T_n(x).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>n</strong> (<em>int</em>) – Degree of Chebyshev polynomial of the first kind T_n(x).</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Chebyshev polynomial of the first kind T_n(x).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#cpystal.mathematics.algebra.core.PolyInt" title="cpystal.mathematics.algebra.core.PolyInt">PolyInt</a></p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The result of this method equals to <cite>cls([cls.Tn_coeff(n, m) for m in range(n+1)])</cite>.</p>
+<p>Ordinary generating function: (1-tx)/(1-2tx+t^2) = sum T_n(x)t^n
+T_{n+1}(x) = 2xT_n(x) - T_{n-1}(x) (T_0=1, T_1=x).
+cos(n       heta) = T_n(cos heta).</p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.mathematics.algebra.core.PolyInt.Tn_coeff">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Tn_coeff</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">m</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="_modules/cpystal/mathematics/algebra/core.html#PolyInt.Tn_coeff"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.mathematics.algebra.core.PolyInt.Tn_coeff" title="Permalink to this definition"></a></dt>
+<dd><p>Coefficient of x^m in Chebyshev polynomial of the first kind T_n(x).</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>cos(n       heta) = T_n(cos(        heta)).</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n</strong> (<em>int</em>) – Degree of Chebyshev polynomial of the first kind T_n(x).</p></li>
+<li><p><strong>m</strong> (<em>int</em>) – Degree of x.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Coefficient of x^m in Chebyshev polynomial of the first kind T_n(x).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.mathematics.algebra.core.PolyInt.Un">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Un</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cpystal.mathematics.algebra.core.PolyInt" title="cpystal.mathematics.algebra.core.PolyInt"><span class="pre">PolyInt</span></a></span></span><a class="reference internal" href="_modules/cpystal/mathematics/algebra/core.html#PolyInt.Un"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.mathematics.algebra.core.PolyInt.Un" title="Permalink to this definition"></a></dt>
+<dd><p>Chebyshev polynomial of the second kind U_n(x).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>n</strong> (<em>int</em>) – Degree of Chebyshev polynomial of the second kind U_n(x).</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Chebyshev polynomial of the second kind U_n(x).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#cpystal.mathematics.algebra.core.PolyInt" title="cpystal.mathematics.algebra.core.PolyInt">PolyInt</a></p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The result of this method equals to <cite>cls([cls.Un_coeff(n, m) for m in range(n+1)])</cite>.</p>
+<p>Ordinary generating function: 1/(1-2tx+t^2) = sum U_n(x)t^n
+U_{n+1}(x) = 2xU_n(x) - U_{n-1}(x) (U_0=1, U_1=2x).
+U_n(x) = 1/(n+1) d/dx T_{n+1}(x).
+sin(n       heta) = sin(    heta) U_{n-1}(cos(      heta)).
+U_n(x) = sum_{l=0}^{n} P_l(x) * P_{n-l}(x).</p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.mathematics.algebra.core.PolyInt.Un_coeff">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Un_coeff</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">m</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="_modules/cpystal/mathematics/algebra/core.html#PolyInt.Un_coeff"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.mathematics.algebra.core.PolyInt.Un_coeff" title="Permalink to this definition"></a></dt>
+<dd><p>Coefficient of x^m in Chebyshev polynomial of the second kind U_n(x).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n</strong> (<em>int</em>) – Degree of Chebyshev polynomial of the second kind U_n(x).</p></li>
+<li><p><strong>m</strong> (<em>int</em>) – Degree of x.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Coefficient of x^m in Chebyshev polynomial of the second kind U_n(x).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>U_n(x) = 1/(n+1) d/dx T_n+1(x).
+sin(n       heta) = sin(    heta) U_{n-1}(cos(      heta)).</p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.mathematics.algebra.core.PolyInt.binomial_coeff">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">binomial_coeff</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">m</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="_modules/cpystal/mathematics/algebra/core.html#PolyInt.binomial_coeff"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.mathematics.algebra.core.PolyInt.binomial_coeff" title="Permalink to this definition"></a></dt>
+<dd><p>Value of binomial coefficient nCm.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n</strong> (<em>int</em>) – Integer.</p></li>
+<li><p><strong>m</strong> (<em>int</em>) – Integer.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Binomial coefficient nCm.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.mathematics.algebra.core.PolyInt.cal_deg">
+<span class="sig-name descname"><span class="pre">cal_deg</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="_modules/cpystal/mathematics/algebra/core.html#PolyInt.cal_deg"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.mathematics.algebra.core.PolyInt.cal_deg" title="Permalink to this definition"></a></dt>
+<dd><p>Calculate maximum degree of the polynomial.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Maximum degree of the polynomial.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>int</p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The polynomial is shortened by excuting this method to the maximum degree.</p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.mathematics.algebra.core.PolyInt.coeffstr">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">coeffstr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">c</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/cpystal/mathematics/algebra/core.html#PolyInt.coeffstr"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.mathematics.algebra.core.PolyInt.coeffstr" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.mathematics.algebra.core.PolyInt.deriv">
+<span class="sig-name descname"><span class="pre">deriv</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cpystal.mathematics.algebra.core.PolyInt" title="cpystal.mathematics.algebra.core.PolyInt"><span class="pre">PolyInt</span></a></span></span><a class="reference internal" href="_modules/cpystal/mathematics/algebra/core.html#PolyInt.deriv"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.mathematics.algebra.core.PolyInt.deriv" title="Permalink to this definition"></a></dt>
+<dd><p>Derivative of the polynomial.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Derivative of the polynomial.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#cpystal.mathematics.algebra.core.PolyInt" title="cpystal.mathematics.algebra.core.PolyInt">PolyInt</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.mathematics.algebra.core.PolyInt.expstr">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">expstr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">b</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">e</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">powstr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'^'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/cpystal/mathematics/algebra/core.html#PolyInt.expstr"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.mathematics.algebra.core.PolyInt.expstr" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.mathematics.algebra.core.PolyInt.fac2">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">fac2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="_modules/cpystal/mathematics/algebra/core.html#PolyInt.fac2"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.mathematics.algebra.core.PolyInt.fac2" title="Permalink to this definition"></a></dt>
+<dd><p>Calculate double factorial.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>n</strong> (<em>int</em>) – Non-negative integer.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Double factorial n!!.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.mathematics.algebra.core.PolyInt.multipole_notation">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">multipole_notation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">l</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">m</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/cpystal/mathematics/algebra/core.html#PolyInt.multipole_notation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.mathematics.algebra.core.PolyInt.multipole_notation" title="Permalink to this definition"></a></dt>
+<dd><p>Multipole represented by (x,y,z).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>l</strong> (<em>int</em>) – Azumuthal quantum number.</p></li>
+<li><p><strong>m</strong> (<em>int</em>) – Magnetic quantum number.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Multipole represented by (x,y,z).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<dl class="simple">
+<dt>#   (l, m): result</dt><dd><p>(0, 0): 1
+(1, -1): y
+(1, 0): z
+(1, 1): x
+(2, -2): x y
+(2, -1): y z
+(2, 0): 3z^2 - r^2
+(2, 1): x z
+(2, 2): x^2 - y^2</p>
+</dd>
+</dl>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.mathematics.algebra.core.PolyInt.simplify">
+<span class="sig-name descname"><span class="pre">simplify</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#cpystal.mathematics.algebra.core.PolyInt" title="cpystal.mathematics.algebra.core.PolyInt"><span class="pre">PolyInt</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/cpystal/mathematics/algebra/core.html#PolyInt.simplify"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.mathematics.algebra.core.PolyInt.simplify" title="Permalink to this definition"></a></dt>
+<dd><p>Simplify the polynomial by dividing common factor.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Simplified polynomial and the common factor.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>tuple[<a class="reference internal" href="#cpystal.mathematics.algebra.core.PolyInt" title="cpystal.mathematics.algebra.core.PolyInt">PolyInt</a>, int]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.mathematics.algebra.core.PolyInt.spherical_harmonics_polynomial_expr">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">spherical_harmonics_polynomial_expr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ZR</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#cpystal.mathematics.algebra.core.PolyInt" title="cpystal.mathematics.algebra.core.PolyInt"><span class="pre">PolyInt</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">XY</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#cpystal.mathematics.algebra.core.PolyInt" title="cpystal.mathematics.algebra.core.PolyInt"><span class="pre">PolyInt</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">l</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">m</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coeff</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#cpystal.mathematics.algebra.core.IREF" title="cpystal.mathematics.algebra.core.IREF"><span class="pre">IREF</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">evalable</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/cpystal/mathematics/algebra/core.html#PolyInt.spherical_harmonics_polynomial_expr"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.mathematics.algebra.core.PolyInt.spherical_harmonics_polynomial_expr" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.mathematics.algebra.core.PolyInt.subs">
+<span class="sig-name descname"><span class="pre">subs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="_modules/cpystal/mathematics/algebra/core.html#PolyInt.subs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.mathematics.algebra.core.PolyInt.subs" title="Permalink to this definition"></a></dt>
+<dd><p>Substitute a value for the variable in the polynomial.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>x</strong> (<em>float</em>) – Value of the variable.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Result of substituting a given value for the variable.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.mathematics.algebra.core.PolyInt.tesseral_harmonics">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">tesseral_harmonics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">l</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">m</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">callable</span></span></span><a class="reference internal" href="_modules/cpystal/mathematics/algebra/core.html#PolyInt.tesseral_harmonics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.mathematics.algebra.core.PolyInt.tesseral_harmonics" title="Permalink to this definition"></a></dt>
+<dd><p>Tesseral harmonics r^l Z_{lm}^{(c,s)}(r).
+This is also called as Spherical tensors.
+See also;</p>
+<blockquote>
+<div><p><a class="reference external" href="http://www.isc.meiji.ac.jp/~hk/documents/memo/he_as_multipole_text.pdf">http://www.isc.meiji.ac.jp/~hk/documents/memo/he_as_multipole_text.pdf</a>,
+『スピンと軌道の電子論』(楠瀬博明)
+S. Hayami, M. Yatsushiro, Y. Yanagi, and H. Kusunose, Phys. Rev. B 98, 165110 (2018).</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>l</strong> (<em>int</em>) – Azumuthal quantum number.</p></li>
+<li><p><strong>m</strong> (<em>int</em>) – Magnetic quantum number.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Tesseral harmonics represented by (x,y,z).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Y_{lm}^{(c)} := (-1)^m/√2 (Y_{l}^{m}+Y_{l}^{m*})
+Y_{lm}^{(s)} := (-1)^m/√2i (Y_{l}^{m}-Y_{l}^{m*})
+Z_{lm}^{(c,s)} := √4π/(2l+1) Y_{lm}^{(c,s)}
+O_{lm}^{(c,s)} := r^l Z_{lm}^{(c,s)}(r)</p>
+<dl>
+<dt>This function returns</dt><dd><p>O_{lm}^{(c)} (m &gt; 0)
+O_{lm}^{(s)} (m &lt; 0).</p>
+</dd>
+<dt>#   (l, m): result</dt><dd><p>(1, -1): y
+(1, 0): z
+(1, 1): x</p>
+<p>(2, -2): √3 x y
+(2, -1): √3 y z
+(2, 0): 1/2 (3 z^2 - r^2)
+(2, 1): √3 x z
+(2, 2): √3/2 (x^2 - y^2)</p>
+<p>(3, -3): √10/4 (3 x^2 y - y^3)
+(3, -2): √15 x y z
+(3, -1): √6/4 y (5 z^2 - r^2)
+(3, 0): 1/2 (5 z^3 - 3 z r^2)
+(3, 1): √6/4 x (5 z^2 - r^2)
+(3, 2): √15/2 (x^2 - y^2) z
+(3, 3): √10/4 (x^3 - 3 x y^2)</p>
+<p>(4, -4): √35/2 (x^3 y - x y^3)
+(4, -3): √70/4 (3 x^2 y - y^3) z
+(4, -2): √5/2 x y (7 z^2 - r^2)
+(4, -1): √10/4 y (7 z^3 - 3 z r^2)
+(4, 0): 1/8 (35 z^4 - 30 z^2 r^2 + 3 r^4)
+(4, 1): √10/4 x (7 z^3 - 3 z r^2)
+(4, 2): √5/4 (x^2 - y^2) (7 z^2 - r^2)
+(4, 3): √70/4 (x^3 - 3 x y^2) z
+(4, 4): √35/8 (x^4 - 6 x^2 y^2 + y^4)</p>
+<p>(5, -5): 3√14/16 (5 x^4 y - 10 x^2 y^3 + y^5)
+(5, -4): 3√35/2 (x^3 y - x y^3) z
+(5, -3): √70/16 (3 x^2 y - y^3) (9 z^2 - r^2)
+(5, -2): √105/2 x y (3 z^3 - z r^2)
+(5, -1): √15/8 y (21 z^4 - 14 z^2 r^2 + r^4)
+(5, 0): 1/8 (63 z^5 - 70 z^3 r^2 + 15 z r^4)
+(5, 1): √15/8 x (21 z^4 - 14 z^2 r^2 + r^4)
+(5, 2): √105/4 (x^2 - y^2) (3 z^3 - z r^2)
+(5, 3): √70/16 (x^3 - 3 x y^2) (9 z^2 - r^2)
+(5, 4): 3√35/8 (x^4 - 6 x^2 y^2 + y^4) z
+(5, 5): 3√14/16 (x^5 - 10 x^3 y^2 + 5 x y^4)</p>
+<p>(6, -6): √462/16 (3 x^5 y - 10 x^3 y^3 + 3 x y^5)
+(6, -5): 3√154/16 (5 x^4 y - 10 x^2 y^3 + y^5) z
+(6, -4): 3√7/4 (x^3 y - x y^3) (11 z^2 - r^2)
+(6, -3): √210/16 (3 x^2 y - y^3) (11 z^3 - 3 z r^2)
+(6, -2): √210/16 x y (33 z^4 - 18 z^2 r^2 + r^4)
+(6, -1): √21/8 y (33 z^5 - 30 z^3 r^2 + 5 z r^4)
+(6, 0): 1/16 (231 z^6 - 315 z^4 r^2 + 105 z^2 r^4 - 5 r^6)
+(6, 1): √21/8 x (33 z^5 - 30 z^3 r^2 + 5 z r^4)
+(6, 2): √210/32 (x^2 - y^2) (33 z^4 - 18 z^2 r^2 + r^4)
+(6, 3): √210/16 (x^3 - 3 x y^2) (11 z^3 - 3 z r^2)
+(6, 4): 3√7/16 (x^4 - 6 x^2 y^2 + y^4) (11 z^2 - r^2)
+(6, 5): 3√154/16 (x^5 - 10 x^3 y^2 + 5 x y^4) z
+(6, 6): √462/32 (x^6 - 15 x^4 y^2 + 15 x^2 y^4 - y^6)</p>
+</dd>
+</dl>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.mathematics.algebra.core.PolyInt.tesseral_harmonics_expr">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">tesseral_harmonics_expr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">l</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">m</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/cpystal/mathematics/algebra/core.html#PolyInt.tesseral_harmonics_expr"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.mathematics.algebra.core.PolyInt.tesseral_harmonics_expr" title="Permalink to this definition"></a></dt>
+<dd><p>Tesseral harmonics r^l Z_{lm}^{(c,s)}(r).
+This is also called as Spherical tensors.
+See also;</p>
+<blockquote>
+<div><p><a class="reference external" href="http://www.isc.meiji.ac.jp/~hk/documents/memo/he_as_multipole_text.pdf">http://www.isc.meiji.ac.jp/~hk/documents/memo/he_as_multipole_text.pdf</a>,
+『スピンと軌道の電子論』(楠瀬博明)
+S. Hayami, M. Yatsushiro, Y. Yanagi, and H. Kusunose, Phys. Rev. B 98, 165110 (2018).</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>l</strong> (<em>int</em>) – Azumuthal quantum number.</p></li>
+<li><p><strong>m</strong> (<em>int</em>) – Magnetic quantum number.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Tesseral harmonics represented by (x,y,z).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Y_{lm}^{(c)} := (-1)^m/√2 (Y_{l}^{m}+Y_{l}^{m*})
+Y_{lm}^{(s)} := (-1)^m/√2i (Y_{l}^{m}-Y_{l}^{m*})
+Z_{lm}^{(c,s)} := √4π/(2l+1) Y_{lm}^{(c,s)}
+O_{lm}^{(c,s)} := r^l Z_{lm}^{(c,s)}(r)</p>
+<dl>
+<dt>This function returns</dt><dd><p>O_{lm}^{(c)} (m &gt; 0)
+O_{lm}^{(s)} (m &lt; 0).</p>
+</dd>
+<dt>#   (l, m): result</dt><dd><p>(1, -1): y
+(1, 0): z
+(1, 1): x</p>
+<p>(2, -2): √3 x y
+(2, -1): √3 y z
+(2, 0): 1/2 (3 z^2 - r^2)
+(2, 1): √3 x z
+(2, 2): √3/2 (x^2 - y^2)</p>
+<p>(3, -3): √10/4 (3 x^2 y - y^3)
+(3, -2): √15 x y z
+(3, -1): √6/4 y (5 z^2 - r^2)
+(3, 0): 1/2 (5 z^3 - 3 z r^2)
+(3, 1): √6/4 x (5 z^2 - r^2)
+(3, 2): √15/2 (x^2 - y^2) z
+(3, 3): √10/4 (x^3 - 3 x y^2)</p>
+<p>(4, -4): √35/2 (x^3 y - x y^3)
+(4, -3): √70/4 (3 x^2 y - y^3) z
+(4, -2): √5/2 x y (7 z^2 - r^2)
+(4, -1): √10/4 y (7 z^3 - 3 z r^2)
+(4, 0): 1/8 (35 z^4 - 30 z^2 r^2 + 3 r^4)
+(4, 1): √10/4 x (7 z^3 - 3 z r^2)
+(4, 2): √5/4 (x^2 - y^2) (7 z^2 - r^2)
+(4, 3): √70/4 (x^3 - 3 x y^2) z
+(4, 4): √35/8 (x^4 - 6 x^2 y^2 + y^4)</p>
+<p>(5, -5): 3√14/16 (5 x^4 y - 10 x^2 y^3 + y^5)
+(5, -4): 3√35/2 (x^3 y - x y^3) z
+(5, -3): √70/16 (3 x^2 y - y^3) (9 z^2 - r^2)
+(5, -2): √105/2 x y (3 z^3 - z r^2)
+(5, -1): √15/8 y (21 z^4 - 14 z^2 r^2 + r^4)
+(5, 0): 1/8 (63 z^5 - 70 z^3 r^2 + 15 z r^4)
+(5, 1): √15/8 x (21 z^4 - 14 z^2 r^2 + r^4)
+(5, 2): √105/4 (x^2 - y^2) (3 z^3 - z r^2)
+(5, 3): √70/16 (x^3 - 3 x y^2) (9 z^2 - r^2)
+(5, 4): 3√35/8 (x^4 - 6 x^2 y^2 + y^4) z
+(5, 5): 3√14/16 (x^5 - 10 x^3 y^2 + 5 x y^4)</p>
+<p>(6, -6): √462/16 (3 x^5 y - 10 x^3 y^3 + 3 x y^5)
+(6, -5): 3√154/16 (5 x^4 y - 10 x^2 y^3 + y^5) z
+(6, -4): 3√7/4 (x^3 y - x y^3) (11 z^2 - r^2)
+(6, -3): √210/16 (3 x^2 y - y^3) (11 z^3 - 3 z r^2)
+(6, -2): √210/16 x y (33 z^4 - 18 z^2 r^2 + r^4)
+(6, -1): √21/8 y (33 z^5 - 30 z^3 r^2 + 5 z r^4)
+(6, 0): 1/16 (231 z^6 - 315 z^4 r^2 + 105 z^2 r^4 - 5 r^6)
+(6, 1): √21/8 x (33 z^5 - 30 z^3 r^2 + 5 z r^4)
+(6, 2): √210/32 (x^2 - y^2) (33 z^4 - 18 z^2 r^2 + r^4)
+(6, 3): √210/16 (x^3 - 3 x y^2) (11 z^3 - 3 z r^2)
+(6, 4): 3√7/16 (x^4 - 6 x^2 y^2 + y^4) (11 z^2 - r^2)
+(6, 5): 3√154/16 (x^5 - 10 x^3 y^2 + 5 x y^4) z
+(6, 6): √462/32 (x^6 - 15 x^4 y^2 + 15 x^2 y^4 - y^6)</p>
+</dd>
+</dl>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.mathematics.algebra.core.PolyInt.to_func">
+<span class="sig-name descname"><span class="pre">to_func</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">is_bivariable</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">callable</span></span></span><a class="reference internal" href="_modules/cpystal/mathematics/algebra/core.html#PolyInt.to_func"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.mathematics.algebra.core.PolyInt.to_func" title="Permalink to this definition"></a></dt>
+<dd><p>Polynomial function.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<dl class="simple">
+<dt>The return value of this function is</dt><dd><p>f_{P}(x) := sum_{i=0}^{n-1} P[i] * x**i,</p>
+</dd>
+</dl>
+<p>where P is a list of polynomial coefficients and n := len(P).
+If <cite>is_bivariable</cite> is True,</p>
+<blockquote>
+<div><p>f_{P}(x,y) := sum_{i=0}^{n-1} P[i] * x**i * y**(n-1-i).</p>
+</div></blockquote>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">P</span> <span class="o">=</span> <span class="n">PolyInt</span><span class="p">([</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">f</span> <span class="o">=</span> <span class="n">P</span><span class="o">.</span><span class="n">to_func</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">g</span> <span class="o">=</span> <span class="n">P</span><span class="o">.</span><span class="n">to_func</span><span class="p">(</span><span class="n">is_bivariable</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">f</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span> <span class="o">+</span> <span class="mi">4</span><span class="o">*</span><span class="mi">2</span> <span class="o">+</span> <span class="mi">5</span><span class="o">*</span><span class="mi">2</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kc">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">g</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span> <span class="o">*</span> <span class="mi">2</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="mi">4</span> <span class="o">*</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">+</span> <span class="mi">5</span> <span class="o">*</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kc">True</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>is_bivariable</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, the return value is a bivariable function. Defaults to False.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Polynomial function.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>callable</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.mathematics.algebra.core.PolyInt.to_symbol">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">to_symbol</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">l</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">m</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/cpystal/mathematics/algebra/core.html#PolyInt.to_symbol"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.mathematics.algebra.core.PolyInt.to_symbol" title="Permalink to this definition"></a></dt>
+<dd><p>Multipole represented by (x,y,z).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>l</strong> (<em>int</em>) – Azumuthal quantum number.</p></li>
+<li><p><strong>m</strong> (<em>int</em>) – Magnetic quantum number.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Multipole represented by (x,y,z).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<dl class="simple">
+<dt>#   (l, m): result</dt><dd><p>(0, 0): 1
+(1, -1): y
+(1, 0): z
+(1, 1): x
+(2, -2): x * y
+(2, -1): y * z
+(2, 0): 3z**2 - r**2
+(2, 1): x * z
+(2, 2): x**2 - y**2</p>
+</dd>
+</dl>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="cpystal.mathematics.algebra.core.REF">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cpystal.mathematics.algebra.core.</span></span><span class="sig-name descname"><span class="pre">REF</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">a</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Fraction</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">Fraction(0,</span> <span class="pre">1)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Fraction</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">Fraction(0,</span> <span class="pre">1)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cpystal/mathematics/algebra/core.html#REF"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.mathematics.algebra.core.REF" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Rational Extension Field.</p>
+<p>This class represents an algebraic simple Rational Extension Field with a root of a polynomial: x^2-p,
+where p is an integer, and negative values are allowed.
+Depending on the value of p, it may not be an extension field (e.g. p=4),
+but it can be formally defined even in such cases.</p>
+<dl class="simple">
+<dt>Mathematically, an instance of this class is equivalent to an element of the set described as follows:</dt><dd><p>Q(√p)={a+b√p|a,b∈Q}</p>
+</dd>
+</dl>
+<p>where Q is the field of rational numbers.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpystal.mathematics.algebra.core.REF.p">
+<span class="sig-name descname"><span class="pre">p</span></span><a class="headerlink" href="#cpystal.mathematics.algebra.core.REF.p" title="Permalink to this definition"></a></dt>
+<dd><p>Square of the generator of simple extension Q(√p).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpystal.mathematics.algebra.core.REF.a">
+<span class="sig-name descname"><span class="pre">a</span></span><a class="headerlink" href="#cpystal.mathematics.algebra.core.REF.a" title="Permalink to this definition"></a></dt>
+<dd><p>Rational number. (definition: see above)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Fraction</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpystal.mathematics.algebra.core.REF.b">
+<span class="sig-name descname"><span class="pre">b</span></span><a class="headerlink" href="#cpystal.mathematics.algebra.core.REF.b" title="Permalink to this definition"></a></dt>
+<dd><p>Rational number. (definition: see above)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Fraction</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.mathematics.algebra.core.REF.conjugate">
+<span class="sig-name descname"><span class="pre">conjugate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">REFchild</span></span></span><a class="reference internal" href="_modules/cpystal/mathematics/algebra/core.html#REF.conjugate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.mathematics.algebra.core.REF.conjugate" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.mathematics.algebra.core.REF.copy">
+<span class="sig-name descname"><span class="pre">copy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">REFchild</span></span></span><a class="reference internal" href="_modules/cpystal/mathematics/algebra/core.html#REF.copy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.mathematics.algebra.core.REF.copy" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.mathematics.algebra.core.REF.deepcopy">
+<span class="sig-name descname"><span class="pre">deepcopy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">REFchild</span></span></span><a class="reference internal" href="_modules/cpystal/mathematics/algebra/core.html#REF.deepcopy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.mathematics.algebra.core.REF.deepcopy" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.mathematics.algebra.core.REF.inv">
+<span class="sig-name descname"><span class="pre">inv</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">REFchild</span></span></span><a class="reference internal" href="_modules/cpystal/mathematics/algebra/core.html#REF.inv"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.mathematics.algebra.core.REF.inv" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.mathematics.algebra.core.REF.swap">
+<span class="sig-name descname"><span class="pre">swap</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">REFchild</span></span></span><a class="reference internal" href="_modules/cpystal/mathematics/algebra/core.html#REF.swap"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.mathematics.algebra.core.REF.swap" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.mathematics.algebra.core.REF.to_complex">
+<span class="sig-name descname"><span class="pre">to_complex</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">complex</span></span></span><a class="reference internal" href="_modules/cpystal/mathematics/algebra/core.html#REF.to_complex"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.mathematics.algebra.core.REF.to_complex" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.mathematics.algebra.core.REF.to_float">
+<span class="sig-name descname"><span class="pre">to_float</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="_modules/cpystal/mathematics/algebra/core.html#REF.to_float"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.mathematics.algebra.core.REF.to_float" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.mathematics.algebra.core.REF.zero">
+<span class="sig-name descname"><span class="pre">zero</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">REFchild</span></span></span><a class="reference internal" href="_modules/cpystal/mathematics/algebra/core.html#REF.zero"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.mathematics.algebra.core.REF.zero" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cpystal.mathematics.algebra.core.main">
+<span class="sig-prename descclassname"><span class="pre">cpystal.mathematics.algebra.core.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/cpystal/mathematics/algebra/core.html#main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.mathematics.algebra.core.main" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cpystal.mathematics.algebra.core.visualize_spherical_harmonics">
+<span class="sig-prename descclassname"><span class="pre">cpystal.mathematics.algebra.core.</span></span><span class="sig-name descname"><span class="pre">visualize_spherical_harmonics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">l_max</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/cpystal/mathematics/algebra/core.html#visualize_spherical_harmonics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.mathematics.algebra.core.visualize_spherical_harmonics" title="Permalink to this definition"></a></dt>
+<dd><p>Spherical harmonics visualizer.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<dl>
+<dt>Visualized points are calculated as below:</dt><dd><ol class="arabic simple">
+<li><dl class="simple">
+<dt>absolute mode:</dt><dd><p>r = <a href="#id7"><span class="problematic" id="id8">|Y_l^m(theta, phi)|</span></a></p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Real mode:</dt><dd><p>r = <a href="#id9"><span class="problematic" id="id10">|Re[Y_l^m(theta, phi)]|</span></a></p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Imaginary mode:</dt><dd><p>r = <a href="#id11"><span class="problematic" id="id12">|Im[Y_l^m(theta, phi)]|</span></a></p>
+</dd>
+</dl>
+</li>
+</ol>
+<p>then,
+x = r * sin(theta) * cos(phi)
+y = r * sin(theta) * sin(phi)
+z = r * cos(theta)</p>
+</dd>
+</dl>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>l_max</strong> (<em>int</em><em>, </em><em>optional</em>) – Maximum azimuthal quantum number. Defaults to 10.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-cpystal.mathematics.algebra.operator">
+<span id="cpystal-mathematics-algebra-operator-module"></span><h2>cpystal.mathematics.algebra.operator module<a class="headerlink" href="#module-cpystal.mathematics.algebra.operator" title="Permalink to this heading"></a></h2>
+<p><cite>cpystal.math.operator</cite> is a module for operators of quantum mechanics.</p>
+<p>Functions:</p>
+<dl class="simple">
+<dt>Classes:</dt><dd><p><cite>JOperator</cite>
+<cite>StevensJOperator</cite></p>
+</dd>
+</dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="cpystal.mathematics.algebra.operator.JOperator">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cpystal.mathematics.algebra.operator.</span></span><span class="sig-name descname"><span class="pre">JOperator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">J</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">HalfInt</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cpystal/mathematics/algebra/operator.html#JOperator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.mathematics.algebra.operator.JOperator" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>General angular momentum operator.</p>
+<p>The basis is defined as {<a href="#id1"><span class="problematic" id="id2">|</span></a>J&gt;, <a href="#id3"><span class="problematic" id="id4">|</span></a>J-1&gt;, … <a href="#id5"><span class="problematic" id="id6">|</span></a>-J&gt;} in this order.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<dl class="simple">
+<dt>The matrix product is defined as below</dt><dd><p>A * B (== A &#64; B).</p>
+</dd>
+<dt>This class has unique operators for commutation relations as below</dt><dd><p>A ^ B := AB + BA,
+A % B := AB - BA.</p>
+</dd>
+</dl>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.mathematics.algebra.operator.JOperator.Jm">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Jm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">J</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">HalfInt</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cpystal.mathematics.algebra.operator.JOperator" title="cpystal.mathematics.algebra.operator.JOperator"><span class="pre">JOperator</span></a></span></span><a class="reference internal" href="_modules/cpystal/mathematics/algebra/operator.html#JOperator.Jm"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.mathematics.algebra.operator.JOperator.Jm" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.mathematics.algebra.operator.JOperator.Jp">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Jp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">J</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">HalfInt</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cpystal.mathematics.algebra.operator.JOperator" title="cpystal.mathematics.algebra.operator.JOperator"><span class="pre">JOperator</span></a></span></span><a class="reference internal" href="_modules/cpystal/mathematics/algebra/operator.html#JOperator.Jp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.mathematics.algebra.operator.JOperator.Jp" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.mathematics.algebra.operator.JOperator.Jx">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Jx</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">J</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">HalfInt</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cpystal.mathematics.algebra.operator.JOperator" title="cpystal.mathematics.algebra.operator.JOperator"><span class="pre">JOperator</span></a></span></span><a class="reference internal" href="_modules/cpystal/mathematics/algebra/operator.html#JOperator.Jx"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.mathematics.algebra.operator.JOperator.Jx" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.mathematics.algebra.operator.JOperator.Jy">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Jy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">J</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">HalfInt</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cpystal.mathematics.algebra.operator.JOperator" title="cpystal.mathematics.algebra.operator.JOperator"><span class="pre">JOperator</span></a></span></span><a class="reference internal" href="_modules/cpystal/mathematics/algebra/operator.html#JOperator.Jy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.mathematics.algebra.operator.JOperator.Jy" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.mathematics.algebra.operator.JOperator.Jz">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Jz</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">J</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">HalfInt</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cpystal.mathematics.algebra.operator.JOperator" title="cpystal.mathematics.algebra.operator.JOperator"><span class="pre">JOperator</span></a></span></span><a class="reference internal" href="_modules/cpystal/mathematics/algebra/operator.html#JOperator.Jz"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.mathematics.algebra.operator.JOperator.Jz" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.mathematics.algebra.operator.JOperator.round">
+<span class="sig-name descname"><span class="pre">round</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">JOperatorChild</span></span></span><a class="reference internal" href="_modules/cpystal/mathematics/algebra/operator.html#JOperator.round"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.mathematics.algebra.operator.JOperator.round" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="cpystal.mathematics.algebra.operator.StevensJOperator">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cpystal.mathematics.algebra.operator.</span></span><span class="sig-name descname"><span class="pre">StevensJOperator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">J</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">HalfInt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">l</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">HalfInt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">m</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">HalfInt</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cpystal/mathematics/algebra/operator.html#StevensJOperator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.mathematics.algebra.operator.StevensJOperator" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#cpystal.mathematics.algebra.operator.JOperator" title="cpystal.mathematics.algebra.operator.JOperator"><code class="xref py py-class docutils literal notranslate"><span class="pre">JOperator</span></code></a></p>
+<p>Stevens operator.</p>
+<p>The cubic tensor operators O_{lm}(J_x,J_y,J_z) can be calculated
+from cubic tensors O_{lm}(x,y,z) by Stevens’ equivalent operator method,
+and the Stevens operators mathcal{O}_{lm}(J_x,J_y,J_z) can be calculated
+from the cubic tensor operators O_{lm}(J_x,J_y,J_z) by eliminating the coefficient.
+For more detail in theory, see also Wigner-Eckart theorem.</p>
+<dl class="simple">
+<dt>The mapping from O_{lm}(x,y,z) to mathcal{O}_{lm}(J_x,J_y,J_z) is as below:</dt><dd><p>x^a y^b z^c mapsto a!b!c!/(a+b+c)! sum_{mathcal{P}} mathcal{P}(J_x^a J_y^b J_z^c),</p>
+</dd>
+<dt>where mathcal{P} is a permutation of angular momentum operators</dt><dd><p>J_x, …, J_x, J_y, …, J_y, J_z, …, J_z</p>
+</dd>
+</dl>
+<p>each the number of operators (J_x, J_y, J_z) are (a, b, c).</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.mathematics.algebra.operator.StevensJOperator.symmetrize_xyz">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">symmetrize_xyz</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">expr_str</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Add</span></span></span><a class="reference internal" href="_modules/cpystal/mathematics/algebra/operator.html#StevensJOperator.symmetrize_xyz"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.mathematics.algebra.operator.StevensJOperator.symmetrize_xyz" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cpystal.mathematics.algebra.operator.main">
+<span class="sig-prename descclassname"><span class="pre">cpystal.mathematics.algebra.operator.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/cpystal/mathematics/algebra/operator.html#main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.mathematics.algebra.operator.main" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-cpystal.mathematics.algebra">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-cpystal.mathematics.algebra" title="Permalink to this heading"></a></h2>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="cpystal.mathematics.html" class="btn btn-neutral float-left" title="cpystal.mathematics package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="cpystal.mathematics.linalg.html" class="btn btn-neutral float-right" title="cpystal.mathematics.linalg package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Helve.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

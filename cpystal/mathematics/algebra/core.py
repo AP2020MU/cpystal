@@ -1381,7 +1381,7 @@ class PolyInt:
     
     @classmethod
     def Plm_coeff(cls, l: int, m: int, k: int) -> int:
-        """Integerized coefficient of x^k in Associated Legendre polynomial P_l^m(x)/(1-x^2)^{|m|/2}*2**l.
+        """Integerized coefficient of x^k in Associated Legendre polynomial P_l^m(x)/(1-x^2)^{\|m|/2}*2**l.
 
         Args:
             l (int): Degree of Legendre polynomial P_l^m(x).
@@ -1389,7 +1389,7 @@ class PolyInt:
             k (int): Degree of x.
 
         Returns:
-            int: Coefficient of x^k in Legendre polynomial P_l^m(x)/(1-x^2)^{|m|/2}*2**l.
+            int: Coefficient of x^k in Legendre polynomial P_l^m(x)/(1-x^2)^{\|m|/2}*2**l.
         """
         if m < 0:
             raise ValueError(f"'m' must be a non-negative number")
@@ -1402,15 +1402,15 @@ class PolyInt:
     
     @classmethod
     def Plm_coeff_float(cls, l: int, m: int, k: int) -> int | float:
-        """Coefficient of x^k in Associated Legendre polynomial P_l^m(x)/(1-x^2)^{|m|/2}*2**l.
+        """Coefficient of x^k in Associated Legendre polynomial P_l^m(x)/(1-x^2)^{\|m|/2}*2**l.
 
         Args:
-            l (int): Degree of Legendre polynomial P_l^m(x)/(1-x^2)^{|m|/2}*2**l.
-            m (int): Order of Legendre polynomial P_l^m(x)/(1-x^2)^{|m|/2}*2**l.
+            l (int): Degree of Legendre polynomial P_l^m(x)/(1-x^2)^{\|m|/2}*2**l.
+            m (int): Order of Legendre polynomial P_l^m(x)/(1-x^2)^{\|m|/2}*2**l.
             k (int): Degree of x.
 
         Returns:
-            float: Coefficient of x^k in Legendre polynomial P_l^m(x)/(1-x^2)^{|m|/2}*2**l.
+            float: Coefficient of x^k in Legendre polynomial P_l^m(x)/(1-x^2)^{\|m|/2}*2**l.
         """
         if not (-l <= m <= l):
             return 0
@@ -1518,14 +1518,14 @@ class PolyInt:
 
     @classmethod
     def Plm(cls, l: int, m: int) -> PolyInt:
-        """Associated Legendre polynomial whose coefficients are integerized P_l^m(x)/(1-x^2)^{|m|/2}*2**l.
+        """Associated Legendre polynomial whose coefficients are integerized P_l^m(x)/(1-x^2)^{\|m|/2}*2**l.
 
         Args:
             l (int): Degree of associated Legendre polynomial P_l^m(x).
             m (int): Order of associated Legendre polynomial P_l^m(x). Only non-negative values are allowed.
 
         Returns:
-            PolyInt: Associated Legendre polynomial whose coefficients are integerized P_l^m(x)/(1-x^2)^{|m|/2}*2**l.
+            PolyInt: Associated Legendre polynomial whose coefficients are integerized P_l^m(x)/(1-x^2)^{\|m|/2}*2**l.
         
         Note:
             [(1-x^2)(d/dx)^2 - 2x(d/dx) + n(n+1) - m^2/(1-x^2)] P_n^l(x) = 0
@@ -1658,7 +1658,7 @@ class PolyInt:
 
     @classmethod
     def Pilm(cls, l: int, m: int) -> PolyInt:
-        r"""Integerized z-dependence polynomial \Pi_l^m(z)*2**l in spherical harmonics.
+        r"""Integerized z-dependent polynomial \Pi_l^m(z)*2**l in spherical harmonics.
 
         Args:
             l (int): Azumuthal quantum number.
@@ -1670,23 +1670,23 @@ class PolyInt:
         Note:
             △R_l^m(r,θ,φ) = 0
             R_l^m(r,θ,φ) := (4\pi/(2l+1))^{1/2} r^l Y_l^m(θ,φ)
-            Y_l^m(θ,φ) := (-1)^{(m+|m|)/2} ((2l+1)/4\pi)^{1/2} Q_l^{|m|} e^{imφ}
-            Q_l^{|m|} := [(l-|m|)!/(l+|m|)!]^{1/2} P_l^{|m|}(cosθ)
-            P_l^{|m|}(cosθ) := sin^{|m|}θ sum_{k=0}^{(l-|m|)//2} c_{lkm} cos^{l-|m|-2k}θ
-            c_{lkm} := (-1)^k/(2^l) (2l-2k)! / (k!(l-k)!(l-|m|-2k)!)
+            Y_l^m(θ,φ) := (-1)^{(m+\|m|)/2} ((2l+1)/4\pi)^{1/2} Q_l^{\|m|} e^{imφ}
+            Q_l^{\|m|} := [(l-\|m|)!/(l+\|m|)!]^{1/2} P_l^{\|m|}(cosθ)
+            P_l^{\|m|}(cosθ) := sin^{\|m|}θ sum_{k=0}^{(l-\|m|)//2} c_{lkm} cos^{l-\|m|-2k}θ
+            c_{lkm} := (-1)^k/(2^l) (2l-2k)! / (k!(l-k)!(l-\|m|-2k)!)
 
-            C_l^m := r^l Re[Q_l^{|m|} e^{imφ}] = r^l Q_l^{|m|} cos(mφ)
-            S_l^m := r^l Im[Q_l^{|m|} e^{imφ}] = r^l Q_l^{|m|} sin(mφ)
-            Π_l^m(z) := r^{l-|m|} P_l^{|m|}(cosθ) / sin^{|m|}θ
-                      = sum_{k=0}^{(l-|m|)//2} c_{lkm} r^{2k} z^{l-2k-|m|}
-            A_m(x,y) := r^{|m|} sin^{|m|}θ cos(mφ)
-                      = [(x+iy)^{|m|} + (x-iy)^{|m|}] / 2
-            B_m(x,y) := r^{|m|} sin^{|m|}θ sin(mφ)
-                      = [(x+iy)^{|m|} - (x-iy)^{|m|}] / 2i
+            C_l^m := r^l Re[Q_l^{\|m|} e^{imφ}] = r^l Q_l^{\|m|} cos(mφ)
+            S_l^m := r^l Im[Q_l^{\|m|} e^{imφ}] = r^l Q_l^{\|m|} sin(mφ)
+            Π_l^m(z) := r^{l-\|m|} P_l^{\|m|}(cosθ) / sin^{\|m|}θ
+                      = sum_{k=0}^{(l-\|m|)//2} c_{lkm} r^{2k} z^{l-2k-\|m|}
+            A_m(x,y) := r^{\|m|} sin^{\|m|}θ cos(mφ)
+                      = [(x+iy)^{\|m|} + (x-iy)^{\|m|}] / 2
+            B_m(x,y) := r^{\|m|} sin^{\|m|}θ sin(mφ)
+                      = [(x+iy)^{\|m|} - (x-iy)^{\|m|}] / 2i
             then,
-            - C_l^m = [(l-|m|)!/(l+|m|)!]^{1/2} Π_l^m(z) A_m(x,y)
-            - S_l^m = [(l-|m|)!/(l+|m|)!]^{1/2} Π_l^m(z) B_m(x,y)
-            - R_l^m(r,θ,φ) = (-1)^{(m+|m|)/2} (C_l^m + iS_l^m).
+            - C_l^m = [(l-\|m|)!/(l+\|m|)!]^{1/2} Π_l^m(z) A_m(x,y)
+            - S_l^m = [(l-\|m|)!/(l+\|m|)!]^{1/2} Π_l^m(z) B_m(x,y)
+            - R_l^m(r,θ,φ) = (-1)^{(m+\|m|)/2} (C_l^m + iS_l^m).
 
             Here, Condon-Shortley phase is adopted.
         """
@@ -1694,7 +1694,7 @@ class PolyInt:
     
     @classmethod
     def Am(cls, m: int) -> PolyInt:
-        r"""(x,y)-dependence polynomial A_m(x,y) in spherical harmonics.
+        r"""(x,y)-dependent polynomial A_m(x,y) in spherical harmonics.
         The parity is gerade (cos-like).
 
         Args:
@@ -1706,23 +1706,23 @@ class PolyInt:
         Note:
             △R_l^m(r,θ,φ) = 0
             R_l^m(r,θ,φ) := (4\pi/(2l+1))^{1/2} r^l Y_l^m(θ,φ)
-            Y_l^m(θ,φ) := (-1)^{(m+|m|)/2} ((2l+1)/4\pi)^{1/2} Q_l^{|m|} e^{imφ}
-            Q_l^{|m|} := [(l-|m|)!/(l+|m|)!]^{1/2} P_l^{|m|}(cosθ)
-            P_l^{|m|}(cosθ) := sin^{|m|}θ sum_{k=0}^{(l-|m|)//2} c_{lkm} cos^{l-|m|-2k}θ
-            c_{lkm} := (-1)^k/(2^l) (2l-2k)! / (k!(l-k)!(l-|m|-2k)!)
+            Y_l^m(θ,φ) := (-1)^{(m+\|m|)/2} ((2l+1)/4\pi)^{1/2} Q_l^{\|m|} e^{imφ}
+            Q_l^{\|m|} := [(l-\|m|)!/(l+\|m|)!]^{1/2} P_l^{\|m|}(cosθ)
+            P_l^{\|m|}(cosθ) := sin^{\|m|}θ sum_{k=0}^{(l-\|m|)//2} c_{lkm} cos^{l-\|m|-2k}θ
+            c_{lkm} := (-1)^k/(2^l) (2l-2k)! / (k!(l-k)!(l-\|m|-2k)!)
 
-            C_l^m := r^l Re[Q_l^{|m|} e^{imφ}] = r^l Q_l^{|m|} cos(mφ)
-            S_l^m := r^l Im[Q_l^{|m|} e^{imφ}] = r^l Q_l^{|m|} sin(mφ)
-            Π_l^m(z) := r^{l-|m|} P_l^{|m|}(cosθ) / sin^{|m|}θ
-                      = sum_{k=0}^{(l-|m|)//2} c_{lkm} r^{2k} z^{l-2k-|m|}
-            A_m(x,y) := r^{|m|} sin^{|m|}θ cos(mφ)
-                      = [(x+iy)^{|m|} + (x-iy)^{|m|}] / 2
-            B_m(x,y) := r^{|m|} sin^{|m|}θ sin(mφ)
-                      = [(x+iy)^{|m|} - (x-iy)^{|m|}] / 2i
+            C_l^m := r^l Re[Q_l^{\|m|} e^{imφ}] = r^l Q_l^{\|m|} cos(mφ)
+            S_l^m := r^l Im[Q_l^{\|m|} e^{imφ}] = r^l Q_l^{\|m|} sin(mφ)
+            Π_l^m(z) := r^{l-\|m|} P_l^{\|m|}(cosθ) / sin^{\|m|}θ
+                      = sum_{k=0}^{(l-\|m|)//2} c_{lkm} r^{2k} z^{l-2k-\|m|}
+            A_m(x,y) := r^{\|m|} sin^{\|m|}θ cos(mφ)
+                      = [(x+iy)^{\|m|} + (x-iy)^{\|m|}] / 2
+            B_m(x,y) := r^{\|m|} sin^{\|m|}θ sin(mφ)
+                      = [(x+iy)^{\|m|} - (x-iy)^{\|m|}] / 2i
             then,
-            - C_l^m = [(l-|m|)!/(l+|m|)!]^{1/2} Π_l^m(z) A_m(x,y)
-            - S_l^m = [(l-|m|)!/(l+|m|)!]^{1/2} Π_l^m(z) B_m(x,y)
-            - R_l^m(r,θ,φ) = (-1)^{(m+|m|)/2} (C_l^m + iS_l^m).
+            - C_l^m = [(l-\|m|)!/(l+\|m|)!]^{1/2} Π_l^m(z) A_m(x,y)
+            - S_l^m = [(l-\|m|)!/(l+\|m|)!]^{1/2} Π_l^m(z) B_m(x,y)
+            - R_l^m(r,θ,φ) = (-1)^{(m+\|m|)/2} (C_l^m + iS_l^m).
 
             Here, Condon-Shortley phase is adopted.
         """
@@ -1737,7 +1737,7 @@ class PolyInt:
     
     @classmethod
     def Bm(cls, m: int) -> PolyInt:
-        r"""(x,y)-dependence polynomial B_m(x,y) in spherical harmonics.
+        r"""(x,y)-dependent polynomial B_m(x,y) in spherical harmonics.
         The parity is ungerade (sin-like).
 
         Args:
@@ -1749,23 +1749,23 @@ class PolyInt:
         Note:
             △R_l^m(r,θ,φ) = 0
             R_l^m(r,θ,φ) := (4\pi/(2l+1))^{1/2} r^l Y_l^m(θ,φ)
-            Y_l^m(θ,φ) := (-1)^{(m+|m|)/2} ((2l+1)/4\pi)^{1/2} Q_l^{|m|} e^{imφ}
-            Q_l^{|m|} := [(l-|m|)!/(l+|m|)!]^{1/2} P_l^{|m|}(cosθ)
-            P_l^{|m|}(cosθ) := sin^{|m|}θ sum_{k=0}^{(l-|m|)//2} c_{lkm} cos^{l-|m|-2k}θ
-            c_{lkm} := (-1)^k/(2^l) (2l-2k)! / (k!(l-k)!(l-|m|-2k)!)
+            Y_l^m(θ,φ) := (-1)^{(m+\|m|)/2} ((2l+1)/4\pi)^{1/2} Q_l^{\|m|} e^{imφ}
+            Q_l^{\|m|} := [(l-\|m|)!/(l+\|m|)!]^{1/2} P_l^{\|m|}(cosθ)
+            P_l^{\|m|}(cosθ) := sin^{\|m|}θ sum_{k=0}^{(l-\|m|)//2} c_{lkm} cos^{l-\|m|-2k}θ
+            c_{lkm} := (-1)^k/(2^l) (2l-2k)! / (k!(l-k)!(l-\|m|-2k)!)
 
-            C_l^m := r^l Re[Q_l^{|m|} e^{imφ}] = r^l Q_l^{|m|} cos(mφ)
-            S_l^m := r^l Im[Q_l^{|m|} e^{imφ}] = r^l Q_l^{|m|} sin(mφ)
-            Π_l^m(z) := r^{l-|m|} P_l^{|m|}(cosθ) / sin^{|m|}θ
-                      = sum_{k=0}^{(l-|m|)//2} c_{lkm} r^{2k} z^{l-2k-|m|}
-            A_m(x,y) := r^{|m|} sin^{|m|}θ cos(mφ)
-                      = [(x+iy)^{|m|} + (x-iy)^{|m|}] / 2
-            B_m(x,y) := r^{|m|} sin^{|m|}θ sin(mφ)
-                      = [(x+iy)^{|m|} - (x-iy)^{|m|}] / 2i
+            C_l^m := r^l Re[Q_l^{\|m|} e^{imφ}] = r^l Q_l^{\|m|} cos(mφ)
+            S_l^m := r^l Im[Q_l^{\|m|} e^{imφ}] = r^l Q_l^{\|m|} sin(mφ)
+            Π_l^m(z) := r^{l-\|m|} P_l^{\|m|}(cosθ) / sin^{\|m|}θ
+                      = sum_{k=0}^{(l-\|m|)//2} c_{lkm} r^{2k} z^{l-2k-\|m|}
+            A_m(x,y) := r^{\|m|} sin^{\|m|}θ cos(mφ)
+                      = [(x+iy)^{\|m|} + (x-iy)^{\|m|}] / 2
+            B_m(x,y) := r^{\|m|} sin^{\|m|}θ sin(mφ)
+                      = [(x+iy)^{\|m|} - (x-iy)^{\|m|}] / 2i
             then,
-            - C_l^m = [(l-|m|)!/(l+|m|)!]^{1/2} Π_l^m(z) A_m(x,y)
-            - S_l^m = [(l-|m|)!/(l+|m|)!]^{1/2} Π_l^m(z) B_m(x,y)
-            - R_l^m(r,θ,φ) = (-1)^{(m+|m|)/2} (C_l^m + iS_l^m).
+            - C_l^m = [(l-\|m|)!/(l+\|m|)!]^{1/2} Π_l^m(z) A_m(x,y)
+            - S_l^m = [(l-\|m|)!/(l+\|m|)!]^{1/2} Π_l^m(z) B_m(x,y)
+            - R_l^m(r,θ,φ) = (-1)^{(m+\|m|)/2} (C_l^m + iS_l^m).
 
             Here, Condon-Shortley phase is adopted.
         """
@@ -2174,11 +2174,11 @@ def visualize_spherical_harmonics(l_max: int = 10) -> None:
     Note:
         Visualized points are calculated as below:
             1. absolute mode:
-                r = |Y_l^m(theta, phi)|
+                r = \|Y_l^m(theta, phi)|
             2. Real mode:
-                r = |Re[Y_l^m(theta, phi)]|
+                r = \|Re[Y_l^m(theta, phi)]|
             3. Imaginary mode:
-                r = |Im[Y_l^m(theta, phi)]|
+                r = \|Im[Y_l^m(theta, phi)]|
             then,
             x = r * sin(theta) * cos(phi)
             y = r * sin(theta) * sin(phi)

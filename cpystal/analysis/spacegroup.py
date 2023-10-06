@@ -40,7 +40,7 @@ from itertools import combinations, product
 from math import gcd
 import os
 import re
-from typing import Any, Iterable, List, overload, Tuple, TypeVar
+from typing import Any, List, Tuple, TypeVar
 
 import numpy as np
 import numpy.typing as npt
@@ -845,7 +845,7 @@ def rotn(n: npt.NDArray, theta: float) -> npt.NDArray:
             [-ny, nx, 0],]
     )
 
-def rodrigues(r: npt.NDArray, theta: float, n: npt.NDArray):
+def rodrigues(r: npt.NDArray, theta: float, n: npt.NDArray) -> npt.NDArray:
     """Rotation formula of Rodrigues.
         Args:
             r (npt.NDArray): Target vector.

@@ -1,0 +1,316 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>cpystal.mathematics.optimize.optimize &#8212; cpystal  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/alabaster.css" />
+    <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+    <script src="../../../../_static/jquery.js"></script>
+    <script src="../../../../_static/underscore.js"></script>
+    <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for cpystal.mathematics.optimize.optimize</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;`cpystal.mathematics.optimize` is a module for linear alogorithms.</span>
+
+<span class="sd">Functions:</span>
+<span class="sd">    `IterativeMethod`</span>
+<span class="sd">        - optimizer</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">numpy.typing</span> <span class="k">as</span> <span class="nn">npt</span>
+
+<div class="viewcode-block" id="IterativeMethod"><a class="viewcode-back" href="../../../../cpystal.mathematics.optimize.html#cpystal.mathematics.optimize.optimize.IterativeMethod">[docs]</a><span class="k">class</span> <span class="nc">IterativeMethod</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> 
+                 <span class="n">f</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">],</span> <span class="nb">float</span><span class="p">],</span> 
+                 <span class="n">grad_f</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">],</span> <span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> 
+                 <span class="n">Hesse_f</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">],</span> <span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> 
+                 <span class="n">alpha</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">20.0</span><span class="p">,</span> 
+                 <span class="n">tol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-6</span><span class="p">,</span> 
+                 <span class="n">sup_K</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="o">*</span><span class="mi">10</span><span class="o">**</span><span class="mi">3</span><span class="p">,</span> 
+                 <span class="n">p</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.90</span><span class="p">,</span> 
+                 <span class="n">c1</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span> 
+                 <span class="n">c2</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.9</span>
+        <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">],</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">f</span> <span class="c1"># 目的関数 f:R^n -&gt; R </span>
+        <span class="k">if</span> <span class="n">grad_f</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span> <span class="c1"># 関数の勾配 ∇f:R^n -&gt; R^n</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">grad_f</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">y</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">grad</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">grad_f</span> <span class="o">=</span> <span class="n">grad_f</span>
+        <span class="k">if</span> <span class="n">Hesse_f</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span> <span class="c1"># 関数のヘッセ行列 ∇^2f:R^n -&gt; R^n×n</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">Hesse_f</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">y</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">Hesse</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">Hesse_f</span> <span class="o">=</span> <span class="n">Hesse_f</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">optimal_x</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span> <span class="c1"># 最適解 ∈ R^n</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">min_f</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span> <span class="c1"># min f(x) ∈ R</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">xk_seq</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span> <span class="c1"># 暫定解の列{xk} 可視化のために取っておく</span>
+
+        <span class="c1"># パラメータ(最適化手法の講義に準拠)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">alpha</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">alpha</span> <span class="c1"># バックトラック法の初期パラメータα&gt;0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">tol</span> <span class="c1"># 勾配ベクトルのノルムの許容誤差ε&gt;0(停止条件)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sup_K</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">sup_K</span> <span class="c1"># 最大反復回数</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">p</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">p</span> <span class="c1"># バックトラック法の係数(レジュメではρ) 0&lt;p&lt;1が必要</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">c1</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">c1</span> <span class="c1"># Armijo条件の定数 0&lt;c1&lt;1が必要</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">c2</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">c2</span> <span class="c1"># Wolfeの曲率条件の定数 0&lt;c1&lt;c2&lt;1が必要</span>
+    
+<div class="viewcode-block" id="IterativeMethod.numerical_diff"><a class="viewcode-back" href="../../../../cpystal.mathematics.optimize.html#cpystal.mathematics.optimize.optimize.IterativeMethod.numerical_diff">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">numerical_diff</span><span class="p">(</span><span class="n">f</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">],</span> <span class="nb">float</span><span class="p">],</span> <span class="n">x</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">,</span> <span class="n">i</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">h</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-5</span><span class="p">):</span>
+        <span class="n">dh</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+        <span class="n">dh</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">h</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">f</span><span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="n">dh</span><span class="p">)</span> <span class="o">-</span> <span class="n">f</span><span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="n">dh</span><span class="p">))</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">h</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="IterativeMethod.grad"><a class="viewcode-back" href="../../../../cpystal.mathematics.optimize.html#cpystal.mathematics.optimize.optimize.IterativeMethod.grad">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">grad</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">f</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">],</span> <span class="nb">float</span><span class="p">],</span> <span class="n">x</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">:</span>
+        <span class="n">grad</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="bp">cls</span><span class="o">.</span><span class="n">numerical_diff</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">))])</span>
+        <span class="k">return</span> <span class="n">grad</span></div>
+
+<div class="viewcode-block" id="IterativeMethod.Hesse"><a class="viewcode-back" href="../../../../cpystal.mathematics.optimize.html#cpystal.mathematics.optimize.optimize.IterativeMethod.Hesse">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">Hesse</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">f</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">],</span> <span class="nb">float</span><span class="p">],</span> <span class="n">x</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">:</span>
+        <span class="n">grad</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">y</span><span class="p">:</span> <span class="bp">cls</span><span class="o">.</span><span class="n">grad</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+        <span class="n">hesse</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="bp">cls</span><span class="o">.</span><span class="n">numerical_diff</span><span class="p">(</span><span class="n">grad</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">))])</span>
+        <span class="k">return</span> <span class="n">hesse</span></div>
+    
+<div class="viewcode-block" id="IterativeMethod.GradientDescent"><a class="viewcode-back" href="../../../../cpystal.mathematics.optimize.html#cpystal.mathematics.optimize.optimize.IterativeMethod.GradientDescent">[docs]</a>    <span class="k">def</span> <span class="nf">GradientDescent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x0</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">,</span> <span class="n">timeout</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">300</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">:</span> <span class="c1"># 最急降下法  x0 ∈ R^n:初期点</span>
+        <span class="n">f</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">],</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">f</span>
+        <span class="k">def</span> <span class="nf">wolfe_condition</span><span class="p">(</span><span class="n">xk</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">,</span> <span class="n">dk</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">,</span> <span class="n">a</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+            <span class="n">cond1</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">f</span><span class="p">(</span><span class="n">xk</span><span class="o">+</span><span class="n">a</span><span class="o">*</span><span class="n">dk</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">f</span><span class="p">(</span><span class="n">xk</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">c1</span> <span class="o">*</span> <span class="n">a</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">grad_f</span><span class="p">(</span><span class="n">xk</span><span class="p">)</span> <span class="o">@</span> <span class="n">dk</span><span class="p">)</span>
+            <span class="n">cond2</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grad_f</span><span class="p">(</span><span class="n">xk</span><span class="o">+</span><span class="n">a</span><span class="o">*</span><span class="n">dk</span><span class="p">)</span> <span class="o">@</span> <span class="n">dk</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">c2</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">grad_f</span><span class="p">(</span><span class="n">xk</span><span class="p">)</span> <span class="o">@</span> <span class="n">dk</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">cond1</span> <span class="ow">or</span> <span class="n">cond2</span>
+
+        <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">process_time</span><span class="p">()</span>
+        <span class="n">xk_seq</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">xk</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span> <span class="o">=</span> <span class="n">x0</span> <span class="c1"># 初期点</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sup_K</span><span class="p">):</span>
+            <span class="n">xk_seq</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">xk</span><span class="p">)</span> <span class="c1"># 暫定解の保存</span>
+            <span class="n">dk</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span> <span class="o">=</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">grad_f</span><span class="p">(</span><span class="n">xk</span><span class="p">)</span> <span class="c1"># 降下方向dk</span>
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">dk</span><span class="p">)</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">tol</span><span class="p">:</span> <span class="c1"># 停止条件(|∇f(xk)|&lt;ε)を満たしていたら終了</span>
+                <span class="k">break</span>
+
+            <span class="c1"># バックトラック法パート</span>
+            <span class="n">a</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">alpha</span> <span class="c1"># a&gt;0が必要</span>
+            <span class="n">count</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span> <span class="c1"># 下のwhileループで無限ループになる可能性があるので停止条件をかけておく</span>
+            <span class="k">while</span> <span class="n">wolfe_condition</span><span class="p">(</span><span class="n">xk</span><span class="p">,</span> <span class="n">dk</span><span class="p">,</span> <span class="n">a</span><span class="p">):</span>
+                <span class="c1"># Wolfeの条件(=Armijo条件と曲率条件)を満たすまでバックトラック</span>
+                <span class="n">a</span> <span class="o">*=</span> <span class="bp">self</span><span class="o">.</span><span class="n">p</span>
+                <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">if</span> <span class="n">count</span> <span class="o">&gt;=</span> <span class="mi">10</span><span class="o">**</span><span class="mi">4</span><span class="p">:</span>
+                    <span class="k">break</span>
+            <span class="n">xk</span> <span class="o">=</span> <span class="n">xk</span> <span class="o">+</span> <span class="n">a</span><span class="o">*</span><span class="n">dk</span> <span class="c1"># 解の更新</span>
+            <span class="k">if</span> <span class="n">time</span><span class="o">.</span><span class="n">process_time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start</span> <span class="o">&gt;</span> <span class="n">timeout</span><span class="p">:</span>
+                <span class="k">break</span>
+        <span class="n">finish</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">process_time</span><span class="p">()</span>
+
+        <span class="c1"># 解の探索終了</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">optimal_x</span> <span class="o">=</span> <span class="n">xk</span> <span class="c1"># 最適解</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">min_f</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="p">(</span><span class="n">xk</span><span class="p">)</span> <span class="c1"># min f(x)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">xk_seq</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">xk_seq</span><span class="p">)</span> <span class="c1"># あとで可視化</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">回目で停止&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;optimal_x = [</span><span class="si">{</span><span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s1">&#39;</span><span class="si">{:.15g}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">xk</span><span class="p">[</span><span class="n">i</span><span class="p">])</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">xk</span><span class="p">))])</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;実行時間=</span><span class="si">{</span><span class="n">finish</span><span class="o">-</span><span class="n">start</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;1反復あたりの実行時間=</span><span class="si">{</span><span class="p">(</span><span class="n">finish</span><span class="o">-</span><span class="n">start</span><span class="p">)</span><span class="o">/</span><span class="n">k</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">xk</span></div>
+
+
+<div class="viewcode-block" id="IterativeMethod.Newton"><a class="viewcode-back" href="../../../../cpystal.mathematics.optimize.html#cpystal.mathematics.optimize.optimize.IterativeMethod.Newton">[docs]</a>    <span class="k">def</span> <span class="nf">Newton</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x0</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">,</span> <span class="n">timeout</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">300</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">:</span> <span class="c1"># ニュートン法  x0 ∈ R^n:初期点</span>
+        <span class="n">f</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">],</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">f</span>
+        <span class="k">def</span> <span class="nf">wolfe_condition</span><span class="p">(</span><span class="n">xk</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">,</span> <span class="n">dk</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">,</span> <span class="n">a</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+            <span class="n">cond1</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">f</span><span class="p">(</span><span class="n">xk</span><span class="o">+</span><span class="n">a</span><span class="o">*</span><span class="n">dk</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">f</span><span class="p">(</span><span class="n">xk</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">c1</span> <span class="o">*</span> <span class="n">a</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">grad_f</span><span class="p">(</span><span class="n">xk</span><span class="p">)</span> <span class="o">@</span> <span class="n">dk</span><span class="p">)</span>
+            <span class="n">cond2</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grad_f</span><span class="p">(</span><span class="n">xk</span><span class="o">+</span><span class="n">a</span><span class="o">*</span><span class="n">dk</span><span class="p">)</span> <span class="o">@</span> <span class="n">dk</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">c2</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">grad_f</span><span class="p">(</span><span class="n">xk</span><span class="p">)</span> <span class="o">@</span> <span class="n">dk</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">cond1</span> <span class="ow">or</span> <span class="n">cond2</span>
+
+        <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">process_time</span><span class="p">()</span>
+        <span class="n">xk_seq</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">xk</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span> <span class="o">=</span> <span class="n">x0</span> <span class="c1"># 初期点</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sup_K</span><span class="p">):</span>
+            <span class="n">xk_seq</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">xk</span><span class="p">)</span> <span class="c1"># 暫定解の保存</span>
+            <span class="n">dk</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Hesse_f</span><span class="p">(</span><span class="n">xk</span><span class="p">),</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">grad_f</span><span class="p">(</span><span class="n">xk</span><span class="p">))</span> <span class="c1"># 降下方向dk: ∇^2f(xk)dk+∇f(xk)=0を満たす(最急降下法との違いはここだけ)</span>
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">dk</span><span class="p">)</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">tol</span><span class="p">:</span> <span class="c1"># 停止条件(|∇f(xk)|&lt;ε)を満たしていたら終了</span>
+                <span class="k">break</span>
+
+            <span class="c1"># バックトラック法パート</span>
+            <span class="n">a</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">alpha</span> <span class="c1"># a&gt;0が必要</span>
+            <span class="n">count</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span> <span class="c1"># 下のwhileループで無限ループになる可能性があるので停止条件をかけておく</span>
+            <span class="k">while</span> <span class="n">wolfe_condition</span><span class="p">(</span><span class="n">xk</span><span class="p">,</span> <span class="n">dk</span><span class="p">,</span> <span class="n">a</span><span class="p">):</span>
+                <span class="c1"># Wolfeの条件(=Armijo条件と曲率条件)を満たすまでバックトラック</span>
+                <span class="n">a</span> <span class="o">*=</span> <span class="bp">self</span><span class="o">.</span><span class="n">p</span>
+                <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">if</span> <span class="n">count</span> <span class="o">&gt;=</span> <span class="mi">10</span><span class="o">**</span><span class="mi">4</span><span class="p">:</span>
+                    <span class="k">break</span>
+            <span class="n">xk</span> <span class="o">=</span> <span class="n">xk</span> <span class="o">+</span> <span class="n">a</span><span class="o">*</span><span class="n">dk</span> <span class="c1"># 解の更新</span>
+            <span class="k">if</span> <span class="n">time</span><span class="o">.</span><span class="n">process_time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start</span> <span class="o">&gt;</span> <span class="n">timeout</span><span class="p">:</span>
+                <span class="k">break</span>
+        <span class="n">finish</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">process_time</span><span class="p">()</span>
+
+        <span class="c1"># 解の探索終了</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">optimal_x</span> <span class="o">=</span> <span class="n">xk</span> <span class="c1"># 最適解</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">min_f</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="p">(</span><span class="n">xk</span><span class="p">)</span> <span class="c1"># min f(x)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">xk_seq</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">xk_seq</span><span class="p">)</span> <span class="c1"># あとで可視化</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">回目で停止&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;optimal_x = [</span><span class="si">{</span><span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s1">&#39;</span><span class="si">{:.15g}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">xk</span><span class="p">[</span><span class="n">i</span><span class="p">])</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">xk</span><span class="p">))])</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;実行時間=</span><span class="si">{</span><span class="n">finish</span><span class="o">-</span><span class="n">start</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;1反復あたりの実行時間=</span><span class="si">{</span><span class="p">(</span><span class="n">finish</span><span class="o">-</span><span class="n">start</span><span class="p">)</span><span class="o">/</span><span class="n">k</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">xk</span></div>
+
+    
+<div class="viewcode-block" id="IterativeMethod.SemiNewton"><a class="viewcode-back" href="../../../../cpystal.mathematics.optimize.html#cpystal.mathematics.optimize.optimize.IterativeMethod.SemiNewton">[docs]</a>    <span class="k">def</span> <span class="nf">SemiNewton</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x0</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">,</span> <span class="n">timeout</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">300</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">:</span> <span class="c1"># 準ニュートン法  x0 ∈ R^n:初期点</span>
+        <span class="n">f</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">],</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">f</span>
+        <span class="k">def</span> <span class="nf">wolfe_condition</span><span class="p">(</span><span class="n">xk</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">,</span> <span class="n">dk</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">,</span> <span class="n">a</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+            <span class="n">cond1</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">f</span><span class="p">(</span><span class="n">xk</span><span class="o">+</span><span class="n">a</span><span class="o">*</span><span class="n">dk</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">f</span><span class="p">(</span><span class="n">xk</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">c1</span> <span class="o">*</span> <span class="n">a</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">grad_f</span><span class="p">(</span><span class="n">xk</span><span class="p">)</span> <span class="o">@</span> <span class="n">dk</span><span class="p">)</span>
+            <span class="n">cond2</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grad_f</span><span class="p">(</span><span class="n">xk</span><span class="o">+</span><span class="n">a</span><span class="o">*</span><span class="n">dk</span><span class="p">)</span> <span class="o">@</span> <span class="n">dk</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">c2</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">grad_f</span><span class="p">(</span><span class="n">xk</span><span class="p">)</span> <span class="o">@</span> <span class="n">dk</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">cond1</span> <span class="ow">or</span> <span class="n">cond2</span>
+
+        <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">process_time</span><span class="p">()</span>
+        <span class="n">xk_seq</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">xk</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span> <span class="o">=</span> <span class="n">x0</span> <span class="c1"># 初期点</span>
+        <span class="n">n</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">x0</span><span class="p">)</span> <span class="c1"># 次元</span>
+        <span class="n">Hk</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="c1"># 単位行列</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sup_K</span><span class="p">):</span>
+            <span class="n">xk_seq</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">xk</span><span class="p">)</span> <span class="c1"># 暫定解の保存</span>
+            <span class="n">dk</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Hesse_f</span><span class="p">(</span><span class="n">xk</span><span class="p">),</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">grad_f</span><span class="p">(</span><span class="n">xk</span><span class="p">))</span> <span class="c1"># 降下方向dk: ∇^2f(xk)dk+∇f(xk)=0を満たす(最急降下法との違いはここだけ)</span>
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">dk</span><span class="p">)</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">tol</span><span class="p">:</span> <span class="c1"># 停止条件(|∇f(xk)|&lt;ε)を満たしていたら終了</span>
+                <span class="k">break</span>
+
+            <span class="c1"># バックトラック法パート</span>
+            <span class="n">a</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">alpha</span> <span class="c1"># a&gt;0が必要</span>
+            <span class="n">count</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span> <span class="c1"># 下のwhileループで無限ループになる可能性があるので停止条件をかけておく</span>
+            <span class="k">while</span> <span class="n">wolfe_condition</span><span class="p">(</span><span class="n">xk</span><span class="p">,</span> <span class="n">dk</span><span class="p">,</span> <span class="n">a</span><span class="p">):</span>
+                <span class="c1"># Wolfeの条件(=Armijo条件と曲率条件)を満たすまでバックトラック</span>
+                <span class="n">a</span> <span class="o">*=</span> <span class="bp">self</span><span class="o">.</span><span class="n">p</span>
+                <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">if</span> <span class="n">count</span> <span class="o">&gt;=</span> <span class="mi">10</span><span class="o">**</span><span class="mi">4</span><span class="p">:</span>
+                    <span class="k">break</span>
+            
+            <span class="n">sk</span> <span class="o">=</span> <span class="n">a</span><span class="o">*</span><span class="n">dk</span>
+            <span class="n">sk_C</span> <span class="o">=</span> <span class="n">sk</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span> <span class="c1"># n×1の行列(列ベクトル)</span>
+            <span class="n">sk_R</span> <span class="o">=</span> <span class="n">sk</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">n</span><span class="p">)</span> <span class="c1"># 1×nの行列(行ベクトル)</span>
+            <span class="n">yk</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grad_f</span><span class="p">(</span><span class="n">xk</span><span class="o">+</span><span class="n">sk</span><span class="p">)</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">grad_f</span><span class="p">(</span><span class="n">xk</span><span class="p">)</span>
+            <span class="n">yk_C</span> <span class="o">=</span> <span class="n">yk</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span> <span class="c1"># n×1の行列(列ベクトル)</span>
+            <span class="n">yk_R</span> <span class="o">=</span> <span class="n">yk</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">n</span><span class="p">)</span> <span class="c1"># 1×nの行列(行ベクトル)</span>
+            <span class="n">sk_yk</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">sk</span><span class="p">,</span><span class="n">yk</span><span class="p">)</span> <span class="c1"># skとykの内積</span>
+            <span class="n">En</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="c1"># 単位行列</span>
+            <span class="c1"># BFGS公式</span>
+            <span class="n">Hk</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">En</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">sk_C</span><span class="p">,</span><span class="n">yk_R</span><span class="p">)</span><span class="o">/</span><span class="n">sk_yk</span><span class="p">,</span> <span class="n">Hk</span><span class="p">),</span> <span class="p">(</span><span class="n">En</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">yk_C</span><span class="p">,</span> <span class="n">sk_R</span><span class="p">)</span><span class="o">/</span><span class="n">sk_yk</span><span class="p">))</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">sk_C</span><span class="p">,</span><span class="n">sk_R</span><span class="p">)</span><span class="o">/</span><span class="n">sk_yk</span>
+            <span class="c1"># DFP公式</span>
+            <span class="c1">#Hk = Hk - np.dot(np.dot(Hk,yk_C),np.dot(Hk,yk_C).T)/np.dot(np.dot(yk,Hk),yk) + np.dot(sk_C,sk_R)/sk_yk</span>
+            <span class="n">xk</span> <span class="o">=</span> <span class="n">xk</span> <span class="o">+</span> <span class="n">sk</span> <span class="c1"># 解の更新</span>
+            <span class="k">if</span> <span class="n">time</span><span class="o">.</span><span class="n">process_time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start</span> <span class="o">&gt;</span> <span class="n">timeout</span><span class="p">:</span>
+                <span class="k">break</span>
+        <span class="n">finish</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">process_time</span><span class="p">()</span>
+
+        <span class="c1"># 解の探索終了</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">optimal_x</span> <span class="o">=</span> <span class="n">xk</span> <span class="c1"># 最適解</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">min_f</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="p">(</span><span class="n">xk</span><span class="p">)</span> <span class="c1"># min f(x)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">xk_seq</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">xk_seq</span><span class="p">)</span> <span class="c1"># あとで可視化</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">回目で停止&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;optimal_x = [</span><span class="si">{</span><span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s1">&#39;</span><span class="si">{:.15g}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">xk</span><span class="p">[</span><span class="n">i</span><span class="p">])</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">xk</span><span class="p">))])</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;実行時間=</span><span class="si">{</span><span class="n">finish</span><span class="o">-</span><span class="n">start</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;1反復あたりの実行時間=</span><span class="si">{</span><span class="p">(</span><span class="n">finish</span><span class="o">-</span><span class="n">start</span><span class="p">)</span><span class="o">/</span><span class="n">k</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">xk</span></div></div>
+
+
+
+<div class="viewcode-block" id="main"><a class="viewcode-back" href="../../../../cpystal.mathematics.optimize.html#cpystal.mathematics.optimize.optimize.main">[docs]</a><span class="k">def</span> <span class="nf">main</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">pass</span>
+    <span class="k">return</span></div>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../../index.html">cpystal</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../cpystal.html">cpystal package</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2023, Helve.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.0.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

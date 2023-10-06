@@ -1,0 +1,909 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>cpystal.figure.figure &#8212; cpystal  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css" />
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for cpystal.figure.figure</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span> <span class="nn">glob</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">from</span> <span class="nn">PIL</span> <span class="kn">import</span> <span class="n">Image</span><span class="p">,</span> <span class="n">ImageOps</span><span class="p">,</span> <span class="n">ImageDraw</span><span class="p">,</span> <span class="n">ImageFilter</span><span class="p">,</span> <span class="n">ImageFont</span><span class="p">,</span> <span class="n">ImageChops</span> <span class="c1"># type: ignore</span>
+
+<span class="kn">from</span> <span class="nn">..color</span> <span class="kn">import</span> <span class="n">Color</span>
+
+
+<div class="viewcode-block" id="ImageProcessing"><a class="viewcode-back" href="../../../cpystal.figure.html#cpystal.figure.figure.ImageProcessing">[docs]</a><span class="k">class</span> <span class="nc">ImageProcessing</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;画像処理</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        filepath (str): 対象の画像ファイルパス</span>
+<span class="sd">        dirname (str): ファイルパスのうち上位ディレクトリを表す部分</span>
+<span class="sd">        name_original (str): 元画像の(拡張子を除いた)ファイル名</span>
+<span class="sd">        extension (str): 拡張子</span>
+<span class="sd">        name_current (str): 現在の(拡張子を除いた)ファイル名</span>
+<span class="sd">        original (str): 元画像</span>
+<span class="sd">        current (str): 処理後の画像</span>
+
+<span class="sd">    Methods:</span>
+<span class="sd">        all_transaction: カレントディレクトリ内の全画像について、画像形式をselfの形式に一括変更したものを新たに生成</span>
+<span class="sd">        split: 画像分割</span>
+<span class="sd">        save: 画像保存</span>
+<span class="sd">        change_name: (拡張子を除いた)新しいファイル名を設定</span>
+<span class="sd">        grayscaling: グレースケール化</span>
+<span class="sd">        transparent: 透過化</span>
+<span class="sd">        eliminate_color: 特定の色を透明化</span>
+<span class="sd">        invert: 画素値反転</span>
+<span class="sd">        flip: 上下鏡映反転</span>
+<span class="sd">        mirror: 左右鏡映反転</span>
+<span class="sd">        rotate: 任意角度回転</span>
+<span class="sd">        add_margin: 余白追加</span>
+<span class="sd">        erode_margin: 余白侵食</span>
+<span class="sd">        delete_margin: 余白削除</span>
+<span class="sd">        resize1: サイズ変更(倍率指定)</span>
+<span class="sd">        resize2: サイズ変更(参照画像指定)</span>
+<span class="sd">        to_A4: A4サイズに変更(dpi=300)</span>
+<span class="sd">        crop: 切り取り</span>
+<span class="sd">        crop_center: 画像中央を中心に切り取り</span>
+<span class="sd">        crop_max_square: 画像から最大正方形を切り取り</span>
+<span class="sd">        blur: ぼかし</span>
+<span class="sd">        text: テキスト追加</span>
+<span class="sd">        combine: 画像連結</span>
+<span class="sd">        paste: 画像貼り付け</span>
+<span class="sd">        paint_rectangle: 指定領域を単色塗りつぶし</span>
+<span class="sd">        extract_line: 線画抽出</span>
+<span class="sd">        blend: 一様に画像合成</span>
+<span class="sd">        composite: マスク画像に沿って画像合成</span>
+<span class="sd">        rotate_color: pixelごとに色相(Hue)の回転</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">filepath</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dirname</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name_original</span><span class="p">:</span> <span class="nb">str</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">extension</span><span class="p">:</span> <span class="nb">str</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name_original</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">extension</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name_current</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name_original</span>
+        <span class="n">img</span><span class="p">:</span> <span class="n">Image</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">original</span><span class="p">:</span> <span class="n">Image</span> <span class="o">=</span> <span class="n">img</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="p">:</span> <span class="n">Image</span> <span class="o">=</span> <span class="n">img</span>
+
+<div class="viewcode-block" id="ImageProcessing.all_transaction"><a class="viewcode-back" href="../../../cpystal.figure.html#cpystal.figure.figure.ImageProcessing.all_transaction">[docs]</a>    <span class="k">def</span> <span class="nf">all_transaction</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;カレントディレクトリ内の全画像について、画像形式をselfの形式に一括変更したものを新たに生成</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">current_directory_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+        <span class="n">files</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">current_directory_path</span> <span class="o">+</span> <span class="s1">&#39;/*&#39;</span><span class="p">)</span>
+        <span class="n">l_extension</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">extension</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">f</span><span class="p">[</span><span class="o">-</span><span class="n">l_extension</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;.&#39;</span> <span class="ow">and</span> <span class="n">f</span><span class="p">[</span><span class="o">-</span><span class="n">l_extension</span><span class="p">:]</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">extension</span><span class="p">:</span>
+                <span class="n">input_im</span><span class="p">:</span> <span class="n">Image</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+                <span class="n">rgb_im</span><span class="p">:</span> <span class="n">Image</span> <span class="o">=</span> <span class="n">input_im</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="s1">&#39;RGB&#39;</span><span class="p">)</span>
+                <span class="n">ftitle</span><span class="p">,</span> <span class="n">fextension</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">extension</span> <span class="o">==</span> <span class="s1">&#39;.jpg&#39;</span><span class="p">:</span>
+                    <span class="n">rgb_im</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">ftitle</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">extension</span><span class="p">,</span> <span class="s1">&#39;JPEG&#39;</span><span class="p">,</span> <span class="n">quality</span><span class="o">=</span><span class="mi">95</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">rgb_im</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">ftitle</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">extension</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">extension</span><span class="p">[</span><span class="o">-</span><span class="n">l_extension</span><span class="o">+</span><span class="mi">1</span><span class="p">:]</span><span class="o">.</span><span class="n">upper</span><span class="p">(),</span> <span class="n">quality</span><span class="o">=</span><span class="mi">95</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;transaction finished&quot;</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="ImageProcessing.split"><a class="viewcode-back" href="../../../cpystal.figure.html#cpystal.figure.figure.ImageProcessing.split">[docs]</a>    <span class="k">def</span> <span class="nf">split</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vertical_split</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">horizontal_split</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">flag</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;画像分割</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            vertical_split (int): 縦の分割数</span>
+<span class="sd">            horizontal_split (int): 横の分割数</span>
+<span class="sd">            flag (bool): Trueなら保存</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            (list[list[Image]]): 画像行列</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">height_splitted</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="o">.</span><span class="n">height</span> <span class="o">//</span> <span class="n">vertical_split</span> <span class="o">-</span> <span class="mi">1</span>
+        <span class="n">width_splitted</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="o">.</span><span class="n">width</span> <span class="o">//</span> <span class="n">horizontal_split</span> <span class="o">-</span> <span class="mi">1</span>
+        <span class="n">im_matrix</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">vertical_split</span><span class="p">):</span>
+            <span class="n">im_list</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">horizontal_split</span><span class="p">):</span>
+                <span class="n">im_splitted_vh</span><span class="p">:</span> <span class="n">Image</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="o">.</span><span class="n">crop</span><span class="p">((</span><span class="n">h</span><span class="o">*</span><span class="n">width_splitted</span><span class="p">,</span> <span class="n">v</span><span class="o">*</span><span class="n">height_splitted</span><span class="p">,</span>  <span class="n">h</span><span class="o">*</span><span class="n">width_splitted</span><span class="o">+</span><span class="n">width_splitted</span><span class="p">,</span> <span class="n">v</span><span class="o">*</span><span class="n">height_splitted</span><span class="o">+</span><span class="n">height_splitted</span><span class="p">))</span>
+                <span class="n">im_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">im_splitted_vh</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">flag</span><span class="p">:</span>
+                    <span class="n">im_splitted_vh</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">v</span><span class="si">}{</span><span class="n">h</span><span class="si">}{</span><span class="bp">self</span><span class="o">.</span><span class="n">extension</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">quality</span><span class="o">=</span><span class="mi">95</span><span class="p">)</span>
+            <span class="n">im_matrix</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">im_list</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">im_matrix</span></div>
+    
+
+<div class="viewcode-block" id="ImageProcessing.save"><a class="viewcode-back" href="../../../cpystal.figure.html#cpystal.figure.figure.ImageProcessing.save">[docs]</a>    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dpi</span> <span class="o">=</span> <span class="p">(</span><span class="mi">300</span><span class="p">,</span> <span class="mi">300</span><span class="p">))</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;画像保存</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="o">.</span><span class="n">mode</span> <span class="o">!=</span> <span class="s2">&quot;RGB&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="s2">&quot;RGB&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name_current</span><span class="o">+</span><span class="s1">&#39;_changed&#39;</span><span class="o">+</span><span class="bp">self</span><span class="o">.</span><span class="n">extension</span><span class="p">,</span> <span class="n">quality</span><span class="o">=</span><span class="mi">95</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="n">dpi</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="ImageProcessing.change_name"><a class="viewcode-back" href="../../../cpystal.figure.html#cpystal.figure.figure.ImageProcessing.change_name">[docs]</a>    <span class="k">def</span> <span class="nf">change_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;名前変更</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            new_name (str): 新しい名前</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name_current</span> <span class="o">=</span> <span class="n">new_name</span></div>
+    
+<div class="viewcode-block" id="ImageProcessing.grayscaling"><a class="viewcode-back" href="../../../cpystal.figure.html#cpystal.figure.figure.ImageProcessing.grayscaling">[docs]</a>    <span class="k">def</span> <span class="nf">grayscaling</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">flag</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Image</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;モノクロ化</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            flag (bool): Trueなら保存</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">im_gray</span><span class="p">:</span> <span class="n">Image</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="s1">&#39;L&#39;</span><span class="p">)</span>
+        <span class="n">new_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name_current</span> <span class="o">+</span> <span class="s1">&#39;_grayed&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">change_name</span><span class="p">(</span><span class="n">new_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">flag</span><span class="p">:</span>
+            <span class="n">im_gray</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">new_name</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">extension</span><span class="p">,</span> <span class="n">quality</span><span class="o">=</span><span class="mi">95</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">im_gray</span></div>
+    
+<div class="viewcode-block" id="ImageProcessing.transparent"><a class="viewcode-back" href="../../../cpystal.figure.html#cpystal.figure.figure.ImageProcessing.transparent">[docs]</a>    <span class="k">def</span> <span class="nf">transparent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">alpha</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">flag</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Image</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;透過画像化(png形式)</span>
+<span class="sd">            alpha == 0(100%透過)~255(0%透過(不透過))</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            alpha (int): 透過率(0:100%透過, 255:0%透過)</span>
+<span class="sd">            flag (bool): Trueなら保存</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">extension</span> <span class="o">!=</span> <span class="s1">&#39;.png&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name_current</span> <span class="o">+</span> <span class="s1">&#39;_extensioned&#39;</span> <span class="o">+</span> <span class="s1">&#39;.png&#39;</span><span class="p">,</span> <span class="s1">&#39;PNG&#39;</span><span class="p">)</span> <span class="c1"># PNG形式で保存</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">current</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name_current</span> <span class="o">+</span> <span class="s1">&#39;_extensioned&#39;</span> <span class="o">+</span> <span class="s1">&#39;.png&#39;</span><span class="p">)</span> <span class="c1"># self.currentをpng画像として改めてopen</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="o">.</span><span class="n">putalpha</span><span class="p">(</span><span class="n">alpha</span><span class="p">)</span>
+        <span class="n">new_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name_current</span> <span class="o">+</span> <span class="s1">&#39;_tranparent&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">change_name</span><span class="p">(</span><span class="n">new_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">flag</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">new_name</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">extension</span><span class="p">,</span> <span class="n">quality</span><span class="o">=</span><span class="mi">95</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">current</span></div>
+
+<div class="viewcode-block" id="ImageProcessing.eliminate_color"><a class="viewcode-back" href="../../../cpystal.figure.html#cpystal.figure.figure.ImageProcessing.eliminate_color">[docs]</a>    <span class="k">def</span> <span class="nf">eliminate_color</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">color</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">),</span> <span class="n">flag</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Image</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;特定の色を透明化</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            color (tuple[int, int, int]): (R,G,B)</span>
+<span class="sd">            flag (bool): Trueなら保存</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">extension</span> <span class="o">!=</span> <span class="s1">&#39;.png&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name_current</span> <span class="o">+</span> <span class="s1">&#39;_extensioned&#39;</span> <span class="o">+</span> <span class="s1">&#39;.png&#39;</span><span class="p">,</span> <span class="s1">&#39;PNG&#39;</span><span class="p">)</span> <span class="c1"># PNG形式で保存</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">current</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name_current</span> <span class="o">+</span> <span class="s1">&#39;_extensioned&#39;</span> <span class="o">+</span> <span class="s1">&#39;.png&#39;</span><span class="p">)</span> <span class="c1"># self.currentをpng画像として改めてopen</span>
+        <span class="n">trans</span><span class="p">:</span> <span class="n">Image</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="s1">&#39;RGBA&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="o">.</span><span class="n">size</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+            <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="o">.</span><span class="n">size</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+                <span class="n">pixel</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="o">.</span><span class="n">getpixel</span><span class="p">((</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">))</span>
+                <span class="k">if</span> <span class="n">pixel</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">color</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">and</span> <span class="n">pixel</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">color</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">and</span> <span class="n">pixel</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="n">color</span><span class="p">[</span><span class="mi">2</span><span class="p">]:</span>
+                    <span class="k">continue</span>
+                <span class="n">trans</span><span class="o">.</span><span class="n">putpixel</span><span class="p">((</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">),</span> <span class="n">pixel</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current</span> <span class="o">=</span> <span class="n">trans</span>
+        <span class="n">new_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name_current</span> <span class="o">+</span> <span class="s1">&#39;_eliminated&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">change_name</span><span class="p">(</span><span class="n">new_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">flag</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">new_name</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">extension</span><span class="p">,</span> <span class="n">quality</span><span class="o">=</span><span class="mi">95</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">current</span></div>
+    
+<div class="viewcode-block" id="ImageProcessing.invert"><a class="viewcode-back" href="../../../cpystal.figure.html#cpystal.figure.figure.ImageProcessing.invert">[docs]</a>    <span class="k">def</span> <span class="nf">invert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">flag</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Image</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;画素反転</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            flag (bool): Trueなら保存</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">im_invert</span><span class="p">:</span> <span class="n">Image</span> <span class="o">=</span> <span class="n">ImageOps</span><span class="o">.</span><span class="n">invert</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="s1">&#39;RGB&#39;</span><span class="p">))</span>
+        <span class="n">new_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name_current</span> <span class="o">+</span> <span class="s1">&#39;_invert&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current</span> <span class="o">=</span> <span class="n">im_invert</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">change_name</span><span class="p">(</span><span class="n">new_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">flag</span><span class="p">:</span>
+            <span class="n">im_invert</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">new_name</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">extension</span><span class="p">,</span> <span class="n">quality</span><span class="o">=</span><span class="mi">95</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">im_invert</span></div>
+
+<div class="viewcode-block" id="ImageProcessing.flip"><a class="viewcode-back" href="../../../cpystal.figure.html#cpystal.figure.figure.ImageProcessing.flip">[docs]</a>    <span class="k">def</span> <span class="nf">flip</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">flag</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Image</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;上下反転</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            flag (bool): Trueなら保存</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">im_flip</span><span class="p">:</span> <span class="n">Image</span> <span class="o">=</span> <span class="n">ImageOps</span><span class="o">.</span><span class="n">flip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="p">)</span>
+        <span class="n">new_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name_current</span> <span class="o">+</span> <span class="s1">&#39;_flip&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current</span> <span class="o">=</span> <span class="n">im_flip</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">change_name</span><span class="p">(</span><span class="n">new_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">flag</span><span class="p">:</span>
+            <span class="n">im_flip</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">new_name</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">extension</span><span class="p">,</span> <span class="n">quality</span><span class="o">=</span><span class="mi">95</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">im_flip</span></div>
+
+<div class="viewcode-block" id="ImageProcessing.mirror"><a class="viewcode-back" href="../../../cpystal.figure.html#cpystal.figure.figure.ImageProcessing.mirror">[docs]</a>    <span class="k">def</span> <span class="nf">mirror</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">flag</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Image</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;左右反転</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            flag (bool): Trueなら保存</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">im_mirror</span><span class="p">:</span> <span class="n">Image</span> <span class="o">=</span> <span class="n">ImageOps</span><span class="o">.</span><span class="n">mirror</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="p">)</span>
+        <span class="n">new_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name_current</span> <span class="o">+</span> <span class="s1">&#39;_mirror&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current</span> <span class="o">=</span> <span class="n">im_mirror</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">change_name</span><span class="p">(</span><span class="n">new_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">flag</span><span class="p">:</span>
+            <span class="n">im_mirror</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">new_name</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">extension</span><span class="p">,</span> <span class="n">quality</span><span class="o">=</span><span class="mi">95</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">im_mirror</span></div>
+
+<div class="viewcode-block" id="ImageProcessing.rotate"><a class="viewcode-back" href="../../../cpystal.figure.html#cpystal.figure.figure.ImageProcessing.rotate">[docs]</a>    <span class="k">def</span> <span class="nf">rotate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">angle</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">flag</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Image</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;任意角度回転</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            angle (float): 角度(°)</span>
+<span class="sd">            flag (bool): Trueなら保存</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">im_rotate</span><span class="p">:</span> <span class="n">Image</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="o">.</span><span class="n">rotate</span><span class="p">(</span><span class="n">angle</span><span class="p">,</span> <span class="n">expand</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">new_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name_current</span> <span class="o">+</span> <span class="s1">&#39;_rotate&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current</span> <span class="o">=</span> <span class="n">im_rotate</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">change_name</span><span class="p">(</span><span class="n">new_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">flag</span><span class="p">:</span>
+            <span class="n">im_rotate</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">new_name</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">extension</span><span class="p">,</span> <span class="n">quality</span><span class="o">=</span><span class="mi">95</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">im_rotate</span></div>
+
+<div class="viewcode-block" id="ImageProcessing.add_margin"><a class="viewcode-back" href="../../../cpystal.figure.html#cpystal.figure.figure.ImageProcessing.add_margin">[docs]</a>    <span class="k">def</span> <span class="nf">add_margin</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">left</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">top</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">right</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">bottom</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">color</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">=</span> <span class="p">(</span><span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">),</span> <span class="n">flag</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Image</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;余白(left, top, right, bottom)を外側に追加</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            left (int): 左側の余白 (pixel)</span>
+<span class="sd">            top (int): 上側の余白 (pixel)</span>
+<span class="sd">            right (int): 右側の余白 (pixel)</span>
+<span class="sd">            bottom (int): 下側の余白 (pixel)</span>
+<span class="sd">            color (tuple[int, int, int] | int): 余白の色(R,G,B)</span>
+<span class="sd">            flag (bool): Trueなら保存</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="o">.</span><span class="n">mode</span>
+        <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;L&#39;</span><span class="p">:</span>
+            <span class="n">color</span> <span class="o">=</span> <span class="mi">255</span> <span class="c1"># これは白</span>
+        <span class="n">new_width</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="o">.</span><span class="n">width</span> <span class="o">+</span> <span class="n">left</span><span class="o">+</span><span class="n">right</span>
+        <span class="n">new_height</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="o">.</span><span class="n">height</span> <span class="o">+</span> <span class="n">top</span><span class="o">+</span><span class="n">bottom</span>
+        <span class="n">im_added</span><span class="p">:</span> <span class="n">Image</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">mode</span><span class="p">,</span> <span class="p">(</span><span class="n">new_width</span><span class="p">,</span> <span class="n">new_height</span><span class="p">),</span> <span class="n">color</span><span class="p">)</span>
+        <span class="n">im_added</span><span class="o">.</span><span class="n">paste</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="p">,</span> <span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">top</span><span class="p">))</span>
+        <span class="n">new_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name_current</span> <span class="o">+</span> <span class="s1">&#39;_margined&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current</span> <span class="o">=</span> <span class="n">im_added</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">change_name</span><span class="p">(</span><span class="n">new_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">flag</span><span class="p">:</span>
+            <span class="n">im_added</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">new_name</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">extension</span><span class="p">,</span> <span class="n">quality</span><span class="o">=</span><span class="mi">95</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">im_added</span></div>
+
+<div class="viewcode-block" id="ImageProcessing.erode_margin"><a class="viewcode-back" href="../../../cpystal.figure.html#cpystal.figure.figure.ImageProcessing.erode_margin">[docs]</a>    <span class="k">def</span> <span class="nf">erode_margin</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">left</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">top</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">right</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">bottom</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">color</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">=</span> <span class="p">(</span><span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">),</span> <span class="n">flag</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Image</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;サイズを変えずに元画像に余白を侵食</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            left (int): 左側の余白 (pixel)</span>
+<span class="sd">            top (int): 上側の余白 (pixel)</span>
+<span class="sd">            right (int): 右側の余白 (pixel)</span>
+<span class="sd">            bottom (int): 下側の余白 (pixel)</span>
+<span class="sd">            color (tuple[int, int, int] | int): 余白の色(R,G,B)</span>
+<span class="sd">            flag (bool): Trueなら保存</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="o">.</span><span class="n">mode</span>
+        <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;L&#39;</span><span class="p">:</span>
+            <span class="n">color</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">im_eroded</span><span class="p">:</span> <span class="n">Image</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">mode</span><span class="p">,</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="o">.</span><span class="n">width</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="o">.</span><span class="n">height</span><span class="p">),</span> <span class="n">color</span><span class="p">)</span>
+        <span class="n">cropped</span><span class="p">:</span> <span class="n">Image</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="o">.</span><span class="n">crop</span><span class="p">((</span><span class="n">left</span><span class="p">,</span> <span class="n">top</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="o">.</span><span class="n">width</span><span class="o">-</span><span class="n">right</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="o">.</span><span class="n">height</span><span class="o">-</span><span class="n">bottom</span><span class="p">))</span>
+        <span class="n">im_eroded</span><span class="o">.</span><span class="n">paste</span><span class="p">(</span><span class="n">cropped</span><span class="p">,</span> <span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">top</span><span class="p">))</span>
+        <span class="n">new_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name_current</span> <span class="o">+</span> <span class="s1">&#39;_eroded&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current</span> <span class="o">=</span> <span class="n">im_eroded</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">change_name</span><span class="p">(</span><span class="n">new_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">flag</span><span class="p">:</span>
+            <span class="n">im_eroded</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">new_name</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">extension</span><span class="p">,</span> <span class="n">quality</span><span class="o">=</span><span class="mi">95</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">im_eroded</span></div>
+    
+<div class="viewcode-block" id="ImageProcessing.delete_margin"><a class="viewcode-back" href="../../../cpystal.figure.html#cpystal.figure.figure.ImageProcessing.delete_margin">[docs]</a>    <span class="k">def</span> <span class="nf">delete_margin</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">standard_point</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">offset</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="o">-</span><span class="mi">50</span><span class="p">,</span> <span class="n">flag</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Image</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;余白を削除(基準点と同じ色の画像外縁部に存在する余白を削除)</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            flag (bool): Trueなら保存</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">img</span><span class="p">:</span> <span class="n">Image</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current</span>
+        <span class="n">bg</span><span class="p">:</span> <span class="n">Image</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">img</span><span class="o">.</span><span class="n">mode</span><span class="p">,</span> <span class="n">img</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">img</span><span class="o">.</span><span class="n">getpixel</span><span class="p">(</span><span class="n">standard_point</span><span class="p">))</span>
+        <span class="n">diff</span><span class="p">:</span> <span class="n">Image</span> <span class="o">=</span> <span class="n">ImageChops</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">bg</span><span class="p">)</span>
+        <span class="n">diff</span> <span class="o">=</span> <span class="n">ImageChops</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">diff</span><span class="p">,</span> <span class="n">diff</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="n">offset</span><span class="p">)</span> <span class="c1"># 余白内の色の揺らぎの分を考慮(pixelの値は0以下だと0,255以上だと255になるため、元画像上でstandard_pointの色に近いものも削除対象になる)</span>
+        <span class="c1">### ImageChops.add(im1, im2, scale=1.0, offset=0.0) ## 計算式: 出力=((im1+im2)/scale+offset)%255</span>
+        <span class="n">croprange</span><span class="p">:</span> <span class="n">Image</span> <span class="o">=</span> <span class="n">diff</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="s2">&quot;RGB&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">getbbox</span><span class="p">()</span>
+        <span class="n">demargined_img</span><span class="p">:</span> <span class="n">Image</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">crop</span><span class="p">(</span><span class="n">croprange</span><span class="p">)</span>
+        <span class="n">new_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name_current</span> <span class="o">+</span> <span class="s1">&#39;_demargined&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current</span> <span class="o">=</span> <span class="n">demargined_img</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">change_name</span><span class="p">(</span><span class="n">new_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">flag</span><span class="p">:</span>
+            <span class="n">demargined_img</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">new_name</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">extension</span><span class="p">,</span> <span class="n">quality</span><span class="o">=</span><span class="mi">95</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">demargined_img</span></div>
+    
+<div class="viewcode-block" id="ImageProcessing.resize1"><a class="viewcode-back" href="../../../cpystal.figure.html#cpystal.figure.figure.ImageProcessing.resize1">[docs]</a>    <span class="k">def</span> <span class="nf">resize1</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">magnification</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">flag</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Image</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;拡大・縮小によるサイズ変更1</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            magnification (float): 拡大倍率</span>
+<span class="sd">            flag (bool): Trueなら保存</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">im_resize_lanczos</span><span class="p">:</span> <span class="n">Image</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="o">.</span><span class="n">resize</span><span class="p">((</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="o">.</span><span class="n">width</span><span class="o">/</span><span class="n">magnification</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="o">.</span><span class="n">height</span><span class="o">/</span><span class="n">magnification</span><span class="p">)),</span> <span class="n">Image</span><span class="o">.</span><span class="n">LANCZOS</span><span class="p">)</span>
+        <span class="n">new_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name_current</span> <span class="o">+</span> <span class="s1">&#39;_resized1&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current</span> <span class="o">=</span> <span class="n">im_resize_lanczos</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">change_name</span><span class="p">(</span><span class="n">new_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">flag</span><span class="p">:</span>
+            <span class="n">im_resize_lanczos</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">new_name</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">extension</span><span class="p">,</span> <span class="n">quality</span><span class="o">=</span><span class="mi">95</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">im_resize_lanczos</span></div>
+    
+<div class="viewcode-block" id="ImageProcessing.resize2"><a class="viewcode-back" href="../../../cpystal.figure.html#cpystal.figure.figure.ImageProcessing.resize2">[docs]</a>    <span class="k">def</span> <span class="nf">resize2</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename_or_image</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Image</span><span class="o">.</span><span class="n">Image</span><span class="p">,</span> <span class="n">flag</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Image</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;拡大・縮小によるサイズ変更2(大きさを画像nameと同じサイズに変更)</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            filename_or_image (str | Image): 画像ファイルパスまたはImageクラスのインスタンス</span>
+<span class="sd">            flag (bool): Trueなら保存</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">im_standard</span><span class="p">:</span> <span class="n">Image</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">filename_or_image</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">im_standard</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">filename_or_image</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">im_standard</span> <span class="o">=</span> <span class="n">filename_or_image</span>
+        <span class="n">im_resize_lanczos</span><span class="p">:</span> <span class="n">Image</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="o">.</span><span class="n">resize</span><span class="p">((</span><span class="n">im_standard</span><span class="o">.</span><span class="n">width</span><span class="p">,</span> <span class="n">im_standard</span><span class="o">.</span><span class="n">height</span><span class="p">),</span> <span class="n">Image</span><span class="o">.</span><span class="n">LANCZOS</span><span class="p">)</span>
+        <span class="n">new_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name_current</span> <span class="o">+</span> <span class="s1">&#39;_resized2&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current</span> <span class="o">=</span> <span class="n">im_resize_lanczos</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">change_name</span><span class="p">(</span><span class="n">new_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">flag</span><span class="p">:</span>
+            <span class="n">im_resize_lanczos</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">new_name</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">extension</span><span class="p">,</span> <span class="n">quality</span><span class="o">=</span><span class="mi">95</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">im_resize_lanczos</span></div>
+    
+<div class="viewcode-block" id="ImageProcessing.to_A4"><a class="viewcode-back" href="../../../cpystal.figure.html#cpystal.figure.figure.ImageProcessing.to_A4">[docs]</a>    <span class="k">def</span> <span class="nf">to_A4</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">flag</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Image</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;A4サイズになるように余白を追加(解像度300dpiの場合)</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            flag (bool): Trueなら保存</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="o">.</span><span class="n">width</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="o">.</span><span class="n">height</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="o">.</span><span class="n">rotate</span><span class="p">(</span><span class="mi">90</span><span class="p">,</span> <span class="n">expand</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="o">.</span><span class="n">height</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="o">.</span><span class="n">width</span> <span class="o">&lt;</span> <span class="mi">3508</span><span class="o">/</span><span class="mi">2480</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">resize1</span><span class="p">(</span><span class="mi">2480</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="o">.</span><span class="n">width</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_margin</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">3508</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="o">.</span><span class="n">height</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">resize1</span><span class="p">(</span><span class="mi">3508</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="o">.</span><span class="n">height</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_margin</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2480</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="o">.</span><span class="n">width</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">new_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name_current</span> <span class="o">+</span> <span class="s1">&#39;_A4&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">change_name</span><span class="p">(</span><span class="n">new_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">flag</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">new_name</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">extension</span><span class="p">,</span> <span class="n">quality</span><span class="o">=</span><span class="mi">95</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="p">(</span><span class="mi">300</span><span class="p">,</span><span class="mi">300</span><span class="p">))</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">current</span></div>
+
+<div class="viewcode-block" id="ImageProcessing.crop"><a class="viewcode-back" href="../../../cpystal.figure.html#cpystal.figure.figure.ImageProcessing.crop">[docs]</a>    <span class="k">def</span> <span class="nf">crop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">left_up</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="n">right_down</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="n">flag</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Image</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;切り出し(left_up,right_downはそれぞれ左上の点の座標と右下の点の座標)</span>
+<span class="sd">            width = right, height = lowerのピクセルは含まれない</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            left_up (tuple[int, int]): (width, height)</span>
+<span class="sd">            right_down (tuple[int, int]): (width, height)</span>
+<span class="sd">            flag (bool): Trueなら保存</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">l</span><span class="p">,</span> <span class="n">u</span> <span class="o">=</span> <span class="n">left_up</span>
+        <span class="n">r</span><span class="p">,</span> <span class="n">d</span> <span class="o">=</span> <span class="n">right_down</span>
+        <span class="n">im_crop</span><span class="p">:</span> <span class="n">Image</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="o">.</span><span class="n">crop</span><span class="p">((</span><span class="n">l</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">d</span><span class="p">))</span>
+        <span class="n">new_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name_current</span> <span class="o">+</span> <span class="s1">&#39;_cropped&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current</span> <span class="o">=</span> <span class="n">im_crop</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">change_name</span><span class="p">(</span><span class="n">new_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">flag</span><span class="p">:</span>
+            <span class="n">im_crop</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">new_name</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">extension</span><span class="p">,</span> <span class="n">quality</span><span class="o">=</span><span class="mi">95</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">im_crop</span></div>
+
+<div class="viewcode-block" id="ImageProcessing.crop_center"><a class="viewcode-back" href="../../../cpystal.figure.html#cpystal.figure.figure.ImageProcessing.crop_center">[docs]</a>    <span class="k">def</span> <span class="nf">crop_center</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">crop_width</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">crop_height</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">flag</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Image</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;切り出し(画像の中心を任意のサイズでトリミング)</span>
+<span class="sd">            切り出す領域に画像の範囲外を指定した場合、エラーにはならず黒く表示される</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            crop_width (int): width方向の長さ</span>
+<span class="sd">            crop_height (int): height方向の長さ</span>
+<span class="sd">            flag (bool): Trueなら保存</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">im_crop_center</span><span class="p">:</span> <span class="n">Image</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="o">.</span><span class="n">crop</span><span class="p">(((</span><span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="o">.</span><span class="n">width</span> <span class="o">-</span> <span class="n">crop_width</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span><span class="p">,</span>
+                             <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="o">.</span><span class="n">height</span> <span class="o">-</span> <span class="n">crop_height</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span><span class="p">,</span>
+                             <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="o">.</span><span class="n">width</span> <span class="o">+</span> <span class="n">crop_width</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span><span class="p">,</span>
+                             <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="o">.</span><span class="n">height</span> <span class="o">+</span> <span class="n">crop_height</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span><span class="p">))</span>
+        <span class="n">new_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name_current</span> <span class="o">+</span> <span class="s1">&#39;_cropped_center&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current</span> <span class="o">=</span> <span class="n">im_crop_center</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">change_name</span><span class="p">(</span><span class="n">new_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">flag</span><span class="p">:</span>
+            <span class="n">im_crop_center</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">new_name</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">extension</span><span class="p">,</span> <span class="n">quality</span><span class="o">=</span><span class="mi">95</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">im_crop_center</span></div>
+
+<div class="viewcode-block" id="ImageProcessing.crop_max_square"><a class="viewcode-back" href="../../../cpystal.figure.html#cpystal.figure.figure.ImageProcessing.crop_max_square">[docs]</a>    <span class="k">def</span> <span class="nf">crop_max_square</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">flag</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Image</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;切り出し3(画像の中心から短辺の長さの正方形(つまり最大の正方形)を切り出す)</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            flag (bool): Trueなら保存</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">im_crop_max_square</span><span class="p">:</span> <span class="n">Image</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">crop_center</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="o">.</span><span class="n">size</span><span class="p">),</span> <span class="nb">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="o">.</span><span class="n">size</span><span class="p">))</span>
+        <span class="n">new_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name_current</span> <span class="o">+</span> <span class="s1">&#39;_cropped_max_square&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current</span> <span class="o">=</span> <span class="n">im_crop_max_square</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">change_name</span><span class="p">(</span><span class="n">new_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">flag</span><span class="p">:</span>
+            <span class="n">im_crop_max_square</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">new_name</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">extension</span><span class="p">,</span> <span class="n">quality</span><span class="o">=</span><span class="mi">95</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">im_crop_max_square</span></div>
+
+<div class="viewcode-block" id="ImageProcessing.blur"><a class="viewcode-back" href="../../../cpystal.figure.html#cpystal.figure.figure.ImageProcessing.blur">[docs]</a>    <span class="k">def</span> <span class="nf">blur</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">flag</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Image</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;ぼかし</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            flag (bool): Trueなら保存</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">im_blurred</span><span class="p">:</span> <span class="n">Image</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">ImageFilter</span><span class="o">.</span><span class="n">GaussianBlur</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
+        <span class="n">new_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name_current</span> <span class="o">+</span> <span class="s1">&#39;_blurred&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current</span> <span class="o">=</span> <span class="n">im_blurred</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">change_name</span><span class="p">(</span><span class="n">new_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">flag</span><span class="p">:</span>
+            <span class="n">im_blurred</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">new_name</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">extension</span><span class="p">,</span> <span class="n">quality</span><span class="o">=</span><span class="mi">95</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">im_blurred</span></div>
+
+<div class="viewcode-block" id="ImageProcessing.text"><a class="viewcode-back" href="../../../cpystal.figure.html#cpystal.figure.figure.ImageProcessing.text">[docs]</a>    <span class="k">def</span> <span class="nf">text</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">txt</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">font_size</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">font_color</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="nb">int</span><span class="p">,</span> <span class="n">position</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="n">flag</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Image</span><span class="p">:</span> 
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;文字の埋め込み</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            txt (str): テキスト</span>
+<span class="sd">            font_size (int): フォントサイズ</span>
+<span class="sd">            font_color (tuple[int, int, int] | int): 文字色</span>
+<span class="sd">            position (tuple[int, int]): テキストの位置(width, height)</span>
+<span class="sd">            flag (bool): Trueなら保存</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">im_str</span><span class="p">:</span> <span class="n">Image</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">draw3</span><span class="p">:</span> <span class="n">ImageDraw</span> <span class="o">=</span> <span class="n">ImageDraw</span><span class="o">.</span><span class="n">Draw</span><span class="p">(</span><span class="n">im_str</span><span class="p">)</span>
+        <span class="n">font_str</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">ImageFont</span><span class="o">.</span><span class="n">truetype</span><span class="p">(</span> <span class="s2">&quot;/System/Library/Fonts/Courier.dfont&quot;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">font_size</span><span class="p">)</span>
+        <span class="n">draw3</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">position</span><span class="p">,</span> <span class="n">txt</span><span class="p">,</span> <span class="n">font_color</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="s1">&#39;red&#39;</span><span class="p">,</span> <span class="n">align</span><span class="o">=</span><span class="s1">&#39;center&#39;</span><span class="p">,</span><span class="n">font</span><span class="o">=</span><span class="n">font_str</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current</span> <span class="o">=</span> <span class="n">im_str</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">new_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name_current</span> <span class="o">+</span> <span class="s1">&#39;_str&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">change_name</span><span class="p">(</span><span class="n">new_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">flag</span><span class="p">:</span>
+            <span class="n">im_str</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">new_name</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">extension</span><span class="p">,</span> <span class="n">quality</span><span class="o">=</span><span class="mi">95</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">im_str</span></div>
+
+<div class="viewcode-block" id="ImageProcessing.combine"><a class="viewcode-back" href="../../../cpystal.figure.html#cpystal.figure.figure.ImageProcessing.combine">[docs]</a>    <span class="k">def</span> <span class="nf">combine</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename_or_image</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Image</span><span class="o">.</span><span class="n">Image</span><span class="p">,</span> <span class="n">direction</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">color</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">=</span> <span class="p">(</span><span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">),</span> <span class="n">flag</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Image</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;連結(2つの画像を連結)</span>
+
+<span class="sd">        Note:</span>
+<span class="sd">            サイズが不一致なら余白はcolorで塗られる</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            filename_or_image (str | Image): 画像ファイルパスまたはImageクラスのインスタンス</span>
+<span class="sd">            deirection (str): 連結方向 &#39;horizontal&#39; or &#39;vertical&#39;</span>
+<span class="sd">            color (tuple[int, int, int] | int): 背景色</span>
+<span class="sd">            flag (bool): Trueなら保存</span>
+<span class="sd">        &quot;&quot;&quot;</span> 
+        <span class="n">mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="o">.</span><span class="n">mode</span>
+        <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;L&#39;</span><span class="p">:</span>
+            <span class="n">color</span> <span class="o">=</span> <span class="mi">255</span>
+        <span class="n">im</span><span class="p">:</span> <span class="n">Image</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">filename_or_image</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">im</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">filename_or_image</span><span class="p">)</span>
+            <span class="n">filename</span> <span class="o">=</span> <span class="n">filename_or_image</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">im</span> <span class="o">=</span> <span class="n">filename_or_image</span>
+            <span class="n">filename</span> <span class="o">=</span> <span class="s2">&quot;noname&quot;</span>
+        <span class="k">if</span> <span class="n">direction</span> <span class="o">==</span> <span class="s1">&#39;horizontal&#39;</span><span class="p">:</span>
+            <span class="n">dst</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="s1">&#39;RGB&#39;</span><span class="p">,</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="o">.</span><span class="n">width</span> <span class="o">+</span> <span class="n">im</span><span class="o">.</span><span class="n">width</span><span class="p">,</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="o">.</span><span class="n">height</span><span class="p">,</span> <span class="n">im</span><span class="o">.</span><span class="n">height</span><span class="p">)),</span> <span class="n">color</span><span class="p">)</span>
+            <span class="n">dst</span><span class="o">.</span><span class="n">paste</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+            <span class="n">dst</span><span class="o">.</span><span class="n">paste</span><span class="p">(</span><span class="n">im</span><span class="p">,</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="o">.</span><span class="n">width</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">dst</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="s1">&#39;RGB&#39;</span><span class="p">,</span> <span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="o">.</span><span class="n">width</span><span class="p">,</span><span class="n">im</span><span class="o">.</span><span class="n">width</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="o">.</span><span class="n">height</span> <span class="o">+</span> <span class="n">im</span><span class="o">.</span><span class="n">height</span><span class="p">),</span> <span class="n">color</span><span class="p">)</span>
+            <span class="n">dst</span><span class="o">.</span><span class="n">paste</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+            <span class="n">dst</span><span class="o">.</span><span class="n">paste</span><span class="p">(</span><span class="n">im</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="o">.</span><span class="n">height</span><span class="p">))</span>
+        <span class="n">new_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name_current</span> <span class="o">+</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">filename</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;_combined&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current</span> <span class="o">=</span> <span class="n">dst</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">change_name</span><span class="p">(</span><span class="n">new_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">flag</span><span class="p">:</span>
+            <span class="n">dst</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">new_name</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">extension</span><span class="p">,</span> <span class="n">quality</span><span class="o">=</span><span class="mi">95</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">dst</span></div>
+
+<div class="viewcode-block" id="ImageProcessing.paste"><a class="viewcode-back" href="../../../cpystal.figure.html#cpystal.figure.figure.ImageProcessing.paste">[docs]</a>    <span class="k">def</span> <span class="nf">paste</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename_or_image</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Image</span><span class="o">.</span><span class="n">Image</span><span class="p">,</span> <span class="n">position</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="n">back</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">flag</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Image</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;貼り付け</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            filename_or_image (str | Image): 画像ファイルパスまたはImageクラスのインスタンス</span>
+<span class="sd">            position (tuple[int, int]): 貼り付け位置 (画像左上が(width, height))</span>
+<span class="sd">            back (bool): Trueならselfが上側にくる</span>
+<span class="sd">            color (tuple[int, int, int] | int): 背景色</span>
+<span class="sd">            flag (bool): Trueなら保存</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">back_im</span><span class="p">:</span> <span class="n">Image</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">main_im</span><span class="p">:</span> <span class="n">Image</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">filename_or_image</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">main_im</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">filename_or_image</span><span class="p">)</span>
+            <span class="n">filename</span> <span class="o">=</span> <span class="n">filename_or_image</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">main_im</span> <span class="o">=</span> <span class="n">filename_or_image</span>
+            <span class="n">filename</span> <span class="o">=</span> <span class="s2">&quot;noname&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">back</span><span class="p">:</span>
+            <span class="n">back_im</span><span class="p">,</span> <span class="n">main_im</span> <span class="o">=</span> <span class="n">main_im</span><span class="p">,</span><span class="n">back_im</span>
+        <span class="n">back_im</span><span class="o">.</span><span class="n">paste</span><span class="p">(</span><span class="n">main_im</span><span class="p">,</span> <span class="n">position</span><span class="p">)</span>
+        <span class="n">new_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name_current</span> <span class="o">+</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">filename</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;_paste&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current</span> <span class="o">=</span> <span class="n">back_im</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">change_name</span><span class="p">(</span><span class="n">new_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">flag</span><span class="p">:</span>
+            <span class="n">back_im</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">new_name</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">extension</span><span class="p">,</span> <span class="n">quality</span><span class="o">=</span><span class="mi">95</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">back_im</span></div>
+
+<div class="viewcode-block" id="ImageProcessing.paint_rectangle"><a class="viewcode-back" href="../../../cpystal.figure.html#cpystal.figure.figure.ImageProcessing.paint_rectangle">[docs]</a>    <span class="k">def</span> <span class="nf">paint_rectangle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">left_up</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="n">right_down</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="n">color</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">=</span> <span class="p">(</span><span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">),</span> <span class="n">flag</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Image</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;範囲選択してその範囲をcolorに変更</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            left_up (tuple[int, int]): (width, height)</span>
+<span class="sd">            right_down (tuple[int, int]): (width, height)</span>
+<span class="sd">            color (tuple[int, int, int] | int): 背景色</span>
+<span class="sd">            flag (bool): Trueなら保存</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">l</span><span class="p">,</span> <span class="n">u</span> <span class="o">=</span> <span class="n">left_up</span>
+        <span class="n">r</span><span class="p">,</span> <span class="n">d</span> <span class="o">=</span> <span class="n">right_down</span>
+        <span class="n">mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="o">.</span><span class="n">mode</span>
+        <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;L&#39;</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">d</span><span class="o">-</span><span class="n">u</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">r</span><span class="o">-</span><span class="n">l</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="o">.</span><span class="n">putpixel</span><span class="p">((</span><span class="n">l</span><span class="o">+</span><span class="n">w</span><span class="p">,</span><span class="n">u</span><span class="o">+</span><span class="n">h</span><span class="p">),</span> <span class="n">color</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;RGB&#39;</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">d</span><span class="o">-</span><span class="n">u</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">r</span><span class="o">-</span><span class="n">l</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="o">.</span><span class="n">putpixel</span><span class="p">((</span><span class="n">l</span><span class="o">+</span><span class="n">w</span><span class="p">,</span><span class="n">u</span><span class="o">+</span><span class="n">h</span><span class="p">),</span> <span class="n">color</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;RGBA&#39;</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">d</span><span class="o">-</span><span class="n">u</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">r</span><span class="o">-</span><span class="n">l</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="o">.</span><span class="n">putpixel</span><span class="p">((</span><span class="n">l</span><span class="o">+</span><span class="n">w</span><span class="p">,</span><span class="n">u</span><span class="o">+</span><span class="n">h</span><span class="p">),</span> <span class="n">color</span><span class="p">)</span>
+        <span class="n">new_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name_current</span> <span class="o">+</span> <span class="s1">&#39;_paint_rectangled&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">change_name</span><span class="p">(</span><span class="n">new_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">flag</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">new_name</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">extension</span><span class="p">,</span> <span class="n">quality</span><span class="o">=</span><span class="mi">95</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">current</span></div>
+
+<div class="viewcode-block" id="ImageProcessing.extract_line"><a class="viewcode-back" href="../../../cpystal.figure.html#cpystal.figure.figure.ImageProcessing.extract_line">[docs]</a>    <span class="k">def</span> <span class="nf">extract_line</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">flag</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Image</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;線画抽出</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">gray</span><span class="p">:</span> <span class="n">Image</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="s2">&quot;L&quot;</span><span class="p">)</span>
+        <span class="n">gray2</span><span class="p">:</span> <span class="n">Image</span> <span class="o">=</span> <span class="n">gray</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">ImageFilter</span><span class="o">.</span><span class="n">MaxFilter</span><span class="p">(</span><span class="mi">5</span><span class="p">))</span>
+        <span class="n">senga_inv</span><span class="p">:</span> <span class="n">Image</span> <span class="o">=</span> <span class="n">ImageChops</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span><span class="n">gray</span><span class="p">,</span> <span class="n">gray2</span><span class="p">)</span>
+        <span class="n">senga</span><span class="p">:</span> <span class="n">Image</span> <span class="o">=</span> <span class="n">ImageOps</span><span class="o">.</span><span class="n">invert</span><span class="p">(</span><span class="n">senga_inv</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current</span> <span class="o">=</span> <span class="n">senga</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">new_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name_current</span> <span class="o">+</span> <span class="s1">&#39;_senga&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">change_name</span><span class="p">(</span><span class="n">new_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">flag</span><span class="p">:</span>
+            <span class="n">senga</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">new_name</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">extension</span><span class="p">,</span> <span class="n">quality</span><span class="o">=</span><span class="mi">95</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">senga</span></div>
+    
+<div class="viewcode-block" id="ImageProcessing.blend"><a class="viewcode-back" href="../../../cpystal.figure.html#cpystal.figure.figure.ImageProcessing.blend">[docs]</a>    <span class="k">def</span> <span class="nf">blend</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">im</span><span class="p">:</span> <span class="n">Image</span><span class="p">,</span> <span class="n">mask</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">flag</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Image</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;一様な画像合成</span>
+
+<span class="sd">        Note:</span>
+<span class="sd">            im2を強制的にselfと同じサイズに変更</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            im (Image): 合成用の画像</span>
+<span class="sd">            mask (float): [0.0,1.0]の実数</span>
+<span class="sd">            flag (bool): Trueなら保存</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">im</span> <span class="o">=</span> <span class="n">im</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">Image</span><span class="o">.</span><span class="n">LANCZOS</span><span class="p">)</span>
+        <span class="n">im_blended</span><span class="p">:</span> <span class="n">Image</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">blend</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="p">,</span> <span class="n">im</span><span class="p">,</span> <span class="n">mask</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current</span> <span class="o">=</span> <span class="n">im_blended</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">new_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name_current</span> <span class="o">+</span> <span class="s1">&#39;_blended&#39;</span>
+        <span class="k">if</span> <span class="n">flag</span><span class="p">:</span>
+            <span class="n">im_blended</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">new_name</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">extension</span><span class="p">,</span> <span class="n">quality</span><span class="o">=</span><span class="mi">95</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">im_blended</span></div>
+    
+<div class="viewcode-block" id="ImageProcessing.composite"><a class="viewcode-back" href="../../../cpystal.figure.html#cpystal.figure.figure.ImageProcessing.composite">[docs]</a>    <span class="k">def</span> <span class="nf">composite</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">im</span><span class="p">:</span> <span class="n">Image</span><span class="p">,</span> <span class="n">mask</span><span class="p">:</span> <span class="n">Image</span><span class="p">,</span> <span class="n">flag</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Image</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;画像合成</span>
+<span class="sd">        </span>
+<span class="sd">        Note:</span>
+<span class="sd">            mask画像のmode=(&#39;1&#39;,&#39;L&#39;,&#39;RGBA&#39;)に依って画像imとのブレンドの仕方が異なる</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            im (Image): 合成用の画像</span>
+<span class="sd">            mask (Image): マスク画像</span>
+<span class="sd">            flag (bool): Trueなら保存</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">im</span> <span class="o">=</span> <span class="n">im</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="o">.</span><span class="n">size</span><span class="p">,</span><span class="n">Image</span><span class="o">.</span><span class="n">LANCZOS</span><span class="p">)</span> <span class="c1"># im2を強制的にselfと同じサイズに変更</span>
+        <span class="n">im_composited</span><span class="p">:</span> <span class="n">Image</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">composite</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="p">,</span> <span class="n">im</span><span class="p">,</span> <span class="n">mask</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current</span> <span class="o">=</span> <span class="n">im_composited</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">new_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name_current</span> <span class="o">+</span> <span class="s1">&#39;_composited&#39;</span>
+        <span class="k">if</span> <span class="n">flag</span><span class="p">:</span>
+            <span class="n">im_composited</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">new_name</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">extension</span><span class="p">,</span> <span class="n">quality</span><span class="o">=</span><span class="mi">95</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">im_composited</span></div>
+    
+<div class="viewcode-block" id="ImageProcessing.monochromatizate"><a class="viewcode-back" href="../../../cpystal.figure.html#cpystal.figure.figure.ImageProcessing.monochromatizate">[docs]</a>    <span class="k">def</span> <span class="nf">monochromatizate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">color</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">=</span> <span class="p">(</span><span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">),</span> <span class="n">flag</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Image</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;単色化</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            color (tuple[int, int, int] | int): 背景色</span>
+<span class="sd">            flag (bool): Trueなら保存</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="o">.</span><span class="n">mode</span>
+        <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;L&#39;</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="o">.</span><span class="n">height</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="o">.</span><span class="n">width</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="o">.</span><span class="n">putpixel</span><span class="p">((</span><span class="n">w</span><span class="p">,</span><span class="n">h</span><span class="p">),</span> <span class="n">color</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;RGB&#39;</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="o">.</span><span class="n">height</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="o">.</span><span class="n">width</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="o">.</span><span class="n">putpixel</span><span class="p">((</span><span class="n">w</span><span class="p">,</span><span class="n">h</span><span class="p">),</span> <span class="n">color</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;RGBA&#39;</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="o">.</span><span class="n">height</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="o">.</span><span class="n">width</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="o">.</span><span class="n">putpixel</span><span class="p">((</span><span class="n">w</span><span class="p">,</span><span class="n">h</span><span class="p">),</span> <span class="n">color</span><span class="p">)</span>
+        <span class="n">new_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name_current</span> <span class="o">+</span> <span class="s1">&#39;_monochromatizated&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">change_name</span><span class="p">(</span><span class="n">new_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">flag</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">new_name</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">extension</span><span class="p">,</span> <span class="n">quality</span><span class="o">=</span><span class="mi">95</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">current</span></div>
+    
+<div class="viewcode-block" id="ImageProcessing.rotate_color"><a class="viewcode-back" href="../../../cpystal.figure.html#cpystal.figure.figure.ImageProcessing.rotate_color">[docs]</a>    <span class="k">def</span> <span class="nf">rotate_color</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">degree</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">flag</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;色相(Hue)の回転</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            degree (float): 回転角度</span>
+<span class="sd">            flag (bool): Trueなら保存</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">extension</span> <span class="o">!=</span> <span class="s1">&#39;.png&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name_current</span> <span class="o">+</span> <span class="s1">&#39;_extensioned&#39;</span> <span class="o">+</span> <span class="s1">&#39;.png&#39;</span><span class="p">,</span> <span class="s1">&#39;PNG&#39;</span><span class="p">)</span> <span class="c1"># PNG形式で保存</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">current</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name_current</span> <span class="o">+</span> <span class="s1">&#39;_extensioned&#39;</span> <span class="o">+</span> <span class="s1">&#39;.png&#39;</span><span class="p">)</span> <span class="c1"># self.currentをpng画像として改めてopen</span>
+        <span class="n">trans</span><span class="p">:</span> <span class="n">Image</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="s1">&#39;RGBA&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="o">.</span><span class="n">size</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+            <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="o">.</span><span class="n">size</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+                <span class="n">r</span><span class="p">,</span><span class="n">g</span><span class="p">,</span><span class="n">b</span><span class="p">,</span><span class="n">a</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="o">.</span><span class="n">getpixel</span><span class="p">((</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">))</span>
+                <span class="n">r</span><span class="p">,</span><span class="n">g</span><span class="p">,</span><span class="n">b</span> <span class="o">=</span> <span class="n">Color</span><span class="p">((</span><span class="n">r</span><span class="o">/</span><span class="mi">255</span><span class="p">,</span><span class="n">g</span><span class="o">/</span><span class="mi">255</span><span class="p">,</span><span class="n">b</span><span class="o">/</span><span class="mi">255</span><span class="p">),</span> <span class="s2">&quot;RGB&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">rotate_hsv</span><span class="p">(</span><span class="n">degree</span><span class="p">)</span><span class="o">.</span><span class="n">rgb_256</span><span class="p">()</span>
+                <span class="n">trans</span><span class="o">.</span><span class="n">putpixel</span><span class="p">((</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">),</span> <span class="p">(</span><span class="n">r</span><span class="p">,</span><span class="n">g</span><span class="p">,</span><span class="n">b</span><span class="p">,</span><span class="n">a</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current</span> <span class="o">=</span> <span class="n">trans</span>
+        <span class="n">new_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name_current</span> <span class="o">+</span> <span class="s1">&#39;_color-rotated&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">change_name</span><span class="p">(</span><span class="n">new_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">flag</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">new_name</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">extension</span><span class="p">,</span> <span class="n">quality</span><span class="o">=</span><span class="mi">95</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">current</span></div></div>
+
+
+<div class="viewcode-block" id="combine_img_list"><a class="viewcode-back" href="../../../cpystal.figure.html#cpystal.figure.figure.combine_img_list">[docs]</a><span class="k">def</span> <span class="nf">combine_img_list</span><span class="p">(</span><span class="n">name_list</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">direction</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">color</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">=</span> <span class="p">(</span><span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">),</span> <span class="n">flag</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Image</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;連結(画像名群をリストで渡す)</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        name_list (list[str]): ファイル名のリスト</span>
+<span class="sd">        deirection (str): 連結方向 &#39;horizontal&#39; or &#39;vertical&#39;</span>
+<span class="sd">        color (tuple[int, int, int] | int): 背景色</span>
+<span class="sd">        flag (bool): Trueなら保存</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">im_list</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">name_list</span><span class="p">):</span>
+        <span class="n">imi</span><span class="p">:</span> <span class="n">Image</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="n">im_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">imi</span><span class="p">)</span>
+    <span class="n">im0</span><span class="p">:</span> <span class="n">Image</span> <span class="o">=</span> <span class="n">im_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">w0</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">im0</span><span class="o">.</span><span class="n">width</span>
+    <span class="n">h0</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">im0</span><span class="o">.</span><span class="n">height</span>
+    <span class="k">if</span> <span class="n">im0</span><span class="o">.</span><span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;L&#39;</span><span class="p">:</span>
+        <span class="n">color</span> <span class="o">=</span> <span class="mi">255</span>
+    <span class="n">dst</span><span class="p">:</span> <span class="n">Image</span>
+    <span class="k">if</span> <span class="n">direction</span> <span class="o">==</span> <span class="s1">&#39;horizontal&#39;</span><span class="p">:</span>
+        <span class="n">dst</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="s1">&#39;RGB&#39;</span><span class="p">,</span> <span class="p">(</span><span class="n">w0</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">name_list</span><span class="p">),</span> <span class="n">h0</span><span class="p">),</span> <span class="n">color</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">im_list</span><span class="p">)):</span>
+            <span class="n">imi</span> <span class="o">=</span> <span class="n">im_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">resize</span><span class="p">((</span><span class="n">w0</span><span class="p">,</span> <span class="n">h0</span><span class="p">),</span> <span class="n">Image</span><span class="o">.</span><span class="n">LANCZOS</span><span class="p">)</span>
+            <span class="n">dst</span><span class="o">.</span><span class="n">paste</span><span class="p">(</span><span class="n">imi</span><span class="p">,</span> <span class="p">(</span><span class="n">w0</span><span class="o">*</span><span class="n">i</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">dst</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="s1">&#39;RGB&#39;</span><span class="p">,</span> <span class="p">(</span><span class="n">w0</span><span class="p">,</span> <span class="n">h0</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">name_list</span><span class="p">)),</span> <span class="n">color</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">im_list</span><span class="p">)):</span>
+            <span class="n">imi</span> <span class="o">=</span> <span class="n">im_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">resize</span><span class="p">((</span><span class="n">w0</span><span class="p">,</span> <span class="n">h0</span><span class="p">),</span> <span class="n">Image</span><span class="o">.</span><span class="n">LANCZOS</span><span class="p">)</span>
+            <span class="n">dst</span><span class="o">.</span><span class="n">paste</span><span class="p">(</span><span class="n">imi</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">h0</span><span class="o">*</span><span class="n">i</span><span class="p">))</span>
+    <span class="n">name</span><span class="p">,</span> <span class="n">extension</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">im0</span><span class="p">)</span>
+    <span class="n">new_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">name</span> <span class="o">+</span> <span class="s1">&#39;_multi_combined&#39;</span> <span class="o">+</span> <span class="n">extension</span>
+    <span class="k">if</span> <span class="n">flag</span><span class="p">:</span>
+        <span class="n">dst</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">new_name</span><span class="p">,</span> <span class="n">quality</span><span class="o">=</span><span class="mi">95</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">dst</span></div>
+
+<div class="viewcode-block" id="combine_img_matrix"><a class="viewcode-back" href="../../../cpystal.figure.html#cpystal.figure.figure.combine_img_matrix">[docs]</a><span class="k">def</span> <span class="nf">combine_img_matrix</span><span class="p">(</span><span class="n">name_matrix</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span> <span class="n">color</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">=</span> <span class="p">(</span><span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">),</span> <span class="n">flag</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Image</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;連結(画像名群を行列で渡す)</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        name_matrix (list[list[str]]): ファイル名の行列</span>
+<span class="sd">        color (tuple[int, int, int] | int): 背景色</span>
+<span class="sd">        flag (bool): Trueなら保存</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">n_row</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">name_matrix</span><span class="p">)</span>
+    <span class="n">n_column</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">name_matrix</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">im_matrix</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="p">[[</span><span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">row</span><span class="p">]</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">name_matrix</span><span class="p">]</span>
+    <span class="n">im0</span><span class="p">:</span> <span class="n">Image</span> <span class="o">=</span> <span class="n">im_matrix</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">w0</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">im0</span><span class="o">.</span><span class="n">width</span>
+    <span class="n">h0</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">im0</span><span class="o">.</span><span class="n">height</span>
+    <span class="k">if</span> <span class="n">im0</span><span class="o">.</span><span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;L&#39;</span><span class="p">:</span>
+        <span class="n">color</span> <span class="o">=</span> <span class="mi">255</span>
+    <span class="n">dst</span><span class="p">:</span> <span class="n">Image</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="s1">&#39;RGB&#39;</span><span class="p">,</span> <span class="p">(</span><span class="n">w0</span><span class="o">*</span><span class="n">n_column</span><span class="p">,</span> <span class="n">h0</span><span class="o">*</span><span class="n">n_row</span><span class="p">),</span> <span class="n">color</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_row</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_column</span><span class="p">):</span>
+            <span class="n">imij</span><span class="p">:</span> <span class="n">Image</span> <span class="o">=</span> <span class="n">im_matrix</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">resize</span><span class="p">((</span><span class="n">w0</span><span class="p">,</span> <span class="n">h0</span><span class="p">),</span> <span class="n">Image</span><span class="o">.</span><span class="n">LANCZOS</span><span class="p">)</span>
+            <span class="n">dst</span><span class="o">.</span><span class="n">paste</span><span class="p">(</span><span class="n">imij</span><span class="p">,</span> <span class="p">(</span><span class="n">w0</span><span class="o">*</span><span class="n">j</span><span class="p">,</span> <span class="n">h0</span><span class="o">*</span><span class="n">i</span><span class="p">))</span>
+    <span class="n">name</span><span class="p">,</span> <span class="n">extension</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">im0</span><span class="p">)</span>
+    <span class="n">new_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">name</span> <span class="o">+</span> <span class="s1">&#39;_matrix&#39;</span> <span class="o">+</span> <span class="n">extension</span>
+    <span class="k">if</span> <span class="n">flag</span><span class="p">:</span>
+        <span class="n">dst</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">new_name</span><span class="p">,</span> <span class="n">quality</span><span class="o">=</span><span class="mi">95</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">dst</span></div>
+
+<div class="viewcode-block" id="make_gif"><a class="viewcode-back" href="../../../cpystal.figure.html#cpystal.figure.figure.make_gif">[docs]</a><span class="k">def</span> <span class="nf">make_gif</span><span class="p">(</span><span class="n">im_list</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">save_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">duration</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">40.</span><span class="p">,</span> <span class="n">loop</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Image</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;gif形式のアニメーションを作成</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        im_list (list[Image]): 時系列に沿って並んだ画像のリスト</span>
+<span class="sd">        save_name (str): 保存先のファイル名(拡張子なし)</span>
+<span class="sd">        duration (float): 画像の変更スピード(単位はミリ秒)</span>
+<span class="sd">        loop (int): ループ回数(loop=0のとき無限ループ)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">im_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">save_name</span> <span class="o">+</span> <span class="s1">&#39;.gif&#39;</span><span class="p">,</span> <span class="n">save_all</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">append_images</span><span class="o">=</span><span class="n">im_list</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span> <span class="n">optimize</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">duration</span><span class="o">=</span><span class="n">duration</span><span class="p">,</span> <span class="n">loop</span><span class="o">=</span><span class="n">loop</span><span class="p">)</span></div>
+    <span class="c1"># optimize=Trueのとき予期せぬ動作が起こり得るらしい</span>
+
+<div class="viewcode-block" id="get_all_img"><a class="viewcode-back" href="../../../cpystal.figure.html#cpystal.figure.figure.get_all_img">[docs]</a><span class="k">def</span> <span class="nf">get_all_img</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;フォルダ内の全画像(jpgかpng)を取得してlistとして出力</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">im_list</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">current_directory_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+    <span class="n">files</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">current_directory_path</span> <span class="o">+</span> <span class="s1">&#39;/*&#39;</span><span class="p">)</span>
+    <span class="n">files</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">f</span><span class="p">[</span><span class="o">-</span><span class="mi">4</span><span class="p">:]</span> <span class="o">==</span> <span class="s1">&#39;.jpg&#39;</span> <span class="ow">or</span> <span class="n">f</span><span class="p">[</span><span class="o">-</span><span class="mi">4</span><span class="p">:]</span> <span class="o">==</span> <span class="s1">&#39;.jpeg&#39;</span> <span class="ow">or</span> <span class="n">f</span><span class="p">[</span><span class="o">-</span><span class="mi">4</span><span class="p">:]</span> <span class="o">==</span> <span class="s1">&#39;.png&#39;</span><span class="p">:</span>
+            <span class="n">input_im</span><span class="p">:</span> <span class="n">Image</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+            <span class="n">im_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">input_im</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">im_list</span></div>
+
+<div class="viewcode-block" id="rename_ordered"><a class="viewcode-back" href="../../../cpystal.figure.html#cpystal.figure.figure.rename_ordered">[docs]</a><span class="k">def</span> <span class="nf">rename_ordered</span><span class="p">(</span><span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;フォルダ内の全画像を取得して名前の順序を保存したまま連番に書き換える</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">current_directory_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+    <span class="n">files</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">current_directory_path</span> <span class="o">+</span> <span class="s1">&#39;/*&#39;</span><span class="p">)</span>
+    <span class="n">files</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+    <span class="n">digit</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">files</span><span class="p">)))</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">f</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">files</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">f</span><span class="p">[</span><span class="o">-</span><span class="mi">4</span><span class="p">:]</span> <span class="o">==</span> <span class="s1">&#39;.jpg&#39;</span> <span class="ow">or</span> <span class="n">f</span><span class="p">[</span><span class="o">-</span><span class="mi">4</span><span class="p">:]</span> <span class="o">==</span> <span class="s1">&#39;.jpeg&#39;</span> <span class="ow">or</span> <span class="n">f</span><span class="p">[</span><span class="o">-</span><span class="mi">4</span><span class="p">:]</span> <span class="o">==</span> <span class="s1">&#39;.png&#39;</span><span class="p">:</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">prefix</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="n">digit</span><span class="p">)</span> <span class="o">+</span> <span class="n">f</span><span class="p">[</span><span class="o">-</span><span class="mi">4</span><span class="p">:])</span></div>
+
+
+<div class="viewcode-block" id="main"><a class="viewcode-back" href="../../../cpystal.figure.html#cpystal.figure.figure.main">[docs]</a><span class="k">def</span> <span class="nf">main</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="c1"># 合成</span>
+    <span class="n">extension12</span> <span class="o">=</span> <span class="s1">&#39;.jpg&#39;</span>
+    <span class="n">name1</span> <span class="o">=</span> <span class="s1">&#39;def&#39;</span>
+    <span class="n">im1</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">name1</span><span class="o">+</span><span class="n">extension12</span><span class="p">)</span>
+    <span class="n">name2</span> <span class="o">=</span> <span class="s1">&#39;ghi&#39;</span>
+    <span class="n">im2</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">name2</span><span class="o">+</span><span class="n">extension12</span><span class="p">)</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">im1</span><span class="o">.</span><span class="n">size</span><span class="p">)</span> <span class="c1">## ただサイズを調整</span>
+    <span class="c1">#im2 = crop_max_square(Image.open(name2+extension12)) ## サイズに合うように切り出した</span>
+
+    <span class="n">mask</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="s2">&quot;L&quot;</span><span class="p">,</span> <span class="n">im1</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="c1"># 一面真っ黒</span>
+    <span class="n">draw</span> <span class="o">=</span> <span class="n">ImageDraw</span><span class="o">.</span><span class="n">Draw</span><span class="p">(</span><span class="n">mask</span><span class="p">)</span>
+    <span class="n">draw</span><span class="o">.</span><span class="n">ellipse</span><span class="p">((</span><span class="mi">140</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">260</span><span class="p">,</span> <span class="mi">170</span><span class="p">),</span> <span class="n">fill</span><span class="o">=</span><span class="mi">255</span><span class="p">)</span> <span class="c1"># 半径120ピクセルの円盤を白でmaskの上に描き込んだ</span>
+    <span class="n">im12</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">composite</span><span class="p">(</span><span class="n">im1</span><span class="p">,</span> <span class="n">im2</span><span class="p">,</span> <span class="n">mask</span><span class="p">)</span> <span class="c1"># mask画像の各ピクセルの値に応じて合成</span>
+
+    <span class="n">mask_blur</span> <span class="o">=</span> <span class="n">mask</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">ImageFilter</span><span class="o">.</span><span class="n">GaussianBlur</span><span class="p">(</span><span class="mi">10</span><span class="p">))</span> <span class="c1"># ImageFilterでマスク画像をぼかす</span>
+    <span class="n">im</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">composite</span><span class="p">(</span><span class="n">im1</span><span class="p">,</span> <span class="n">im2</span><span class="p">,</span> <span class="n">mask_blur</span><span class="p">)</span>
+
+    <span class="n">mask</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s1">&#39;*****.png&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="s1">&#39;L&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">im1</span><span class="o">.</span><span class="n">size</span><span class="p">)</span> <span class="c1"># 画像を白黒にしてマスク画像として採用</span>
+    <span class="n">im</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">composite</span><span class="p">(</span><span class="n">im1</span><span class="p">,</span> <span class="n">im2</span><span class="p">,</span> <span class="n">mask</span><span class="p">)</span>
+    <span class="c1"># im = Image.blend(im1, im2, 0.5) #これは画像全面を一律の割合で合成(比率は0.0~1.0)</span>
+
+
+
+    <span class="c1">########## 描画について #############</span>
+    <span class="c1"># 引数の説明</span>
+    <span class="c1"># xy = ((左上のx座標, 左上のy座標), (右下のx座標, 右下のy座標))</span>
+    <span class="c1"># or xy = (左上のx座標, 左上のy座標, 右下のx座標, 右下のy座標)</span>
+
+    <span class="c1"># 以下,数字は0~255</span>
+    <span class="c1"># fill = (R, G, B) # RGBのとき</span>
+    <span class="c1"># fill = S # Lのとき</span>
+
+    <span class="c1"># outline = (R, G, B) # RGBのとき</span>
+    <span class="c1"># outline = S # Lのとき</span>
+
+    <span class="n">im</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="s1">&#39;RGB&#39;</span><span class="p">,</span> <span class="p">(</span><span class="mi">500</span><span class="p">,</span> <span class="mi">300</span><span class="p">),</span> <span class="p">(</span><span class="mi">128</span><span class="p">,</span> <span class="mi">128</span><span class="p">,</span> <span class="mi">128</span><span class="p">))</span> <span class="c1"># 今回はベタ画像。普通の画像に上描きしてよい</span>
+    <span class="n">draw1</span> <span class="o">=</span> <span class="n">ImageDraw</span><span class="o">.</span><span class="n">Draw</span><span class="p">(</span><span class="n">im</span><span class="p">)</span>
+    <span class="c1"># 楕円（円）: ellipse(xy, fill, outline)</span>
+    <span class="n">draw1</span><span class="o">.</span><span class="n">ellipse</span><span class="p">((</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">150</span><span class="p">,</span> <span class="mi">200</span><span class="p">),</span> <span class="n">fill</span><span class="o">=</span><span class="p">(</span><span class="mi">255</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">outline</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+
+    <span class="c1"># 四角（長方形、正方形） : rectangle(xy, fill, outline)</span>
+    <span class="n">draw1</span><span class="o">.</span><span class="n">rectangle</span><span class="p">((</span><span class="mi">200</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">300</span><span class="p">,</span> <span class="mi">200</span><span class="p">),</span> <span class="n">fill</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">192</span><span class="p">,</span> <span class="mi">192</span><span class="p">),</span> <span class="n">outline</span><span class="o">=</span><span class="p">(</span><span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">))</span>
+
+    <span class="c1"># 直線 : line(xy, fill, width)</span>
+    <span class="n">draw1</span><span class="o">.</span><span class="n">line</span><span class="p">((</span><span class="mi">350</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">450</span><span class="p">,</span> <span class="mi">100</span><span class="p">),</span> <span class="n">fill</span><span class="o">=</span><span class="p">(</span><span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">width</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+
+    <span class="c1"># 多角形 : polygon(xy, fill, outline)</span>
+    <span class="n">draw1</span><span class="o">.</span><span class="n">polygon</span><span class="p">(((</span><span class="mi">200</span><span class="p">,</span> <span class="mi">200</span><span class="p">),</span> <span class="p">(</span><span class="mi">300</span><span class="p">,</span> <span class="mi">100</span><span class="p">),</span> <span class="p">(</span><span class="mi">250</span><span class="p">,</span> <span class="mi">50</span><span class="p">)),</span> <span class="n">fill</span><span class="o">=</span><span class="p">(</span><span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">outline</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+
+    <span class="c1"># 点 : point(xy, fill)</span>
+    <span class="n">draw1</span><span class="o">.</span><span class="n">point</span><span class="p">(((</span><span class="mi">350</span><span class="p">,</span> <span class="mi">200</span><span class="p">),</span> <span class="p">(</span><span class="mi">450</span><span class="p">,</span> <span class="mi">100</span><span class="p">),</span> <span class="p">(</span><span class="mi">400</span><span class="p">,</span> <span class="mi">50</span><span class="p">)),</span> <span class="n">fill</span><span class="o">=</span><span class="p">(</span><span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+
+    <span class="c1"># 円弧 : arc(xy, start, end, fill)</span>
+    <span class="n">draw1</span><span class="o">.</span><span class="n">arc</span><span class="p">((</span><span class="mi">25</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">175</span><span class="p">,</span> <span class="mi">200</span><span class="p">),</span> <span class="n">start</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mi">270</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="p">(</span><span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+
+    <span class="c1"># 弦（弓） : chord(xy, start, end, fill, outline)</span>
+    <span class="n">draw1</span><span class="o">.</span><span class="n">chord</span><span class="p">((</span><span class="mi">225</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">375</span><span class="p">,</span> <span class="mi">200</span><span class="p">),</span> <span class="n">start</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mi">270</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="p">(</span><span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">outline</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+
+    <span class="c1"># 広義おうぎ形 : pieslice(xy, start, end, fill, outline)</span>
+    <span class="n">draw1</span><span class="o">.</span><span class="n">pieslice</span><span class="p">((</span><span class="mi">425</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">575</span><span class="p">,</span> <span class="mi">200</span><span class="p">),</span> <span class="n">start</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mi">270</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="p">(</span><span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">outline</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span></div>
+
+
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">cpystal</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../cpystal.html">cpystal package</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2023, Helve.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.0.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

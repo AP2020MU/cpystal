@@ -3,14 +3,19 @@
 結晶学的情報や物性測定データ解析を扱うPythonライブラリ．
 
 # Version
-* 0.x.x：開発中
-* 1.x.x〜：実用版
+* v0.2.0
 
 # Recent Updates
 * v0.1.0 2023/05/22
     * ディレクトリ構成の大幅な変更
     * `cpystal.mathematics.algebra.core`の球面調和関数関係や`CubicHarmonics`の追加
     * `cpystal.mathematics.algebra.operator`の追加
+
+* v0.2.0 2023/10/06
+    * pytestに対応
+    * `cpystal.analysis.spacegroup`の拡充
+    * `cpystal.mathematics.optimize`の追加
+    * sphinxによるドキュメントの作成
 
 # Contents
 * cpystal
@@ -31,8 +36,37 @@
             * demagnetizating_factor_ellipsoid: 回転楕円体の反磁場係数の計算
             * demagnetizating_factor_rectangular_prism: 直方体の反磁場係数の計算
         * spacegroup
+            * Atom: 原子のクラス
+            * SpaceGroupSymmetryOperation: 空間群に属する対称操作のクラス
+            * CrystalStructure: 結晶構造を表すクラス
+            * SpinStructure: 結晶構造上のスピン構造を表すクラス
             * SymmetryOperation: 3次元空間における対称操作(の表現行列)
             * PhysicalPropertyTensorAnalyzer: 物性テンソルの非ゼロ要素や等価な要素の解析
+            * rotx, roty, rotz: 3次元空間上の回転行列
+            * rodrigues: Rodriguesの回転公式
+            * mirror: 鏡映行列
+            * unit_vector: 極座標で指定する単位ベクトル
+            * circular_mean: 角度のベクトル平均
+            * circular_diff: 角度のベクトル差
+            * circular_interpolate: 角度の線形補間
+            * spacegroup_to_pointgroup: 空間群から点群への変換
+            * pointgroup_to_laueclass: 点群からラウエクラスへの変換
+            * pointgroup_to_crystal_system: 点群から結晶系への変換
+            * spacegroup_to_bravais_lattice: 空間群からブラベー格子への変換
+            * is_polar_point_group: polarな点群であるかどうか
+            * is_polar_space_group: polarな空間群であるかどうか
+            * is_chiral_point_group: chiralな点群であるかどうか
+            * is_chiral_space_group: chiralな空間群であるかどうか
+            * is_achiral_space_group: achiralな空間群であるかどうか
+            * is_centrosymmetric_point_group: 中心対称な点群であるかどうか
+            * is_enantiomorphic_space_group: enantiomorphicな空間群であるかどうか
+            * is_bieberbach_space_group: bieberbachな空間群であるかどうか
+            * is_sohncke_space_group: Sohncke空間群であるかどうか
+            * is_symmorphic_space_group: symmorphicな空間群であるかどうか
+            * crystal_system_to_symbol: 結晶系から一文字のシンボルへの変換
+            * generate_point_group: 群の生成元から点群を生成
+            * crystal_system_to_symmetry_directions: 各結晶系で定義されている対称方向
+            * spacegroup_to_symmetry_directions: その空間群の対称方向
         * spin_model
             * SpinOperator: スピン演算子
             * MultiSpinSystemOperator: 多スピン系の演算子
@@ -108,12 +142,14 @@
         * sequence_maker: シークエンスを生成してcsvファイルを出力　
 
 # Requirements
+* matplotlib
+* more_itertools
 * numpy
+* pymatgen
 * scipy
 * sympy
-* matplotlib
-* pymatgen
 * tk
+* tqdm
 
 # Installation
 未実装．
