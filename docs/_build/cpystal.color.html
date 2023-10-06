@@ -1,0 +1,1297 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>cpystal.color package &mdash; cpystal  documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="cpystal.core package" href="cpystal.core.html" />
+    <link rel="prev" title="cpystal.analysis package" href="cpystal.analysis.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            cpystal
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="cpystal.html">cpystal package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="cpystal.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="cpystal.analysis.html">cpystal.analysis package</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">cpystal.color package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-cpystal.color.color">cpystal.color.color module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-cpystal.color">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="cpystal.core.html">cpystal.core package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cpystal.figure.html">cpystal.figure package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cpystal.graph.html">cpystal.graph package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cpystal.mathematics.html">cpystal.mathematics package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cpystal.measurement.html">cpystal.measurement package</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="cpystal.html#module-cpystal">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">cpystal</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="cpystal.html">cpystal package</a></li>
+      <li class="breadcrumb-item active">cpystal.color package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/cpystal.color.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="cpystal-color-package">
+<h1>cpystal.color package<a class="headerlink" href="#cpystal-color-package" title="Permalink to this heading"></a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading"></a></h2>
+</section>
+<section id="module-cpystal.color.color">
+<span id="cpystal-color-color-module"></span><h2>cpystal.color.color module<a class="headerlink" href="#module-cpystal.color.color" title="Permalink to this heading"></a></h2>
+<p><cite>color</cite>: for dealing with color space.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="cpystal.color.color.Color">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cpystal.color.color.</span></span><span class="sig-name descname"><span class="pre">Color</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color_system</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">white_point</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'D65'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cpystal/color/color.html#Color"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.color.color.Color" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Express color spaces. A part of this class is based on MATLAB and the Python standard module ‘colorsys’.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<dl class="simple">
+<dt>Thereafter, we use the following type alias without notice:</dt><dd><p>Color_type := tuple[int,int,int] | tuple[float,float,float].</p>
+</dd>
+<dt>RGB = Red, Green, Blue</dt><dd><p>R: [0.0, 1.0], transparent -&gt; red.
+G: [0.0, 1.0], transparent -&gt; green.
+B: [0.0, 1.0], transparent -&gt; blue.
+This RGB is supposed to be linearized.</p>
+</dd>
+<dt>HSV = Hue(color phase), Saturation(colorfulness), Value(brightness)</dt><dd><p>H: [0.0, 1.0], red -&gt; yellow -&gt; green -&gt; blue -&gt; magenta -&gt; red.
+S: [0.0, 1.0], medium -&gt; maximum.
+V: [0.0, 1.0], black-strong -&gt; black-weak.</p>
+</dd>
+<dt>HLS = Hue(color phase), Luminance(lightness), Saturation(colorfulness)</dt><dd><p>H: [0.0, 1.0], red -&gt; yellow -&gt; green -&gt; blue -&gt; magenta -&gt; red.
+L: [0.0, 1.0], black -&gt; white.
+S: [0.0, 1.0], medium -&gt; maximum.</p>
+</dd>
+<dt>YIQ = Y(perceived grey level), I(same-phase), Q(anti-phase)</dt><dd><p>Y: [0.0, 1.0], black -&gt; white.
+I: [-0.5959, 0.5959], blue -&gt; orange.
+Q: [-0.5229, 0.5229], green -&gt; violet.</p>
+</dd>
+<dt>XYZ</dt><dd><p>X: [0.0, 0.951]
+Y: [0.0, 1.0]
+Z: [0.0, 1.090]</p>
+</dd>
+<dt>L*a*b*</dt><dd><p>L*: [0, 100]
+a*: [-128, 127]
+b*: [-128, 127]</p>
+</dd>
+</dl>
+<p>Note that <cite>color_system</cite> of the result color of binary operation is always ‘RGB’.</p>
+</div>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpystal.color.color.Color.color">
+<span class="sig-name descname"><span class="pre">color</span></span><a class="headerlink" href="#cpystal.color.color.Color.color" title="Permalink to this definition"></a></dt>
+<dd><p>Color value.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Color_type</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpystal.color.color.Color.color_system">
+<span class="sig-name descname"><span class="pre">color_system</span></span><a class="headerlink" href="#cpystal.color.color.Color.color_system" title="Permalink to this definition"></a></dt>
+<dd><p>Color system (RGB, HSV, HLS, YIQ).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="cpystal.color.color.Color.D50">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">D50</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#cpystal.color.color.Color" title="cpystal.color.color.Color"><span class="pre">Color</span></a></em><a class="headerlink" href="#cpystal.color.color.Color.D50" title="Permalink to this definition"></a></dt>
+<dd><p>D50 white point.</p>
+<div class="admonition-todo admonition" id="id1">
+<p class="admonition-title">Todo</p>
+<p>This should be a class property in Python 3.9.</p>
+</div>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="cpystal.color.color.Color.D65">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">D65</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#cpystal.color.color.Color" title="cpystal.color.color.Color"><span class="pre">Color</span></a></em><a class="headerlink" href="#cpystal.color.color.Color.D65" title="Permalink to this definition"></a></dt>
+<dd><p>D65 white point.</p>
+<div class="admonition-todo admonition" id="id2">
+<p class="admonition-title">Todo</p>
+<p>This should be a class property in Python 3.9.</p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.color.color.Color.adobergb_to_rgb">
+<span class="sig-name descname"><span class="pre">adobergb_to_rgb</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cpystal.color.color.Color" title="cpystal.color.color.Color"><span class="pre">Color</span></a></span></span><a class="reference internal" href="_modules/cpystal/color/color.html#Color.adobergb_to_rgb"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.color.color.Color.adobergb_to_rgb" title="Permalink to this definition"></a></dt>
+<dd><p>Adobe RGB -&gt; RGB</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<dl class="simple">
+<dt>The value range of (r,g,b) in RGB and Adobe RGB is:</dt><dd><p>r: [0.0, 1.0]
+g: [0.0, 1.0]
+b: [0.0, 1.0]</p>
+</dd>
+</dl>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Color expressed in Adobe RGB.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>(<a class="reference internal" href="#cpystal.color.color.Color" title="cpystal.color.color.Color">Color</a>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.color.color.Color.change_hue_hsv">
+<span class="sig-name descname"><span class="pre">change_hue_hsv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hue</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cpystal.color.color.Color" title="cpystal.color.color.Color"><span class="pre">Color</span></a></span></span><a class="reference internal" href="_modules/cpystal/color/color.html#Color.change_hue_hsv"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.color.color.Color.change_hue_hsv" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.color.color.Color.change_saturation_hsv">
+<span class="sig-name descname"><span class="pre">change_saturation_hsv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">saturation</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cpystal.color.color.Color" title="cpystal.color.color.Color"><span class="pre">Color</span></a></span></span><a class="reference internal" href="_modules/cpystal/color/color.html#Color.change_saturation_hsv"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.color.color.Color.change_saturation_hsv" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.color.color.Color.change_value_hsv">
+<span class="sig-name descname"><span class="pre">change_value_hsv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cpystal.color.color.Color" title="cpystal.color.color.Color"><span class="pre">Color</span></a></span></span><a class="reference internal" href="_modules/cpystal/color/color.html#Color.change_value_hsv"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.color.color.Color.change_value_hsv" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="id0">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">color</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#id0" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.color.color.Color.color_code">
+<span class="sig-name descname"><span class="pre">color_code</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/cpystal/color/color.html#Color.color_code"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.color.color.Color.color_code" title="Permalink to this definition"></a></dt>
+<dd><p>Hexadecimal color code</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Color code in hexadecimal notation.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>(str)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="id3">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">color_system</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#id3" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.color.color.Color.color_temperature">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">color_temperature</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">T</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cpystal.color.color.Color" title="cpystal.color.color.Color"><span class="pre">Color</span></a></span></span><a class="reference internal" href="_modules/cpystal/color/color.html#Color.color_temperature"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.color.color.Color.color_temperature" title="Permalink to this definition"></a></dt>
+<dd><p>Color temperature.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>T</strong> (<em>float</em>) – Temperature (K).</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Color temperature.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#cpystal.color.color.Color" title="cpystal.color.color.Color">Color</a></p>
+</dd>
+</dl>
+<p class="rubric">References</p>
+<p><a class="reference external" href="https://en.wikipedia.org/wiki/Planckian_locus">https://en.wikipedia.org/wiki/Planckian_locus</a>
+<a class="reference external" href="http://yamatyuu.net/other/color/cie1931xyzrgb/xyz.html">http://yamatyuu.net/other/color/cie1931xyzrgb/xyz.html</a></p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.color.color.Color.deepcopy">
+<span class="sig-name descname"><span class="pre">deepcopy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cpystal.color.color.Color" title="cpystal.color.color.Color"><span class="pre">Color</span></a></span></span><a class="reference internal" href="_modules/cpystal/color/color.html#Color.deepcopy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.color.color.Color.deepcopy" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.color.color.Color.from_color_code">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_color_code</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">code</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cpystal.color.color.Color" title="cpystal.color.color.Color"><span class="pre">Color</span></a></span></span><a class="reference internal" href="_modules/cpystal/color/color.html#Color.from_color_code"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.color.color.Color.from_color_code" title="Permalink to this definition"></a></dt>
+<dd><p>Construct a <cite>Color</cite> instance from color code.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>name</strong> (<em>str</em>) – Color code written in ‘#xxxxxx’ format.
+For example, ‘#FFFFFF’ is white.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><cite>Color</cite> instance.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#cpystal.color.color.Color" title="cpystal.color.color.Color">Color</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.color.color.Color.from_name">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cpystal.color.color.Color" title="cpystal.color.color.Color"><span class="pre">Color</span></a></span></span><a class="reference internal" href="_modules/cpystal/color/color.html#Color.from_name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.color.color.Color.from_name" title="Permalink to this definition"></a></dt>
+<dd><p>Construct a <cite>Color</cite> instance from color name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>name</strong> (<em>str</em>) – Name of color. See <cite>matplotlib.colors</cite>.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><cite>Color</cite> instance.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#cpystal.color.color.Color" title="cpystal.color.color.Color">Color</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.color.color.Color.get_base_info">
+<span class="sig-name descname"><span class="pre">get_base_info</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/cpystal/color/color.html#Color.get_base_info"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.color.color.Color.get_base_info" title="Permalink to this definition"></a></dt>
+<dd><p>Basic information of <cite>Color</cite> instance.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>(color system, white point)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>tuple[str, str]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.color.color.Color.get_properties">
+<span class="sig-name descname"><span class="pre">get_properties</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Color_type</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/cpystal/color/color.html#Color.get_properties"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.color.color.Color.get_properties" title="Permalink to this definition"></a></dt>
+<dd><p>Properties of <cite>Color</cite> instance.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>(color, color system, white point)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>tuple[Color_type, str, str]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.color.color.Color.hls_to_rgb">
+<span class="sig-name descname"><span class="pre">hls_to_rgb</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cpystal.color.color.Color" title="cpystal.color.color.Color"><span class="pre">Color</span></a></span></span><a class="reference internal" href="_modules/cpystal/color/color.html#Color.hls_to_rgb"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.color.color.Color.hls_to_rgb" title="Permalink to this definition"></a></dt>
+<dd><p>HLS -&gt; RGB</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<dl class="simple">
+<dt>The value range of (h,l,s) is:</dt><dd><p>h: [0.0, 1.0] (or [0, 360])
+l: [0.0, 1.0] (or [0, MAX_LS])
+s: [0.0, 1.0] (or [0, MAX_LS])</p>
+</dd>
+<dt>The value range of (r,g,b) is:</dt><dd><p>r: [0.0, 1.0]
+g: [0.0, 1.0]
+b: [0.0, 1.0]</p>
+</dd>
+</dl>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Color expressed in RGB.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>(<a class="reference internal" href="#cpystal.color.color.Color" title="cpystal.color.color.Color">Color</a>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.color.color.Color.hsv_to_rgb">
+<span class="sig-name descname"><span class="pre">hsv_to_rgb</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cpystal.color.color.Color" title="cpystal.color.color.Color"><span class="pre">Color</span></a></span></span><a class="reference internal" href="_modules/cpystal/color/color.html#Color.hsv_to_rgb"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.color.color.Color.hsv_to_rgb" title="Permalink to this definition"></a></dt>
+<dd><p>HSV -&gt; RGB</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<dl class="simple">
+<dt>The value range of (h,s,v) is:</dt><dd><p>h: [0.0, 1.0] (or [0, 360])
+s: [0.0, 1.0] (or [0, MAX_SV])
+v: [0.0, 1.0] (or [0, MAX_SV])</p>
+</dd>
+<dt>The value range of (r,g,b) is:</dt><dd><p>r: [0.0, 1.0]
+g: [0.0, 1.0]
+b: [0.0, 1.0]</p>
+</dd>
+</dl>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Color expressed in RGB.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>(<a class="reference internal" href="#cpystal.color.color.Color" title="cpystal.color.color.Color">Color</a>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.color.color.Color.lab_to_xyz">
+<span class="sig-name descname"><span class="pre">lab_to_xyz</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cpystal.color.color.Color" title="cpystal.color.color.Color"><span class="pre">Color</span></a></span></span><a class="reference internal" href="_modules/cpystal/color/color.html#Color.lab_to_xyz"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.color.color.Color.lab_to_xyz" title="Permalink to this definition"></a></dt>
+<dd><p>L*a*b* -&gt; XYZ</p>
+<blockquote>
+<div><dl>
+<dt>Note:</dt><dd><p>The XYZ and RGB color systems basically use the D65 standard light source as the white point,
+but the L*a*b* color system uses the D50.
+In order to adjust for this difference, Bradford transformation is used.</p>
+<dl class="simple">
+<dt>The value range of (l,a,b) is:</dt><dd><p>l: [0.0, 100.0]
+a: may take an absolute value greater than 100
+b: may take an absolute value greater than 100.</p>
+</dd>
+</dl>
+<p>D65 white point: (x,y,z) = (0.95046, 1.0, 1.08906)
+D50 white point: (x,y,z) = (0.9642, 1.0, 0.8249).</p>
+</dd>
+</dl>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Color expressed in L*a*b*.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>(<a class="reference internal" href="#cpystal.color.color.Color" title="cpystal.color.color.Color">Color</a>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.color.color.Color.projection">
+<span class="sig-name descname"><span class="pre">projection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other_color</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#cpystal.color.color.Color" title="cpystal.color.color.Color"><span class="pre">Color</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cpystal.color.color.Color" title="cpystal.color.color.Color"><span class="pre">Color</span></a></span></span><a class="reference internal" href="_modules/cpystal/color/color.html#Color.projection"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.color.color.Color.projection" title="Permalink to this definition"></a></dt>
+<dd><p>Project the color onto the other color like a mathematical 3D vector.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>other_color</strong> (<a class="reference internal" href="#cpystal.color.color.Color" title="cpystal.color.color.Color"><em>Color</em></a>) – Target of color projection.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Projected color. Note that <cite>color_system</cite> of the returned color is always ‘RGB’.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>(<a class="reference internal" href="#cpystal.color.color.Color" title="cpystal.color.color.Color">Color</a>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.color.color.Color.rgb_256">
+<span class="sig-name descname"><span class="pre">rgb_256</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/cpystal/color/color.html#Color.rgb_256"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.color.color.Color.rgb_256" title="Permalink to this definition"></a></dt>
+<dd><p>RGB color in 0-255.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><cite>Color</cite> instance.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>Color_type</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.color.color.Color.rgb_to_adobergb">
+<span class="sig-name descname"><span class="pre">rgb_to_adobergb</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cpystal.color.color.Color" title="cpystal.color.color.Color"><span class="pre">Color</span></a></span></span><a class="reference internal" href="_modules/cpystal/color/color.html#Color.rgb_to_adobergb"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.color.color.Color.rgb_to_adobergb" title="Permalink to this definition"></a></dt>
+<dd><p>RGB -&gt; Adobe RGB</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<dl class="simple">
+<dt>The value range of (r,g,b) in RGB and Adobe RGB is:</dt><dd><p>r: [0.0, 1.0]
+g: [0.0, 1.0]
+b: [0.0, 1.0]</p>
+</dd>
+</dl>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Color expressed in Adobe RGB.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>(<a class="reference internal" href="#cpystal.color.color.Color" title="cpystal.color.color.Color">Color</a>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.color.color.Color.rgb_to_hls">
+<span class="sig-name descname"><span class="pre">rgb_to_hls</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cpystal.color.color.Color" title="cpystal.color.color.Color"><span class="pre">Color</span></a></span></span><a class="reference internal" href="_modules/cpystal/color/color.html#Color.rgb_to_hls"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.color.color.Color.rgb_to_hls" title="Permalink to this definition"></a></dt>
+<dd><p>RGB -&gt; HLS</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<dl class="simple">
+<dt>The value range of (r,g,b) is:</dt><dd><p>r: [0.0, 1.0]
+g: [0.0, 1.0]
+b: [0.0, 1.0]</p>
+</dd>
+<dt>The value range of (h,l,s) is:</dt><dd><p>h: [0.0, 1.0] (or [0, 360])
+l: [0.0, 1.0] (or [0, MAX_LS])
+s: [0.0, 1.0] (or [0, MAX_LS])</p>
+</dd>
+</dl>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Color expressed in HLS.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>(<a class="reference internal" href="#cpystal.color.color.Color" title="cpystal.color.color.Color">Color</a>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.color.color.Color.rgb_to_hsv">
+<span class="sig-name descname"><span class="pre">rgb_to_hsv</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cpystal.color.color.Color" title="cpystal.color.color.Color"><span class="pre">Color</span></a></span></span><a class="reference internal" href="_modules/cpystal/color/color.html#Color.rgb_to_hsv"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.color.color.Color.rgb_to_hsv" title="Permalink to this definition"></a></dt>
+<dd><p>RGB -&gt; HSV</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<dl class="simple">
+<dt>The value range of (r,g,b) is:</dt><dd><p>r: [0.0, 1.0]
+g: [0.0, 1.0]
+b: [0.0, 1.0]</p>
+</dd>
+<dt>The value range of (h,s,v) is:</dt><dd><p>h: [0.0, 1.0] (or [0, 360])
+s: [0.0, 1.0] (or [0, MAX_SV])
+v: [0.0, 1.0] (or [0, MAX_SV])</p>
+</dd>
+</dl>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Color expressed in HSV.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>(<a class="reference internal" href="#cpystal.color.color.Color" title="cpystal.color.color.Color">Color</a>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.color.color.Color.rgb_to_srgb">
+<span class="sig-name descname"><span class="pre">rgb_to_srgb</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cpystal.color.color.Color" title="cpystal.color.color.Color"><span class="pre">Color</span></a></span></span><a class="reference internal" href="_modules/cpystal/color/color.html#Color.rgb_to_srgb"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.color.color.Color.rgb_to_srgb" title="Permalink to this definition"></a></dt>
+<dd><p>RGB -&gt; sRGB</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<dl class="simple">
+<dt>The value range of (r,g,b) in RGB and sRGB is:</dt><dd><p>r: [0.0, 1.0]
+g: [0.0, 1.0]
+b: [0.0, 1.0]</p>
+</dd>
+</dl>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Color expressed in sRGB.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>(<a class="reference internal" href="#cpystal.color.color.Color" title="cpystal.color.color.Color">Color</a>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.color.color.Color.rgb_to_xyz">
+<span class="sig-name descname"><span class="pre">rgb_to_xyz</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">white_point</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'D65'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cpystal.color.color.Color" title="cpystal.color.color.Color"><span class="pre">Color</span></a></span></span><a class="reference internal" href="_modules/cpystal/color/color.html#Color.rgb_to_xyz"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.color.color.Color.rgb_to_xyz" title="Permalink to this definition"></a></dt>
+<dd><p>RGB -&gt; XYZ</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<dl class="simple">
+<dt>The value range of (r,g,b) is:</dt><dd><p>r: [0.0, 1.0]
+g: [0.0, 1.0]
+b: [0.0, 1.0]</p>
+</dd>
+</dl>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>point</strong> (<em>white</em>) – ‘D65’: (x,y,z) = (0.95046, 1.0, 1.08906)
+‘D50’: (x,y,z) = (0.9642, 1.0, 0.8249)</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Color expressed in XYZ.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>(<a class="reference internal" href="#cpystal.color.color.Color" title="cpystal.color.color.Color">Color</a>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.color.color.Color.rgb_to_yiq">
+<span class="sig-name descname"><span class="pre">rgb_to_yiq</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cpystal.color.color.Color" title="cpystal.color.color.Color"><span class="pre">Color</span></a></span></span><a class="reference internal" href="_modules/cpystal/color/color.html#Color.rgb_to_yiq"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.color.color.Color.rgb_to_yiq" title="Permalink to this definition"></a></dt>
+<dd><p>RGB -&gt; YIQ</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<dl class="simple">
+<dt>The value range of (r,g,b) is:</dt><dd><p>r: [0.0, 1.0]
+g: [0.0, 1.0]
+b: [0.0, 1.0]</p>
+</dd>
+<dt>The value range of (y,i,q) is:</dt><dd><p>y: [0.0, 1.0]
+i: [-0.5959, 0.5959]
+q: [-0.5229, 0.5229].</p>
+</dd>
+</dl>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Color expressed in YIQ.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>(<a class="reference internal" href="#cpystal.color.color.Color" title="cpystal.color.color.Color">Color</a>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.color.color.Color.rotate_hsv">
+<span class="sig-name descname"><span class="pre">rotate_hsv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">degree</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cpystal.color.color.Color" title="cpystal.color.color.Color"><span class="pre">Color</span></a></span></span><a class="reference internal" href="_modules/cpystal/color/color.html#Color.rotate_hsv"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.color.color.Color.rotate_hsv" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.color.color.Color.srgb_256">
+<span class="sig-name descname"><span class="pre">srgb_256</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/cpystal/color/color.html#Color.srgb_256"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.color.color.Color.srgb_256" title="Permalink to this definition"></a></dt>
+<dd><p>sRGB color in 0-255.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><cite>Color</cite> instance.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>Color_type</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.color.color.Color.srgb_to_rgb">
+<span class="sig-name descname"><span class="pre">srgb_to_rgb</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cpystal.color.color.Color" title="cpystal.color.color.Color"><span class="pre">Color</span></a></span></span><a class="reference internal" href="_modules/cpystal/color/color.html#Color.srgb_to_rgb"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.color.color.Color.srgb_to_rgb" title="Permalink to this definition"></a></dt>
+<dd><p>sRGB -&gt; RGB</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<dl class="simple">
+<dt>The value range of (r,g,b) in RGB and sRGB is:</dt><dd><p>r: [0.0, 1.0]
+g: [0.0, 1.0]
+b: [0.0, 1.0]</p>
+</dd>
+</dl>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Color expressed in RGB.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>(<a class="reference internal" href="#cpystal.color.color.Color" title="cpystal.color.color.Color">Color</a>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.color.color.Color.starlight">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">starlight</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#cpystal.color.color.Color" title="cpystal.color.color.Color"><span class="pre">Color</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/cpystal/color/color.html#Color.starlight"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.color.color.Color.starlight" title="Permalink to this definition"></a></dt>
+<dd><p>Starlight colors.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List of <cite>Color</cite>.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>list[<a class="reference internal" href="#cpystal.color.color.Color" title="cpystal.color.color.Color">Color</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.color.color.Color.to_adobergb">
+<span class="sig-name descname"><span class="pre">to_adobergb</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cpystal.color.color.Color" title="cpystal.color.color.Color"><span class="pre">Color</span></a></span></span><a class="reference internal" href="_modules/cpystal/color/color.html#Color.to_adobergb"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.color.color.Color.to_adobergb" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.color.color.Color.to_grayscale">
+<span class="sig-name descname"><span class="pre">to_grayscale</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/cpystal/color/color.html#Color.to_grayscale"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.color.color.Color.to_grayscale" title="Permalink to this definition"></a></dt>
+<dd><dl class="simple">
+<dt>Get the grayscaled color.</dt><dd><p>The return type is <cite>str</cite> to conform to the specifications of <cite>matplotlib</cite>.</p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The ‘Y’ value in ‘CIE XYZ’ color system is used to convert the color to grayscale.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>String of float value. The value will be in [0.0, 1.0].</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>(str)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.color.color.Color.to_hls">
+<span class="sig-name descname"><span class="pre">to_hls</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cpystal.color.color.Color" title="cpystal.color.color.Color"><span class="pre">Color</span></a></span></span><a class="reference internal" href="_modules/cpystal/color/color.html#Color.to_hls"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.color.color.Color.to_hls" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.color.color.Color.to_hsv">
+<span class="sig-name descname"><span class="pre">to_hsv</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cpystal.color.color.Color" title="cpystal.color.color.Color"><span class="pre">Color</span></a></span></span><a class="reference internal" href="_modules/cpystal/color/color.html#Color.to_hsv"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.color.color.Color.to_hsv" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.color.color.Color.to_lab">
+<span class="sig-name descname"><span class="pre">to_lab</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cpystal.color.color.Color" title="cpystal.color.color.Color"><span class="pre">Color</span></a></span></span><a class="reference internal" href="_modules/cpystal/color/color.html#Color.to_lab"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.color.color.Color.to_lab" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.color.color.Color.to_other_system">
+<span class="sig-name descname"><span class="pre">to_other_system</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">color_system</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cpystal.color.color.Color" title="cpystal.color.color.Color"><span class="pre">Color</span></a></span></span><a class="reference internal" href="_modules/cpystal/color/color.html#Color.to_other_system"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.color.color.Color.to_other_system" title="Permalink to this definition"></a></dt>
+<dd><p>Convert the color system.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>color_system</strong> (<em>str</em>) – Color system.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><cite>Color</cite> instance.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#cpystal.color.color.Color" title="cpystal.color.color.Color">Color</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.color.color.Color.to_rgb">
+<span class="sig-name descname"><span class="pre">to_rgb</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cpystal.color.color.Color" title="cpystal.color.color.Color"><span class="pre">Color</span></a></span></span><a class="reference internal" href="_modules/cpystal/color/color.html#Color.to_rgb"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.color.color.Color.to_rgb" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.color.color.Color.to_rgba">
+<span class="sig-name descname"><span class="pre">to_rgba</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/cpystal/color/color.html#Color.to_rgba"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.color.color.Color.to_rgba" title="Permalink to this definition"></a></dt>
+<dd><p>Hexadecimal color code</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>(r,g,b,a)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>(tuple[float, float, float, float])</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.color.color.Color.to_srgb">
+<span class="sig-name descname"><span class="pre">to_srgb</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cpystal.color.color.Color" title="cpystal.color.color.Color"><span class="pre">Color</span></a></span></span><a class="reference internal" href="_modules/cpystal/color/color.html#Color.to_srgb"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.color.color.Color.to_srgb" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.color.color.Color.to_xyz">
+<span class="sig-name descname"><span class="pre">to_xyz</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cpystal.color.color.Color" title="cpystal.color.color.Color"><span class="pre">Color</span></a></span></span><a class="reference internal" href="_modules/cpystal/color/color.html#Color.to_xyz"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.color.color.Color.to_xyz" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.color.color.Color.to_yiq">
+<span class="sig-name descname"><span class="pre">to_yiq</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cpystal.color.color.Color" title="cpystal.color.color.Color"><span class="pre">Color</span></a></span></span><a class="reference internal" href="_modules/cpystal/color/color.html#Color.to_yiq"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.color.color.Color.to_yiq" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="cpystal.color.color.Color.white_point">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">white_point</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#cpystal.color.color.Color.white_point" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.color.color.Color.xyz_to_lab">
+<span class="sig-name descname"><span class="pre">xyz_to_lab</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cpystal.color.color.Color" title="cpystal.color.color.Color"><span class="pre">Color</span></a></span></span><a class="reference internal" href="_modules/cpystal/color/color.html#Color.xyz_to_lab"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.color.color.Color.xyz_to_lab" title="Permalink to this definition"></a></dt>
+<dd><p>XYZ -&gt; L*a*b*</p>
+<blockquote>
+<div><dl>
+<dt>Note:</dt><dd><p>The XYZ and RGB color systems basically use the D65 standard light source as the white point,
+but the L*a*b* color system uses the D50.
+In order to adjust for this difference, Bradford transformation is used.</p>
+<dl class="simple">
+<dt>The value range of (l,a,b) is:</dt><dd><p>l: [0.0, 100.0]
+a: may take an absolute value greater than 100
+b: may take an absolute value greater than 100.</p>
+</dd>
+</dl>
+<p>D65 white point: (x,y,z) = (0.95046, 1.0, 1.08906)
+D50 white point: (x,y,z) = (0.9642, 1.0, 0.8249).</p>
+</dd>
+</dl>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Color expressed in L*a*b*.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>(<a class="reference internal" href="#cpystal.color.color.Color" title="cpystal.color.color.Color">Color</a>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.color.color.Color.xyz_to_rgb">
+<span class="sig-name descname"><span class="pre">xyz_to_rgb</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cpystal.color.color.Color" title="cpystal.color.color.Color"><span class="pre">Color</span></a></span></span><a class="reference internal" href="_modules/cpystal/color/color.html#Color.xyz_to_rgb"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.color.color.Color.xyz_to_rgb" title="Permalink to this definition"></a></dt>
+<dd><p>XYZ -&gt; RGB</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<dl class="simple">
+<dt>The value range of (r,g,b) is:</dt><dd><p>r: [0.0, 1.0]
+g: [0.0, 1.0]
+b: [0.0, 1.0]</p>
+</dd>
+</dl>
+<p>D65 white point: (x,y,z) = (0.95046, 1.0, 1.08906)
+D50 white point: (x,y,z) = (0.9642, 1.0, 0.8249)</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Color expressed in RGB.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>(<a class="reference internal" href="#cpystal.color.color.Color" title="cpystal.color.color.Color">Color</a>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.color.color.Color.yiq_to_rgb">
+<span class="sig-name descname"><span class="pre">yiq_to_rgb</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cpystal.color.color.Color" title="cpystal.color.color.Color"><span class="pre">Color</span></a></span></span><a class="reference internal" href="_modules/cpystal/color/color.html#Color.yiq_to_rgb"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.color.color.Color.yiq_to_rgb" title="Permalink to this definition"></a></dt>
+<dd><p>YIQ -&gt; RGB</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<dl class="simple">
+<dt>The value range of (y,i,q) is:</dt><dd><p>y: [0.0, 1.0]
+i: [-0.5959, 0.5959]
+q: [-0.5229, 0.5229].</p>
+</dd>
+<dt>The value range of (r,g,b) is:</dt><dd><p>r: [0.0, 1.0]
+g: [0.0, 1.0]
+b: [0.0, 1.0]</p>
+</dd>
+</dl>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Color expressed in RGB.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>(<a class="reference internal" href="#cpystal.color.color.Color" title="cpystal.color.color.Color">Color</a>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="cpystal.color.color.Gradation">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cpystal.color.color.</span></span><span class="sig-name descname"><span class="pre">Gradation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#cpystal.color.color.Color" title="cpystal.color.color.Color"><span class="pre">Color</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#cpystal.color.color.Color" title="cpystal.color.color.Color"><span class="pre">Color</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">middle</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#cpystal.color.color.Color" title="cpystal.color.color.Color"><span class="pre">Color</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">next_color_system</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cpystal/color/color.html#Gradation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.color.color.Gradation" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Color gradation</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpystal.color.color.Gradation.start">
+<span class="sig-name descname"><span class="pre">start</span></span><a class="headerlink" href="#cpystal.color.color.Gradation.start" title="Permalink to this definition"></a></dt>
+<dd><p>Start color of the gradation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#cpystal.color.color.Color" title="cpystal.color.color.Color">Color</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpystal.color.color.Gradation.end">
+<span class="sig-name descname"><span class="pre">end</span></span><a class="headerlink" href="#cpystal.color.color.Gradation.end" title="Permalink to this definition"></a></dt>
+<dd><p>End color of the gradation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#cpystal.color.color.Color" title="cpystal.color.color.Color">Color</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpystal.color.color.Gradation.middle">
+<span class="sig-name descname"><span class="pre">middle</span></span><a class="headerlink" href="#cpystal.color.color.Gradation.middle" title="Permalink to this definition"></a></dt>
+<dd><p>Middle color of the gradation. Defaults to None.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#cpystal.color.color.Color" title="cpystal.color.color.Color">Color</a> | None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1">### you can use this class as &#39;matplotlib.cm&#39; objects.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">matplotlib.cm</span> <span class="k">as</span> <span class="nn">cm</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">R</span> <span class="o">=</span> <span class="n">Color</span><span class="p">(</span><span class="n">RED_RGB</span><span class="p">,</span> <span class="n">RGB</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">B</span> <span class="o">=</span> <span class="n">Color</span><span class="p">(</span><span class="n">BLUE_RGB</span><span class="p">,</span> <span class="n">RGB</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Gr</span> <span class="o">=</span> <span class="n">Gradation</span><span class="p">(</span><span class="n">R</span><span class="p">,</span><span class="n">B</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span><span class="mi">100</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">30</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="c1"># plt.plot(x,i*np.sin(x), color=cm.hsv(i/30.0))</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">i</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="n">Gr</span><span class="o">.</span><span class="n">gradation_linear</span><span class="p">(</span><span class="n">i</span><span class="o">/</span><span class="mi">30</span><span class="p">)</span><span class="o">.</span><span class="n">to_rgba</span><span class="p">())</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.color.color.Gradation.compare_gradations">
+<span class="sig-name descname"><span class="pre">compare_gradations</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gradation_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#cpystal.color.color.Gradation" title="cpystal.color.color.Gradation"><span class="pre">Gradation</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rgb_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'RGB'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/cpystal/color/color.html#Gradation.compare_gradations"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.color.color.Gradation.compare_gradations" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.color.color.Gradation.convert_to_chart">
+<span class="sig-name descname"><span class="pre">convert_to_chart</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">(0,</span> <span class="pre">1,</span> <span class="pre">2)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">next_color_system</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cpystal.color.color.Gradation" title="cpystal.color.color.Gradation"><span class="pre">Gradation</span></a></span></span><a class="reference internal" href="_modules/cpystal/color/color.html#Gradation.convert_to_chart"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.color.color.Gradation.convert_to_chart" title="Permalink to this definition"></a></dt>
+<dd><p>Make a list of color gradation like a chart in a color space.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>A gradation can be represented as a curve in a color space.
+Chart lines along with each color axis are used as the gradation curves in this method,
+assuming that the color space is considered as a real 3D Euclidean space.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>num</strong> (<em>int</em>) – Length of the return list.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Gradation object.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>(<a class="reference internal" href="#cpystal.color.color.Gradation" title="cpystal.color.color.Gradation">Gradation</a>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.color.color.Gradation.convert_to_helical">
+<span class="sig-name descname"><span class="pre">convert_to_helical</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clockwise</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">next_color_system</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/cpystal/color/color.html#Gradation.convert_to_helical"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.color.color.Gradation.convert_to_helical" title="Permalink to this definition"></a></dt>
+<dd><p>Make a list of color gradation helically in a color space.
+This method is mainly used for HSV or HLS.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>A gradation can be represented by a curve in a color space.
+Helical curves are used as the gradation curves in this method,
+assuming that a cylindrical coordinates system is defined in the color space.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>num</strong> (<em>int</em>) – Length of the return list.</p></li>
+<li><p><strong>clockwise</strong> (<em>bool</em>) – If True, direction of spiral winding is clockwise. Defaults to True.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.color.color.Gradation.eight_colors">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">eight_colors</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#cpystal.color.color.Color" title="cpystal.color.color.Color"><span class="pre">Color</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/cpystal/color/color.html#Gradation.eight_colors"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.color.color.Gradation.eight_colors" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.color.color.Gradation.equidistant">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">equidistant</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#cpystal.color.color.Color" title="cpystal.color.color.Color"><span class="pre">Color</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/cpystal/color/color.html#Gradation.equidistant"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.color.color.Gradation.equidistant" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.color.color.Gradation.four_colors">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">four_colors</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#cpystal.color.color.Color" title="cpystal.color.color.Color"><span class="pre">Color</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/cpystal/color/color.html#Gradation.four_colors"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.color.color.Gradation.four_colors" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.color.color.Gradation.from_color_list">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_color_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">color_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#cpystal.color.color.Color" title="cpystal.color.color.Color"><span class="pre">Color</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cpystal.color.color.Gradation" title="cpystal.color.color.Gradation"><span class="pre">Gradation</span></a></span></span><a class="reference internal" href="_modules/cpystal/color/color.html#Gradation.from_color_list"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.color.color.Gradation.from_color_list" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.color.color.Gradation.gradation_chart_list">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">gradation_chart_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#cpystal.color.color.Color" title="cpystal.color.color.Color"><span class="pre">Color</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#cpystal.color.color.Color" title="cpystal.color.color.Color"><span class="pre">Color</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">middle</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#cpystal.color.color.Color" title="cpystal.color.color.Color"><span class="pre">Color</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">(0,</span> <span class="pre">1,</span> <span class="pre">2)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">next_color_system</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cpystal.color.color.Gradation" title="cpystal.color.color.Gradation"><span class="pre">Gradation</span></a></span></span><a class="reference internal" href="_modules/cpystal/color/color.html#Gradation.gradation_chart_list"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.color.color.Gradation.gradation_chart_list" title="Permalink to this definition"></a></dt>
+<dd><p>Make a list of color gradation like a chart in a color space.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>A gradation can be represented as a curve in a color space.
+Chart lines along with each color axis are used as the gradation curves in this method,
+assuming that the color space is considered as a real 3D Euclidean space.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>num</strong> (<em>int</em>) – Length of the return list.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Gradation object.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>(<a class="reference internal" href="#cpystal.color.color.Gradation" title="cpystal.color.color.Gradation">Gradation</a>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.color.color.Gradation.gradation_helical_list">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">gradation_helical_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#cpystal.color.color.Color" title="cpystal.color.color.Color"><span class="pre">Color</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#cpystal.color.color.Color" title="cpystal.color.color.Color"><span class="pre">Color</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">middle</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#cpystal.color.color.Color" title="cpystal.color.color.Color"><span class="pre">Color</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clockwise</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">next_color_system</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cpystal.color.color.Gradation" title="cpystal.color.color.Gradation"><span class="pre">Gradation</span></a></span></span><a class="reference internal" href="_modules/cpystal/color/color.html#Gradation.gradation_helical_list"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.color.color.Gradation.gradation_helical_list" title="Permalink to this definition"></a></dt>
+<dd><p>Make a list of color gradation helically in a color space.
+This method is mainly used for HSV or HLS.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>A gradation can be represented by a curve in a color space.
+Helical curves are used as the gradation curves in this method,
+assuming that a cylindrical coordinates system is defined in the color space.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>num</strong> (<em>int</em>) – Length of the return list.</p></li>
+<li><p><strong>clockwise</strong> (<em>bool</em>) – If True, direction of spiral winding is clockwise. Defaults to True.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Gradation object.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>(<a class="reference internal" href="#cpystal.color.color.Gradation" title="cpystal.color.color.Gradation">Gradation</a>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.color.color.Gradation.gradation_linear_list">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">gradation_linear_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#cpystal.color.color.Color" title="cpystal.color.color.Color"><span class="pre">Color</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#cpystal.color.color.Color" title="cpystal.color.color.Color"><span class="pre">Color</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">middle</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#cpystal.color.color.Color" title="cpystal.color.color.Color"><span class="pre">Color</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">next_color_system</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cpystal.color.color.Gradation" title="cpystal.color.color.Gradation"><span class="pre">Gradation</span></a></span></span><a class="reference internal" href="_modules/cpystal/color/color.html#Gradation.gradation_linear_list"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.color.color.Gradation.gradation_linear_list" title="Permalink to this definition"></a></dt>
+<dd><p>Make a list of color gradation linearly in a color space.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>A gradation can be represented as a curve in a color space.
+Straight geodesic lines are used as the gradation curves in this method,
+assuming that the color space is considered as a real 3D Euclidean space.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>num</strong> (<em>int</em>) – Length of the return list.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Gradation object.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>(<a class="reference internal" href="#cpystal.color.color.Gradation" title="cpystal.color.color.Gradation">Gradation</a>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.color.color.Gradation.multi_middle">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">multi_middle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base_colors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#cpystal.color.color.Color" title="cpystal.color.color.Color"><span class="pre">Color</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">approach_mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cpystal.color.color.Gradation" title="cpystal.color.color.Gradation"><span class="pre">Gradation</span></a></span></span><a class="reference internal" href="_modules/cpystal/color/color.html#Gradation.multi_middle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.color.color.Gradation.multi_middle" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.color.color.Gradation.planckian_curve">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">planckian_curve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lowT</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">highT</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">256</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cpystal.color.color.Gradation" title="cpystal.color.color.Gradation"><span class="pre">Gradation</span></a></span></span><a class="reference internal" href="_modules/cpystal/color/color.html#Gradation.planckian_curve"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.color.color.Gradation.planckian_curve" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.color.color.Gradation.planetearth">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">planetearth</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cpystal.color.color.Gradation" title="cpystal.color.color.Gradation"><span class="pre">Gradation</span></a></span></span><a class="reference internal" href="_modules/cpystal/color/color.html#Gradation.planetearth"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.color.color.Gradation.planetearth" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.color.color.Gradation.rgba_color_list">
+<span class="sig-name descname"><span class="pre">rgba_color_list</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/cpystal/color/color.html#Gradation.rgba_color_list"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.color.color.Gradation.rgba_color_list" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.color.color.Gradation.seven_colors">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">seven_colors</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#cpystal.color.color.Color" title="cpystal.color.color.Color"><span class="pre">Color</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/cpystal/color/color.html#Gradation.seven_colors"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.color.color.Gradation.seven_colors" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.color.color.Gradation.ten_colors">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ten_colors</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#cpystal.color.color.Color" title="cpystal.color.color.Color"><span class="pre">Color</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/cpystal/color/color.html#Gradation.ten_colors"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.color.color.Gradation.ten_colors" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.color.color.Gradation.to_matplotlib_colormap">
+<span class="sig-name descname"><span class="pre">to_matplotlib_colormap</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ListedColormap</span></span></span><a class="reference internal" href="_modules/cpystal/color/color.html#Gradation.to_matplotlib_colormap"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.color.color.Gradation.to_matplotlib_colormap" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.color.color.Gradation.visualize_gradation">
+<span class="sig-name descname"><span class="pre">visualize_gradation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rgb_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'RGB'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/cpystal/color/color.html#Gradation.visualize_gradation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.color.color.Gradation.visualize_gradation" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cpystal.color.color.hls_to_rgb">
+<span class="sig-prename descclassname"><span class="pre">cpystal.color.color.</span></span><span class="sig-name descname"><span class="pre">hls_to_rgb</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hls</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">digitization</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">MAX_LS</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">100</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/cpystal/color/color.html#hls_to_rgb"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.color.color.hls_to_rgb" title="Permalink to this definition"></a></dt>
+<dd><p>HLS -&gt; RGB</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<dl class="simple">
+<dt>The value range of (h,l,s) is:</dt><dd><p>h: [0.0, 1.0] (or [0, 360])
+l: [0.0, 1.0] (or [0, MAX_LS])
+s: [0.0, 1.0] (or [0, MAX_LS])</p>
+</dd>
+<dt>The value range of (r,g,b) is:</dt><dd><p>r: [0.0, 1.0]
+g: [0.0, 1.0]
+b: [0.0, 1.0]</p>
+</dd>
+</dl>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>hls</strong> (<em>Color_type</em>) – (h,l,s).</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cpystal.color.color.hsv_to_rgb">
+<span class="sig-prename descclassname"><span class="pre">cpystal.color.color.</span></span><span class="sig-name descname"><span class="pre">hsv_to_rgb</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hsv</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">digitization</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">MAX_SV</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">100</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/cpystal/color/color.html#hsv_to_rgb"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.color.color.hsv_to_rgb" title="Permalink to this definition"></a></dt>
+<dd><p>HSV -&gt; RGB</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<dl class="simple">
+<dt>The value range of (h,s,v) is:</dt><dd><p>h: [0.0, 1.0] (or [0, 360])
+s: [0.0, 1.0] (or [0, MAX_SV])
+v: [0.0, 1.0] (or [0, MAX_SV])</p>
+</dd>
+<dt>The value range of (r,g,b) is:</dt><dd><p>r: [0.0, 1.0]
+g: [0.0, 1.0]
+b: [0.0, 1.0]</p>
+</dd>
+</dl>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>hsv</strong> (<em>Color_type</em>) – (h,s,v).</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cpystal.color.color.main">
+<span class="sig-prename descclassname"><span class="pre">cpystal.color.color.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/cpystal/color/color.html#main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.color.color.main" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cpystal.color.color.plot_colortable">
+<span class="sig-prename descclassname"><span class="pre">cpystal.color.color.</span></span><span class="sig-name descname"><span class="pre">plot_colortable</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">colors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#cpystal.color.color.Color" title="cpystal.color.color.Color"><span class="pre">Color</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ncols</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sort_colors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">plt.figure</span></span></span><a class="reference internal" href="_modules/cpystal/color/color.html#plot_colortable"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.color.color.plot_colortable" title="Permalink to this definition"></a></dt>
+<dd><p>Plot a table of colors.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>colors</strong> (<em>list</em><em>[</em><a class="reference internal" href="#cpystal.color.color.Color" title="cpystal.color.color.Color"><em>Color</em></a><em>]</em>) – List of colors.</p></li>
+<li><p><strong>ncols</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of columns. Defaults to 4.</p></li>
+<li><p><strong>sort_colors</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, the output will be sorted by the hue. Defaults to True.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Figure object.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>plt.figure</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cpystal.color.color.rgb_to_hls">
+<span class="sig-prename descclassname"><span class="pre">cpystal.color.color.</span></span><span class="sig-name descname"><span class="pre">rgb_to_hls</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rgb</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">digitization</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">MAX_LS</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">100</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/cpystal/color/color.html#rgb_to_hls"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.color.color.rgb_to_hls" title="Permalink to this definition"></a></dt>
+<dd><p>RGB -&gt; HLS</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<dl class="simple">
+<dt>The value range of (r,g,b) is:</dt><dd><p>r: [0.0, 1.0]
+g: [0.0, 1.0]
+b: [0.0, 1.0]</p>
+</dd>
+<dt>The value range of (h,l,s) is:</dt><dd><p>h: [0.0, 1.0] (or [0, 360])
+l: [0.0, 1.0] (or [0, MAX_LS])
+s: [0.0, 1.0] (or [0, MAX_LS])</p>
+</dd>
+</dl>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>rgb</strong> (<em>Color_type</em>) – (r,g,b).</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cpystal.color.color.rgb_to_hsv">
+<span class="sig-prename descclassname"><span class="pre">cpystal.color.color.</span></span><span class="sig-name descname"><span class="pre">rgb_to_hsv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rgb</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">digitization</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">MAX_SV</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">100</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/cpystal/color/color.html#rgb_to_hsv"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.color.color.rgb_to_hsv" title="Permalink to this definition"></a></dt>
+<dd><p>RGB -&gt; HSV</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<dl class="simple">
+<dt>The value range of (r,g,b) is:</dt><dd><p>r: [0.0, 1.0]
+g: [0.0, 1.0]
+b: [0.0, 1.0]</p>
+</dd>
+<dt>The value range of (h,s,v) is:</dt><dd><p>h: [0.0, 1.0] (or [0, 360])
+s: [0.0, 1.0] (or [0, MAX_SV])
+v: [0.0, 1.0] (or [0, MAX_SV])</p>
+</dd>
+</dl>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>rgb</strong> (<em>Color_type</em>) – (r,g,b).</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cpystal.color.color.rgb_to_yiq">
+<span class="sig-prename descclassname"><span class="pre">cpystal.color.color.</span></span><span class="sig-name descname"><span class="pre">rgb_to_yiq</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rgb</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">digitization</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/cpystal/color/color.html#rgb_to_yiq"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.color.color.rgb_to_yiq" title="Permalink to this definition"></a></dt>
+<dd><p>RGB -&gt; YIQ</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<dl class="simple">
+<dt>The value range of (r,g,b) is:</dt><dd><p>r: [0.0, 1.0]
+g: [0.0, 1.0]
+b: [0.0, 1.0]</p>
+</dd>
+<dt>The value range of (y,i,q) is:</dt><dd><p>y: [0.0, 1.0]
+i: [-0.5959, 0.5959]
+q: [-0.5229, 0.5229].</p>
+</dd>
+</dl>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>rgb</strong> (<em>Color_type</em>) – (r,g,b).</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cpystal.color.color.view_gradation">
+<span class="sig-prename descclassname"><span class="pre">cpystal.color.color.</span></span><span class="sig-name descname"><span class="pre">view_gradation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">color_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#cpystal.color.color.Color" title="cpystal.color.color.Color"><span class="pre">Color</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/cpystal/color/color.html#view_gradation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.color.color.view_gradation" title="Permalink to this definition"></a></dt>
+<dd><p>Plot the color gradation by matplotlib.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>color_list</strong> (<em>list</em><em>[</em><a class="reference internal" href="#cpystal.color.color.Color" title="cpystal.color.color.Color"><em>Color</em></a><em>]</em>) – list of <cite>Color</cite> instances.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cpystal.color.color.yiq_to_rgb">
+<span class="sig-prename descclassname"><span class="pre">cpystal.color.color.</span></span><span class="sig-name descname"><span class="pre">yiq_to_rgb</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">yiq</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">digitization</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/cpystal/color/color.html#yiq_to_rgb"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.color.color.yiq_to_rgb" title="Permalink to this definition"></a></dt>
+<dd><p>YIQ -&gt; RGB</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<dl class="simple">
+<dt>The value range of (y,i,q) is:</dt><dd><p>y: [0.0, 1.0]
+i: [-0.5959, 0.5959]
+q: [-0.5229, 0.5229].</p>
+</dd>
+<dt>The value range of (r,g,b) is:</dt><dd><p>r: [0.0, 1.0]
+g: [0.0, 1.0]
+b: [0.0, 1.0]</p>
+</dd>
+</dl>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>yiq</strong> (<em>Color_type</em>) – (y,i,q).</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-cpystal.color">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-cpystal.color" title="Permalink to this heading"></a></h2>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="cpystal.analysis.html" class="btn btn-neutral float-left" title="cpystal.analysis package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="cpystal.core.html" class="btn btn-neutral float-right" title="cpystal.core package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Helve.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

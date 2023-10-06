@@ -1,0 +1,684 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>cpystal.measurement.sequence &#8212; cpystal  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css" />
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for cpystal.measurement.sequence</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;`sequence`: for making sequences to control PPMS.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+<span class="kn">import</span> <span class="nn">csv</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">TypeVar</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="n">SequenceCommand</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;SequenceCommand&quot;</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="s2">&quot;SequenceCommandBase&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="SequenceCommandBase"><a class="viewcode-back" href="../../../cpystal.measurement.html#cpystal.measurement.sequence.SequenceCommandBase">[docs]</a><span class="k">class</span> <span class="nc">SequenceCommandBase</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Base class of &#39;SequenceCommand&#39;.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        commands (list[tuple[Any]]): Commands of the sequence. The first element of the tuple indicates command type in integers (details below).</span>
+<span class="sd">        command_number (dict[str, int]):</span>
+<span class="sd">            Dictionary of &#39;command name&#39; to &#39;command number&#39;:</span>
+<span class="sd">                `&quot;Measure&quot;: 0,</span>
+<span class="sd">                &quot;WaitForField&quot;: 1,</span>
+<span class="sd">                &quot;WaitForTemp&quot;: 2,</span>
+<span class="sd">                &quot;SetField&quot;: 3,</span>
+<span class="sd">                &quot;SetTemp&quot;: 4,</span>
+<span class="sd">                &quot;SetPower&quot;: 5`</span>
+<span class="sd">        field_approach_method_number (dict[str, int]):</span>
+<span class="sd">            Dictionary of &#39;field approach method&#39; to the number:</span>
+<span class="sd">                `&quot;Linear&quot;: 0,</span>
+<span class="sd">                &quot;No overshoot&quot;: 1,</span>
+<span class="sd">                &quot;Oscillate&quot;: 2`</span>
+<span class="sd">        magnet_mode_number (dict[str, int]):</span>
+<span class="sd">            Dictionary of &#39;magnet mode&#39; to the number:</span>
+<span class="sd">                `&quot;Persistent&quot;: 0,</span>
+<span class="sd">                &quot;Driven&quot;: 1`</span>
+<span class="sd">        temp_approach_method_number (dict[str, int]):</span>
+<span class="sd">            Dictionary of &#39;temperature approach method&#39; to the number:</span>
+<span class="sd">                `&quot;Fast settle&quot;: 0,</span>
+<span class="sd">                &quot;No overshoot&quot;: 1`</span>
+<span class="sd">    </span>
+<span class="sd">    Methods:</span>
+<span class="sd">        reset</span>
+<span class="sd">            Note:</span>
+<span class="sd">                reset &#39;commands&#39; of the instance.</span>
+<span class="sd">        to_csv</span>
+<span class="sd">            Args:</span>
+<span class="sd">                filename (str): File name of output csv file.</span>
+<span class="sd">        calc_required_time</span>
+<span class="sd">            Args:</span>
+<span class="sd">                T0 (float): Temperature value before excuting the sequence (K). Defaults to 300.</span>
+<span class="sd">                H0 (float): Magnetic field value before excuting the sequence (Oe). Defaults to 0.</span>
+<span class="sd">                measuring_time (float): Required time of measuring sequence (min). Defaults to 6.</span>
+<span class="sd">            </span>
+<span class="sd">            Returns:</span>
+<span class="sd">                (float): Required time of the entire sequence (min).</span>
+<span class="sd">    </span>
+<span class="sd">    Note:</span>
+<span class="sd">        Additive operation (operator:`+`) is defined between this class and its child classes.</span>
+<span class="sd">        The resulting instance of addition is always derived from `SequenceCommandBase`.</span>
+<span class="sd">        Additive identity of this operation is `SequenceCommandBase()`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">commands</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="o">...</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_formatted_commands</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c1"># basically these are constant:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">command_number</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;Measure&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s2">&quot;WaitForField&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="s2">&quot;WaitForTemp&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+            <span class="s2">&quot;SetField&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+            <span class="s2">&quot;SetTemp&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+            <span class="s2">&quot;SetPower&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">field_approach_method_number</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;Linear&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s2">&quot;No overshoot&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="s2">&quot;Oscillate&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">magnet_mode_number</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;Persistent&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s2">&quot;Driven&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">temp_approach_method_number</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;Fast settle&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s2">&quot;No overshoot&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="p">}</span>
+        
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">res</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">row</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_formatted_commands</span><span class="p">)])</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">res</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Required time: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">calc_required_time</span><span class="p">()</span><span class="si">:</span><span class="s2">.5g</span><span class="si">}</span><span class="s2"> min (assuming initial (T,H) = (300K,0T) and necessary time for one measure = 6 min)&quot;</span>
+        <span class="k">return</span> <span class="n">res</span>
+
+    <span class="k">def</span> <span class="fm">__add__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">SequenceCommand</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SequenceCommandBase</span><span class="p">:</span>
+        <span class="n">res</span><span class="p">:</span> <span class="n">SequenceCommandBase</span> <span class="o">=</span> <span class="n">SequenceCommandBase</span><span class="p">()</span>
+        <span class="n">res</span><span class="o">.</span><span class="n">commands</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">commands</span> <span class="o">+</span> <span class="n">other</span><span class="o">.</span><span class="n">commands</span>
+        <span class="n">res</span><span class="o">.</span><span class="n">_formatted_commands</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_formatted_commands</span> <span class="o">+</span> <span class="n">other</span><span class="o">.</span><span class="n">_formatted_commands</span>
+        <span class="k">return</span> <span class="n">res</span>
+
+<div class="viewcode-block" id="SequenceCommandBase.reset"><a class="viewcode-back" href="../../../cpystal.measurement.html#cpystal.measurement.sequence.SequenceCommandBase.reset">[docs]</a>    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">commands</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_formatted_commands</span> <span class="o">=</span> <span class="p">[]</span></div>
+
+    
+<div class="viewcode-block" id="SequenceCommandBase.to_csv"><a class="viewcode-back" href="../../../cpystal.measurement.html#cpystal.measurement.sequence.SequenceCommandBase.to_csv">[docs]</a>    <span class="k">def</span> <span class="nf">to_csv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="n">newline</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">writer</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">writer</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+            <span class="n">writer</span><span class="o">.</span><span class="n">writerows</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">commands</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SequenceCommandBase.calc_required_time"><a class="viewcode-back" href="../../../cpystal.measurement.html#cpystal.measurement.sequence.SequenceCommandBase.calc_required_time">[docs]</a>    <span class="k">def</span> <span class="nf">calc_required_time</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">T0</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">300.</span><span class="p">,</span> <span class="n">H0</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.</span><span class="p">,</span> <span class="n">measuring_time</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">6.</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Calculate required time of the sequence.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            T0 (float): Temperature value before excuting the sequence (K). Defaults to 300.</span>
+<span class="sd">            H0 (float): Magnetic field value before excuting the sequence (Oe). Defaults to 0.</span>
+<span class="sd">            measuring_time (float): Required time of measuring sequence (min). Defaults to 6.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            (float): Required time of the entire sequence (min).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">res</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.</span>
+        <span class="n">num_measure</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">curT</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">T0</span>
+        <span class="n">curH</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">H0</span>
+        <span class="k">for</span> <span class="n">com_num</span><span class="p">,</span> <span class="o">*</span><span class="n">contents</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">commands</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">com_num</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">command_number</span><span class="p">[</span><span class="s2">&quot;Measure&quot;</span><span class="p">]:</span>
+                <span class="n">num_measure</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">elif</span> <span class="n">com_num</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">command_number</span><span class="p">[</span><span class="s2">&quot;WaitForField&quot;</span><span class="p">]:</span>
+                <span class="n">extra_wait</span><span class="p">,</span> <span class="o">=</span> <span class="n">contents</span>
+                <span class="n">res</span> <span class="o">+=</span> <span class="n">extra_wait</span>
+            <span class="k">elif</span> <span class="n">com_num</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">command_number</span><span class="p">[</span><span class="s2">&quot;WaitForTemp&quot;</span><span class="p">]:</span>
+                <span class="n">extra_wait</span><span class="p">,</span> <span class="o">=</span> <span class="n">contents</span>
+                <span class="n">res</span> <span class="o">+=</span> <span class="n">extra_wait</span>
+            <span class="k">elif</span> <span class="n">com_num</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">command_number</span><span class="p">[</span><span class="s2">&quot;SetField&quot;</span><span class="p">]:</span>
+                <span class="n">target</span><span class="p">,</span> <span class="n">rate</span><span class="p">,</span> <span class="n">app_num</span><span class="p">,</span> <span class="n">mag_num</span> <span class="o">=</span> <span class="n">contents</span>
+                <span class="n">res</span> <span class="o">+=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">target</span><span class="o">-</span><span class="n">curH</span><span class="p">)</span> <span class="o">/</span> <span class="nb">abs</span><span class="p">(</span><span class="n">rate</span><span class="p">)</span> <span class="o">/</span> <span class="mi">60</span> <span class="c1"># unit of &#39;rate&#39; is [Oe/s]</span>
+                <span class="n">curH</span> <span class="o">=</span> <span class="n">target</span>
+            <span class="k">elif</span> <span class="n">com_num</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">command_number</span><span class="p">[</span><span class="s2">&quot;SetTemp&quot;</span><span class="p">]:</span>
+                <span class="n">target</span><span class="p">,</span> <span class="n">rate</span><span class="p">,</span> <span class="n">app_num</span> <span class="o">=</span> <span class="n">contents</span>
+                <span class="n">res</span> <span class="o">+=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">target</span><span class="o">-</span><span class="n">curT</span><span class="p">)</span> <span class="o">/</span> <span class="nb">abs</span><span class="p">(</span><span class="n">rate</span><span class="p">)</span> <span class="c1"># unit of &#39;rate&#39; is [K/min]</span>
+                <span class="n">curT</span> <span class="o">=</span> <span class="n">target</span>
+            <span class="k">elif</span> <span class="n">com_num</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">command_number</span><span class="p">[</span><span class="s2">&quot;SetPower&quot;</span><span class="p">]:</span>
+                <span class="n">res</span> <span class="o">+=</span> <span class="mi">0</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Command number is invalid. Make sure it an integer 0-5&quot;</span><span class="p">)</span>
+        <span class="n">res</span> <span class="o">+=</span> <span class="n">num_measure</span> <span class="o">*</span> <span class="n">measuring_time</span>
+        <span class="k">return</span> <span class="n">res</span></div></div>
+
+<div class="viewcode-block" id="Measure"><a class="viewcode-back" href="../../../cpystal.measurement.html#cpystal.measurement.sequence.Measure">[docs]</a><span class="k">class</span> <span class="nc">Measure</span><span class="p">(</span><span class="n">SequenceCommandBase</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Command Labview to enter measuring sequence.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="n">com_num</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">command_number</span><span class="p">[</span><span class="s2">&quot;Measure&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">commands</span> <span class="o">=</span> <span class="p">[(</span><span class="n">com_num</span><span class="p">,)]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_formatted_commands</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Measure&quot;</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="WaitForField"><a class="viewcode-back" href="../../../cpystal.measurement.html#cpystal.measurement.sequence.WaitForField">[docs]</a><span class="k">class</span> <span class="nc">WaitForField</span><span class="p">(</span><span class="n">SequenceCommandBase</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Command PPMS to wait until the magnetic field stabilized.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        extra_wait (float): Extra wait time after magnetic field stabilized (min).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+            <span class="n">extra_wait</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="n">com_num</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">command_number</span><span class="p">[</span><span class="s2">&quot;WaitForField&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">commands</span> <span class="o">=</span> <span class="p">[(</span><span class="n">com_num</span><span class="p">,</span> <span class="n">extra_wait</span><span class="p">)]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_formatted_commands</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;WaitForField: extra wait </span><span class="si">{</span><span class="n">extra_wait</span><span class="si">:</span><span class="s2">.6g</span><span class="si">}</span><span class="s2"> min&quot;</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="WaitForTemp"><a class="viewcode-back" href="../../../cpystal.measurement.html#cpystal.measurement.sequence.WaitForTemp">[docs]</a><span class="k">class</span> <span class="nc">WaitForTemp</span><span class="p">(</span><span class="n">SequenceCommandBase</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Command PPMS to wait until the temperature stabilized.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        extra_wait (float): Extra wait time after temperature stabilized (min).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+            <span class="n">extra_wait</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="n">com_num</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">command_number</span><span class="p">[</span><span class="s2">&quot;WaitForTemp&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">commands</span> <span class="o">=</span> <span class="p">[(</span><span class="n">com_num</span><span class="p">,</span> <span class="n">extra_wait</span><span class="p">)]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_formatted_commands</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;WaitForTemp: extra wait </span><span class="si">{</span><span class="n">extra_wait</span><span class="si">:</span><span class="s2">.6g</span><span class="si">}</span><span class="s2"> min&quot;</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="SetField"><a class="viewcode-back" href="../../../cpystal.measurement.html#cpystal.measurement.sequence.SetField">[docs]</a><span class="k">class</span> <span class="nc">SetField</span><span class="p">(</span><span class="n">SequenceCommandBase</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Command PPMS to set magnetic field.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        target (float): Target magnetic field value (Oe).</span>
+<span class="sd">        rate (float): Speed of changing magnetic field (Oe/s). Defaults to 100.</span>
+<span class="sd">        approach_method (str): Approach method of magnetic field to the target. Defaults to &quot;Linear&quot;.</span>
+<span class="sd">            [&quot;Linear&quot;, &quot;No overshoot&quot;, &quot;Oscillate&quot;] can be used.</span>
+<span class="sd">        magnet_mode (str): Mode of magnet in PPMS. Defaults to &quot;Persistent&quot;.</span>
+<span class="sd">            [&quot;Persistent&quot;, &quot;Driven&quot;] can be used.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+            <span class="n">target</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+            <span class="n">rate</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span>
+            <span class="n">approach_method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Linear&quot;</span><span class="p">,</span>
+            <span class="n">magnet_mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Persistent&quot;</span><span class="p">,</span>
+        <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="n">com_num</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">command_number</span><span class="p">[</span><span class="s2">&quot;SetField&quot;</span><span class="p">]</span>
+        <span class="n">app_num</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">field_approach_method_number</span><span class="p">[</span><span class="n">approach_method</span><span class="p">]</span>
+        <span class="n">mag_num</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">magnet_mode_number</span><span class="p">[</span><span class="n">magnet_mode</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">commands</span> <span class="o">=</span> <span class="p">[(</span><span class="n">com_num</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">rate</span><span class="p">,</span> <span class="n">app_num</span><span class="p">,</span> <span class="n">mag_num</span><span class="p">)]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_formatted_commands</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;SetField: </span><span class="si">{</span><span class="n">target</span><span class="si">:</span><span class="s2">.6g</span><span class="si">}</span><span class="s2"> Oe, </span><span class="si">{</span><span class="n">approach_method</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">magnet_mode</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="SetTemp"><a class="viewcode-back" href="../../../cpystal.measurement.html#cpystal.measurement.sequence.SetTemp">[docs]</a><span class="k">class</span> <span class="nc">SetTemp</span><span class="p">(</span><span class="n">SequenceCommandBase</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Command PPMS to set temperature.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        target (float): Target temperature value (K).</span>
+<span class="sd">        rate (float): Speed of changing temperature (K/min). Defaults to 5. Make sure that 0 &lt;= rate &lt;= 20.</span>
+<span class="sd">        approach_method (str): Approach method of temperature to the target. Defaults to &quot;Fast settle&quot;. </span>
+<span class="sd">            [&quot;Fast settle&quot;, &quot;No overshoot&quot;] can be used.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+            <span class="n">target</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+            <span class="n">rate</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span>
+            <span class="n">approach_method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Fast settle&quot;</span><span class="p">,</span>
+        <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">rate</span> <span class="o">&lt;=</span> <span class="mi">20</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;&#39;rate&#39; must be in [0, 20]&quot;</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="n">com_num</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">command_number</span><span class="p">[</span><span class="s2">&quot;SetTemp&quot;</span><span class="p">]</span>
+        <span class="n">app_num</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">temp_approach_method_number</span><span class="p">[</span><span class="n">approach_method</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">commands</span> <span class="o">=</span> <span class="p">[(</span><span class="n">com_num</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">rate</span><span class="p">,</span> <span class="n">app_num</span><span class="p">)]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_formatted_commands</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;SetTemp: </span><span class="si">{</span><span class="n">target</span><span class="si">:</span><span class="s2">.6g</span><span class="si">}</span><span class="s2"> K, </span><span class="si">{</span><span class="n">approach_method</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="SetPower"><a class="viewcode-back" href="../../../cpystal.measurement.html#cpystal.measurement.sequence.SetPower">[docs]</a><span class="k">class</span> <span class="nc">SetPower</span><span class="p">(</span><span class="n">SequenceCommandBase</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Command K6221 to set heater power.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        target: Target power value (mW).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+            <span class="n">target</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="n">com_num</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">command_number</span><span class="p">[</span><span class="s2">&quot;SetPower&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">commands</span> <span class="o">=</span> <span class="p">[(</span><span class="n">com_num</span><span class="p">,</span> <span class="n">target</span><span class="p">)]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_formatted_commands</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;SetPower: </span><span class="si">{</span><span class="n">target</span><span class="si">:</span><span class="s2">.6g</span><span class="si">}</span><span class="s2"> mW&quot;</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="ScanField"><a class="viewcode-back" href="../../../cpystal.measurement.html#cpystal.measurement.sequence.ScanField">[docs]</a><span class="k">class</span> <span class="nc">ScanField</span><span class="p">(</span><span class="n">SequenceCommandBase</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Command PPMS to scan magnetic field.</span>
+
+<span class="sd">    Note:</span>
+<span class="sd">        This sequence commands PPMS to wait for the magnetic field to stabilize each time it changes the value of the magnetic field.</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">        start (float): Initial magnetic field value (Oe).</span>
+<span class="sd">        end (float): Final magnetic field value (Oe).</span>
+<span class="sd">        increment (float): Increment magnetic field value by a step (Oe).</span>
+<span class="sd">        rate (float): Speed of changing magnetic field (Oe/s). Defaults to 100.</span>
+<span class="sd">        approach_method (str): Approach method of magnetic field to the target. Defaults to &quot;Linear&quot;.</span>
+<span class="sd">            [&quot;Linear&quot;, &quot;No overshoot&quot;, &quot;Oscillate&quot;] can be used.</span>
+<span class="sd">        magnet_mode (str): Mode of magnet in PPMS. Defaults to &quot;Persistent&quot;.</span>
+<span class="sd">            [&quot;Persistent&quot;, &quot;Driven&quot;] can be used.</span>
+<span class="sd">        substructure (SequenceCommand | None): Commands to be executed while scanning for magnetic field. Defaults to None.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+            <span class="n">start</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+            <span class="n">end</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+            <span class="n">increment</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+            <span class="n">rate</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span>
+            <span class="n">approach_method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Linear&quot;</span><span class="p">,</span>
+            <span class="n">magnet_mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Persistent&quot;</span><span class="p">,</span>
+            <span class="n">substructure</span><span class="p">:</span> <span class="n">SequenceCommand</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="n">com_num</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">command_number</span><span class="p">[</span><span class="s2">&quot;SetField&quot;</span><span class="p">]</span>
+        <span class="n">app_num</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">field_approach_method_number</span><span class="p">[</span><span class="n">approach_method</span><span class="p">]</span>
+        <span class="n">mag_num</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">magnet_mode_number</span><span class="p">[</span><span class="n">magnet_mode</span><span class="p">]</span>
+        <span class="n">steps</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">end</span><span class="o">-</span><span class="n">start</span><span class="p">)</span> <span class="o">/</span> <span class="nb">abs</span><span class="p">(</span><span class="n">increment</span><span class="p">))</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">steps</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">commands</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="p">(</span><span class="n">com_num</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">rate</span><span class="p">,</span> <span class="n">app_num</span><span class="p">,</span> <span class="n">mag_num</span><span class="p">),</span> <span class="c1"># set field</span>
+                    <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">command_number</span><span class="p">[</span><span class="s2">&quot;WaitForField&quot;</span><span class="p">],</span> <span class="mi">0</span><span class="p">)</span> <span class="c1"># wait for field stability</span>
+                <span class="p">]</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">substructure</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">commands</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">substructure</span><span class="o">.</span><span class="n">commands</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_formatted_commands</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="sa">f</span><span class="s2">&quot;ScanField: from </span><span class="si">{</span><span class="n">start</span><span class="si">:</span><span class="s2">.6g</span><span class="si">}</span><span class="s2"> Oe to </span><span class="si">{</span><span class="n">end</span><span class="si">:</span><span class="s2">.6g</span><span class="si">}</span><span class="s2"> Oe at </span><span class="si">{</span><span class="n">rate</span><span class="si">:</span><span class="s2">.6g</span><span class="si">}</span><span class="s2"> Oe/s in </span><span class="si">{</span><span class="n">increment</span><span class="si">:</span><span class="s2">.6g</span><span class="si">}</span><span class="s2"> Oe increments [</span><span class="si">{</span><span class="n">steps</span><span class="si">}</span><span class="s2"> steps], </span><span class="si">{</span><span class="n">approach_method</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">magnet_mode</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">]</span>
+        <span class="k">if</span> <span class="n">substructure</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_formatted_commands</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_formatted_commands</span> <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="n">s</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">substructure</span><span class="o">.</span><span class="n">_formatted_commands</span><span class="p">]</span>
+
+<div class="viewcode-block" id="ScanField.from_field_list"><a class="viewcode-back" href="../../../cpystal.measurement.html#cpystal.measurement.sequence.ScanField.from_field_list">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_field_list</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span>
+            <span class="n">value_list</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
+            <span class="n">rate</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span>
+            <span class="n">approach_method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Linear&quot;</span><span class="p">,</span>
+            <span class="n">magnet_mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Persistent&quot;</span><span class="p">,</span>
+            <span class="n">substructure</span><span class="p">:</span> <span class="n">SequenceCommand</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ScanField</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            value_list (Sequence[float]): list of magnetic field (Oe).</span>
+<span class="sd">            rate (float): Speed of changing magnetic field (Oe/s). Defaults to 100.</span>
+<span class="sd">            approach_method (str): Approach method of magnetic field to the target. Defaults to &quot;Linear&quot;.</span>
+<span class="sd">                [&quot;Linear&quot;, &quot;No overshoot&quot;, &quot;Oscillate&quot;] can be used.</span>
+<span class="sd">            magnet_mode (str): Mode of magnet in PPMS. Defaults to &quot;Persistent&quot;.</span>
+<span class="sd">                [&quot;Persistent&quot;, &quot;Driven&quot;] can be used.</span>
+<span class="sd">            substructure (SequenceCommand | None): Commands to be executed while scanning for magnetic field. Defaults to None.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            (ScanField): Instance of &#39;ScanField&#39;.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+        <span class="n">com_num</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">command_number</span><span class="p">[</span><span class="s2">&quot;SetField&quot;</span><span class="p">]</span>
+        <span class="n">app_num</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">field_approach_method_number</span><span class="p">[</span><span class="n">approach_method</span><span class="p">]</span>
+        <span class="n">mag_num</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">magnet_mode_number</span><span class="p">[</span><span class="n">magnet_mode</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">value_list</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">commands</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="p">(</span><span class="n">com_num</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">rate</span><span class="p">,</span> <span class="n">app_num</span><span class="p">,</span> <span class="n">mag_num</span><span class="p">),</span> <span class="c1"># set field</span>
+                    <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">command_number</span><span class="p">[</span><span class="s2">&quot;WaitForField&quot;</span><span class="p">],</span> <span class="mi">0</span><span class="p">)</span> <span class="c1"># wait for field stability</span>
+                <span class="p">]</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">substructure</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">commands</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">substructure</span><span class="o">.</span><span class="n">commands</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_formatted_commands</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="sa">f</span><span class="s2">&quot;ScanField: from </span><span class="si">{</span><span class="n">value_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s2">.6g</span><span class="si">}</span><span class="s2"> Oe to </span><span class="si">{</span><span class="n">value_list</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="si">:</span><span class="s2">.6g</span><span class="si">}</span><span class="s2"> Oe at </span><span class="si">{</span><span class="n">rate</span><span class="si">:</span><span class="s2">.6g</span><span class="si">}</span><span class="s2"> Oe/s [</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">value_list</span><span class="p">)</span><span class="si">}</span><span class="s2"> steps], </span><span class="si">{</span><span class="n">approach_method</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">magnet_mode</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">]</span>
+        <span class="k">if</span> <span class="n">substructure</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_formatted_commands</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_formatted_commands</span> <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="n">s</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">substructure</span><span class="o">.</span><span class="n">_formatted_commands</span><span class="p">]</span>
+        <span class="k">return</span> <span class="bp">self</span></div></div>
+    
+<div class="viewcode-block" id="ScanTemp"><a class="viewcode-back" href="../../../cpystal.measurement.html#cpystal.measurement.sequence.ScanTemp">[docs]</a><span class="k">class</span> <span class="nc">ScanTemp</span><span class="p">(</span><span class="n">SequenceCommandBase</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Command PPMS to scan temperature.</span>
+<span class="sd">    </span>
+<span class="sd">    Note:</span>
+<span class="sd">        This sequence commands PPMS to wait for the temperature to stabilize each time it changes the value of the temperature.</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">        start (float): Initial temperature value (K).</span>
+<span class="sd">        end (float): Final temperature value (K).</span>
+<span class="sd">        increment (float): Increment temperature value by a step (K).</span>
+<span class="sd">        rate (float): Speed of changing temperature (K/min). Defaults to 5. Make sure that 0 &lt;= rate &lt;= 20.</span>
+<span class="sd">        approach_method (str): Approach method of temperature to the target. Defaults to &quot;Fast settle&quot;.</span>
+<span class="sd">            [&quot;Fast settle&quot;, &quot;No overshoot&quot;] can be used.</span>
+<span class="sd">        substructure (SequenceCommand | None): Commands to be executed while scanning for temperature. Defaults to None.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+            <span class="n">start</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+            <span class="n">end</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+            <span class="n">increment</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+            <span class="n">rate</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span>
+            <span class="n">approach_method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Fast settle&quot;</span><span class="p">,</span>
+            <span class="n">substructure</span><span class="p">:</span> <span class="n">SequenceCommand</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">rate</span> <span class="o">&lt;=</span> <span class="mi">20</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;&#39;rate&#39; must be in [0, 20]&quot;</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="n">com_num</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">command_number</span><span class="p">[</span><span class="s2">&quot;SetTemp&quot;</span><span class="p">]</span>
+        <span class="n">app_num</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">temp_approach_method_number</span><span class="p">[</span><span class="n">approach_method</span><span class="p">]</span>
+        <span class="n">steps</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">end</span><span class="o">-</span><span class="n">start</span><span class="p">)</span> <span class="o">/</span> <span class="nb">abs</span><span class="p">(</span><span class="n">increment</span><span class="p">))</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">steps</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">commands</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="p">(</span><span class="n">com_num</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">rate</span><span class="p">,</span> <span class="n">app_num</span><span class="p">),</span> <span class="c1"># set temperature</span>
+                    <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">command_number</span><span class="p">[</span><span class="s2">&quot;WaitForTemp&quot;</span><span class="p">],</span> <span class="mi">0</span><span class="p">)</span> <span class="c1"># wait for temperature stability</span>
+                <span class="p">]</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">substructure</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">commands</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">substructure</span><span class="o">.</span><span class="n">commands</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_formatted_commands</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="sa">f</span><span class="s2">&quot;ScanTemp: from </span><span class="si">{</span><span class="n">start</span><span class="si">:</span><span class="s2">.6g</span><span class="si">}</span><span class="s2"> K to </span><span class="si">{</span><span class="n">end</span><span class="si">:</span><span class="s2">.6g</span><span class="si">}</span><span class="s2"> K at </span><span class="si">{</span><span class="n">rate</span><span class="si">:</span><span class="s2">.6g</span><span class="si">}</span><span class="s2"> K/min in </span><span class="si">{</span><span class="n">increment</span><span class="si">:</span><span class="s2">.6g</span><span class="si">}</span><span class="s2"> K increments [</span><span class="si">{</span><span class="n">steps</span><span class="si">}</span><span class="s2"> steps], </span><span class="si">{</span><span class="n">approach_method</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">]</span>
+        <span class="k">if</span> <span class="n">substructure</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_formatted_commands</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_formatted_commands</span> <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="n">s</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">substructure</span><span class="o">.</span><span class="n">_formatted_commands</span><span class="p">]</span>
+
+<div class="viewcode-block" id="ScanTemp.from_temp_list"><a class="viewcode-back" href="../../../cpystal.measurement.html#cpystal.measurement.sequence.ScanTemp.from_temp_list">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_temp_list</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span>
+            <span class="n">value_list</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
+            <span class="n">rate</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span>
+            <span class="n">approach_method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Fast settle&quot;</span><span class="p">,</span>
+            <span class="n">substructure</span><span class="p">:</span> <span class="n">SequenceCommand</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ScanTemp</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            value_list (Sequence[float]): list of temperature (K).</span>
+<span class="sd">            rate (float): Speed of changing temperature (K/min). Defaults to 5. Make sure that 0 &lt;= rate &lt;= 20.</span>
+<span class="sd">            approach_method (str): Approach method of temperature to the target. Defaults to &quot;Fast settle&quot;.</span>
+<span class="sd">                [&quot;Fast settle&quot;, &quot;No overshoot&quot;] can be used.</span>
+<span class="sd">            substructure (SequenceCommand | None): Commands to be executed while scanning for temperature. Defaults to None.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            (ScanTemp): Instance of &#39;ScanTemp&#39;.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">rate</span> <span class="o">&lt;=</span> <span class="mi">20</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;&#39;rate&#39; must be in [0, 20]&quot;</span><span class="p">)</span>
+        <span class="bp">self</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+        <span class="n">com_num</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">command_number</span><span class="p">[</span><span class="s2">&quot;SetTemp&quot;</span><span class="p">]</span>
+        <span class="n">app_num</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">temp_approach_method_number</span><span class="p">[</span><span class="n">approach_method</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">value_list</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">commands</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="p">(</span><span class="n">com_num</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">rate</span><span class="p">,</span> <span class="n">app_num</span><span class="p">),</span> <span class="c1"># set temperature</span>
+                    <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">command_number</span><span class="p">[</span><span class="s2">&quot;WaitForTemp&quot;</span><span class="p">],</span> <span class="mi">0</span><span class="p">)</span> <span class="c1"># wait for temperature stability</span>
+                <span class="p">]</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">substructure</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">commands</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">substructure</span><span class="o">.</span><span class="n">commands</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_formatted_commands</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="sa">f</span><span class="s2">&quot;ScanTemp: from </span><span class="si">{</span><span class="n">value_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s2">.6g</span><span class="si">}</span><span class="s2"> K to </span><span class="si">{</span><span class="n">value_list</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="si">:</span><span class="s2">.6g</span><span class="si">}</span><span class="s2"> K at </span><span class="si">{</span><span class="n">rate</span><span class="si">:</span><span class="s2">.6g</span><span class="si">}</span><span class="s2"> K/min [</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">value_list</span><span class="p">)</span><span class="si">}</span><span class="s2"> steps], </span><span class="si">{</span><span class="n">approach_method</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">]</span>
+        <span class="k">if</span> <span class="n">substructure</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_formatted_commands</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_formatted_commands</span> <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="n">s</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">substructure</span><span class="o">.</span><span class="n">_formatted_commands</span><span class="p">]</span>
+        <span class="k">return</span> <span class="bp">self</span></div></div>
+
+<div class="viewcode-block" id="ScanPower"><a class="viewcode-back" href="../../../cpystal.measurement.html#cpystal.measurement.sequence.ScanPower">[docs]</a><span class="k">class</span> <span class="nc">ScanPower</span><span class="p">(</span><span class="n">SequenceCommandBase</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Command K6221 to scan power.</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">        start (float): Initial power value (mW).</span>
+<span class="sd">        end (float): Final power value (mW).</span>
+<span class="sd">        increment (float): Increment power value by a step (mW).</span>
+<span class="sd">        substructure (SequenceCommand | None): Commands to be executed while scanning for power. Defaults to None.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+            <span class="n">start</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+            <span class="n">end</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+            <span class="n">increment</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+            <span class="n">substructure</span><span class="p">:</span> <span class="n">SequenceCommand</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="n">com_num</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">command_number</span><span class="p">[</span><span class="s2">&quot;SetPower&quot;</span><span class="p">]</span>
+        <span class="n">steps</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">end</span><span class="o">-</span><span class="n">start</span><span class="p">)</span> <span class="o">/</span> <span class="nb">abs</span><span class="p">(</span><span class="n">increment</span><span class="p">))</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">steps</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">commands</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="p">(</span><span class="n">com_num</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">substructure</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">commands</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">substructure</span><span class="o">.</span><span class="n">commands</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_formatted_commands</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="sa">f</span><span class="s2">&quot;ScanPower: from </span><span class="si">{</span><span class="n">start</span><span class="si">:</span><span class="s2">.6g</span><span class="si">}</span><span class="s2"> mW to </span><span class="si">{</span><span class="n">end</span><span class="si">:</span><span class="s2">.6g</span><span class="si">}</span><span class="s2"> mW in </span><span class="si">{</span><span class="n">increment</span><span class="si">:</span><span class="s2">.6g</span><span class="si">}</span><span class="s2"> K increments [</span><span class="si">{</span><span class="n">steps</span><span class="si">}</span><span class="s2"> steps]&quot;</span>
+            <span class="p">]</span>
+        <span class="k">if</span> <span class="n">substructure</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_formatted_commands</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_formatted_commands</span> <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="n">s</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">substructure</span><span class="o">.</span><span class="n">_formatted_commands</span><span class="p">]</span>
+
+<div class="viewcode-block" id="ScanPower.from_power_list"><a class="viewcode-back" href="../../../cpystal.measurement.html#cpystal.measurement.sequence.ScanPower.from_power_list">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_power_list</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span>
+            <span class="n">value_list</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
+            <span class="n">substructure</span><span class="p">:</span> <span class="n">SequenceCommand</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ScanPower</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            value_list (Sequence[float]): list of power (mW).</span>
+<span class="sd">            substructure (SequenceCommand | None): Commands to be executed while scanning for power. Defaults to None.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            (ScanPower): Instance of &#39;ScanPower&#39;.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+        <span class="n">com_num</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">command_number</span><span class="p">[</span><span class="s2">&quot;SetPower&quot;</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">value_list</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">commands</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="p">(</span><span class="n">com_num</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+                <span class="p">)</span>
+            <span class="k">if</span> <span class="n">substructure</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">commands</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">substructure</span><span class="o">.</span><span class="n">commands</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_formatted_commands</span> <span class="o">=</span> <span class="p">[</span>
+                    <span class="sa">f</span><span class="s2">&quot;ScanPower: from </span><span class="si">{</span><span class="n">value_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s2">.6g</span><span class="si">}</span><span class="s2"> mW to </span><span class="si">{</span><span class="n">value_list</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="si">:</span><span class="s2">.6g</span><span class="si">}</span><span class="s2"> mW [</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">value_list</span><span class="p">)</span><span class="si">}</span><span class="s2"> steps]&quot;</span>
+                <span class="p">]</span>
+        <span class="k">if</span> <span class="n">substructure</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_formatted_commands</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_formatted_commands</span> <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="n">s</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">substructure</span><span class="o">.</span><span class="n">_formatted_commands</span><span class="p">]</span>
+        <span class="k">return</span> <span class="bp">self</span></div></div>
+
+<div class="viewcode-block" id="sequence_maker"><a class="viewcode-back" href="../../../cpystal.measurement.html#cpystal.measurement.sequence.sequence_maker">[docs]</a><span class="k">def</span> <span class="nf">sequence_maker</span><span class="p">(</span><span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">command_list</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">SequenceCommand</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">SequenceCommandBase</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Make a sequence for controlling PPMS.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        filename (str): File name.</span>
+<span class="sd">        command_list (list[SequenceCommand]):</span>
+<span class="sd">            list of instances of `SequenceCommand`.</span>
+<span class="sd">            If you want to add some commands while `ScanField`, `ScanTemp` and `ScanPower`,</span>
+<span class="sd">            you will use the argument `substructure` of those classes (the details are as follows).</span>
+
+<span class="sd">    Example:</span>
+<span class="sd">        &gt;&gt;&gt; res = sequence_maker(filename=&quot;./a.csv&quot;, command_list=</span>
+<span class="sd">            [</span>
+<span class="sd">                SetPower(target=0.1),</span>
+<span class="sd">                WaitForTemp(extra_wait=1),</span>
+<span class="sd">                ScanTemp.from_temp_list([300,250,200,150,100,50,2],</span>
+<span class="sd">                    substructure=WaitForTemp(extra_wait=5) + Measure()</span>
+<span class="sd">                ),</span>
+<span class="sd">                SetField(target=0, rate=100, approach_method=&quot;Linear&quot;, magnet_mode=&quot;Persistent&quot;),</span>
+<span class="sd">                ScanTemp(start=2, end=10, increment=2, rate=5,</span>
+<span class="sd">                    substructure=ScanField(90000, -90000, 10000, rate=100, approach_method=&quot;Linear&quot;, magnet_mode=&quot;Persistent&quot;,</span>
+<span class="sd">                        substructure=WaitForField(extra_wait=0.5) + Measure()</span>
+<span class="sd">                    ) + ScanField(-90000, 90000, 10000, rate=100, approach_method=&quot;Linear&quot;, magnet_mode=&quot;Persistent&quot;, </span>
+<span class="sd">                        substructure=WaitForField(extra_wait=0.5) + Measure()</span>
+<span class="sd">                    )</span>
+<span class="sd">                ),</span>
+<span class="sd">                ScanField.from_field_list([0, 1000, 2000, 3000, 5000, 10000, 90000],</span>
+<span class="sd">                    substructure=WaitForField(extra_wait=0.5) + Measure()</span>
+<span class="sd">                ),</span>
+<span class="sd">                SetField(0),</span>
+<span class="sd">                SetTemp(300)</span>
+<span class="sd">            ]</span>
+<span class="sd">        )</span>
+
+<span class="sd">        &gt;&gt;&gt; print(res)</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        0 SetPower: 0.1 mW</span>
+<span class="sd">        1 WaitForTemp: extra wait 1 min</span>
+<span class="sd">        2 ScanTemp: from 300 K to 2 K at 5 K/min [7 steps], Fast settle</span>
+<span class="sd">        3       WaitForTemp: extra wait 5 min</span>
+<span class="sd">        4       Measure</span>
+<span class="sd">        5 SetField: 0 Oe, Linear, Persistent</span>
+<span class="sd">        6 ScanTemp: from 2 K to 10 K at 5 K/min in 2 K increments [5 steps], Fast settle</span>
+<span class="sd">        7       ScanField: from 90000 Oe to -90000 Oe at 100 Oe/s in 10000 Oe increments [19 steps], Linear, Persistent</span>
+<span class="sd">        8               WaitForField: extra wait 0.5 min</span>
+<span class="sd">        9               Measure</span>
+<span class="sd">        10      ScanField: from -90000 Oe to 90000 Oe at 100 Oe/s in 10000 Oe increments [19 steps], Linear, Persistent</span>
+<span class="sd">        11              WaitForField: extra wait 0.5 min</span>
+<span class="sd">        12              Measure</span>
+<span class="sd">        13 ScanField: from 0 Oe to 90000 Oe at 100 Oe/s [7 steps], Linear, Persistent</span>
+<span class="sd">        14      WaitForField: extra wait 0.5 min</span>
+<span class="sd">        15      Measure</span>
+<span class="sd">        16 SetField: 0 Oe, Linear, Persistent</span>
+<span class="sd">        17 SetTemp: 300 K, Fast settle</span>
+<span class="sd">        Required time: 1837.7 min (assuming initial (T,H) = (300K,0T) and necessary time for one measure = 6 min)</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+<span class="sd">        &gt;&gt;&gt; print(res.calc_required_time(T0=300, H0=0, measuring_time=10)) # necessary time for one measure = 10 min</span>
+<span class="sd">        2653.7</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">res</span><span class="p">:</span> <span class="n">SequenceCommandBase</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">command_list</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="n">SequenceCommandBase</span><span class="p">())</span>
+    <span class="n">res</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">res</span></div>
+    
+
+<div class="viewcode-block" id="main"><a class="viewcode-back" href="../../../cpystal.measurement.html#cpystal.measurement.sequence.main">[docs]</a><span class="k">def</span> <span class="nf">main</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">res</span><span class="p">:</span> <span class="n">SequenceCommandBase</span> <span class="o">=</span> <span class="n">sequence_maker</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s2">&quot;./a.csv&quot;</span><span class="p">,</span> <span class="n">command_list</span><span class="o">=</span>
+        <span class="p">[</span>
+            <span class="n">SetPower</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="mf">0.1</span><span class="p">),</span>
+            <span class="n">WaitForTemp</span><span class="p">(</span><span class="n">extra_wait</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+            <span class="n">ScanTemp</span><span class="o">.</span><span class="n">from_temp_list</span><span class="p">([</span><span class="mi">300</span><span class="p">,</span><span class="mi">250</span><span class="p">,</span><span class="mi">200</span><span class="p">,</span><span class="mi">150</span><span class="p">,</span><span class="mi">100</span><span class="p">,</span><span class="mi">50</span><span class="p">,</span><span class="mi">2</span><span class="p">],</span>
+                <span class="n">substructure</span><span class="o">=</span><span class="n">WaitForTemp</span><span class="p">(</span><span class="n">extra_wait</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span> <span class="o">+</span> <span class="n">Measure</span><span class="p">()</span>
+            <span class="p">),</span>
+            <span class="n">SetField</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">rate</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">approach_method</span><span class="o">=</span><span class="s2">&quot;Linear&quot;</span><span class="p">,</span> <span class="n">magnet_mode</span><span class="o">=</span><span class="s2">&quot;Persistent&quot;</span><span class="p">),</span>
+            <span class="n">ScanTemp</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">increment</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">rate</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+                <span class="n">substructure</span><span class="o">=</span><span class="n">ScanField</span><span class="p">(</span><span class="mi">90000</span><span class="p">,</span> <span class="o">-</span><span class="mi">90000</span><span class="p">,</span> <span class="mi">10000</span><span class="p">,</span> <span class="n">rate</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">approach_method</span><span class="o">=</span><span class="s2">&quot;Linear&quot;</span><span class="p">,</span> <span class="n">magnet_mode</span><span class="o">=</span><span class="s2">&quot;Persistent&quot;</span><span class="p">,</span>
+                    <span class="n">substructure</span><span class="o">=</span><span class="n">WaitForField</span><span class="p">(</span><span class="n">extra_wait</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span> <span class="o">+</span> <span class="n">Measure</span><span class="p">()</span>
+                <span class="p">)</span> <span class="o">+</span> <span class="n">ScanField</span><span class="p">(</span><span class="o">-</span><span class="mi">90000</span><span class="p">,</span> <span class="mi">90000</span><span class="p">,</span> <span class="mi">10000</span><span class="p">,</span> <span class="n">rate</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">approach_method</span><span class="o">=</span><span class="s2">&quot;Linear&quot;</span><span class="p">,</span> <span class="n">magnet_mode</span><span class="o">=</span><span class="s2">&quot;Persistent&quot;</span><span class="p">,</span> 
+                    <span class="n">substructure</span><span class="o">=</span><span class="n">WaitForField</span><span class="p">(</span><span class="n">extra_wait</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span> <span class="o">+</span> <span class="n">Measure</span><span class="p">()</span>
+                <span class="p">)</span>
+            <span class="p">),</span>
+            <span class="n">ScanField</span><span class="o">.</span><span class="n">from_field_list</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1000</span><span class="p">,</span> <span class="mi">2000</span><span class="p">,</span> <span class="mi">3000</span><span class="p">,</span> <span class="mi">5000</span><span class="p">,</span> <span class="mi">10000</span><span class="p">,</span> <span class="mi">90000</span><span class="p">],</span>
+                <span class="n">substructure</span><span class="o">=</span><span class="n">WaitForField</span><span class="p">(</span><span class="n">extra_wait</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span> <span class="o">+</span> <span class="n">Measure</span><span class="p">()</span>
+            <span class="p">),</span>
+            <span class="n">SetField</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span>
+            <span class="n">SetTemp</span><span class="p">(</span><span class="mi">300</span><span class="p">)</span>
+        <span class="p">]</span>
+    <span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">res</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">res</span><span class="o">.</span><span class="n">calc_required_time</span><span class="p">(</span><span class="n">T0</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span> <span class="n">H0</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">measuring_time</span><span class="o">=</span><span class="mi">10</span><span class="p">))</span></div>
+
+    <span class="c1"># res = sequence_maker(&quot;./a.csv&quot;, [</span>
+    <span class="c1">#             ScanField.from_field_list([0, 1000, 40000, 90000], rate=100,</span>
+    <span class="c1">#                 substructure=WaitForField(extra_wait=0.5) + Measure()</span>
+    <span class="c1">#                 )</span>
+    <span class="c1">#         ])</span>
+    <span class="c1"># print(res)</span>
+
+    <span class="c1"># res = sequence_maker(&quot;./a.csv&quot;, [</span>
+    <span class="c1">#             ScanTemp.from_temp_list([300, 150, 100], rate=5,</span>
+    <span class="c1">#                 substructure=WaitForTemp(extra_wait=0.5) + Measure()</span>
+    <span class="c1">#                 )</span>
+    <span class="c1">#         ])</span>
+    <span class="c1"># print(res)</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">cpystal</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../cpystal.html">cpystal package</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2023, Helve.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.0.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

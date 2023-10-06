@@ -1,0 +1,1679 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>cpystal.core package &mdash; cpystal  documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="cpystal.figure package" href="cpystal.figure.html" />
+    <link rel="prev" title="cpystal.color package" href="cpystal.color.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            cpystal
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="cpystal.html">cpystal package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="cpystal.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="cpystal.analysis.html">cpystal.analysis package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cpystal.color.html">cpystal.color package</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">cpystal.core package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-cpystal.core.core">cpystal.core.core module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-cpystal.core.data_structure">cpystal.core.data_structure module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-cpystal.core">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="cpystal.figure.html">cpystal.figure package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cpystal.graph.html">cpystal.graph package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cpystal.mathematics.html">cpystal.mathematics package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cpystal.measurement.html">cpystal.measurement package</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="cpystal.html#module-cpystal">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">cpystal</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="cpystal.html">cpystal package</a></li>
+      <li class="breadcrumb-item active">cpystal.core package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/cpystal.core.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="cpystal-core-package">
+<h1>cpystal.core package<a class="headerlink" href="#cpystal-core-package" title="Permalink to this heading"></a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading"></a></h2>
+</section>
+<section id="module-cpystal.core.core">
+<span id="cpystal-core-core-module"></span><h2>cpystal.core.core module<a class="headerlink" href="#module-cpystal.core.core" title="Permalink to this heading"></a></h2>
+<p><cite>cpystal</cite>: for dealing with crystals and experimental data of physical property.</p>
+<p><cite>cpystal</cite> is designed to handle experimental data on crystals.
+It places particular emphasis on calculating and storing data on the properties of actual synthesized samples,
+and on graphing these data. In this respect, it is distinct from <cite>pymatgen</cite>, a similar crystal and material analysis module.
+Of course, pymatgen is a very useful python module, so we use it as an adjunct in <cite>cpystal</cite>.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="cpystal.core.core.Crystal">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cpystal.core.core.</span></span><span class="sig-name descname"><span class="pre">Crystal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">date</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">auto_formula_weight</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cpystal/core/core.html#Crystal"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.core.core.Crystal" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A <cite>Crystal</cite> instance corresponds to a certain sample of a crystal.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Any attribute of a <cite>Crystal</cite> instance can be freely assigned from the time it is created until the end of the program (i.e. mutable).
+However, once it is saved as a pickle file, it becomes impossible to change the attributes of the instance created by loading from the pickle file (i.e. immutable).
+This feature was implemented to prevent the unintentional destruction of the sample data which is saved in a pickle file.</p>
+</div>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpystal.core.core.Crystal.name">
+<span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#cpystal.core.core.Crystal.name" title="Permalink to this definition"></a></dt>
+<dd><p>The chemical formula of the crystal.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpystal.core.core.Crystal.graphname">
+<span class="sig-name descname"><span class="pre">graphname</span></span><a class="headerlink" href="#cpystal.core.core.Crystal.graphname" title="Permalink to this definition"></a></dt>
+<dd><p>TeX-formed <cite>name</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpystal.core.core.Crystal.date">
+<span class="sig-name descname"><span class="pre">date</span></span><a class="headerlink" href="#cpystal.core.core.Crystal.date" title="Permalink to this definition"></a></dt>
+<dd><p>The date the sample was synthesized. If there is a numbering system, it will be included here.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str | None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpystal.core.core.Crystal.spacegroup_name">
+<span class="sig-name descname"><span class="pre">spacegroup_name</span></span><a class="headerlink" href="#cpystal.core.core.Crystal.spacegroup_name" title="Permalink to this definition"></a></dt>
+<dd><p>Space group name in International (Hermann-Mauguin) notation of the crytal.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpystal.core.core.Crystal.NA">
+<span class="sig-name descname"><span class="pre">NA</span></span><a class="headerlink" href="#cpystal.core.core.Crystal.NA" title="Permalink to this definition"></a></dt>
+<dd><p>Avogadro constant 6.02214076 * 10**(23) [mol^-1].</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpystal.core.core.Crystal.muB">
+<span class="sig-name descname"><span class="pre">muB</span></span><a class="headerlink" href="#cpystal.core.core.Crystal.muB" title="Permalink to this definition"></a></dt>
+<dd><p>Bohr magneton 9.27401 * 10**(-21) [emu].</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpystal.core.core.Crystal.kB">
+<span class="sig-name descname"><span class="pre">kB</span></span><a class="headerlink" href="#cpystal.core.core.Crystal.kB" title="Permalink to this definition"></a></dt>
+<dd><p>Boltzmann constant 1.380649 * 10**(-23) [J/K].</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpystal.core.core.Crystal.a">
+<span class="sig-name descname"><span class="pre">a</span></span><a class="headerlink" href="#cpystal.core.core.Crystal.a" title="Permalink to this definition"></a></dt>
+<dd><p>Lattice constant [Å].</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpystal.core.core.Crystal.b">
+<span class="sig-name descname"><span class="pre">b</span></span><a class="headerlink" href="#cpystal.core.core.Crystal.b" title="Permalink to this definition"></a></dt>
+<dd><p>Lattice constant [Å].</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpystal.core.core.Crystal.c">
+<span class="sig-name descname"><span class="pre">c</span></span><a class="headerlink" href="#cpystal.core.core.Crystal.c" title="Permalink to this definition"></a></dt>
+<dd><p>Lattice constant [Å].</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpystal.core.core.Crystal.alpha">
+<span class="sig-name descname"><span class="pre">alpha</span></span><a class="headerlink" href="#cpystal.core.core.Crystal.alpha" title="Permalink to this definition"></a></dt>
+<dd><p>Lattice constant [°].</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpystal.core.core.Crystal.beta">
+<span class="sig-name descname"><span class="pre">beta</span></span><a class="headerlink" href="#cpystal.core.core.Crystal.beta" title="Permalink to this definition"></a></dt>
+<dd><p>Lattice constant [°].</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpystal.core.core.Crystal.gamma">
+<span class="sig-name descname"><span class="pre">gamma</span></span><a class="headerlink" href="#cpystal.core.core.Crystal.gamma" title="Permalink to this definition"></a></dt>
+<dd><p>Lattice constant [°].</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpystal.core.core.Crystal.V">
+<span class="sig-name descname"><span class="pre">V</span></span><a class="headerlink" href="#cpystal.core.core.Crystal.V" title="Permalink to this definition"></a></dt>
+<dd><p>Volume of a unit cell [cm^3].</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpystal.core.core.Crystal.Z">
+<span class="sig-name descname"><span class="pre">Z</span></span><a class="headerlink" href="#cpystal.core.core.Crystal.Z" title="Permalink to this definition"></a></dt>
+<dd><p>Number of formula unit in a unit cell.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpystal.core.core.Crystal.formula_weight">
+<span class="sig-name descname"><span class="pre">formula_weight</span></span><a class="headerlink" href="#cpystal.core.core.Crystal.formula_weight" title="Permalink to this definition"></a></dt>
+<dd><p>Weight of formula unit per mol [g/mol].</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpystal.core.core.Crystal.w">
+<span class="sig-name descname"><span class="pre">w</span></span><a class="headerlink" href="#cpystal.core.core.Crystal.w" title="Permalink to this definition"></a></dt>
+<dd><p>The weight of the sample [g].</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpystal.core.core.Crystal.num_magnetic_ion">
+<span class="sig-name descname"><span class="pre">num_magnetic_ion</span></span><a class="headerlink" href="#cpystal.core.core.Crystal.num_magnetic_ion" title="Permalink to this definition"></a></dt>
+<dd><p>Number of magnetic ions in a formula unit.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpystal.core.core.Crystal.density">
+<span class="sig-name descname"><span class="pre">density</span></span><a class="headerlink" href="#cpystal.core.core.Crystal.density" title="Permalink to this definition"></a></dt>
+<dd><p>Density of the crystal [g/cm^3].</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpystal.core.core.Crystal.mol">
+<span class="sig-name descname"><span class="pre">mol</span></span><a class="headerlink" href="#cpystal.core.core.Crystal.mol" title="Permalink to this definition"></a></dt>
+<dd><p>The amount of substance of the sample [mol].</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpystal.core.core.Crystal.numbered_name">
+<span class="sig-name descname"><span class="pre">numbered_name</span></span><a class="headerlink" href="#cpystal.core.core.Crystal.numbered_name" title="Permalink to this definition"></a></dt>
+<dd><p>Changed <cite>name</cite> that the elemental numbers in the chemical formula are clearly indicated by adding ‘1’.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpystal.core.core.Crystal.components">
+<span class="sig-name descname"><span class="pre">components</span></span><a class="headerlink" href="#cpystal.core.core.Crystal.components" title="Permalink to this definition"></a></dt>
+<dd><p>Number of each element in a formula unit.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Defaultdict[str, float]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpystal.core.core.Crystal.unit">
+<span class="sig-name descname"><span class="pre">unit</span></span><a class="headerlink" href="#cpystal.core.core.Crystal.unit" title="Permalink to this definition"></a></dt>
+<dd><p>The unit of each attribute.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict[str, str]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpystal.core.core.Crystal.graphs">
+<span class="sig-name descname"><span class="pre">graphs</span></span><a class="headerlink" href="#cpystal.core.core.Crystal.graphs" title="Permalink to this definition"></a></dt>
+<dd><p>Semimutable dictionary of experimental data plotted as <cite>matplotlib.axes._subplots.AxesSubplot</cite> object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#cpystal.core.core.SemimutableDict" title="cpystal.core.core.SemimutableDict">SemimutableDict</a>[str, Any]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpystal.core.core.Crystal.attributes">
+<span class="sig-name descname"><span class="pre">attributes</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('name',</span> <span class="pre">'graphname',</span> <span class="pre">'date',</span> <span class="pre">'spacegroup_name',</span> <span class="pre">'NA',</span> <span class="pre">'muB',</span> <span class="pre">'kB',</span> <span class="pre">'a',</span> <span class="pre">'b',</span> <span class="pre">'c',</span> <span class="pre">'alpha',</span> <span class="pre">'beta',</span> <span class="pre">'gamma',</span> <span class="pre">'V',</span> <span class="pre">'Z',</span> <span class="pre">'formula_weight',</span> <span class="pre">'w',</span> <span class="pre">'num_magnetic_ion',</span> <span class="pre">'density',</span> <span class="pre">'mol',</span> <span class="pre">'numbered_name',</span> <span class="pre">'components',</span> <span class="pre">'unit',</span> <span class="pre">'graphs')</span></em><a class="headerlink" href="#cpystal.core.core.Crystal.attributes" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.core.core.Crystal.cal_Bohr_per_formula_unit">
+<span class="sig-name descname"><span class="pre">cal_Bohr_per_formula_unit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">m</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">w</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="_modules/cpystal/core/core.html#Crystal.cal_Bohr_per_formula_unit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.core.core.Crystal.cal_Bohr_per_formula_unit" title="Permalink to this definition"></a></dt>
+<dd><p>Calculating magnetization in units of Bohr magneton per formula unit.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>m</strong> (<em>float</em>) – Magnetic moment (unit: [emu]).</p></li>
+<li><p><strong>w</strong> (<em>float</em><em> | </em><em>None</em>) – The weight of the sample (unit: [g]).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Magnetization in units of Bohr magneton per formula unit.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>(float)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.core.core.Crystal.cal_Bohr_per_ion">
+<span class="sig-name descname"><span class="pre">cal_Bohr_per_ion</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">m</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">w</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_magnetic_ion</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="_modules/cpystal/core/core.html#Crystal.cal_Bohr_per_ion"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.core.core.Crystal.cal_Bohr_per_ion" title="Permalink to this definition"></a></dt>
+<dd><p>Calculating magnetization in units of Bohr magneton per magnetic ion.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>m</strong> (<em>float</em>) – Magnetic moment (unit: [emu]).</p></li>
+<li><p><strong>w</strong> (<em>float</em><em> | </em><em>None</em>) – The weight of the sample (unit: [g]).</p></li>
+<li><p><strong>num_magnetic_ion</strong> (<em>float</em><em> | </em><em>None</em>) – Number of magnetic ions in a formula unit.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Magnetization in units of Bohr magneton per magnetic ion.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>(float)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.core.core.Crystal.cal_Bpfu_to_emu">
+<span class="sig-name descname"><span class="pre">cal_Bpfu_to_emu</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mu</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="_modules/cpystal/core/core.html#Crystal.cal_Bpfu_to_emu"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.core.core.Crystal.cal_Bpfu_to_emu" title="Permalink to this definition"></a></dt>
+<dd><p>Calculating ‘emu’-unit magnetization from the value of ‘muB/f.u.’-unit magnetization.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>mu</strong> (<em>float</em>) – ‘muB/f.u.’-unit magnetization.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>‘emu’-unit magnetization</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>(float)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.core.core.Crystal.cal_density">
+<span class="sig-name descname"><span class="pre">cal_density</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="_modules/cpystal/core/core.html#Crystal.cal_density"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.core.core.Crystal.cal_density" title="Permalink to this definition"></a></dt>
+<dd><p>Calculating the density of the crystal.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The density of the crystal (unit: [g/cm^3]).</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>(float)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.core.core.Crystal.cal_effective_moment">
+<span class="sig-name descname"><span class="pre">cal_effective_moment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Curie_constant</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="_modules/cpystal/core/core.html#Crystal.cal_effective_moment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.core.core.Crystal.cal_effective_moment" title="Permalink to this definition"></a></dt>
+<dd><p>Calculating effective moment from the value of Curie constant.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>C = Nμ^2/3kB
+μ^2 = g^2 J(J+1) μB^2
+where N is the number of magnetic ion per mol,</p>
+<blockquote>
+<div><p>g is Lande factor,
+J is total angular momentum quantum number.</p>
+</div></blockquote>
+<p>(emu*Oe = erg = 10^(-7) Joule)</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>Curie_constant</strong> (<em>float</em>) – Curie constant (unit: [emu.K/mol.Oe]).</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Effective moment μ/μB = g√J(J+1).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>(float)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.core.core.Crystal.cal_ingredients">
+<span class="sig-name descname"><span class="pre">cal_ingredients</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/cpystal/core/core.html#Crystal.cal_ingredients"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.core.core.Crystal.cal_ingredients" title="Permalink to this definition"></a></dt>
+<dd><p>Calculating the weight of each element in the sample.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list of tuple (element name, element weight ratio to the total).</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>(list[tuple[str, float]])</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.core.core.Crystal.cal_magnetization">
+<span class="sig-name descname"><span class="pre">cal_magnetization</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">m</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">w</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">SI</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">per</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="_modules/cpystal/core/core.html#Crystal.cal_magnetization"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.core.core.Crystal.cal_magnetization" title="Permalink to this definition"></a></dt>
+<dd><p>Calculating magnetization from measured value of magnetic moment.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>m</strong> (<em>float</em>) – Magnetic moment (unit: [emu]).</p></li>
+<li><p><strong>w</strong> (<em>float</em><em> | </em><em>None</em>) – The weight of the sample (unit: [g]).</p></li>
+<li><p><strong>SI</strong> (<em>bool</em>) – If True, magnetization is calculated in SI (MKSA) system.</p></li>
+<li><p><strong>per</strong> (<em>str</em><em> | </em><em>None</em>) – If per == “mol”, magnetization per mol is calculated. If per == “weight”, magnetization per weight is calculated.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Magnetization (unit: [G], [G/mol], [G/g], [A/m], [A/m/mol] or [A/m/kg]).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>(float)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.core.core.Crystal.cal_mol">
+<span class="sig-name descname"><span class="pre">cal_mol</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="_modules/cpystal/core/core.html#Crystal.cal_mol"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.core.core.Crystal.cal_mol" title="Permalink to this definition"></a></dt>
+<dd><p>Calculating the amount of substance of the sample from the weight of the sample.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The amount of substance of the sample (unit: [mol]).</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>(float)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.core.core.Crystal.cal_phonon_velocity">
+<span class="sig-name descname"><span class="pre">cal_phonon_velocity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">TD</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="_modules/cpystal/core/core.html#Crystal.cal_phonon_velocity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.core.core.Crystal.cal_phonon_velocity" title="Permalink to this definition"></a></dt>
+<dd><p>Calculating phonon velocity from Debye temperature.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>k_B T_D = hbar omega_D = hbar v k_D,
+where Debye wave number k_D satifies 4/3 pi k_D^3 = (2pi)^3 N / V,
+where N is the number of atom in the sample and V is the volume of the sample.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>TD</strong> (<em>float</em>) – Debye temperature (unit: [K]).</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Phonon velocity (unit: [cm/s]).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>(float)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.core.core.Crystal.cal_weight">
+<span class="sig-name descname"><span class="pre">cal_weight</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="_modules/cpystal/core/core.html#Crystal.cal_weight"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.core.core.Crystal.cal_weight" title="Permalink to this definition"></a></dt>
+<dd><p>Calculating the weight of the sample from the amount of substance of the sample.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The weight of the sample (unit: [g]).</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>(float)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.core.core.Crystal.from_cif">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_cif</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cif_filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cpystal.core.core.Crystal" title="cpystal.core.core.Crystal"><span class="pre">Crystal</span></a></span></span><a class="reference internal" href="_modules/cpystal/core/core.html#Crystal.from_cif"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.core.core.Crystal.from_cif" title="Permalink to this definition"></a></dt>
+<dd><p>Class method to make a <cite>Crystal</cite> instance from a cif file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>cif_filename</strong> (<em>str</em>) – Input file name (if necessary, add file path to the head).</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><cite>Crystal</cite> instance made from the cif file <cite>cif_filename</cite>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>(Crystalchild)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="cpystal.core.core.Crystal.fu_per_unit_cell">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">fu_per_unit_cell</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#cpystal.core.core.Crystal.fu_per_unit_cell" title="Permalink to this definition"></a></dt>
+<dd><p>Return the number of formula unit in a unit cell.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="cpystal.core.core.Crystal.num_atom_per_formula_unit">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">num_atom_per_formula_unit</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#cpystal.core.core.Crystal.num_atom_per_formula_unit" title="Permalink to this definition"></a></dt>
+<dd><p>Return the number of atom in a formula unit.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.core.core.Crystal.set_formula_weight">
+<span class="sig-name descname"><span class="pre">set_formula_weight</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">formula_weight</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/cpystal/core/core.html#Crystal.set_formula_weight"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.core.core.Crystal.set_formula_weight" title="Permalink to this definition"></a></dt>
+<dd><p>Setting formula weight (per formula unit) of the crystal.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>formula_weight</strong> (<em>float</em>) – Weight of formula unit per mol (unit: [g/mol]).</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.core.core.Crystal.set_lattice_constant">
+<span class="sig-name descname"><span class="pre">set_lattice_constant</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">beta</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gamma</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Z</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/cpystal/core/core.html#Crystal.set_lattice_constant"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.core.core.Crystal.set_lattice_constant" title="Permalink to this definition"></a></dt>
+<dd><p>Setting lattice constants of the crystal.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>a</strong> (<em>float</em>) – Lattice constant.</p></li>
+<li><p><strong>b</strong> (<em>float</em>) – Lattice constant.</p></li>
+<li><p><strong>c</strong> (<em>float</em>) – Lattice constant.</p></li>
+<li><p><strong>alpha</strong> (<em>float</em>) – Lattice constant.</p></li>
+<li><p><strong>beta</strong> (<em>float</em>) – Lattice constant.</p></li>
+<li><p><strong>gamma</strong> (<em>float</em>) – Lattice constant.</p></li>
+<li><p><strong>Z</strong> (<em>int</em><em> | </em><em>None</em>) – Number of formula unit in a unit cell.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.core.core.Crystal.set_mol">
+<span class="sig-name descname"><span class="pre">set_mol</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/cpystal/core/core.html#Crystal.set_mol"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.core.core.Crystal.set_mol" title="Permalink to this definition"></a></dt>
+<dd><p>Setting the amount of substance of the sample.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>mol</strong> (<em>float</em>) – The amount of substance of the sample (unit: [mol]).</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.core.core.Crystal.set_num_magnetic_ion">
+<span class="sig-name descname"><span class="pre">set_num_magnetic_ion</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_magnetic_ion</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/cpystal/core/core.html#Crystal.set_num_magnetic_ion"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.core.core.Crystal.set_num_magnetic_ion" title="Permalink to this definition"></a></dt>
+<dd><p>Setting the number of magnetic ions in a formula unit.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>num_magnetic_ion</strong> (<em>float</em>) – Number of magnetic ions in a formula unit.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.core.core.Crystal.set_spacegroup_name">
+<span class="sig-name descname"><span class="pre">set_spacegroup_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spacegroup_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/cpystal/core/core.html#Crystal.set_spacegroup_name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.core.core.Crystal.set_spacegroup_name" title="Permalink to this definition"></a></dt>
+<dd><p>Setting space group name of the crystal.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>spacegroup_name</strong> (<em>str</em>) – Space group name in International (Hermann-Mauguin) notation.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.core.core.Crystal.set_weight">
+<span class="sig-name descname"><span class="pre">set_weight</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">w</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/cpystal/core/core.html#Crystal.set_weight"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.core.core.Crystal.set_weight" title="Permalink to this definition"></a></dt>
+<dd><p>Setting the weight of the sample.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>w</strong> (<em>float</em>) – The weight of the sample (unit: [g]).</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="cpystal.core.core.Energy">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cpystal.core.core.</span></span><span class="sig-name descname"><span class="pre">Energy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">quantity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cpystal/core/core.html#Energy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.core.core.Energy" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>from energy to other physical quantity or vice versa.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>All units stand for SI.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>quantity</strong> (<em>float</em>) – Quantity part of a physical quantity.</p></li>
+<li><p><strong>unit</strong> (<em>str</em>) – Unit part of a physical quantity.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<p>1 meV -&gt; 11.6 K
+1 THz -&gt; 4.14 meV</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.core.core.Energy.to">
+<span class="sig-name descname"><span class="pre">to</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">new_unit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Energychild</span></span></span><a class="reference internal" href="_modules/cpystal/core/core.html#Energy.to"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.core.core.Energy.to" title="Permalink to this definition"></a></dt>
+<dd><p>Translate the physical quantity as other units.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>new_unit</strong> (<em>str</em>) – New unit.</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<p>1 meV -&gt; 11.6 K
+1 THz -&gt; 4.14 meV</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="cpystal.core.core.MPMS">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cpystal.core.core.</span></span><span class="sig-name descname"><span class="pre">MPMS</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">material</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#cpystal.core.core.Crystal" title="cpystal.core.core.Crystal"><span class="pre">Crystal</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cpystal/core/core.html#MPMS"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.core.core.MPMS" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>This is a class for acquiring experimental data of Magnetic Property Measurement System (MPMS) from ‘.dat’ files.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpystal.core.core.MPMS.filename">
+<span class="sig-name descname"><span class="pre">filename</span></span><a class="headerlink" href="#cpystal.core.core.MPMS.filename" title="Permalink to this definition"></a></dt>
+<dd><p>Input file name (if necessary, add file path to the head). The suffix of <cite>filename</cite> may be “.dat”.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpystal.core.core.MPMS.material">
+<span class="sig-name descname"><span class="pre">material</span></span><a class="headerlink" href="#cpystal.core.core.MPMS.material" title="Permalink to this definition"></a></dt>
+<dd><p><cite>Crystal</cite> instance of the measurement object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#cpystal.core.core.Crystal" title="cpystal.core.core.Crystal">Crystal</a> | None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpystal.core.core.MPMS.N">
+<span class="sig-name descname"><span class="pre">N</span></span><a class="headerlink" href="#cpystal.core.core.MPMS.N" title="Permalink to this definition"></a></dt>
+<dd><p>Length of data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpystal.core.core.MPMS.Temp">
+<span class="sig-name descname"><span class="pre">Temp</span></span><a class="headerlink" href="#cpystal.core.core.MPMS.Temp" title="Permalink to this definition"></a></dt>
+<dd><p>Temperature (K) data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[float]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpystal.core.core.MPMS.Field">
+<span class="sig-name descname"><span class="pre">Field</span></span><a class="headerlink" href="#cpystal.core.core.MPMS.Field" title="Permalink to this definition"></a></dt>
+<dd><p>Magnetic field (Oe) data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[float]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpystal.core.core.MPMS.Time">
+<span class="sig-name descname"><span class="pre">Time</span></span><a class="headerlink" href="#cpystal.core.core.MPMS.Time" title="Permalink to this definition"></a></dt>
+<dd><p>Time stamp (sec) data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[float]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpystal.core.core.MPMS.LongMoment">
+<span class="sig-name descname"><span class="pre">LongMoment</span></span><a class="headerlink" href="#cpystal.core.core.MPMS.LongMoment" title="Permalink to this definition"></a></dt>
+<dd><p>Longitudinal moment (emu) data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[float]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpystal.core.core.MPMS.Regfit">
+<span class="sig-name descname"><span class="pre">Regfit</span></span><a class="headerlink" href="#cpystal.core.core.MPMS.Regfit" title="Permalink to this definition"></a></dt>
+<dd><p>Regression fit of longitudinal moment data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[float]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.core.core.MPMS.Bpfu">
+<span class="sig-name descname"><span class="pre">Bpfu</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/cpystal/core/core.html#MPMS.Bpfu"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.core.core.MPMS.Bpfu" title="Permalink to this definition"></a></dt>
+<dd><p>Moment list in ‘μB/f.u.’.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.core.core.MPMS.Field_T">
+<span class="sig-name descname"><span class="pre">Field_T</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/cpystal/core/core.html#MPMS.Field_T"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.core.core.MPMS.Field_T" title="Permalink to this definition"></a></dt>
+<dd><p>Field list in ‘Testa’.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.core.core.MPMS.Susceptibility">
+<span class="sig-name descname"><span class="pre">Susceptibility</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">H</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">magnification</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/cpystal/core/core.html#MPMS.Susceptibility"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.core.core.MPMS.Susceptibility" title="Permalink to this definition"></a></dt>
+<dd><p>χ=M/H list in ‘emu/mol.Oe’.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>H</strong> (<em>float</em>) – Magnetic field (Oe).</p></li>
+<li><p><strong>magnification</strong> (<em>float</em>) – Amplification magnification. Defaults to 1.0.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.core.core.MPMS.cal_Curie_Weiss_temp">
+<span class="sig-name descname"><span class="pre">cal_Curie_Weiss_temp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">temp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">moment</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/cpystal/core/core.html#MPMS.cal_Curie_Weiss_temp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.core.core.MPMS.cal_Curie_Weiss_temp" title="Permalink to this definition"></a></dt>
+<dd><p>Calculating Curie-Weiss temperature and Curie constant.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>χ = M/H = C / (T-θc), where θc is Curie-Weiss temperature and C is Curie constant</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>temp</strong> (<em>list</em><em>[</em><em>float</em><em>]</em>) – list of temperature (K). Elements must be above Curie (or Neel) temperature.</p></li>
+<li><p><strong>moment</strong> (<em>list</em><em>[</em><em>float</em><em>]</em>) – list of magnetic moment (emu).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Curie-Weiss temperature (K) and Curie constant (emu.K/mol.Oe).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>(tuple[float, float])</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.core.core.MPMS.inv_Susceptibility">
+<span class="sig-name descname"><span class="pre">inv_Susceptibility</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">H</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">magnification</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/cpystal/core/core.html#MPMS.inv_Susceptibility"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.core.core.MPMS.inv_Susceptibility" title="Permalink to this definition"></a></dt>
+<dd><p>1/χ=H/M list in ‘(emu/mol.Oe)^{-1}’.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>H</strong> (<em>float</em>) – Magnetic field (Oe).</p></li>
+<li><p><strong>magnification</strong> (<em>float</em>) – Amplification magnification. Defaults to 1.0.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="cpystal.core.core.PPMSResistivity">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cpystal.core.core.</span></span><span class="sig-name descname"><span class="pre">PPMSResistivity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">material</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#cpystal.core.core.Crystal" title="cpystal.core.core.Crystal"><span class="pre">Crystal</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cpystal/core/core.html#PPMSResistivity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.core.core.PPMSResistivity" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>This is a class for acquiring experimental data of Physical Properties Measurement System (PPMS) from ‘.dat’ files.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpystal.core.core.PPMSResistivity.filename">
+<span class="sig-name descname"><span class="pre">filename</span></span><a class="headerlink" href="#cpystal.core.core.PPMSResistivity.filename" title="Permalink to this definition"></a></dt>
+<dd><p>Input file name (if necessary, add file path to the head). The suffix of <cite>filename</cite> may be “.dat”.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpystal.core.core.PPMSResistivity.material">
+<span class="sig-name descname"><span class="pre">material</span></span><a class="headerlink" href="#cpystal.core.core.PPMSResistivity.material" title="Permalink to this definition"></a></dt>
+<dd><p><cite>Crystal</cite> instance of the measurement object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#cpystal.core.core.Crystal" title="cpystal.core.core.Crystal">Crystal</a> | None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpystal.core.core.PPMSResistivity.Temp">
+<span class="sig-name descname"><span class="pre">Temp</span></span><a class="headerlink" href="#cpystal.core.core.PPMSResistivity.Temp" title="Permalink to this definition"></a></dt>
+<dd><p>Temperature (K) data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[float]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpystal.core.core.PPMSResistivity.Field">
+<span class="sig-name descname"><span class="pre">Field</span></span><a class="headerlink" href="#cpystal.core.core.PPMSResistivity.Field" title="Permalink to this definition"></a></dt>
+<dd><p>Magnetic field (Oe) data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[float]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpystal.core.core.PPMSResistivity.Time">
+<span class="sig-name descname"><span class="pre">Time</span></span><a class="headerlink" href="#cpystal.core.core.PPMSResistivity.Time" title="Permalink to this definition"></a></dt>
+<dd><p>Time stamp (sec) data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[float]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpystal.core.core.PPMSResistivity.B1Resistivity">
+<span class="sig-name descname"><span class="pre">B1Resistivity</span></span><a class="headerlink" href="#cpystal.core.core.PPMSResistivity.B1Resistivity" title="Permalink to this definition"></a></dt>
+<dd><p>Bridge 1 Resistivity (Ohm) data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[float]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpystal.core.core.PPMSResistivity.B2Resistivity">
+<span class="sig-name descname"><span class="pre">B2Resistivity</span></span><a class="headerlink" href="#cpystal.core.core.PPMSResistivity.B2Resistivity" title="Permalink to this definition"></a></dt>
+<dd><p>Bridge 2 Resistivity (Ohm) data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[float]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpystal.core.core.PPMSResistivity.B1R_sd">
+<span class="sig-name descname"><span class="pre">B1R_sd</span></span><a class="headerlink" href="#cpystal.core.core.PPMSResistivity.B1R_sd" title="Permalink to this definition"></a></dt>
+<dd><p>Standard deviation of Bridge 1 Resistivity (Ohm) data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[float]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpystal.core.core.PPMSResistivity.B2R_sd">
+<span class="sig-name descname"><span class="pre">B2R_sd</span></span><a class="headerlink" href="#cpystal.core.core.PPMSResistivity.B2R_sd" title="Permalink to this definition"></a></dt>
+<dd><p>Standard deviation of Bridge 2 Resistivity (Ohm) data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[float]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpystal.core.core.PPMSResistivity.B1Current">
+<span class="sig-name descname"><span class="pre">B1Current</span></span><a class="headerlink" href="#cpystal.core.core.PPMSResistivity.B1Current" title="Permalink to this definition"></a></dt>
+<dd><p>Bridge 1 Current (μA) data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[float]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpystal.core.core.PPMSResistivity.B2Current">
+<span class="sig-name descname"><span class="pre">B2Current</span></span><a class="headerlink" href="#cpystal.core.core.PPMSResistivity.B2Current" title="Permalink to this definition"></a></dt>
+<dd><p>Bridge 2 Current (μA) data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[float]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">(optional</span></span></dt>
+<dd><p>when used <cite>PPMS_Resistivity.set_S_l</cite>)</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpystal.core.core.PPMSResistivity.Sxx">
+<span class="sig-name descname"><span class="pre">Sxx</span></span><a class="headerlink" href="#cpystal.core.core.PPMSResistivity.Sxx" title="Permalink to this definition"></a></dt>
+<dd><p>Area of the sample perpendicular to the current (μm^2).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpystal.core.core.PPMSResistivity.Syx">
+<span class="sig-name descname"><span class="pre">Syx</span></span><a class="headerlink" href="#cpystal.core.core.PPMSResistivity.Syx" title="Permalink to this definition"></a></dt>
+<dd><p>Area of the sample parallel to the current (μm^2).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpystal.core.core.PPMSResistivity.lxx">
+<span class="sig-name descname"><span class="pre">lxx</span></span><a class="headerlink" href="#cpystal.core.core.PPMSResistivity.lxx" title="Permalink to this definition"></a></dt>
+<dd><p>Length of the sample parallel to the current (μm).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpystal.core.core.PPMSResistivity.lyx">
+<span class="sig-name descname"><span class="pre">lyx</span></span><a class="headerlink" href="#cpystal.core.core.PPMSResistivity.lyx" title="Permalink to this definition"></a></dt>
+<dd><p>Length of the sample perpendicular to the current (μm).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.core.core.PPMSResistivity.set_S_l">
+<span class="sig-name descname"><span class="pre">set_S_l</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Sxx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lxx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Syx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lyx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/cpystal/core/core.html#PPMSResistivity.set_S_l"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.core.core.PPMSResistivity.set_S_l" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.core.core.PPMSResistivity.symmetrize">
+<span class="sig-name descname"><span class="pre">symmetrize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delta_H</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">up_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">LLF</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">down_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">LLF</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">LF</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">LF</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">LF</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">LF</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">LF</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/cpystal/core/core.html#PPMSResistivity.symmetrize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.core.core.PPMSResistivity.symmetrize" title="Permalink to this definition"></a></dt>
+<dd><p>Symmetrization and antisymmetrization are performed based on the data of the field-increasing and field-decreasing processes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>delta_H</strong> (<em>float</em>) – Difference of the magnetic field between each step.</p></li>
+<li><p><strong>up_data</strong> (<em>list</em><em>[</em><em>list</em><em>[</em><em>float</em><em>]</em><em>]</em>) – list of [field (float), Rxx (float), Rxx_sd (float), Ryx (float), Ryx_sd (float)] which represents field-increasing data.</p></li>
+<li><p><strong>down_data</strong> (<em>list</em><em>[</em><em>list</em><em>[</em><em>float</em><em>]</em><em>]</em>) – list of [field (float), Rxx (float), Rxx_sd (float), Ryx (float), Ryx_sd (float)] which represents field-decreasing data.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The first element of return value is ‘effective_field’ that is the list of field value whose reverse field value exists in data.
+The second and third element of return value is the list of Rxx and Rxx_sd.
+The fourth and fifth element of return value is the list of Ryx and Ryx_sd.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>(tuple[list[float], list[float], list[float]], list[float], list[float])</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="cpystal.core.core.PhysicalConstant">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cpystal.core.core.</span></span><span class="sig-name descname"><span class="pre">PhysicalConstant</span></span><a class="reference internal" href="_modules/cpystal/core/core.html#PhysicalConstant"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.core.core.PhysicalConstant" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Physical constants.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpystal.core.core.PhysicalConstant.pi">
+<span class="sig-name descname"><span class="pre">pi</span></span><a class="headerlink" href="#cpystal.core.core.PhysicalConstant.pi" title="Permalink to this definition"></a></dt>
+<dd><p>3.14159265358979</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpystal.core.core.PhysicalConstant.exp">
+<span class="sig-name descname"><span class="pre">exp</span></span><a class="headerlink" href="#cpystal.core.core.PhysicalConstant.exp" title="Permalink to this definition"></a></dt>
+<dd><p>2.718281828459045</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpystal.core.core.PhysicalConstant.NA">
+<span class="sig-name descname"><span class="pre">NA</span></span><a class="headerlink" href="#cpystal.core.core.PhysicalConstant.NA" title="Permalink to this definition"></a></dt>
+<dd><p>6.02214076e+23 mol^-1</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpystal.core.core.PhysicalConstant.kB">
+<span class="sig-name descname"><span class="pre">kB</span></span><a class="headerlink" href="#cpystal.core.core.PhysicalConstant.kB" title="Permalink to this definition"></a></dt>
+<dd><p>1.380649e-23 J/K</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpystal.core.core.PhysicalConstant.c">
+<span class="sig-name descname"><span class="pre">c</span></span><a class="headerlink" href="#cpystal.core.core.PhysicalConstant.c" title="Permalink to this definition"></a></dt>
+<dd><p>299792458 m/s</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpystal.core.core.PhysicalConstant.h">
+<span class="sig-name descname"><span class="pre">h</span></span><a class="headerlink" href="#cpystal.core.core.PhysicalConstant.h" title="Permalink to this definition"></a></dt>
+<dd><p>6.62607015e-34 Js</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpystal.core.core.PhysicalConstant.hbar">
+<span class="sig-name descname"><span class="pre">hbar</span></span><a class="headerlink" href="#cpystal.core.core.PhysicalConstant.hbar" title="Permalink to this definition"></a></dt>
+<dd><p>1.0545718176461565e-34 Js</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpystal.core.core.PhysicalConstant.e">
+<span class="sig-name descname"><span class="pre">e</span></span><a class="headerlink" href="#cpystal.core.core.PhysicalConstant.e" title="Permalink to this definition"></a></dt>
+<dd><p>1.602176634e-19 C</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpystal.core.core.PhysicalConstant.Patm">
+<span class="sig-name descname"><span class="pre">Patm</span></span><a class="headerlink" href="#cpystal.core.core.PhysicalConstant.Patm" title="Permalink to this definition"></a></dt>
+<dd><p>101325 Pa</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpystal.core.core.PhysicalConstant.Celsius">
+<span class="sig-name descname"><span class="pre">Celsius</span></span><a class="headerlink" href="#cpystal.core.core.PhysicalConstant.Celsius" title="Permalink to this definition"></a></dt>
+<dd><p>273.15 K</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpystal.core.core.PhysicalConstant.gn">
+<span class="sig-name descname"><span class="pre">gn</span></span><a class="headerlink" href="#cpystal.core.core.PhysicalConstant.gn" title="Permalink to this definition"></a></dt>
+<dd><p>9.80665 ms^-2</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpystal.core.core.PhysicalConstant.mu0">
+<span class="sig-name descname"><span class="pre">mu0</span></span><a class="headerlink" href="#cpystal.core.core.PhysicalConstant.mu0" title="Permalink to this definition"></a></dt>
+<dd><p>1.2566370614359173e-06 NA^-2</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpystal.core.core.PhysicalConstant.epsilon0">
+<span class="sig-name descname"><span class="pre">epsilon0</span></span><a class="headerlink" href="#cpystal.core.core.PhysicalConstant.epsilon0" title="Permalink to this definition"></a></dt>
+<dd><p>8.854187817620389e-12 CV^-1m^-1</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpystal.core.core.PhysicalConstant.me">
+<span class="sig-name descname"><span class="pre">me</span></span><a class="headerlink" href="#cpystal.core.core.PhysicalConstant.me" title="Permalink to this definition"></a></dt>
+<dd><p>9.1093837015e-31 kg</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpystal.core.core.PhysicalConstant.muB">
+<span class="sig-name descname"><span class="pre">muB</span></span><a class="headerlink" href="#cpystal.core.core.PhysicalConstant.muB" title="Permalink to this definition"></a></dt>
+<dd><p>9.2740100783e-24 J/T</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpystal.core.core.PhysicalConstant.muB_emu">
+<span class="sig-name descname"><span class="pre">muB_emu</span></span><a class="headerlink" href="#cpystal.core.core.PhysicalConstant.muB_emu" title="Permalink to this definition"></a></dt>
+<dd><p>9.2740100783e-21 emu</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpystal.core.core.PhysicalConstant.sigma">
+<span class="sig-name descname"><span class="pre">sigma</span></span><a class="headerlink" href="#cpystal.core.core.PhysicalConstant.sigma" title="Permalink to this definition"></a></dt>
+<dd><p>5.670374419184428e-08 Wm-2K-4</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpystal.core.core.PhysicalConstant.G">
+<span class="sig-name descname"><span class="pre">G</span></span><a class="headerlink" href="#cpystal.core.core.PhysicalConstant.G" title="Permalink to this definition"></a></dt>
+<dd><p>6.6743e-11 Nm^2kg^-2</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpystal.core.core.PhysicalConstant.alpha">
+<span class="sig-name descname"><span class="pre">alpha</span></span><a class="headerlink" href="#cpystal.core.core.PhysicalConstant.alpha" title="Permalink to this definition"></a></dt>
+<dd><p>0.007297352565305217</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpystal.core.core.PhysicalConstant.phi0">
+<span class="sig-name descname"><span class="pre">phi0</span></span><a class="headerlink" href="#cpystal.core.core.PhysicalConstant.phi0" title="Permalink to this definition"></a></dt>
+<dd><p>2.067833848461929e-15 Wb</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpystal.core.core.PhysicalConstant.Rydberg">
+<span class="sig-name descname"><span class="pre">Rydberg</span></span><a class="headerlink" href="#cpystal.core.core.PhysicalConstant.Rydberg" title="Permalink to this definition"></a></dt>
+<dd><p>10973731.556123963 m^-1</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpystal.core.core.PhysicalConstant.a0">
+<span class="sig-name descname"><span class="pre">a0</span></span><a class="headerlink" href="#cpystal.core.core.PhysicalConstant.a0" title="Permalink to this definition"></a></dt>
+<dd><p>5.291772111941794e-11 m</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpystal.core.core.PhysicalConstant.R">
+<span class="sig-name descname"><span class="pre">R</span></span><a class="headerlink" href="#cpystal.core.core.PhysicalConstant.R" title="Permalink to this definition"></a></dt>
+<dd><p>8.31446261815324 JK^-1mol^-1</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="id0">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Celsius</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#id0" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="id1">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">G</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#id1" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="cpystal.core.core.PhysicalConstant.Kcd">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Kcd</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#cpystal.core.core.PhysicalConstant.Kcd" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="id2">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">NA</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#id2" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="id3">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Patm</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#id3" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="id4">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">R</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#id4" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="id5">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Rydberg</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#id5" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="id6">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">a0</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#id6" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="id7">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">alpha</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#id7" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="id8">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">c</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#id8" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="id9">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">e</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#id9" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="id10">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">epsilon0</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#id10" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="id11">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">exp</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#id11" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="id12">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">gn</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#id12" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="id13">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">h</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#id13" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="id14">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">hbar</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#id14" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="id15">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">kB</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#id15" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="id16">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">me</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#id16" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="id17">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">mu0</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#id17" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="id18">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">muB</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#id18" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="id19">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">muB_emu</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#id19" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="id20">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">phi0</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#id20" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="id21">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">pi</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#id21" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="id22">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">sigma</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#id22" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="cpystal.core.core.PhysicalConstant.unit">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">unit</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#cpystal.core.core.PhysicalConstant.unit" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="cpystal.core.core.SemimutableDict">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cpystal.core.core.</span></span><span class="sig-name descname"><span class="pre">SemimutableDict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cpystal/core/core.html#SemimutableDict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.core.core.SemimutableDict" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-obj docutils literal notranslate"><span class="pre">Any</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">Any</span></code>]</p>
+<p>Semi-mutable dictionary inherited from <cite>dict</cite></p>
+<p>The only difference from <cite>dict</cite> is that using <cite>[]</cite> is not allowed, but using <cite>update_force</cite> method is allowed to replace the value.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.core.core.SemimutableDict.update_force">
+<span class="sig-name descname"><span class="pre">update_force</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/cpystal/core/core.html#SemimutableDict.update_force"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.core.core.SemimutableDict.update_force" title="Permalink to this definition"></a></dt>
+<dd><p>Instance method for replacing the value.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>key</strong> (<em>Any</em>) – Immutable object.</p></li>
+<li><p><strong>value</strong> (<em>Any</em>) – New value of <cite>key</cite>.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cpystal.core.core.ingredient_flake_dp">
+<span class="sig-prename descclassname"><span class="pre">cpystal.core.core.</span></span><span class="sig-name descname"><span class="pre">ingredient_flake_dp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">A</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">W</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/cpystal/core/core.html#ingredient_flake_dp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.core.core.ingredient_flake_dp" title="Permalink to this definition"></a></dt>
+<dd><p>Choose optimal flakes whose total weight meets the target value.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The result will be output to stdout.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>A</strong> (<em>list</em><em>[</em><em>int</em><em>]</em>) – list of weight of flakes, properly integerized.</p></li>
+<li><p><strong>W</strong> (<em>int</em>) – Target weight value.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cpystal.core.core.main">
+<span class="sig-prename descclassname"><span class="pre">cpystal.core.core.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/cpystal/core/core.html#main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.core.core.main" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cpystal.core.core.smoothing">
+<span class="sig-prename descclassname"><span class="pre">cpystal.core.core.</span></span><span class="sig-name descname"><span class="pre">smoothing</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/cpystal/core/core.html#smoothing"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.core.core.smoothing" title="Permalink to this definition"></a></dt>
+<dd><p>Data smoothing function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>list</em><em>[</em><em>float</em><em>]</em>) – 1-dimension data.</p></li>
+<li><p><strong>mode</strong> (<em>Any</em>) – To choose smoothing algorithm. Savitzky-Golay filter if mode == “s”, Simple Moving Average otherwise.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>smoothed data.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>(list[float])</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cpystal.core.core.str_to_float">
+<span class="sig-prename descclassname"><span class="pre">cpystal.core.core.</span></span><span class="sig-name descname"><span class="pre">str_to_float</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="_modules/cpystal/core/core.html#str_to_float"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.core.core.str_to_float" title="Permalink to this definition"></a></dt>
+<dd><p>Convert str number to float object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>s</strong> (<em>str</em>) – str-type number.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None if s is empty-string, float otherwise</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>(int | None)</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-cpystal.core.data_structure">
+<span id="cpystal-core-data-structure-module"></span><h2>cpystal.core.data_structure module<a class="headerlink" href="#module-cpystal.core.data_structure" title="Permalink to this heading"></a></h2>
+<p><cite>data_structure</cite>: General data structures.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="cpystal.core.data_structure.SemimutableDict">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cpystal.core.data_structure.</span></span><span class="sig-name descname"><span class="pre">SemimutableDict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cpystal/core/data_structure.html#SemimutableDict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.core.data_structure.SemimutableDict" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-obj docutils literal notranslate"><span class="pre">Any</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">Any</span></code>]</p>
+<p>Semi-mutable dictionary inherited from <cite>dict</cite></p>
+<p>The only difference from <cite>dict</cite> is that using <cite>[]</cite> is not allowed, but using <cite>update_force</cite> method is allowed to replace the value.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.core.data_structure.SemimutableDict.update_force">
+<span class="sig-name descname"><span class="pre">update_force</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/cpystal/core/data_structure.html#SemimutableDict.update_force"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.core.data_structure.SemimutableDict.update_force" title="Permalink to this definition"></a></dt>
+<dd><p>Instance method for replacing the value.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>key</strong> (<em>Any</em>) – Immutable object.</p></li>
+<li><p><strong>value</strong> (<em>Any</em>) – New value of <cite>key</cite>.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="cpystal.core.data_structure.UnionFind">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cpystal.core.data_structure.</span></span><span class="sig-name descname"><span class="pre">UnionFind</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cpystal/core/data_structure.html#UnionFind"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.core.data_structure.UnionFind" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.core.data_structure.UnionFind.all_root">
+<span class="sig-name descname"><span class="pre">all_root</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/cpystal/core/data_structure.html#UnionFind.all_root"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.core.data_structure.UnionFind.all_root" title="Permalink to this definition"></a></dt>
+<dd><p>Return the roots of the groups.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Time complexity is O(n), where n is the size of the entire set.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The roots of the groups.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>list[int]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.core.data_structure.UnionFind.decompose">
+<span class="sig-name descname"><span class="pre">decompose</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/cpystal/core/data_structure.html#UnionFind.decompose"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.core.data_structure.UnionFind.decompose" title="Permalink to this definition"></a></dt>
+<dd><p>Return the groups.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Time complexity is O(nα(n)), where n is the size of the entire set.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>x</strong> (<em>int</em>) – The number of the element.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The groups.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[list[int]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.core.data_structure.UnionFind.family">
+<span class="sig-name descname"><span class="pre">family</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/cpystal/core/data_structure.html#UnionFind.family"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.core.data_structure.UnionFind.family" title="Permalink to this definition"></a></dt>
+<dd><p>Return the group of <cite>x</cite>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Time complexity is O(n), where n is the size of the entire set.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>x</strong> (<em>int</em>) – The number of the element.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The group of <cite>x</cite>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[int]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.core.data_structure.UnionFind.issame">
+<span class="sig-name descname"><span class="pre">issame</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/cpystal/core/data_structure.html#UnionFind.issame"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.core.data_structure.UnionFind.issame" title="Permalink to this definition"></a></dt>
+<dd><p>Judge whether <cite>x</cite> and <cite>y</cite> belong to the same group.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Time complexity is O(α(n)), where n is the size of the entire set.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>int</em>) – The number of the element.</p></li>
+<li><p><strong>y</strong> (<em>int</em>) – The number of the element.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Whether <cite>x</cite> and <cite>y</cite> belong to the same group.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.core.data_structure.UnionFind.maximum">
+<span class="sig-name descname"><span class="pre">maximum</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/cpystal/core/data_structure.html#UnionFind.maximum"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.core.data_structure.UnionFind.maximum" title="Permalink to this definition"></a></dt>
+<dd><p>Return the group which has the maximum size among the groups.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Time complexity is O(n), where n is the size of the entire set.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The group which has the maximum size among the groups.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>list[int]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.core.data_structure.UnionFind.merge">
+<span class="sig-name descname"><span class="pre">merge</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/cpystal/core/data_structure.html#UnionFind.merge"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.core.data_structure.UnionFind.merge" title="Permalink to this definition"></a></dt>
+<dd><p>Merge <cite>x</cite> and <cite>y</cite>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Time complexity is O(α(n)), where n is the size of the entire set.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>int</em>) – The number of the element.</p></li>
+<li><p><strong>y</strong> (<em>int</em>) – The number of the element.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Whether <cite>x</cite> and <cite>y</cite> belonged to the same group.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.core.data_structure.UnionFind.root">
+<span class="sig-name descname"><span class="pre">root</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="_modules/cpystal/core/data_structure.html#UnionFind.root"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.core.data_structure.UnionFind.root" title="Permalink to this definition"></a></dt>
+<dd><p>Return the number of the root of <cite>x</cite>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Time complexity is O(α(n)),
+where n is the size of the entire set
+and α(n) is the inverse Ackermann function.
+This function satisfies the relation:</p>
+<blockquote>
+<div><p>A(α(n)-1, α(n)-1) &lt; n &lt;= A(α(n), α(n)).</p>
+</div></blockquote>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>x</strong> (<em>int</em>) – The number of the element.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The number of the root of <cite>x</cite>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.core.data_structure.UnionFind.size">
+<span class="sig-name descname"><span class="pre">size</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="_modules/cpystal/core/data_structure.html#UnionFind.size"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.core.data_structure.UnionFind.size" title="Permalink to this definition"></a></dt>
+<dd><p>Return the size of the group to which <cite>x</cite> belongs.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Time complexity is O(n), where n is the size of the entire set.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>x</strong> (<em>int</em>) – The number of the element.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The number of the size of the group to which <cite>x</cite> belongs.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cpystal.core.data_structure.main">
+<span class="sig-prename descclassname"><span class="pre">cpystal.core.data_structure.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/cpystal/core/data_structure.html#main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.core.data_structure.main" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-cpystal.core">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-cpystal.core" title="Permalink to this heading"></a></h2>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="cpystal.color.html" class="btn btn-neutral float-left" title="cpystal.color package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="cpystal.figure.html" class="btn btn-neutral float-right" title="cpystal.figure package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Helve.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

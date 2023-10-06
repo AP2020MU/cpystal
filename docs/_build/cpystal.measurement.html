@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>cpystal.measurement package &mdash; cpystal  documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="cpystal.mathematics.optimize package" href="cpystal.mathematics.optimize.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            cpystal
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="cpystal.html">cpystal package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="cpystal.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="cpystal.analysis.html">cpystal.analysis package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cpystal.color.html">cpystal.color package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cpystal.core.html">cpystal.core package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cpystal.figure.html">cpystal.figure package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cpystal.graph.html">cpystal.graph package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cpystal.mathematics.html">cpystal.mathematics package</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">cpystal.measurement package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-cpystal.measurement.sequence">cpystal.measurement.sequence module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-cpystal.measurement">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="cpystal.html#module-cpystal">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">cpystal</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="cpystal.html">cpystal package</a></li>
+      <li class="breadcrumb-item active">cpystal.measurement package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/cpystal.measurement.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="cpystal-measurement-package">
+<h1>cpystal.measurement package<a class="headerlink" href="#cpystal-measurement-package" title="Permalink to this heading"></a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading"></a></h2>
+</section>
+<section id="module-cpystal.measurement.sequence">
+<span id="cpystal-measurement-sequence-module"></span><h2>cpystal.measurement.sequence module<a class="headerlink" href="#module-cpystal.measurement.sequence" title="Permalink to this heading"></a></h2>
+<p><cite>sequence</cite>: for making sequences to control PPMS.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="cpystal.measurement.sequence.Measure">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cpystal.measurement.sequence.</span></span><span class="sig-name descname"><span class="pre">Measure</span></span><a class="reference internal" href="_modules/cpystal/measurement/sequence.html#Measure"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.measurement.sequence.Measure" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#cpystal.measurement.sequence.SequenceCommandBase" title="cpystal.measurement.sequence.SequenceCommandBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">SequenceCommandBase</span></code></a></p>
+<p>Command Labview to enter measuring sequence.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="cpystal.measurement.sequence.ScanField">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cpystal.measurement.sequence.</span></span><span class="sig-name descname"><span class="pre">ScanField</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">increment</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">approach_method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'Linear'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">magnet_mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'Persistent'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">substructure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">SequenceCommand</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cpystal/measurement/sequence.html#ScanField"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.measurement.sequence.ScanField" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#cpystal.measurement.sequence.SequenceCommandBase" title="cpystal.measurement.sequence.SequenceCommandBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">SequenceCommandBase</span></code></a></p>
+<p>Command PPMS to scan magnetic field.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This sequence commands PPMS to wait for the magnetic field to stabilize each time it changes the value of the magnetic field.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>start</strong> (<em>float</em>) – Initial magnetic field value (Oe).</p></li>
+<li><p><strong>end</strong> (<em>float</em>) – Final magnetic field value (Oe).</p></li>
+<li><p><strong>increment</strong> (<em>float</em>) – Increment magnetic field value by a step (Oe).</p></li>
+<li><p><strong>rate</strong> (<em>float</em>) – Speed of changing magnetic field (Oe/s). Defaults to 100.</p></li>
+<li><p><strong>approach_method</strong> (<em>str</em>) – Approach method of magnetic field to the target. Defaults to “Linear”.
+[“Linear”, “No overshoot”, “Oscillate”] can be used.</p></li>
+<li><p><strong>magnet_mode</strong> (<em>str</em>) – Mode of magnet in PPMS. Defaults to “Persistent”.
+[“Persistent”, “Driven”] can be used.</p></li>
+<li><p><strong>substructure</strong> (<em>SequenceCommand</em><em> | </em><em>None</em>) – Commands to be executed while scanning for magnetic field. Defaults to None.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.measurement.sequence.ScanField.from_field_list">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_field_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">approach_method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'Linear'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">magnet_mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'Persistent'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">substructure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">SequenceCommand</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cpystal.measurement.sequence.ScanField" title="cpystal.measurement.sequence.ScanField"><span class="pre">ScanField</span></a></span></span><a class="reference internal" href="_modules/cpystal/measurement/sequence.html#ScanField.from_field_list"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.measurement.sequence.ScanField.from_field_list" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>value_list</strong> (<em>Sequence</em><em>[</em><em>float</em><em>]</em>) – list of magnetic field (Oe).</p></li>
+<li><p><strong>rate</strong> (<em>float</em>) – Speed of changing magnetic field (Oe/s). Defaults to 100.</p></li>
+<li><p><strong>approach_method</strong> (<em>str</em>) – Approach method of magnetic field to the target. Defaults to “Linear”.
+[“Linear”, “No overshoot”, “Oscillate”] can be used.</p></li>
+<li><p><strong>magnet_mode</strong> (<em>str</em>) – Mode of magnet in PPMS. Defaults to “Persistent”.
+[“Persistent”, “Driven”] can be used.</p></li>
+<li><p><strong>substructure</strong> (<em>SequenceCommand</em><em> | </em><em>None</em>) – Commands to be executed while scanning for magnetic field. Defaults to None.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Instance of ‘ScanField’.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>(<a class="reference internal" href="#cpystal.measurement.sequence.ScanField" title="cpystal.measurement.sequence.ScanField">ScanField</a>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="cpystal.measurement.sequence.ScanPower">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cpystal.measurement.sequence.</span></span><span class="sig-name descname"><span class="pre">ScanPower</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">increment</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">substructure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">SequenceCommand</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cpystal/measurement/sequence.html#ScanPower"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.measurement.sequence.ScanPower" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#cpystal.measurement.sequence.SequenceCommandBase" title="cpystal.measurement.sequence.SequenceCommandBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">SequenceCommandBase</span></code></a></p>
+<p>Command K6221 to scan power.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>start</strong> (<em>float</em>) – Initial power value (mW).</p></li>
+<li><p><strong>end</strong> (<em>float</em>) – Final power value (mW).</p></li>
+<li><p><strong>increment</strong> (<em>float</em>) – Increment power value by a step (mW).</p></li>
+<li><p><strong>substructure</strong> (<em>SequenceCommand</em><em> | </em><em>None</em>) – Commands to be executed while scanning for power. Defaults to None.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.measurement.sequence.ScanPower.from_power_list">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_power_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">substructure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">SequenceCommand</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cpystal.measurement.sequence.ScanPower" title="cpystal.measurement.sequence.ScanPower"><span class="pre">ScanPower</span></a></span></span><a class="reference internal" href="_modules/cpystal/measurement/sequence.html#ScanPower.from_power_list"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.measurement.sequence.ScanPower.from_power_list" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>value_list</strong> (<em>Sequence</em><em>[</em><em>float</em><em>]</em>) – list of power (mW).</p></li>
+<li><p><strong>substructure</strong> (<em>SequenceCommand</em><em> | </em><em>None</em>) – Commands to be executed while scanning for power. Defaults to None.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Instance of ‘ScanPower’.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>(<a class="reference internal" href="#cpystal.measurement.sequence.ScanPower" title="cpystal.measurement.sequence.ScanPower">ScanPower</a>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="cpystal.measurement.sequence.ScanTemp">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cpystal.measurement.sequence.</span></span><span class="sig-name descname"><span class="pre">ScanTemp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">increment</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">approach_method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'Fast</span> <span class="pre">settle'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">substructure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">SequenceCommand</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cpystal/measurement/sequence.html#ScanTemp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.measurement.sequence.ScanTemp" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#cpystal.measurement.sequence.SequenceCommandBase" title="cpystal.measurement.sequence.SequenceCommandBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">SequenceCommandBase</span></code></a></p>
+<p>Command PPMS to scan temperature.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This sequence commands PPMS to wait for the temperature to stabilize each time it changes the value of the temperature.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>start</strong> (<em>float</em>) – Initial temperature value (K).</p></li>
+<li><p><strong>end</strong> (<em>float</em>) – Final temperature value (K).</p></li>
+<li><p><strong>increment</strong> (<em>float</em>) – Increment temperature value by a step (K).</p></li>
+<li><p><strong>rate</strong> (<em>float</em>) – Speed of changing temperature (K/min). Defaults to 5. Make sure that 0 &lt;= rate &lt;= 20.</p></li>
+<li><p><strong>approach_method</strong> (<em>str</em>) – Approach method of temperature to the target. Defaults to “Fast settle”.
+[“Fast settle”, “No overshoot”] can be used.</p></li>
+<li><p><strong>substructure</strong> (<em>SequenceCommand</em><em> | </em><em>None</em>) – Commands to be executed while scanning for temperature. Defaults to None.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.measurement.sequence.ScanTemp.from_temp_list">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_temp_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">approach_method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'Fast</span> <span class="pre">settle'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">substructure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">SequenceCommand</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cpystal.measurement.sequence.ScanTemp" title="cpystal.measurement.sequence.ScanTemp"><span class="pre">ScanTemp</span></a></span></span><a class="reference internal" href="_modules/cpystal/measurement/sequence.html#ScanTemp.from_temp_list"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.measurement.sequence.ScanTemp.from_temp_list" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>value_list</strong> (<em>Sequence</em><em>[</em><em>float</em><em>]</em>) – list of temperature (K).</p></li>
+<li><p><strong>rate</strong> (<em>float</em>) – Speed of changing temperature (K/min). Defaults to 5. Make sure that 0 &lt;= rate &lt;= 20.</p></li>
+<li><p><strong>approach_method</strong> (<em>str</em>) – Approach method of temperature to the target. Defaults to “Fast settle”.
+[“Fast settle”, “No overshoot”] can be used.</p></li>
+<li><p><strong>substructure</strong> (<em>SequenceCommand</em><em> | </em><em>None</em>) – Commands to be executed while scanning for temperature. Defaults to None.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Instance of ‘ScanTemp’.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>(<a class="reference internal" href="#cpystal.measurement.sequence.ScanTemp" title="cpystal.measurement.sequence.ScanTemp">ScanTemp</a>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="cpystal.measurement.sequence.SequenceCommandBase">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cpystal.measurement.sequence.</span></span><span class="sig-name descname"><span class="pre">SequenceCommandBase</span></span><a class="reference internal" href="_modules/cpystal/measurement/sequence.html#SequenceCommandBase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.measurement.sequence.SequenceCommandBase" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Base class of ‘SequenceCommand’.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpystal.measurement.sequence.SequenceCommandBase.commands">
+<span class="sig-name descname"><span class="pre">commands</span></span><a class="headerlink" href="#cpystal.measurement.sequence.SequenceCommandBase.commands" title="Permalink to this definition"></a></dt>
+<dd><p>Commands of the sequence. The first element of the tuple indicates command type in integers (details below).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[tuple[Any]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpystal.measurement.sequence.SequenceCommandBase.command_number">
+<span class="sig-name descname"><span class="pre">command_number</span></span><a class="headerlink" href="#cpystal.measurement.sequence.SequenceCommandBase.command_number" title="Permalink to this definition"></a></dt>
+<dd><dl class="simple">
+<dt>Dictionary of ‘command name’ to ‘command number’:</dt><dd><p><cite>“Measure”: 0,
+“WaitForField”: 1,
+“WaitForTemp”: 2,
+“SetField”: 3,
+“SetTemp”: 4,
+“SetPower”: 5</cite></p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict[str, int]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpystal.measurement.sequence.SequenceCommandBase.field_approach_method_number">
+<span class="sig-name descname"><span class="pre">field_approach_method_number</span></span><a class="headerlink" href="#cpystal.measurement.sequence.SequenceCommandBase.field_approach_method_number" title="Permalink to this definition"></a></dt>
+<dd><dl class="simple">
+<dt>Dictionary of ‘field approach method’ to the number:</dt><dd><p><cite>“Linear”: 0,
+“No overshoot”: 1,
+“Oscillate”: 2</cite></p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict[str, int]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpystal.measurement.sequence.SequenceCommandBase.magnet_mode_number">
+<span class="sig-name descname"><span class="pre">magnet_mode_number</span></span><a class="headerlink" href="#cpystal.measurement.sequence.SequenceCommandBase.magnet_mode_number" title="Permalink to this definition"></a></dt>
+<dd><dl class="simple">
+<dt>Dictionary of ‘magnet mode’ to the number:</dt><dd><p><cite>“Persistent”: 0,
+“Driven”: 1</cite></p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict[str, int]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpystal.measurement.sequence.SequenceCommandBase.temp_approach_method_number">
+<span class="sig-name descname"><span class="pre">temp_approach_method_number</span></span><a class="headerlink" href="#cpystal.measurement.sequence.SequenceCommandBase.temp_approach_method_number" title="Permalink to this definition"></a></dt>
+<dd><dl class="simple">
+<dt>Dictionary of ‘temperature approach method’ to the number:</dt><dd><p><cite>“Fast settle”: 0,
+“No overshoot”: 1</cite></p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict[str, int]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.measurement.sequence.SequenceCommandBase.reset">
+<span class="sig-name descname"><span class="pre">reset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/cpystal/measurement/sequence.html#SequenceCommandBase.reset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.measurement.sequence.SequenceCommandBase.reset" title="Permalink to this definition"></a></dt>
+<dd><div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>reset ‘commands’ of the instance.</p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.measurement.sequence.SequenceCommandBase.to_csv">
+<span class="sig-name descname"><span class="pre">to_csv</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/cpystal/measurement/sequence.html#SequenceCommandBase.to_csv"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.measurement.sequence.SequenceCommandBase.to_csv" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>filename</strong> (<em>str</em>) – File name of output csv file.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.measurement.sequence.SequenceCommandBase.calc_required_time">
+<span class="sig-name descname"><span class="pre">calc_required_time</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/cpystal/measurement/sequence.html#SequenceCommandBase.calc_required_time"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.measurement.sequence.SequenceCommandBase.calc_required_time" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>T0</strong> (<em>float</em>) – Temperature value before excuting the sequence (K). Defaults to 300.</p></li>
+<li><p><strong>H0</strong> (<em>float</em>) – Magnetic field value before excuting the sequence (Oe). Defaults to 0.</p></li>
+<li><p><strong>measuring_time</strong> (<em>float</em>) – Required time of measuring sequence (min). Defaults to 6.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Required time of the entire sequence (min).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>(float)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Additive operation (operator:<cite>+</cite>) is defined between this class and its child classes.
+The resulting instance of addition is always derived from <cite>SequenceCommandBase</cite>.
+Additive identity of this operation is <cite>SequenceCommandBase()</cite>.</p>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="id0">
+<span class="sig-name descname"><span class="pre">calc_required_time</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">T0</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">300.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">H0</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measuring_time</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">6.0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="_modules/cpystal/measurement/sequence.html#SequenceCommandBase.calc_required_time"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id0" title="Permalink to this definition"></a></dt>
+<dd><p>Calculate required time of the sequence.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>T0</strong> (<em>float</em>) – Temperature value before excuting the sequence (K). Defaults to 300.</p></li>
+<li><p><strong>H0</strong> (<em>float</em>) – Magnetic field value before excuting the sequence (Oe). Defaults to 0.</p></li>
+<li><p><strong>measuring_time</strong> (<em>float</em>) – Required time of measuring sequence (min). Defaults to 6.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Required time of the entire sequence (min).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>(float)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="id1">
+<span class="sig-name descname"><span class="pre">reset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/cpystal/measurement/sequence.html#SequenceCommandBase.reset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id1" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="id2">
+<span class="sig-name descname"><span class="pre">to_csv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/cpystal/measurement/sequence.html#SequenceCommandBase.to_csv"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id2" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="cpystal.measurement.sequence.SetField">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cpystal.measurement.sequence.</span></span><span class="sig-name descname"><span class="pre">SetField</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">approach_method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'Linear'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">magnet_mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'Persistent'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cpystal/measurement/sequence.html#SetField"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.measurement.sequence.SetField" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#cpystal.measurement.sequence.SequenceCommandBase" title="cpystal.measurement.sequence.SequenceCommandBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">SequenceCommandBase</span></code></a></p>
+<p>Command PPMS to set magnetic field.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>target</strong> (<em>float</em>) – Target magnetic field value (Oe).</p></li>
+<li><p><strong>rate</strong> (<em>float</em>) – Speed of changing magnetic field (Oe/s). Defaults to 100.</p></li>
+<li><p><strong>approach_method</strong> (<em>str</em>) – Approach method of magnetic field to the target. Defaults to “Linear”.
+[“Linear”, “No overshoot”, “Oscillate”] can be used.</p></li>
+<li><p><strong>magnet_mode</strong> (<em>str</em>) – Mode of magnet in PPMS. Defaults to “Persistent”.
+[“Persistent”, “Driven”] can be used.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="cpystal.measurement.sequence.SetPower">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cpystal.measurement.sequence.</span></span><span class="sig-name descname"><span class="pre">SetPower</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cpystal/measurement/sequence.html#SetPower"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.measurement.sequence.SetPower" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#cpystal.measurement.sequence.SequenceCommandBase" title="cpystal.measurement.sequence.SequenceCommandBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">SequenceCommandBase</span></code></a></p>
+<p>Command K6221 to set heater power.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>target</strong> – Target power value (mW).</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="cpystal.measurement.sequence.SetTemp">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cpystal.measurement.sequence.</span></span><span class="sig-name descname"><span class="pre">SetTemp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">approach_method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'Fast</span> <span class="pre">settle'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cpystal/measurement/sequence.html#SetTemp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.measurement.sequence.SetTemp" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#cpystal.measurement.sequence.SequenceCommandBase" title="cpystal.measurement.sequence.SequenceCommandBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">SequenceCommandBase</span></code></a></p>
+<p>Command PPMS to set temperature.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>target</strong> (<em>float</em>) – Target temperature value (K).</p></li>
+<li><p><strong>rate</strong> (<em>float</em>) – Speed of changing temperature (K/min). Defaults to 5. Make sure that 0 &lt;= rate &lt;= 20.</p></li>
+<li><p><strong>approach_method</strong> (<em>str</em>) – Approach method of temperature to the target. Defaults to “Fast settle”.
+[“Fast settle”, “No overshoot”] can be used.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="cpystal.measurement.sequence.WaitForField">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cpystal.measurement.sequence.</span></span><span class="sig-name descname"><span class="pre">WaitForField</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">extra_wait</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cpystal/measurement/sequence.html#WaitForField"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.measurement.sequence.WaitForField" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#cpystal.measurement.sequence.SequenceCommandBase" title="cpystal.measurement.sequence.SequenceCommandBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">SequenceCommandBase</span></code></a></p>
+<p>Command PPMS to wait until the magnetic field stabilized.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>extra_wait</strong> (<em>float</em>) – Extra wait time after magnetic field stabilized (min).</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="cpystal.measurement.sequence.WaitForTemp">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cpystal.measurement.sequence.</span></span><span class="sig-name descname"><span class="pre">WaitForTemp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">extra_wait</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cpystal/measurement/sequence.html#WaitForTemp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.measurement.sequence.WaitForTemp" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#cpystal.measurement.sequence.SequenceCommandBase" title="cpystal.measurement.sequence.SequenceCommandBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">SequenceCommandBase</span></code></a></p>
+<p>Command PPMS to wait until the temperature stabilized.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>extra_wait</strong> (<em>float</em>) – Extra wait time after temperature stabilized (min).</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cpystal.measurement.sequence.main">
+<span class="sig-prename descclassname"><span class="pre">cpystal.measurement.sequence.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/cpystal/measurement/sequence.html#main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.measurement.sequence.main" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cpystal.measurement.sequence.sequence_maker">
+<span class="sig-prename descclassname"><span class="pre">cpystal.measurement.sequence.</span></span><span class="sig-name descname"><span class="pre">sequence_maker</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">command_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">SequenceCommand</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cpystal.measurement.sequence.SequenceCommandBase" title="cpystal.measurement.sequence.SequenceCommandBase"><span class="pre">SequenceCommandBase</span></a></span></span><a class="reference internal" href="_modules/cpystal/measurement/sequence.html#sequence_maker"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.measurement.sequence.sequence_maker" title="Permalink to this definition"></a></dt>
+<dd><p>Make a sequence for controlling PPMS.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> (<em>str</em>) – File name.</p></li>
+<li><p><strong>command_list</strong> (<em>list</em><em>[</em><em>SequenceCommand</em><em>]</em>) – list of instances of <cite>SequenceCommand</cite>.
+If you want to add some commands while <cite>ScanField</cite>, <cite>ScanTemp</cite> and <cite>ScanPower</cite>,
+you will use the argument <cite>substructure</cite> of those classes (the details are as follows).</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">res</span> <span class="o">=</span> <span class="n">sequence_maker</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s2">&quot;./a.csv&quot;</span><span class="p">,</span> <span class="n">command_list</span><span class="o">=</span>
+<span class="go">    [</span>
+<span class="go">        SetPower(target=0.1),</span>
+<span class="go">        WaitForTemp(extra_wait=1),</span>
+<span class="go">        ScanTemp.from_temp_list([300,250,200,150,100,50,2],</span>
+<span class="go">            substructure=WaitForTemp(extra_wait=5) + Measure()</span>
+<span class="go">        ),</span>
+<span class="go">        SetField(target=0, rate=100, approach_method=&quot;Linear&quot;, magnet_mode=&quot;Persistent&quot;),</span>
+<span class="go">        ScanTemp(start=2, end=10, increment=2, rate=5,</span>
+<span class="go">            substructure=ScanField(90000, -90000, 10000, rate=100, approach_method=&quot;Linear&quot;, magnet_mode=&quot;Persistent&quot;,</span>
+<span class="go">                substructure=WaitForField(extra_wait=0.5) + Measure()</span>
+<span class="go">            ) + ScanField(-90000, 90000, 10000, rate=100, approach_method=&quot;Linear&quot;, magnet_mode=&quot;Persistent&quot;,</span>
+<span class="go">                substructure=WaitForField(extra_wait=0.5) + Measure()</span>
+<span class="go">            )</span>
+<span class="go">        ),</span>
+<span class="go">        ScanField.from_field_list([0, 1000, 2000, 3000, 5000, 10000, 90000],</span>
+<span class="go">            substructure=WaitForField(extra_wait=0.5) + Measure()</span>
+<span class="go">        ),</span>
+<span class="go">        SetField(0),</span>
+<span class="go">        SetTemp(300)</span>
+<span class="go">    ]</span>
+<span class="go">)</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">res</span><span class="p">)</span>
+<span class="go">&#39;&#39;&#39;</span>
+<span class="go">0 SetPower: 0.1 mW</span>
+<span class="go">1 WaitForTemp: extra wait 1 min</span>
+<span class="go">2 ScanTemp: from 300 K to 2 K at 5 K/min [7 steps], Fast settle</span>
+<span class="go">3       WaitForTemp: extra wait 5 min</span>
+<span class="go">4       Measure</span>
+<span class="go">5 SetField: 0 Oe, Linear, Persistent</span>
+<span class="go">6 ScanTemp: from 2 K to 10 K at 5 K/min in 2 K increments [5 steps], Fast settle</span>
+<span class="go">7       ScanField: from 90000 Oe to -90000 Oe at 100 Oe/s in 10000 Oe increments [19 steps], Linear, Persistent</span>
+<span class="go">8               WaitForField: extra wait 0.5 min</span>
+<span class="go">9               Measure</span>
+<span class="go">10      ScanField: from -90000 Oe to 90000 Oe at 100 Oe/s in 10000 Oe increments [19 steps], Linear, Persistent</span>
+<span class="go">11              WaitForField: extra wait 0.5 min</span>
+<span class="go">12              Measure</span>
+<span class="go">13 ScanField: from 0 Oe to 90000 Oe at 100 Oe/s [7 steps], Linear, Persistent</span>
+<span class="go">14      WaitForField: extra wait 0.5 min</span>
+<span class="go">15      Measure</span>
+<span class="go">16 SetField: 0 Oe, Linear, Persistent</span>
+<span class="go">17 SetTemp: 300 K, Fast settle</span>
+<span class="go">Required time: 1837.7 min (assuming initial (T,H) = (300K,0T) and necessary time for one measure = 6 min)</span>
+<span class="go">&#39;&#39;&#39;</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">res</span><span class="o">.</span><span class="n">calc_required_time</span><span class="p">(</span><span class="n">T0</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span> <span class="n">H0</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">measuring_time</span><span class="o">=</span><span class="mi">10</span><span class="p">))</span> <span class="c1"># necessary time for one measure = 10 min</span>
+<span class="go">2653.7</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</section>
+<section id="module-cpystal.measurement">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-cpystal.measurement" title="Permalink to this heading"></a></h2>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="cpystal.mathematics.optimize.html" class="btn btn-neutral float-left" title="cpystal.mathematics.optimize package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Helve.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

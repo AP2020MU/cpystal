@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>cpystal.figure package &mdash; cpystal  documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="cpystal.graph package" href="cpystal.graph.html" />
+    <link rel="prev" title="cpystal.core package" href="cpystal.core.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            cpystal
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="cpystal.html">cpystal package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="cpystal.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="cpystal.analysis.html">cpystal.analysis package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cpystal.color.html">cpystal.color package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cpystal.core.html">cpystal.core package</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">cpystal.figure package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-cpystal.figure.figure">cpystal.figure.figure module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-cpystal.figure">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="cpystal.graph.html">cpystal.graph package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cpystal.mathematics.html">cpystal.mathematics package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cpystal.measurement.html">cpystal.measurement package</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="cpystal.html#module-cpystal">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">cpystal</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="cpystal.html">cpystal package</a></li>
+      <li class="breadcrumb-item active">cpystal.figure package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/cpystal.figure.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="cpystal-figure-package">
+<h1>cpystal.figure package<a class="headerlink" href="#cpystal-figure-package" title="Permalink to this heading"></a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading"></a></h2>
+</section>
+<section id="module-cpystal.figure.figure">
+<span id="cpystal-figure-figure-module"></span><h2>cpystal.figure.figure module<a class="headerlink" href="#module-cpystal.figure.figure" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="cpystal.figure.figure.ImageProcessing">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cpystal.figure.figure.</span></span><span class="sig-name descname"><span class="pre">ImageProcessing</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cpystal/figure/figure.html#ImageProcessing"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.figure.figure.ImageProcessing" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>画像処理</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpystal.figure.figure.ImageProcessing.filepath">
+<span class="sig-name descname"><span class="pre">filepath</span></span><a class="headerlink" href="#cpystal.figure.figure.ImageProcessing.filepath" title="Permalink to this definition"></a></dt>
+<dd><p>対象の画像ファイルパス</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpystal.figure.figure.ImageProcessing.dirname">
+<span class="sig-name descname"><span class="pre">dirname</span></span><a class="headerlink" href="#cpystal.figure.figure.ImageProcessing.dirname" title="Permalink to this definition"></a></dt>
+<dd><p>ファイルパスのうち上位ディレクトリを表す部分</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpystal.figure.figure.ImageProcessing.name_original">
+<span class="sig-name descname"><span class="pre">name_original</span></span><a class="headerlink" href="#cpystal.figure.figure.ImageProcessing.name_original" title="Permalink to this definition"></a></dt>
+<dd><p>元画像の(拡張子を除いた)ファイル名</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpystal.figure.figure.ImageProcessing.extension">
+<span class="sig-name descname"><span class="pre">extension</span></span><a class="headerlink" href="#cpystal.figure.figure.ImageProcessing.extension" title="Permalink to this definition"></a></dt>
+<dd><p>拡張子</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpystal.figure.figure.ImageProcessing.name_current">
+<span class="sig-name descname"><span class="pre">name_current</span></span><a class="headerlink" href="#cpystal.figure.figure.ImageProcessing.name_current" title="Permalink to this definition"></a></dt>
+<dd><p>現在の(拡張子を除いた)ファイル名</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpystal.figure.figure.ImageProcessing.original">
+<span class="sig-name descname"><span class="pre">original</span></span><a class="headerlink" href="#cpystal.figure.figure.ImageProcessing.original" title="Permalink to this definition"></a></dt>
+<dd><p>元画像</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpystal.figure.figure.ImageProcessing.current">
+<span class="sig-name descname"><span class="pre">current</span></span><a class="headerlink" href="#cpystal.figure.figure.ImageProcessing.current" title="Permalink to this definition"></a></dt>
+<dd><p>処理後の画像</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.figure.figure.ImageProcessing.all_transaction">
+<span class="sig-name descname"><span class="pre">all_transaction</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/cpystal/figure/figure.html#ImageProcessing.all_transaction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.figure.figure.ImageProcessing.all_transaction" title="Permalink to this definition"></a></dt>
+<dd><p>カレントディレクトリ内の全画像について、画像形式をselfの形式に一括変更したものを新たに生成</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.figure.figure.ImageProcessing.split">
+<span class="sig-name descname"><span class="pre">split</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/cpystal/figure/figure.html#ImageProcessing.split"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.figure.figure.ImageProcessing.split" title="Permalink to this definition"></a></dt>
+<dd><p>画像分割</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.figure.figure.ImageProcessing.save">
+<span class="sig-name descname"><span class="pre">save</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/cpystal/figure/figure.html#ImageProcessing.save"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.figure.figure.ImageProcessing.save" title="Permalink to this definition"></a></dt>
+<dd><p>画像保存</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.figure.figure.ImageProcessing.change_name">
+<span class="sig-name descname"><span class="pre">change_name</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/cpystal/figure/figure.html#ImageProcessing.change_name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.figure.figure.ImageProcessing.change_name" title="Permalink to this definition"></a></dt>
+<dd><p>(拡張子を除いた)新しいファイル名を設定</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.figure.figure.ImageProcessing.grayscaling">
+<span class="sig-name descname"><span class="pre">grayscaling</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/cpystal/figure/figure.html#ImageProcessing.grayscaling"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.figure.figure.ImageProcessing.grayscaling" title="Permalink to this definition"></a></dt>
+<dd><p>グレースケール化</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.figure.figure.ImageProcessing.transparent">
+<span class="sig-name descname"><span class="pre">transparent</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/cpystal/figure/figure.html#ImageProcessing.transparent"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.figure.figure.ImageProcessing.transparent" title="Permalink to this definition"></a></dt>
+<dd><p>透過化</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.figure.figure.ImageProcessing.eliminate_color">
+<span class="sig-name descname"><span class="pre">eliminate_color</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/cpystal/figure/figure.html#ImageProcessing.eliminate_color"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.figure.figure.ImageProcessing.eliminate_color" title="Permalink to this definition"></a></dt>
+<dd><p>特定の色を透明化</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.figure.figure.ImageProcessing.invert">
+<span class="sig-name descname"><span class="pre">invert</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/cpystal/figure/figure.html#ImageProcessing.invert"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.figure.figure.ImageProcessing.invert" title="Permalink to this definition"></a></dt>
+<dd><p>画素値反転</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.figure.figure.ImageProcessing.flip">
+<span class="sig-name descname"><span class="pre">flip</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/cpystal/figure/figure.html#ImageProcessing.flip"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.figure.figure.ImageProcessing.flip" title="Permalink to this definition"></a></dt>
+<dd><p>上下鏡映反転</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.figure.figure.ImageProcessing.mirror">
+<span class="sig-name descname"><span class="pre">mirror</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/cpystal/figure/figure.html#ImageProcessing.mirror"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.figure.figure.ImageProcessing.mirror" title="Permalink to this definition"></a></dt>
+<dd><p>左右鏡映反転</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.figure.figure.ImageProcessing.rotate">
+<span class="sig-name descname"><span class="pre">rotate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/cpystal/figure/figure.html#ImageProcessing.rotate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.figure.figure.ImageProcessing.rotate" title="Permalink to this definition"></a></dt>
+<dd><p>任意角度回転</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.figure.figure.ImageProcessing.add_margin">
+<span class="sig-name descname"><span class="pre">add_margin</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/cpystal/figure/figure.html#ImageProcessing.add_margin"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.figure.figure.ImageProcessing.add_margin" title="Permalink to this definition"></a></dt>
+<dd><p>余白追加</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.figure.figure.ImageProcessing.erode_margin">
+<span class="sig-name descname"><span class="pre">erode_margin</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/cpystal/figure/figure.html#ImageProcessing.erode_margin"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.figure.figure.ImageProcessing.erode_margin" title="Permalink to this definition"></a></dt>
+<dd><p>余白侵食</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.figure.figure.ImageProcessing.delete_margin">
+<span class="sig-name descname"><span class="pre">delete_margin</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/cpystal/figure/figure.html#ImageProcessing.delete_margin"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.figure.figure.ImageProcessing.delete_margin" title="Permalink to this definition"></a></dt>
+<dd><p>余白削除</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.figure.figure.ImageProcessing.resize1">
+<span class="sig-name descname"><span class="pre">resize1</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/cpystal/figure/figure.html#ImageProcessing.resize1"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.figure.figure.ImageProcessing.resize1" title="Permalink to this definition"></a></dt>
+<dd><p>サイズ変更(倍率指定)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.figure.figure.ImageProcessing.resize2">
+<span class="sig-name descname"><span class="pre">resize2</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/cpystal/figure/figure.html#ImageProcessing.resize2"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.figure.figure.ImageProcessing.resize2" title="Permalink to this definition"></a></dt>
+<dd><p>サイズ変更(参照画像指定)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.figure.figure.ImageProcessing.to_A4">
+<span class="sig-name descname"><span class="pre">to_A4</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/cpystal/figure/figure.html#ImageProcessing.to_A4"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.figure.figure.ImageProcessing.to_A4" title="Permalink to this definition"></a></dt>
+<dd><p>A4サイズに変更(dpi=300)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.figure.figure.ImageProcessing.crop">
+<span class="sig-name descname"><span class="pre">crop</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/cpystal/figure/figure.html#ImageProcessing.crop"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.figure.figure.ImageProcessing.crop" title="Permalink to this definition"></a></dt>
+<dd><p>切り取り</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.figure.figure.ImageProcessing.crop_center">
+<span class="sig-name descname"><span class="pre">crop_center</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/cpystal/figure/figure.html#ImageProcessing.crop_center"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.figure.figure.ImageProcessing.crop_center" title="Permalink to this definition"></a></dt>
+<dd><p>画像中央を中心に切り取り</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.figure.figure.ImageProcessing.crop_max_square">
+<span class="sig-name descname"><span class="pre">crop_max_square</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/cpystal/figure/figure.html#ImageProcessing.crop_max_square"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.figure.figure.ImageProcessing.crop_max_square" title="Permalink to this definition"></a></dt>
+<dd><p>画像から最大正方形を切り取り</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.figure.figure.ImageProcessing.blur">
+<span class="sig-name descname"><span class="pre">blur</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/cpystal/figure/figure.html#ImageProcessing.blur"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.figure.figure.ImageProcessing.blur" title="Permalink to this definition"></a></dt>
+<dd><p>ぼかし</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.figure.figure.ImageProcessing.text">
+<span class="sig-name descname"><span class="pre">text</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/cpystal/figure/figure.html#ImageProcessing.text"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.figure.figure.ImageProcessing.text" title="Permalink to this definition"></a></dt>
+<dd><p>テキスト追加</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.figure.figure.ImageProcessing.combine">
+<span class="sig-name descname"><span class="pre">combine</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/cpystal/figure/figure.html#ImageProcessing.combine"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.figure.figure.ImageProcessing.combine" title="Permalink to this definition"></a></dt>
+<dd><p>画像連結</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.figure.figure.ImageProcessing.paste">
+<span class="sig-name descname"><span class="pre">paste</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/cpystal/figure/figure.html#ImageProcessing.paste"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.figure.figure.ImageProcessing.paste" title="Permalink to this definition"></a></dt>
+<dd><p>画像貼り付け</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.figure.figure.ImageProcessing.paint_rectangle">
+<span class="sig-name descname"><span class="pre">paint_rectangle</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/cpystal/figure/figure.html#ImageProcessing.paint_rectangle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.figure.figure.ImageProcessing.paint_rectangle" title="Permalink to this definition"></a></dt>
+<dd><p>指定領域を単色塗りつぶし</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.figure.figure.ImageProcessing.extract_line">
+<span class="sig-name descname"><span class="pre">extract_line</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/cpystal/figure/figure.html#ImageProcessing.extract_line"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.figure.figure.ImageProcessing.extract_line" title="Permalink to this definition"></a></dt>
+<dd><p>線画抽出</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.figure.figure.ImageProcessing.blend">
+<span class="sig-name descname"><span class="pre">blend</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/cpystal/figure/figure.html#ImageProcessing.blend"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.figure.figure.ImageProcessing.blend" title="Permalink to this definition"></a></dt>
+<dd><p>一様に画像合成</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.figure.figure.ImageProcessing.composite">
+<span class="sig-name descname"><span class="pre">composite</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/cpystal/figure/figure.html#ImageProcessing.composite"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.figure.figure.ImageProcessing.composite" title="Permalink to this definition"></a></dt>
+<dd><p>マスク画像に沿って画像合成</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.figure.figure.ImageProcessing.rotate_color">
+<span class="sig-name descname"><span class="pre">rotate_color</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/cpystal/figure/figure.html#ImageProcessing.rotate_color"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.figure.figure.ImageProcessing.rotate_color" title="Permalink to this definition"></a></dt>
+<dd><p>pixelごとに色相(Hue)の回転</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="id0">
+<span class="sig-name descname"><span class="pre">add_margin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">left</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">top</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">right</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bottom</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">(255,</span> <span class="pre">255,</span> <span class="pre">255)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flag</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Image</span></span></span><a class="reference internal" href="_modules/cpystal/figure/figure.html#ImageProcessing.add_margin"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id0" title="Permalink to this definition"></a></dt>
+<dd><p>余白(left, top, right, bottom)を外側に追加</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>left</strong> (<em>int</em>) – 左側の余白 (pixel)</p></li>
+<li><p><strong>top</strong> (<em>int</em>) – 上側の余白 (pixel)</p></li>
+<li><p><strong>right</strong> (<em>int</em>) – 右側の余白 (pixel)</p></li>
+<li><p><strong>bottom</strong> (<em>int</em>) – 下側の余白 (pixel)</p></li>
+<li><p><strong>color</strong> (<em>tuple</em><em>[</em><em>int</em><em>, </em><em>int</em><em>, </em><em>int</em><em>] </em><em>| </em><em>int</em>) – 余白の色(R,G,B)</p></li>
+<li><p><strong>flag</strong> (<em>bool</em>) – Trueなら保存</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="id1">
+<span class="sig-name descname"><span class="pre">all_transaction</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/cpystal/figure/figure.html#ImageProcessing.all_transaction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id1" title="Permalink to this definition"></a></dt>
+<dd><p>カレントディレクトリ内の全画像について、画像形式をselfの形式に一括変更したものを新たに生成</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="id2">
+<span class="sig-name descname"><span class="pre">blend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">im</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flag</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Image</span></span></span><a class="reference internal" href="_modules/cpystal/figure/figure.html#ImageProcessing.blend"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id2" title="Permalink to this definition"></a></dt>
+<dd><p>一様な画像合成</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>im2を強制的にselfと同じサイズに変更</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>im</strong> (<em>Image</em>) – 合成用の画像</p></li>
+<li><p><strong>mask</strong> (<em>float</em>) – [0.0,1.0]の実数</p></li>
+<li><p><strong>flag</strong> (<em>bool</em>) – Trueなら保存</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="id3">
+<span class="sig-name descname"><span class="pre">blur</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">flag</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Image</span></span></span><a class="reference internal" href="_modules/cpystal/figure/figure.html#ImageProcessing.blur"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id3" title="Permalink to this definition"></a></dt>
+<dd><p>ぼかし</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>flag</strong> (<em>bool</em>) – Trueなら保存</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="id4">
+<span class="sig-name descname"><span class="pre">change_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">new_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/cpystal/figure/figure.html#ImageProcessing.change_name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id4" title="Permalink to this definition"></a></dt>
+<dd><p>名前変更</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>new_name</strong> (<em>str</em>) – 新しい名前</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="id5">
+<span class="sig-name descname"><span class="pre">combine</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename_or_image</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Image.Image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">direction</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">(255,</span> <span class="pre">255,</span> <span class="pre">255)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flag</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Image</span></span></span><a class="reference internal" href="_modules/cpystal/figure/figure.html#ImageProcessing.combine"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id5" title="Permalink to this definition"></a></dt>
+<dd><p>連結(2つの画像を連結)</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>サイズが不一致なら余白はcolorで塗られる</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename_or_image</strong> (<em>str</em><em> | </em><em>Image</em>) – 画像ファイルパスまたはImageクラスのインスタンス</p></li>
+<li><p><strong>deirection</strong> (<em>str</em>) – 連結方向 ‘horizontal’ or ‘vertical’</p></li>
+<li><p><strong>color</strong> (<em>tuple</em><em>[</em><em>int</em><em>, </em><em>int</em><em>, </em><em>int</em><em>] </em><em>| </em><em>int</em>) – 背景色</p></li>
+<li><p><strong>flag</strong> (<em>bool</em>) – Trueなら保存</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="id6">
+<span class="sig-name descname"><span class="pre">composite</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">im</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flag</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Image</span></span></span><a class="reference internal" href="_modules/cpystal/figure/figure.html#ImageProcessing.composite"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id6" title="Permalink to this definition"></a></dt>
+<dd><p>画像合成</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>mask画像のmode=(‘1’,’L’,’RGBA’)に依って画像imとのブレンドの仕方が異なる</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>im</strong> (<em>Image</em>) – 合成用の画像</p></li>
+<li><p><strong>mask</strong> (<em>Image</em>) – マスク画像</p></li>
+<li><p><strong>flag</strong> (<em>bool</em>) – Trueなら保存</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="id7">
+<span class="sig-name descname"><span class="pre">crop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">left_up</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">right_down</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flag</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Image</span></span></span><a class="reference internal" href="_modules/cpystal/figure/figure.html#ImageProcessing.crop"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id7" title="Permalink to this definition"></a></dt>
+<dd><dl class="simple">
+<dt>切り出し(left_up,right_downはそれぞれ左上の点の座標と右下の点の座標)</dt><dd><p>width = right, height = lowerのピクセルは含まれない</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>left_up</strong> (<em>tuple</em><em>[</em><em>int</em><em>, </em><em>int</em><em>]</em>) – (width, height)</p></li>
+<li><p><strong>right_down</strong> (<em>tuple</em><em>[</em><em>int</em><em>, </em><em>int</em><em>]</em>) – (width, height)</p></li>
+<li><p><strong>flag</strong> (<em>bool</em>) – Trueなら保存</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="id8">
+<span class="sig-name descname"><span class="pre">crop_center</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">crop_width</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">crop_height</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flag</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Image</span></span></span><a class="reference internal" href="_modules/cpystal/figure/figure.html#ImageProcessing.crop_center"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id8" title="Permalink to this definition"></a></dt>
+<dd><dl class="simple">
+<dt>切り出し(画像の中心を任意のサイズでトリミング)</dt><dd><p>切り出す領域に画像の範囲外を指定した場合、エラーにはならず黒く表示される</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>crop_width</strong> (<em>int</em>) – width方向の長さ</p></li>
+<li><p><strong>crop_height</strong> (<em>int</em>) – height方向の長さ</p></li>
+<li><p><strong>flag</strong> (<em>bool</em>) – Trueなら保存</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="id9">
+<span class="sig-name descname"><span class="pre">crop_max_square</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">flag</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Image</span></span></span><a class="reference internal" href="_modules/cpystal/figure/figure.html#ImageProcessing.crop_max_square"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id9" title="Permalink to this definition"></a></dt>
+<dd><p>切り出し3(画像の中心から短辺の長さの正方形(つまり最大の正方形)を切り出す)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>flag</strong> (<em>bool</em>) – Trueなら保存</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="id10">
+<span class="sig-name descname"><span class="pre">delete_margin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">standard_point</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">(0,</span> <span class="pre">0)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">-</span> <span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flag</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Image</span></span></span><a class="reference internal" href="_modules/cpystal/figure/figure.html#ImageProcessing.delete_margin"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id10" title="Permalink to this definition"></a></dt>
+<dd><p>余白を削除(基準点と同じ色の画像外縁部に存在する余白を削除)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>flag</strong> (<em>bool</em>) – Trueなら保存</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="id11">
+<span class="sig-name descname"><span class="pre">eliminate_color</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">(255,</span> <span class="pre">255,</span> <span class="pre">255)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flag</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Image</span></span></span><a class="reference internal" href="_modules/cpystal/figure/figure.html#ImageProcessing.eliminate_color"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id11" title="Permalink to this definition"></a></dt>
+<dd><p>特定の色を透明化</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>color</strong> (<em>tuple</em><em>[</em><em>int</em><em>, </em><em>int</em><em>, </em><em>int</em><em>]</em>) – (R,G,B)</p></li>
+<li><p><strong>flag</strong> (<em>bool</em>) – Trueなら保存</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="id12">
+<span class="sig-name descname"><span class="pre">erode_margin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">left</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">top</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">right</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bottom</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">(255,</span> <span class="pre">255,</span> <span class="pre">255)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flag</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Image</span></span></span><a class="reference internal" href="_modules/cpystal/figure/figure.html#ImageProcessing.erode_margin"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id12" title="Permalink to this definition"></a></dt>
+<dd><p>サイズを変えずに元画像に余白を侵食</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>left</strong> (<em>int</em>) – 左側の余白 (pixel)</p></li>
+<li><p><strong>top</strong> (<em>int</em>) – 上側の余白 (pixel)</p></li>
+<li><p><strong>right</strong> (<em>int</em>) – 右側の余白 (pixel)</p></li>
+<li><p><strong>bottom</strong> (<em>int</em>) – 下側の余白 (pixel)</p></li>
+<li><p><strong>color</strong> (<em>tuple</em><em>[</em><em>int</em><em>, </em><em>int</em><em>, </em><em>int</em><em>] </em><em>| </em><em>int</em>) – 余白の色(R,G,B)</p></li>
+<li><p><strong>flag</strong> (<em>bool</em>) – Trueなら保存</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="id13">
+<span class="sig-name descname"><span class="pre">extract_line</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">flag</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Image</span></span></span><a class="reference internal" href="_modules/cpystal/figure/figure.html#ImageProcessing.extract_line"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id13" title="Permalink to this definition"></a></dt>
+<dd><p>線画抽出</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="id14">
+<span class="sig-name descname"><span class="pre">flip</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">flag</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Image</span></span></span><a class="reference internal" href="_modules/cpystal/figure/figure.html#ImageProcessing.flip"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id14" title="Permalink to this definition"></a></dt>
+<dd><p>上下反転</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>flag</strong> (<em>bool</em>) – Trueなら保存</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="id15">
+<span class="sig-name descname"><span class="pre">grayscaling</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">flag</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Image</span></span></span><a class="reference internal" href="_modules/cpystal/figure/figure.html#ImageProcessing.grayscaling"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id15" title="Permalink to this definition"></a></dt>
+<dd><p>モノクロ化</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>flag</strong> (<em>bool</em>) – Trueなら保存</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="id16">
+<span class="sig-name descname"><span class="pre">invert</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">flag</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Image</span></span></span><a class="reference internal" href="_modules/cpystal/figure/figure.html#ImageProcessing.invert"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id16" title="Permalink to this definition"></a></dt>
+<dd><p>画素反転</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>flag</strong> (<em>bool</em>) – Trueなら保存</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="id17">
+<span class="sig-name descname"><span class="pre">mirror</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">flag</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Image</span></span></span><a class="reference internal" href="_modules/cpystal/figure/figure.html#ImageProcessing.mirror"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id17" title="Permalink to this definition"></a></dt>
+<dd><p>左右反転</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>flag</strong> (<em>bool</em>) – Trueなら保存</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpystal.figure.figure.ImageProcessing.monochromatizate">
+<span class="sig-name descname"><span class="pre">monochromatizate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">(255,</span> <span class="pre">255,</span> <span class="pre">255)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flag</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Image</span></span></span><a class="reference internal" href="_modules/cpystal/figure/figure.html#ImageProcessing.monochromatizate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.figure.figure.ImageProcessing.monochromatizate" title="Permalink to this definition"></a></dt>
+<dd><p>単色化</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>color</strong> (<em>tuple</em><em>[</em><em>int</em><em>, </em><em>int</em><em>, </em><em>int</em><em>] </em><em>| </em><em>int</em>) – 背景色</p></li>
+<li><p><strong>flag</strong> (<em>bool</em>) – Trueなら保存</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="id18">
+<span class="sig-name descname"><span class="pre">paint_rectangle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">left_up</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">right_down</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">(255,</span> <span class="pre">255,</span> <span class="pre">255)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flag</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Image</span></span></span><a class="reference internal" href="_modules/cpystal/figure/figure.html#ImageProcessing.paint_rectangle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id18" title="Permalink to this definition"></a></dt>
+<dd><p>範囲選択してその範囲をcolorに変更</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>left_up</strong> (<em>tuple</em><em>[</em><em>int</em><em>, </em><em>int</em><em>]</em>) – (width, height)</p></li>
+<li><p><strong>right_down</strong> (<em>tuple</em><em>[</em><em>int</em><em>, </em><em>int</em><em>]</em>) – (width, height)</p></li>
+<li><p><strong>color</strong> (<em>tuple</em><em>[</em><em>int</em><em>, </em><em>int</em><em>, </em><em>int</em><em>] </em><em>| </em><em>int</em>) – 背景色</p></li>
+<li><p><strong>flag</strong> (<em>bool</em>) – Trueなら保存</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="id19">
+<span class="sig-name descname"><span class="pre">paste</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename_or_image</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Image.Image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">position</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">back</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flag</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Image</span></span></span><a class="reference internal" href="_modules/cpystal/figure/figure.html#ImageProcessing.paste"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id19" title="Permalink to this definition"></a></dt>
+<dd><p>貼り付け</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename_or_image</strong> (<em>str</em><em> | </em><em>Image</em>) – 画像ファイルパスまたはImageクラスのインスタンス</p></li>
+<li><p><strong>position</strong> (<em>tuple</em><em>[</em><em>int</em><em>, </em><em>int</em><em>]</em>) – 貼り付け位置 (画像左上が(width, height))</p></li>
+<li><p><strong>back</strong> (<em>bool</em>) – Trueならselfが上側にくる</p></li>
+<li><p><strong>color</strong> (<em>tuple</em><em>[</em><em>int</em><em>, </em><em>int</em><em>, </em><em>int</em><em>] </em><em>| </em><em>int</em>) – 背景色</p></li>
+<li><p><strong>flag</strong> (<em>bool</em>) – Trueなら保存</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="id20">
+<span class="sig-name descname"><span class="pre">resize1</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">magnification</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flag</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Image</span></span></span><a class="reference internal" href="_modules/cpystal/figure/figure.html#ImageProcessing.resize1"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id20" title="Permalink to this definition"></a></dt>
+<dd><p>拡大・縮小によるサイズ変更1</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>magnification</strong> (<em>float</em>) – 拡大倍率</p></li>
+<li><p><strong>flag</strong> (<em>bool</em>) – Trueなら保存</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="id21">
+<span class="sig-name descname"><span class="pre">resize2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename_or_image</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Image.Image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flag</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Image</span></span></span><a class="reference internal" href="_modules/cpystal/figure/figure.html#ImageProcessing.resize2"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id21" title="Permalink to this definition"></a></dt>
+<dd><p>拡大・縮小によるサイズ変更2(大きさを画像nameと同じサイズに変更)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename_or_image</strong> (<em>str</em><em> | </em><em>Image</em>) – 画像ファイルパスまたはImageクラスのインスタンス</p></li>
+<li><p><strong>flag</strong> (<em>bool</em>) – Trueなら保存</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="id22">
+<span class="sig-name descname"><span class="pre">rotate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">angle</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flag</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Image</span></span></span><a class="reference internal" href="_modules/cpystal/figure/figure.html#ImageProcessing.rotate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id22" title="Permalink to this definition"></a></dt>
+<dd><p>任意角度回転</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>angle</strong> (<em>float</em>) – 角度(°)</p></li>
+<li><p><strong>flag</strong> (<em>bool</em>) – Trueなら保存</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="id23">
+<span class="sig-name descname"><span class="pre">rotate_color</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">degree</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flag</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cpystal/figure/figure.html#ImageProcessing.rotate_color"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id23" title="Permalink to this definition"></a></dt>
+<dd><p>色相(Hue)の回転</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>degree</strong> (<em>float</em>) – 回転角度</p></li>
+<li><p><strong>flag</strong> (<em>bool</em>) – Trueなら保存</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="id24">
+<span class="sig-name descname"><span class="pre">save</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dpi</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(300,</span> <span class="pre">300)</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/cpystal/figure/figure.html#ImageProcessing.save"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id24" title="Permalink to this definition"></a></dt>
+<dd><p>画像保存</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="id25">
+<span class="sig-name descname"><span class="pre">split</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vertical_split</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">horizontal_split</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flag</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="reference internal" href="_modules/cpystal/figure/figure.html#ImageProcessing.split"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id25" title="Permalink to this definition"></a></dt>
+<dd><p>画像分割</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>vertical_split</strong> (<em>int</em>) – 縦の分割数</p></li>
+<li><p><strong>horizontal_split</strong> (<em>int</em>) – 横の分割数</p></li>
+<li><p><strong>flag</strong> (<em>bool</em>) – Trueなら保存</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>画像行列</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>(list[list[Image]])</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="id26">
+<span class="sig-name descname"><span class="pre">text</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">txt</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">font_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">font_color</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">position</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flag</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Image</span></span></span><a class="reference internal" href="_modules/cpystal/figure/figure.html#ImageProcessing.text"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id26" title="Permalink to this definition"></a></dt>
+<dd><p>文字の埋め込み</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>txt</strong> (<em>str</em>) – テキスト</p></li>
+<li><p><strong>font_size</strong> (<em>int</em>) – フォントサイズ</p></li>
+<li><p><strong>font_color</strong> (<em>tuple</em><em>[</em><em>int</em><em>, </em><em>int</em><em>, </em><em>int</em><em>] </em><em>| </em><em>int</em>) – 文字色</p></li>
+<li><p><strong>position</strong> (<em>tuple</em><em>[</em><em>int</em><em>, </em><em>int</em><em>]</em>) – テキストの位置(width, height)</p></li>
+<li><p><strong>flag</strong> (<em>bool</em>) – Trueなら保存</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="id27">
+<span class="sig-name descname"><span class="pre">to_A4</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">flag</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Image</span></span></span><a class="reference internal" href="_modules/cpystal/figure/figure.html#ImageProcessing.to_A4"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id27" title="Permalink to this definition"></a></dt>
+<dd><p>A4サイズになるように余白を追加(解像度300dpiの場合)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>flag</strong> (<em>bool</em>) – Trueなら保存</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="id28">
+<span class="sig-name descname"><span class="pre">transparent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flag</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Image</span></span></span><a class="reference internal" href="_modules/cpystal/figure/figure.html#ImageProcessing.transparent"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id28" title="Permalink to this definition"></a></dt>
+<dd><dl class="simple">
+<dt>透過画像化(png形式)</dt><dd><p>alpha == 0(100%透過)~255(0%透過(不透過))</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>alpha</strong> (<em>int</em>) – 透過率(0:100%透過, 255:0%透過)</p></li>
+<li><p><strong>flag</strong> (<em>bool</em>) – Trueなら保存</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cpystal.figure.figure.combine_img_list">
+<span class="sig-prename descclassname"><span class="pre">cpystal.figure.figure.</span></span><span class="sig-name descname"><span class="pre">combine_img_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">direction</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">(255,</span> <span class="pre">255,</span> <span class="pre">255)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flag</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Image</span></span></span><a class="reference internal" href="_modules/cpystal/figure/figure.html#combine_img_list"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.figure.figure.combine_img_list" title="Permalink to this definition"></a></dt>
+<dd><p>連結(画像名群をリストで渡す)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name_list</strong> (<em>list</em><em>[</em><em>str</em><em>]</em>) – ファイル名のリスト</p></li>
+<li><p><strong>deirection</strong> (<em>str</em>) – 連結方向 ‘horizontal’ or ‘vertical’</p></li>
+<li><p><strong>color</strong> (<em>tuple</em><em>[</em><em>int</em><em>, </em><em>int</em><em>, </em><em>int</em><em>] </em><em>| </em><em>int</em>) – 背景色</p></li>
+<li><p><strong>flag</strong> (<em>bool</em>) – Trueなら保存</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cpystal.figure.figure.combine_img_matrix">
+<span class="sig-prename descclassname"><span class="pre">cpystal.figure.figure.</span></span><span class="sig-name descname"><span class="pre">combine_img_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">(255,</span> <span class="pre">255,</span> <span class="pre">255)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flag</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Image</span></span></span><a class="reference internal" href="_modules/cpystal/figure/figure.html#combine_img_matrix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.figure.figure.combine_img_matrix" title="Permalink to this definition"></a></dt>
+<dd><p>連結(画像名群を行列で渡す)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name_matrix</strong> (<em>list</em><em>[</em><em>list</em><em>[</em><em>str</em><em>]</em><em>]</em>) – ファイル名の行列</p></li>
+<li><p><strong>color</strong> (<em>tuple</em><em>[</em><em>int</em><em>, </em><em>int</em><em>, </em><em>int</em><em>] </em><em>| </em><em>int</em>) – 背景色</p></li>
+<li><p><strong>flag</strong> (<em>bool</em>) – Trueなら保存</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cpystal.figure.figure.get_all_img">
+<span class="sig-prename descclassname"><span class="pre">cpystal.figure.figure.</span></span><span class="sig-name descname"><span class="pre">get_all_img</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="reference internal" href="_modules/cpystal/figure/figure.html#get_all_img"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.figure.figure.get_all_img" title="Permalink to this definition"></a></dt>
+<dd><p>フォルダ内の全画像(jpgかpng)を取得してlistとして出力</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cpystal.figure.figure.main">
+<span class="sig-prename descclassname"><span class="pre">cpystal.figure.figure.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/cpystal/figure/figure.html#main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.figure.figure.main" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cpystal.figure.figure.make_gif">
+<span class="sig-prename descclassname"><span class="pre">cpystal.figure.figure.</span></span><span class="sig-name descname"><span class="pre">make_gif</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">im_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">duration</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">40.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loop</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Image</span></span></span><a class="reference internal" href="_modules/cpystal/figure/figure.html#make_gif"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.figure.figure.make_gif" title="Permalink to this definition"></a></dt>
+<dd><p>gif形式のアニメーションを作成</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>im_list</strong> (<em>list</em><em>[</em><em>Image</em><em>]</em>) – 時系列に沿って並んだ画像のリスト</p></li>
+<li><p><strong>save_name</strong> (<em>str</em>) – 保存先のファイル名(拡張子なし)</p></li>
+<li><p><strong>duration</strong> (<em>float</em>) – 画像の変更スピード(単位はミリ秒)</p></li>
+<li><p><strong>loop</strong> (<em>int</em>) – ループ回数(loop=0のとき無限ループ)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cpystal.figure.figure.rename_ordered">
+<span class="sig-prename descclassname"><span class="pre">cpystal.figure.figure.</span></span><span class="sig-name descname"><span class="pre">rename_ordered</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prefix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/cpystal/figure/figure.html#rename_ordered"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cpystal.figure.figure.rename_ordered" title="Permalink to this definition"></a></dt>
+<dd><p>フォルダ内の全画像を取得して名前の順序を保存したまま連番に書き換える</p>
+</dd></dl>
+
+</section>
+<section id="module-cpystal.figure">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-cpystal.figure" title="Permalink to this heading"></a></h2>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="cpystal.core.html" class="btn btn-neutral float-left" title="cpystal.core package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="cpystal.graph.html" class="btn btn-neutral float-right" title="cpystal.graph package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Helve.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
