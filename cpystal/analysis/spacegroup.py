@@ -2878,7 +2878,7 @@ class Atom():
             np.array(self.pos),
             self.occupancy,
             self.local_symmetry,
-            np.array(self.pos) if self.spin is not None else None,
+            np.array(self.spin) if self.spin is not None else None,
         )
     
     def properties(self) -> tuple:
@@ -3404,7 +3404,8 @@ class CrystalStructure():
         """Generate atoms by symmetry operations from inequivalent atoms.
 
         Args:
-            generator_operations (list[str]): Generator symmetry operations of the space group.
+            generator_operations (list[str]):
+                Generator symmetry operations of the space group.
             atoms_data (list[tuple[Atom, int]]): 
                 List of (Atom, multiplicity).
             is_equate_equivalent_atoms (bool):
@@ -3426,6 +3427,7 @@ class CrystalStructure():
             else:
                 multiplicity[atom.site] = m
                 atoms[atom.site] = [atom]
+
         def _check_terminate(atoms: dict[str, list[Atom]]):
             atoms_set: dict[str, set[Atom]] = {}
             for site in inequivalent_atoms:
@@ -3436,7 +3438,6 @@ class CrystalStructure():
                     else:
                         new_set.add(atom.copy())
                 atoms_set[site] = new_set
-            # print(atoms_set["Co1"])
             for site in inequivalent_atoms:
                 if multiplicity[site] != len(atoms_set[site]):
                     return True
