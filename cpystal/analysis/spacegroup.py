@@ -3464,7 +3464,7 @@ class CrystalStructure():
                 site: set([atom.copy() for atom in atoms[site]]) for site in inequivalent_atoms
             }
 
-        self.unit_cell: dict[str, set[Atom]] = atoms_set
+        self.generated_atoms: dict[str, set[Atom]] = atoms_set
         return atoms_set
     
     def generate_atoms_list(
@@ -3611,8 +3611,8 @@ class CrystalStructure():
                 all_atoms_generated.append((i, j, pos))
         
         vector_radius: float = 0.300 # [angstrom]
-        for site in self.unit_cell:
-            for atom in self.unit_cell[site]:
+        for site in self.generated_atoms:
+            for atom in self.generated_atoms[site]:
                 if atom.spin is None:
                     continue
                 # print(site, atom, atom.spin)
