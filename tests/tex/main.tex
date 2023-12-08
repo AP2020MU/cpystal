@@ -1,0 +1,64 @@
+\documentclass[
+ reprint,
+ aps,
+ prl,
+ superscriptaddress,
+ amsmath,
+ amssymb,
+ floatfix
+]{revtex4-2}
+
+\usepackage{bm} % 太字
+\usepackage{graphicx} % 画像の挿入
+\usepackage[small,bf,format=plain,singlelinecheck=false,justification=Justified]{caption}
+\usepackage{physics} % 物理パッケージ
+\usepackage{siunitx} % SI単位系
+\usepackage{hyperref}
+\usepackage{xcolor}
+\usepackage[symbol]{footmisc}
+\hypersetup{
+    colorlinks=true,
+    citecolor=blue,
+    linkcolor=blue,
+    urlcolor=blue,
+}
+
+
+\begin{document}
+\title{Starlight}
+\date{\today}
+
+\maketitle
+\onecolumngrid
+
+\begin{align}
+    A = a_{\left(1\right)} + \left\{\frac{1}{2}\right\}*x
+\end{align}
+
+This is Revue Starlight \cite{Furukawa_TV_2018,Furukawa_RRR_2020,Aijo_gekisu_2021,Furukawa_MoR_2023}.
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=246pt]{./figures/fig2.pdf}
+    \caption{
+        The temperature 
+    }
+    \label{kappa_vs_TH_y_CTOCNO}
+\end{figure}
+
+\begin{table}[htb]
+    \begin{center}
+        \caption{Fitting}
+        \begin{tabular}{|c|c|ccccccc|} \hline
+                & & $L$ & $D$ & $A$ & $b$ & $B$ & $C_1$ & $C_2$ \\ 
+                & $\kappa_{xx}(H\parallel x)$ & 2.73 & 9.65 & 7.08 & 3.44 & 1.12 & 3.40 & 64.6 \\
+        \end{tabular}\label{table:parameters}
+    \end{center}
+\end{table}
+
+\bibliography{thesis}
+\bibliographystyle{apsrev4-2}
+
+\end{document}
+
+
+
