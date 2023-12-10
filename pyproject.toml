@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "cpystal"
-version = "0.2.0"
+version = "0.3.0"
 readme = "README.md"
 license = {file = "LICENSE"}
 authors = [{name = "AP2020MU"}]
@@ -24,6 +24,7 @@ dependencies =  [
     "sympy >= 1.12",
     "tk >= 8.6.12",
     "tqdm >= 4.65.0",
+    "texsoup >= 0.3.1",
 ]
 
 [project.optional-dependencies]

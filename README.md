@@ -3,19 +3,22 @@
 結晶学的情報や物性測定データ解析を扱うPythonライブラリ．
 
 # Version
-* v0.2.0
+* v0.3.0
 
 # Recent Updates
-* v0.1.0 2023/05/22
-    * ディレクトリ構成の大幅な変更
-    * `cpystal.mathematics.algebra.core`の球面調和関数関係や`CubicHarmonics`の追加
-    * `cpystal.mathematics.algebra.operator`の追加
+* v0.3.0 2023/12/10
+    * `cpystal.tex`の追加
 
 * v0.2.0 2023/10/06
     * pytestに対応
     * `cpystal.analysis.spacegroup`の拡充
     * `cpystal.mathematics.optimize`の追加
     * sphinxによるドキュメントの作成
+
+* v0.1.0 2023/05/22
+    * ディレクトリ構成の大幅な変更
+    * `cpystal.mathematics.algebra.core`の球面調和関数関係や`CubicHarmonics`の追加
+    * `cpystal.mathematics.algebra.operator`の追加
 
 # Contents
 * cpystal
@@ -139,7 +142,17 @@
         * `ScanField`: 「磁場スキャン」を指示するシークエンスコマンド
         * `ScanTemp`: 「温度スキャン」を指示するシークエンスコマンド
         * `ScanPower`: 「ヒーター出力スキャン」を指示するシークエンスコマンド
-        * `sequence_maker`: シークエンスを生成してcsvファイルを出力　
+        * `sequence_maker`: シークエンスを生成してcsvファイルを出力
+    * tex
+        * `TexFile`: TeXファイルの展開
+        * `print_all_citation`: TeXファイル中の引用(`\cite`)を全て標準出力に表示
+        * `get_all_citation`: 引用文献のリストを返す
+        * `contract_numbers`: 引用番号の縮約(例：1,2,3,5→1-3,5)
+        * `reference_numbers_used_in_supplementary`: mainファイルの引用文献のリストを元にsupplemetaryファイルの縮約引用番号文字列
+        * `escape_regex`: 文字列中の正規表現の特殊文字をエスケープ
+        * `replace_supplemental_cite_with_plain_number`: supplementaryファイル中の`\cite`コマンドをmainファイルの引用番号に置き換え
+        * `eliminate_nouse_references_from_bib`: bibファイルから当該のTeXファイルで使用されていない不要なフィールドを削除
+        * `count_word_size_PRL`: PRL形式で書かれたTeXファイルのword sizeを計算
 
 # Requirements
 * matplotlib
