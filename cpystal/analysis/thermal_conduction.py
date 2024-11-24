@@ -727,6 +727,28 @@ class ExpDataExpander:
         kxy_err: list[float] = [np.sqrt((2*x*y*x_err)**2 + ((x**2-y**2)*y_err)**2) / ((x**2 + y**2)**2) for x,y,x_err,y_err in zip(lamxx_symm,lamyx_symm,lamxx_symm_err,lamyx_symm_err)]
         return H_, kxx, kxy, kxx_err, kxy_err
     
+    def symmetrize_lambda(self) -> tuple[list[float], list[float], list[float], list[float], list[float]]:
+        N: int = len(self.Field)
+        lamxx: list[float] = [self.Width*self.Thickness/(self.R*(i**2)) * (dt/self.LTx) for i,dt in zip(self.Current,self.dTx)]
+        lamyx: list[float] = [self.Width*self.Thickness/(self.R*(i**2)) * (dt/self.LTy) for i,dt in zip(self.Current,self.dTy)]
+        lamxx_err: list[float] = [self.Width*self.Thickness/(self.R*(i**2)) * (edt/self.LTx) for i,edt in zip(self.Current,self.errdTx)]
+        lamyx_err: list[float] = [self.Width*self.Thickness/(self.R*(i**2)) * (edt/self.LTy) for i,edt in zip(self.Current,self.errdTy)]
+
+        # symmetrize
+        lamxx_symm: list[float] = [(lamxx[i]+lamxx[N-1-i])/2 for i in range(N)]
+        lamxx_symm_err: list[float] = [np.sqrt(lamxx_err[i]**2 + lamxx_err[N-1-i]**2)/2 for i in range(N)]
+
+        H_: list[float]
+        if N % 2 == 1:
+            H_ = [-h for h in self.Field[N//2+1:][::-1]] + self.Field[N//2:]
+        else:
+            H_ = [-h for h in self.Field[N//2:][::-1]] + self.Field[N//2:]
+
+        lamyx_symm: list[float] = [(lamyx[i]-lamyx[N-1-i])/2 for i in range(N)]
+        lamyx_symm_err: list[float] = [np.sqrt(lamyx_err[i]**2 + lamyx_err[N-1-i]**2)/2 for i in range(N)]
+        return H_, lamxx_symm, lamyx_symm, lamxx_symm_err, lamyx_symm_err
+
+    
     def symmetrize_positive_half(self) -> tuple[list[float], list[float], list[float], list[float], list[float]]:
         H_, kxx, kxy, kxx_err, kxy_err = self.symmetrize()
         N: int = len(H_)

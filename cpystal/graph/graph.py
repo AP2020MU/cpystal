@@ -16,11 +16,13 @@ Functions:
 from __future__ import annotations # class定義中に自己classを型ヒントとして使用するため
 
 from collections import deque
+from itertools import accumulate
 from math import pi
 import os
 
+import matplotlib.figure as mpf
 import matplotlib.pyplot as plt # type: ignore
-from mpl_toolkits.axisartist.axislines import SubplotZero # type: ignore
+from mpl_toolkits.axisartist.axislines import AxesZero, SubplotZero # type: ignore
 import numpy as np
 import numpy.typing as npt
 
@@ -658,26 +660,120 @@ def graph_furnace_temperature_profile(sequence: list[list[float]]) -> tuple[plt.
     return fig, ax
 
 
-def graph_2zone_temperature_profile(sequence: list[list[float]]) -> tuple[plt.Figure, plt.Subplot]:
+def get_fractional_position(x: float, xmin: float, xmax: float, log: bool = False) -> float:
+    def g(q: float, a: float, b: float) -> float:
+        return (q-a) / (b-a)
+    if log:
+        return g(np.log10(x), np.log10(xmin), np.log10(xmax))
+    else:
+        return g(x, xmin, xmax)
+
+
+def get_real_position(proportion: float, xmin: float, xmax: float, log: bool = False) -> float:
+    def f(p: float, a: float, b: float) -> float:
+        return a + (b-a) * p
+    if log:
+        return 10 ** f(proportion, np.log10(xmin), np.log10(xmax))
+    else:
+        return f(proportion, xmin, xmax)
+
+
+def frac_coord_to_real(ax: plt.Subplot, px: float, py: float) -> tuple[float, float]:
+    is_logx: bool = (ax.get_xscale() == "log")
+    is_logy: bool = (ax.get_yscale() == "log")
+    return get_real_position(px, *ax.get_xlim(), log=is_logx), get_real_position(py, *ax.get_ylim(), log=is_logy)
+
+
+def real_coord_to_frac(ax: plt.Subplot, x: float, y: float) -> tuple[float, float]:
+    is_logx: bool = (ax.get_xscale() == "log")
+    is_logy: bool = (ax.get_yscale() == "log")
+    return get_fractional_position(x, *ax.get_xlim(), log=is_logx), get_fractional_position(y, *ax.get_ylim(), log=is_logy)
+
+
+def time_text_position(ax: plt.Subplot, p1: tuple[float, float], p2: tuple[float, float]) -> tuple[float, float]:
+    is_logx: bool = (ax.get_xscale() == "log")
+    is_logy: bool = (ax.get_yscale() == "log")
+    x1, y1 = p1
+    x2, y2 = p2
+    x: float = get_real_position(0.5, x1, x2, log=is_logx)
+    y: float = get_real_position(0.5, y1, y2, log=is_logy)
+    _, py = real_coord_to_frac(ax, x, y)
+
+    px1, py1 = real_coord_to_frac(ax, x1, y1)
+    px2, py2 = real_coord_to_frac(ax, x2, y2)
+    gradient: float = (py2-py1) / (px2-px1)
+    if gradient == 0:
+        py = py * 0.8
+    else:
+        py = (py-min(py1,py2)) * 0.1 + min(py1,py2)
+    y_down: float = get_real_position(py, *ax.get_ylim(), log=is_logy)
+    return x, y_down
+
+
+def format_time_wdhms(t: float, resolution: str = "hour") -> str:
+    is_week: bool = (resolution == "week")
+    is_day: bool = (is_week or resolution == "day")
+    is_hour: bool = (is_day or resolution == "hour")
+    is_minute: bool = (is_hour or resolution == "minute")
+    is_second: bool = (is_minute or resolution == "second")
+    week: int = 0
+    day: int = 0
+    hour: int = 0
+    minute: int = 0
+    second: int = 0
+    if t > 24*7 and is_week:
+        week = int(t/(24*7))
+        t -= 24*7 * week
+    if t > 24 and is_day:
+        day = int(t/24)
+        t -= 24 * day
+    if t > 1 and is_hour:
+        hour = int(t)
+        t -= hour
+    if t > 1/60 and is_minute:
+        minute = int(t*60)
+        t -= 1/60 * minute
+    if t > 0:
+        second = int(t*3600)
+        t -= 1/3600 * second
+    res: str = ""
+    if is_week and week != 0:
+        res += f"{week}w"
+    if is_day and day != 0:
+        res += f"{day}d"
+    if is_hour and hour != 0:
+        res += f"{hour}h"
+    if is_minute and minute != 0:
+        res += f"{minute}m"
+    if is_second and second != 0:
+        res += f"{second}s"
+    return res
+
+
+def graph_2zone_temperature_profile(sequence: list[tuple[float]], filename: str | None = None) -> tuple[mpf.Figure, AxesZero]:
     """Graph the 2-zones furnace temperature profile from the sequence.
 
     Args:
-        sequence (list[list[float]]): 
-            list of [time_length (hour): float, 
-                    target_temperature_material (Celsius degree): float, 
-                    target_temperature_growth (Celsius degree): float].
-            `sequence[0]` should be [0, {room_temperature}, {room_temperature}].
+        sequence (list[tuple[float]]): 
+            list of (
+                time_length (hour): float, 
+                target_temperature_material (Celsius degree): float, 
+                target_temperature_growth (Celsius degree): float,
+            ).
+            `sequence[0]` should be [0, {room_temperature}, {room_temperature}).
+        filename (str | None, optional): Filename of image to save. Defaults to None.
 
     Returns:
-        (tuple[plt.Figure, plt.Subplot]): `plt.Figure` object and `plt.axes._subplots.AxesZeroSubplot` object.
+        (tuple[matplotlib.figure.Figure, mpl_toolkits.axisartist.axislines.AxesZero]):
+            `matplotlib.figure.Figure` object and `mpl_toolkits.axisartist.axislines.AxesZero` object.
     """
     plt.rcParams['font.size'] = 14
     plt.rcParams['font.family'] = 'Arial'
     plt.rcParams['xtick.direction'] = 'in'
     plt.rcParams['ytick.direction'] = 'in'
     plt.rcParams["legend.framealpha"] = 0
-    fig: plt.Figure = plt.figure(figsize=(7,5))
-    ax: plt.axes._subplots.AxesZeroSubplot = SubplotZero(fig, 111)
+    fig: mpf.Figure = plt.figure(figsize=(7,5))
+    ax: AxesZero = SubplotZero(fig, 111)
     fig.add_subplot(ax)
     for direction in ["right", "top"]:
         ax.axis[direction].set_visible(False)    
@@ -688,17 +784,12 @@ def graph_2zone_temperature_profile(sequence: list[list[float]]) -> tuple[plt.Fi
     Time: list[float] = [ti for ti, te1, te2 in sequence]
     Temp_material: list[float] = [te1 for ti, te1, te2 in sequence]
     Temp_growth: list[float] = [te2 for ti, te1, te2 in sequence]
-    Time_acc: list[float] = [0]
-    Time_acc_log: list[float] = [0]
-    for i in range(1,len(Time)):
-        Time_acc.append(Time_acc[i-1]+Time[i])
-        Time_acc_log.append(Time_acc_log[i-1]+np.log(1+Time[i]))
-    t_end: float = max(Time_acc_log)
+    Time_acc_log: list[float] = list(accumulate([np.log10(1+t) if t != 0 else 0 for t in Time]))
+
     room_temp: float = min(Temp_material)
     Temp_high: list[float] = [t for t in Temp_material+Temp_growth if t > room_temp]
-    min_temp: float
     if len(set(Temp_high)) != 1:
-        min_temp = max(Temp_high) - (max(Temp_high)-min(Temp_high))*2.5
+        min_temp = max(Temp_high) - (max(Temp_high)-min(Temp_high))*3
     else:
         min_temp = room_temp
     Temp_material = [t if t != room_temp else min_temp for t in Temp_material] # 見やすくするため，室温をmin_tempに変更
@@ -706,21 +797,30 @@ def graph_2zone_temperature_profile(sequence: list[list[float]]) -> tuple[plt.Fi
     max_temp: float = max(max(Temp_material),max(Temp_growth))
     ax.plot(Time_acc_log, Temp_material, color="red", label="Materials side")
     ax.plot(Time_acc_log, Temp_growth, color="blue", label="Growth side")
-    ax.set_xlim(0, t_end*1.1)
+    ax.set_xlim(0, Time_acc_log[-1]*1.1)
     ax.set_ylim(min_temp, min_temp+(max_temp-min_temp)*1.1)
-    for i, temp in enumerate(Temp_material):
-        ax.plot([0,Time_acc_log[i]], [temp,temp], color='black', linewidth=0.8, linestyle=':')
-        ax.plot([Time_acc_log[i],Time_acc_log[i]], [min_temp,temp], color='black', linewidth=0.8, linestyle=':')
-    for i, temp in enumerate(Temp_growth):
-        ax.plot([0,Time_acc_log[i]], [temp,temp], color='black', linewidth=0.8, linestyle=':')
-        ax.plot([Time_acc_log[i],Time_acc_log[i]], [min_temp,temp], color='black', linewidth=0.8, linestyle=':')
+    for i, (t_material, t_growth) in enumerate(zip(Temp_material, Temp_growth)):
+        ax.plot([0,Time_acc_log[i]], [t_material,t_material], color='black', linewidth=0.8, linestyle=':')
+        ax.plot([0,Time_acc_log[i]], [t_growth,t_growth], color='black', linewidth=0.8, linestyle=':')
+        ax.plot([Time_acc_log[i],Time_acc_log[i]], [min_temp,t_material], color='black', linewidth=0.8, linestyle=':')
+        ax.plot([Time_acc_log[i],Time_acc_log[i]], [min_temp,t_growth], color='black', linewidth=0.8, linestyle=':')
     ax.xaxis.set_ticks(Time_acc_log)
-    ax.yaxis.set_ticks([min_temp]+[i for i in Temp_material+Temp_growth if i != min_temp])
-    ax.xaxis.set_ticklabels(map(str, Time_acc))
-    ax.yaxis.set_ticklabels(["R.T."]+list(map(str, [i for i in Temp_material+Temp_growth if i != min_temp])))
-    ax.set_xlabel("Time (hour)")
+    ax.yaxis.set_ticks(sorted(list(set([min_temp]+[i for i in Temp_material+Temp_growth if i != min_temp]))))
+    for i in range(len(Time_acc_log)-1):
+        t0, t0_material, t0_growth = Time_acc_log[i], Temp_material[i], Temp_growth[i]
+        t1, t1_material, t1_growth = Time_acc_log[i+1], Temp_material[i+1], Temp_growth[i+1]
+        ax.text(
+            *time_text_position(ax, (t0, min(t0_material, t0_growth)), (t1, min(t1_material, t1_growth))), 
+            f"{format_time_wdhms(Time[i+1], resolution='week')}",
+            horizontalalignment='center',
+        )
+    ax.xaxis.set_ticklabels([])
+    ax.yaxis.set_ticklabels(["R.T."]+list(map(str, sorted(list(set([i for i in Temp_material+Temp_growth if i != min_temp]))))))
+    ax.set_xlabel("Time")
     ax.set_ylabel(u"Temperature (\u00B0C)")
-    ax.legend(loc="lower center")
+    ax.legend(bbox_to_anchor=(0.75,1.1), loc="upper left")
+    if filename:
+        fig.savefig(filename, transparent=True, dpi=300)
     plt.show()
     return fig, ax
 

@@ -260,7 +260,7 @@ def compare_powder_Xray_experiment_with_calculation(
     intensity: list[float] = [p for t,p,_ in data]
     neighbor_num: int = 50 # peak(極大値の中でも急激に増加するもの)判定で参照する近傍のデータ点数
     descending_intensity: list[tuple[float, int, float, float]] = sorted(_peak_search(two_theta, intensity, neighbor_num), key=lambda x:x[0], reverse=True)
-    display_num: int = 10
+    display_num: int = 30
     
     if unbackground:
         intensity = _remove_background(two_theta, intensity, descending_intensity)
@@ -278,16 +278,16 @@ def compare_powder_Xray_experiment_with_calculation(
     ax.plot(two_theta, intensity, label="obs.", color="blue", marker="o", markersize=1.5, linewidth=0.5, zorder=2)
     ax.plot(theor_x, theor_y * max(intensity) / 100, linewidth=1.2, label="calc.", color="red", zorder=0)
     for _, _, x, _ in sorted(peak_info, key=lambda z:z[3], reverse=True)[:display_num]:
-        ax.plot([x,x], [-8*max(intensity)/100, -5*max(intensity)/100], color="green", linewidth=1, zorder=1)
-    ax.plot([x,x], [-8*max(intensity)/100, -5*max(intensity)/100], color="green", linewidth=1, label="Bragg peak", zorder=1)
+        ax.plot([x,x], [-7*max(intensity)/100, -4*max(intensity)/100], color="green", linewidth=1, zorder=1)
+    ax.plot([x,x], [-7*max(intensity)/100, -7*max(intensity)/100], color="green", linewidth=1, label="Bragg peak", zorder=1)
 
     ax.set_xlabel(r"$2\theta\, [{}^{\circ}]$")
     # ax.set_ylabel("intensity [a.u.]")
     ax.set_ylabel("intensity [cps]")
-    if material is not None:
-        ax.set_title(f"powder XRD result compared with {material.graphname} calculation")
-    else:
-        ax.set_title(f"powder XRD result")
+    # if material is not None:
+    #     ax.set_title(f"powder XRD result compared with {material.graphname} calculation")
+    # else:
+    #     ax.set_title(f"powder XRD result")
     ax.legend()
     ax.set_xticks(range(0,100,10))
     ax.set_xlim(0,90)
